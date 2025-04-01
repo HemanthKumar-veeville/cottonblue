@@ -171,13 +171,13 @@ export const SuperadminSidebarSection = (): JSX.Element => {
               </div>
             </div>
           ))}
-
-          <div className="flex flex-col items-start w-full mt-6 pt-6 border-t border-1-tokens-color-modes-common-neutral-lower">
-            {footerNavItems.map((item, index) => (
-              <NavButton key={index} {...item} />
-            ))}
-          </div>
         </nav>
+
+        <div className="flex flex-col items-start w-full mt-6 pt-6 border-t border-1-tokens-color-modes-common-neutral-lower">
+          {footerNavItems.map((item, index) => (
+            <NavButton key={index} {...item} />
+          ))}
+        </div>
       </div>
     </aside>
   );

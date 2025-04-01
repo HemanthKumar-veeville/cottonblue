@@ -7,20 +7,7 @@ import { ProductSidebarSection } from "./screens/SuperadminAdd/sections/ProductS
 import ComingSoon from "./components/ComingSoon";
 import NotFound from "./components/NotFound";
 import Error from "./components/Error";
-
-// Placeholder components for routes - you'll need to create these
-const Dashboard = () => <div>Dashboard Page</div>;
-const OrderHistory = () => <div>Order History Page</div>;
-const Products = () => <div>Products List Page</div>;
-const AddProduct = () => <div>Add Product Page</div>;
-const StockManagement = () => <div>Stock Management Page</div>;
-const Categories = () => <div>Categories Page</div>;
-const Carousel = () => <div>Carousel Page</div>;
-const Customers = () => <div>Customers List Page</div>;
-const AddCustomer = () => <div>Add Customer Page</div>;
-const Messages = () => <div>Messages Page</div>;
-const Settings = () => <div>Settings Page</div>;
-const Logout = () => <div>Logout Page</div>;
+import { ProductList } from "./screens/ProductList";
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
@@ -30,7 +17,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<ComingSoon />} />
           <Route path="order-history" element={<ComingSoon />} />
-          <Route path="products" element={<ComingSoon />} />
+          <Route path="products" element={<ProductList />} />
           <Route path="products/add" element={<ProductSidebarSection />} />
           <Route path="products/stock" element={<ComingSoon />} />
           <Route path="products/categories" element={<ComingSoon />} />
