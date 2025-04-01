@@ -31,7 +31,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
           <Route path="dashboard" element={<ComingSoon />} />
           <Route path="order-history" element={<ComingSoon />} />
           <Route path="products" element={<ComingSoon />} />
-          <Route path="products/add" element={<ComingSoon />} />
+          <Route path="products/add" element={<ProductSidebarSection />} />
           <Route path="products/stock" element={<ComingSoon />} />
           <Route path="products/categories" element={<ComingSoon />} />
           <Route path="products/carousel" element={<ComingSoon />} />
