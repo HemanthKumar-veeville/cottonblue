@@ -18,12 +18,28 @@ const navTabs = [
   { id: 2, name: "Gestion par client", icon: "/img/icon-8.svg", active: true },
 ];
 
+interface NavTabProps {
+  tab: {
+    id: number;
+    name: string;
+    icon: string;
+    active: boolean;
+  };
+}
+
+interface DropzoneProps {
+  dropzone: {
+    text1: string;
+    text2: string;
+  };
+}
+
 const dropzones = Array(4).fill({
   text1: "Déposez vos images ici",
   text2: "Ou cliquer pour rechercher",
 });
 
-const NavTab = ({ tab }) => (
+const NavTab: React.FC<NavTabProps> = ({ tab }) => (
   <div
     className={`flex-1 grow flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative rounded-lg ${
       tab.active ? "bg-[#07515f]" : "bg-gray-200"
@@ -42,7 +58,7 @@ const NavTab = ({ tab }) => (
   </div>
 );
 
-const Dropzone = ({ dropzone }) => (
+const Dropzone: React.FC<DropzoneProps> = ({ dropzone }) => (
   <div className="flex flex-col w-[113px] items-center justify-center gap-2.5 p-2 relative self-stretch rounded-lg overflow-hidden border border-dashed border-gray-300">
     <div className="flex w-6 h-6 items-center justify-center gap-2.5 p-px">
       <img className="w-3.5 h-3.5" alt="Icon" src="/img/icon-20.svg" />
@@ -60,63 +76,6 @@ export const ProductSidebarSection = (): JSX.Element => {
   return (
     <div className="flex items-start justify-around gap-24 relative flex-1 self-stretch grow">
       <header className="flex flex-col items-start relative flex-1 self-stretch grow bg-transparent">
-        <div className="flex items-center justify-between px-8 py-4 relative self-stretch w-full flex-[0_0_auto] bg-white border-b border-solid border-gray-300">
-          <div className="flex items-center gap-8">
-            <div className="flex items-center gap-4">
-              <div className="flex w-[352px] items-start relative self-stretch">
-                {navTabs.map((tab) => (
-                  <NavTab key={tab.id} tab={tab} />
-                ))}
-              </div>
-            </div>
-            <div className="flex items-center gap-2 self-stretch">
-              <div className="flex w-[200px] items-center justify-center gap-2 py-2 px-2 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300">
-                <div className="flex w-6 h-6 items-center justify-center gap-2.5 p-0.5">
-                  <img className="w-5 h-5" alt="Icon" src="/img/icon-9.svg" />
-                </div>
-                <div className="flex-1 font-bold text-gray-700 text-base leading-4 tracking-normal">
-                  Chronodrive
-                </div>
-                <div className="flex w-6 h-6 items-center justify-center gap-2.5 p-0.5">
-                  <img
-                    className="w-4 h-4"
-                    alt="Chevron down"
-                    src="/img/icon-13.svg"
-                  />
-                </div>
-              </div>
-              <div className="flex items-center justify-center gap-2 py-2 px-2 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300">
-                <div className="flex w-6 h-6 items-center justify-center gap-2.5 p-0.5">
-                  <img className="w-5 h-5" alt="Icon" src="/img/icon-10.svg" />
-                </div>
-                <div className="w-fit font-bold text-gray-700 text-base leading-4 whitespace-nowrap tracking-normal">
-                  Marcq-en-Baroeul
-                </div>
-                <div className="flex w-6 h-6 items-center justify-center gap-2.5 p-0.5">
-                  <img
-                    className="w-4 h-4"
-                    alt="Chevron down"
-                    src="/img/icon-13.svg"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center justify-center gap-2">
-              <div className="flex h-12 items-center justify-center gap-4 px-3 py-4 relative">
-                <img
-                  className="w-6 h-6 mt-[-4.00px] mb-[-4.00px]"
-                  alt="Bell"
-                  src="/img/bell.svg"
-                />
-                <Badge className="absolute top-2 left-6 bg-red-500 rounded-xl">
-                  <span className="text-white text-xs">9</span>
-                </Badge>
-              </div>
-            </div>
-          </div>
-        </div>
         <div className="flex flex-col items-start gap-8 p-4 relative flex-1 self-stretch w-full grow rounded-sm overflow-hidden overflow-y-scroll">
           <Card className="flex flex-col items-start gap-8 p-4 relative flex-1 self-stretch w-full grow rounded-lg overflow-hidden">
             <CardContent className="p-0 w-full">

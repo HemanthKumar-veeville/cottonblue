@@ -11,11 +11,12 @@ import {
   UserPlusIcon,
 } from "lucide-react";
 import React from "react";
+import { Link, useLocation } from "react-router-dom";
 
 interface NavItem {
   icon: JSX.Element;
   label: string;
-  active: boolean;
+  path: string;
 }
 
 interface NavSection {
@@ -23,26 +24,32 @@ interface NavSection {
   items: NavItem[];
 }
 
-const NavButton = ({ icon, label, active }: NavItem) => (
-  <button
-    className={`flex items-center gap-3 p-2.5 w-full rounded ${
-      active
-        ? "bg-[#e9fffd]"
-        : "bg-[color:var(--1-tokens-color-modes-nav-tab-primary-default-background)]"
-    }`}
-  >
-    <div className="flex w-5 h-5 items-center justify-center">{icon}</div>
-    <span
-      className={`flex-1 font-label-small font-[number:var(--label-small-font-weight)] text-[length:var(--label-small-font-size)] tracking-[var(--label-small-letter-spacing)] leading-[var(--label-small-line-height)] text-left ${
-        active
-          ? "text-[#07515f]"
-          : "text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]"
+const NavButton = ({ icon, label, path }: NavItem) => {
+  const location = useLocation();
+  const isActive = location.pathname === path;
+
+  return (
+    <Link
+      to={path}
+      className={`flex items-center gap-3 p-2.5 w-full rounded ${
+        isActive
+          ? "bg-[#e9fffd]"
+          : "bg-[color:var(--1-tokens-color-modes-nav-tab-primary-default-background)]"
       }`}
     >
-      {label}
-    </span>
-  </button>
-);
+      <div className="flex w-5 h-5 items-center justify-center">{icon}</div>
+      <span
+        className={`flex-1 font-label-small font-[number:var(--label-small-font-weight)] text-[length:var(--label-small-font-size)] tracking-[var(--label-small-letter-spacing)] leading-[var(--label-small-line-height)] text-left ${
+          isActive
+            ? "text-[#07515f]"
+            : "text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]"
+        }`}
+      >
+        {label}
+      </span>
+    </Link>
+  );
+};
 
 export const SuperadminSidebarSection = (): JSX.Element => {
   const navigationSections: NavSection[] = [
@@ -51,12 +58,12 @@ export const SuperadminSidebarSection = (): JSX.Element => {
         {
           icon: <HomeIcon className="w-4 h-4" />,
           label: "Tableau de bord",
-          active: false,
+          path: "/dashboard",
         },
         {
           icon: <FileTextIcon className="w-4 h-4" />,
           label: "Historique de commande",
-          active: false,
+          path: "/order-history",
         },
       ],
     },
@@ -66,27 +73,27 @@ export const SuperadminSidebarSection = (): JSX.Element => {
         {
           icon: <BookOpenIcon className="w-4 h-4" />,
           label: "Liste des produits",
-          active: false,
+          path: "/products",
         },
         {
           icon: <PlusCircleIcon className="w-4 h-4" />,
           label: "Ajouter un produit",
-          active: true,
+          path: "/products/add",
         },
         {
           icon: <PackageIcon className="w-4 h-4" />,
           label: "Gérer le stock",
-          active: false,
+          path: "/products/stock",
         },
         {
           icon: <LayersIcon className="w-4 h-4" />,
           label: "Catégories de produit",
-          active: false,
+          path: "/products/categories",
         },
         {
           icon: <LayersIcon className="w-4 h-4" />,
           label: "Carrousel d'accueil",
-          active: false,
+          path: "/products/carousel",
         },
       ],
     },
@@ -96,12 +103,12 @@ export const SuperadminSidebarSection = (): JSX.Element => {
         {
           icon: <BookOpenIcon className="w-4 h-4" />,
           label: "Liste des clients",
-          active: false,
+          path: "/customers",
         },
         {
           icon: <UserPlusIcon className="w-4 h-4" />,
           label: "Ajouter un client",
-          active: false,
+          path: "/customers/add",
         },
       ],
     },
@@ -111,7 +118,7 @@ export const SuperadminSidebarSection = (): JSX.Element => {
         {
           icon: <MessageSquareIcon className="w-4 h-4" />,
           label: "Messages",
-          active: false,
+          path: "/support/messages",
         },
       ],
     },
@@ -121,18 +128,18 @@ export const SuperadminSidebarSection = (): JSX.Element => {
     {
       icon: <SettingsIcon className="w-4 h-4" />,
       label: "Paramètres",
-      active: false,
+      path: "/settings",
     },
     {
       icon: <LogOutIcon className="w-4 h-4" />,
       label: "Déconnexion",
-      active: false,
+      path: "/logout",
     },
   ];
 
   return (
-    <aside className="flex flex-col w-64 h-full items-start justify-center gap-12 px-4 py-6 bg-defaultwhite border-r border-1-tokens-color-modes-common-neutral-lower">
-      <div className="flex flex-col items-center justify-center w-full">
+    <aside className="flex flex-col h-screen items-start justify-between pl-4 py-6 bg-defaultwhite border-r border-1-tokens-color-modes-common-neutral-lower overflow-hidden">
+      <div className="flex flex-col items-start justify-center w-full">
         <div className="inline-flex flex-col items-end">
           <img
             className="w-[183px] h-[33px]"
@@ -145,8 +152,8 @@ export const SuperadminSidebarSection = (): JSX.Element => {
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-between flex-1 w-full">
-        <nav className="flex flex-col w-56 items-start gap-2">
+      <div className="flex flex-col w-full h-[calc(100vh-120px)]">
+        <nav className="flex flex-col w-52 items-start gap-2 overflow-y-auto flex-1 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
           {navigationSections.map((section, sectionIndex) => (
             <div
               key={sectionIndex}
@@ -164,13 +171,13 @@ export const SuperadminSidebarSection = (): JSX.Element => {
               </div>
             </div>
           ))}
-        </nav>
 
-        <div className="flex flex-col items-start w-full">
-          {footerNavItems.map((item, index) => (
-            <NavButton key={index} {...item} />
-          ))}
-        </div>
+          <div className="flex flex-col items-start w-full mt-6 pt-6 border-t border-1-tokens-color-modes-common-neutral-lower">
+            {footerNavItems.map((item, index) => (
+              <NavButton key={index} {...item} />
+            ))}
+          </div>
+        </nav>
       </div>
     </aside>
   );
