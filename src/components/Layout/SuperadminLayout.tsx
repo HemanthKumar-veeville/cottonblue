@@ -10,7 +10,7 @@ export const SuperadminLayout = () => {
         <div className="fixed top-0 right-0 left-[280px] z-10">
           <SuperadminHeader />
         </div>
-        <main className="flex-1 overflow-auto p-6 mt-[72px]">
+        <main className="flex-1 overflow-auto p-6 mt-[72px] [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
           <Outlet />
         </main>
       </div>

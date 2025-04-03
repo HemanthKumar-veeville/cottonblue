@@ -8,34 +8,44 @@ import ComingSoon from "./components/ComingSoon";
 import NotFound from "./components/NotFound";
 import Error from "./components/Error";
 import { ProductList } from "./screens/ProductList";
+import LoginPage from "./screens/Login/Login";
+
+// Authentication state
+const isLoggedIn = true;
 
 createRoot(document.getElementById("app") as HTMLElement).render(
   <StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<SuperadminLayout />}>
-          <Route index element={<Navigate to="/dashboard" replace />} />
-          <Route path="dashboard" element={<ComingSoon />} />
-          <Route path="order-history" element={<ComingSoon />} />
-          <Route path="products" element={<ProductList />} />
-          <Route path="products/add" element={<ProductSidebarSection />} />
-          <Route path="products/stock" element={<ComingSoon />} />
-          <Route path="products/categories" element={<ComingSoon />} />
-          <Route path="products/carousel" element={<ComingSoon />} />
-          <Route path="customers" element={<ComingSoon />} />
-          <Route path="customers/add" element={<ComingSoon />} />
-          <Route path="support/messages" element={<ComingSoon />} />
-          <Route path="settings" element={<ComingSoon />} />
-          <Route path="logout" element={<ComingSoon />} />
+        {isLoggedIn ? (
+          // Protected routes - only accessible when logged in
+          <Route path="/" element={<SuperadminLayout />}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard" element={<ComingSoon />} />
+            <Route path="order-history" element={<ComingSoon />} />
+            <Route path="products" element={<ProductList />} />
+            <Route path="products/add" element={<ProductSidebarSection />} />
+            <Route path="products/stock" element={<ComingSoon />} />
+            <Route path="products/categories" element={<ComingSoon />} />
+            <Route path="products/carousel" element={<ComingSoon />} />
+            <Route path="customers" element={<ComingSoon />} />
+            <Route path="customers/add" element={<ComingSoon />} />
+            <Route path="support/messages" element={<ComingSoon />} />
+            <Route path="settings" element={<ComingSoon />} />
+            <Route path="logout" element={<ComingSoon />} />
 
-          {/* Coming Soon Routes */}
-          <Route path="analytics" element={<ComingSoon />} />
-          <Route path="reports" element={<ComingSoon />} />
-          <Route path="integrations" element={<ComingSoon />} />
+            {/* Coming Soon Routes */}
+            <Route path="analytics" element={<ComingSoon />} />
+            <Route path="reports" element={<ComingSoon />} />
+            <Route path="integrations" element={<ComingSoon />} />
 
-          {/* Error Routes */}
-          <Route path="error" element={<Error />} />
-        </Route>
+            {/* Error Routes */}
+            <Route path="error" element={<Error />} />
+          </Route>
+        ) : (
+          // Public routes - only accessible when logged out
+          <Route path="/" element={<LoginPage />} />
+        )}
 
         {/* 404 Route - Must be last */}
         <Route path="*" element={<NotFound />} />

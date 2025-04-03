@@ -12,4 +12,5 @@ export default defineConfig({
       plugins: [tailwind()],
     },
   },
+  assetsInclude: ["**/*.lottie"],
 });
