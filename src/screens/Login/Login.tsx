@@ -1,6 +1,6 @@
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
-import vector from "../../../static/img/vector_img.jpg ";
+import vector from "../../../static/img/log.svg ";
 
 export default function LoginPage() {
   return (

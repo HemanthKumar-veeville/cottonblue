@@ -2,13 +2,13 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { SuperadminLayout } from "./components/Layout/SuperadminLayout";
-import { SuperadminAdd } from "./screens/SuperadminAdd/SuperadminAdd";
 import { ProductSidebarSection } from "./screens/SuperadminAdd/sections/ProductSidebarSection/ProductSidebarSection";
 import ComingSoon from "./components/ComingSoon";
 import NotFound from "./components/NotFound";
 import Error from "./components/Error";
 import { ProductList } from "./screens/ProductList";
 import LoginPage from "./screens/Login/Login";
+import Carousel from "./screens/Carousel/Carousel";
 
 // Authentication state
 const isLoggedIn = true;
@@ -27,7 +27,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             <Route path="products/add" element={<ProductSidebarSection />} />
             <Route path="products/stock" element={<ComingSoon />} />
             <Route path="products/categories" element={<ComingSoon />} />
-            <Route path="products/carousel" element={<ComingSoon />} />
+            <Route path="products/carousel" element={<Carousel />} />
             <Route path="customers" element={<ComingSoon />} />
             <Route path="customers/add" element={<ComingSoon />} />
             <Route path="support/messages" element={<ComingSoon />} />
