@@ -1,16 +1,16 @@
 {
   "language": {
-    "en": "Anglais",
-    "fr": "Français"
+    "en": "English",
+    "fr": "French"
   },
   "header": {
-    "adminManagement": "Gestion Admin",
-    "clientManagement": "Gestion par client"
+    "adminManagement": "Gestion des administrateurs",
+    "clientManagement": "Gestion des clients"
   },
   "sidebar": {
     "admin": "Admin",
     "dashboard": "Tableau de bord",
-    "orderHistory": "Historique de commande",
+    "orderHistory": "Historique des commandes",
     "products": {
       "title": "Produits",
       "list": "Liste des produits",
@@ -29,5 +29,58 @@
     },
     "settings": "Paramètres",
     "logout": "Déconnexion"
+  },
+  "productList": {
+    "title": "Liste des produits",
+    "search": {
+      "placeholder": "Rechercher une agence"
+    },
+    "actions": {
+      "create": "Créer",
+      "importCsv": "Importer CSV",
+      "exportCsv": "Exporter CSV"
+    },
+    "table": {
+      "sku": "SKU",
+      "photo": "Photo",
+      "name": "Nom",
+      "category": "Catégorie",
+      "size": "Taille",
+      "soldBy": "Vendu par",
+      "price": "Prix",
+      "details": "Détails"
+    },
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant"
+    }
+  },
+  "productSidebar": {
+    "title": "Ajouter un nouveau produit",
+    "form": {
+      "productName": "Nom du produit",
+      "category": "Catégorie",
+      "gender": "Genre",
+      "size": "Taille",
+      "soldBy": {
+        "carton": "Vendu par carton",
+        "unit": "Vendu à l'unité"
+      },
+      "price": {
+        "perCarton": "Prix par carton",
+        "perUnit": "Prix à l'unité"
+      },
+      "piecesPerCarton": "Pièces par carton",
+      "reference": "Référence (SKU)",
+      "description": "Description"
+    },
+    "imageUpload": {
+      "dropImages": "Déposez vos images ici",
+      "orClickToSearch": "Ou cliquer pour rechercher"
+    },
+    "actions": {
+      "saveDraft": "Enregistrer en brouillon",
+      "next": "Suivant"
+    }
   }
 }

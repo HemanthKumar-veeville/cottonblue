@@ -19,9 +19,8 @@
       "carousel": "Home Carousel"
     },
     "customers": {
-      "title": "Customers",
-      "list": "Customer List",
-      "add": "Add Customer"
+      "title": "Clients",
+      "list": "Agencies List"
     },
     "support": {
       "title": "Support",
@@ -29,5 +28,58 @@
     },
     "settings": "Settings",
     "logout": "Logout"
+  },
+  "productList": {
+    "title": "Product List",
+    "search": {
+      "placeholder": "Search an agency"
+    },
+    "actions": {
+      "create": "Create",
+      "importCsv": "Import CSV",
+      "exportCsv": "Export CSV"
+    },
+    "table": {
+      "sku": "SKU",
+      "photo": "Photo",
+      "name": "Name",
+      "category": "Category",
+      "size": "Size",
+      "soldBy": "Sold By",
+      "price": "Price",
+      "details": "Details"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "productSidebar": {
+    "title": "Add a new product",
+    "form": {
+      "productName": "Product name",
+      "category": "Category",
+      "gender": "Gender",
+      "size": "Size",
+      "soldBy": {
+        "carton": "Sold by carton",
+        "unit": "Sold by unit"
+      },
+      "price": {
+        "perCarton": "Price per carton",
+        "perUnit": "Price per unit"
+      },
+      "piecesPerCarton": "Pieces per carton",
+      "reference": "Reference (SKU)",
+      "description": "Description"
+    },
+    "imageUpload": {
+      "dropImages": "Drop your images here",
+      "orClickToSearch": "Or click to search"
+    },
+    "actions": {
+      "saveDraft": "Save as draft",
+      "next": "Next"
+    }
   }
 }

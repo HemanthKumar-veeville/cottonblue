@@ -14,37 +14,55 @@ interface NavTabItem {
   name: string;
   icon: string;
   active: boolean;
+  isFirst?: boolean;
+  isLast?: boolean;
 }
 
 const navTabs: NavTabItem[] = [
-  { id: 1, name: "Gestion Admin", icon: "/img/crown.svg", active: false },
-  { id: 2, name: "Gestion par client", icon: "/img/icon-8.svg", active: true },
+  {
+    id: 1,
+    name: "header.adminManagement",
+    icon: "/img/crown.svg",
+    active: false,
+    isFirst: true,
+  },
+  {
+    id: 2,
+    name: "header.clientManagement",
+    icon: "/img/icon-8.svg",
+    active: true,
+    isLast: true,
+  },
 ];
 
-const NavTab = ({ tab }: { tab: NavTabItem }) => (
-  <div
-    className={`flex-1 grow flex items-center gap-3 pt-3 pr-3 pb-3 pl-3 relative rounded-lg ${
-      tab.active ? "bg-[#07515f]" : "bg-gray-200"
-    }`}
-  >
-    <div className="flex w-6 h-6 items-center justify-center shrink-0">
-      <img
-        className={`w-4 h-4 ${
-          tab.active ? "brightness-0 invert" : "brightness-0 opacity-70"
-        }`}
-        alt={tab.name}
-        src={tab.icon}
-      />
-    </div>
-    <div
-      className={`relative flex-1 font-label-small font-medium truncate ${
-        tab.active ? "text-white" : "text-gray-700"
-      } text-sm tracking-wide leading-5`}
+const NavTab = ({ tab }: { tab: NavTabItem }) => {
+  const { t } = useTranslation();
+
+  const getRoundedClasses = () => {
+    if (tab.isFirst) return "rounded-l-lg";
+    if (tab.isLast) return "rounded-r-lg";
+    return "";
+  };
+
+  return (
+    <button
+      className={`flex items-center gap-2 px-4 py-3 transition-colors duration-200 ${getRoundedClasses()} ${
+        tab.active
+          ? "bg-[#07515F] text-white"
+          : "bg-[#F8F9FA] text-[#6C757D] hover:bg-gray-200"
+      }`}
     >
-      {tab.name}
-    </div>
-  </div>
-);
+      <img
+        src={tab.icon}
+        alt=""
+        className={`w-5 h-5 ${tab.active ? "brightness-0 invert" : ""}`}
+      />
+      <span className="text-sm font-medium whitespace-nowrap">
+        {t(tab.name)}
+      </span>
+    </button>
+  );
+};
 
 export const SuperadminHeader = (): JSX.Element => {
   const { t, i18n } = useTranslation();
@@ -58,7 +76,7 @@ export const SuperadminHeader = (): JSX.Element => {
       <div className="flex items-center justify-between px-8 py-4 relative self-stretch w-full flex-[0_0_auto] border-b border-solid border-gray-300">
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-4">
-            <div className="flex w-[352px] items-start relative self-stretch gap-3">
+            <div className="flex items-start bg-[#F8F9FA] p-1 rounded-lg">
               {navTabs.map((tab) => (
                 <NavTab key={tab.id} tab={tab} />
               ))}
@@ -98,9 +116,12 @@ export const SuperadminHeader = (): JSX.Element => {
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <Select value={i18n.language} onValueChange={handleLanguageChange}>
+          <Select
+            defaultValue={i18n.language}
+            onValueChange={handleLanguageChange}
+          >
             <SelectTrigger className="w-[120px]">
-              <SelectValue placeholder={t("language.en")} />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="en">{t("language.en")}</SelectItem>

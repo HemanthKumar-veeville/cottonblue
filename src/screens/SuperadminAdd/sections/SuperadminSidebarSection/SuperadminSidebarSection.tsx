@@ -103,11 +103,6 @@ export const SuperadminSidebarSection = (): JSX.Element => {
           label: t("sidebar.customers.list"),
           path: "/customers",
         },
-        {
-          icon: <UserPlusIcon className="w-4 h-4" />,
-          label: t("sidebar.customers.add"),
-          path: "/customers/add",
-        },
       ],
     },
     {

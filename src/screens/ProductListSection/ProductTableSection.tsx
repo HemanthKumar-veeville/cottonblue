@@ -17,6 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
+import { useTranslation } from "react-i18next";
 
 // Product data for the table
 const productData = [
@@ -76,6 +77,8 @@ const productData = [
 const paginationItems = [1, 2, 3, 4, 5];
 
 export const ProductTableSection = (): JSX.Element => {
+  const { t } = useTranslation();
+
   return (
     <section className="flex flex-col items-center justify-between w-full gap-6">
       <div className="w-full max-w-[1160px]">
@@ -88,28 +91,28 @@ export const ProductTableSection = (): JSX.Element => {
                 </div>
               </TableHead>
               <TableHead className="w-[77px] text-center text-[#1e2324] font-text-small">
-                SKU
+                {t("productList.table.sku")}
               </TableHead>
               <TableHead className="w-[77px] text-center text-[#1e2324] font-text-small">
-                Photo
+                {t("productList.table.photo")}
               </TableHead>
               <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
-                Nom
+                {t("productList.table.name")}
               </TableHead>
               <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
-                Catégorie
+                {t("productList.table.category")}
               </TableHead>
               <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
-                Taille
+                {t("productList.table.size")}
               </TableHead>
               <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
-                Vendu par
+                {t("productList.table.soldBy")}
               </TableHead>
               <TableHead className="w-[69px] text-center text-[#1e2324] font-text-small">
-                Prix
+                {t("productList.table.price")}
               </TableHead>
               <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
-                Détails
+                {t("productList.table.details")}
               </TableHead>
             </TableRow>
           </TableHeader>
@@ -150,7 +153,7 @@ export const ProductTableSection = (): JSX.Element => {
                     variant="link"
                     className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
                   >
-                    Détails
+                    {t("productList.table.details")}
                   </Button>
                 </TableCell>
               </TableRow>
@@ -169,7 +172,7 @@ export const ProductTableSection = (): JSX.Element => {
             alt="Arrow left"
             src="/img/arrow-left-sm.svg"
           />
-          Précédent
+          {t("productList.pagination.previous")}
         </PaginationPrevious>
 
         <PaginationContent className="flex items-center gap-3">
@@ -202,7 +205,7 @@ export const ProductTableSection = (): JSX.Element => {
           href="#"
           className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
         >
-          Suivant
+          {t("productList.pagination.next")}
           <img
             className="w-6 h-6 rotate-180"
             alt="Arrow right"
