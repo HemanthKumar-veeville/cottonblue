@@ -117,8 +117,8 @@ export const SuperadminSidebarSection = (): JSX.Element => {
       items: [
         {
           icon: <MessageSquareIcon className="w-4 h-4" />,
-          label: "Messages",
-          path: "/support/messages",
+          label: "Tickets",
+          path: "/support/tickets",
         },
       ],
     },

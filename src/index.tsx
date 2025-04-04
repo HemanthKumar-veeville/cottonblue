@@ -9,7 +9,7 @@ import Error from "./components/Error";
 import { ProductList } from "./screens/ProductList";
 import LoginPage from "./screens/Login/Login";
 import Carousel from "./screens/Carousel/Carousel";
-
+import Tickets from "./screens/Tickets/Tickets";
 // Authentication state
 const isLoggedIn = true;
 
@@ -30,7 +30,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             <Route path="products/carousel" element={<Carousel />} />
             <Route path="customers" element={<ComingSoon />} />
             <Route path="customers/add" element={<ComingSoon />} />
-            <Route path="support/messages" element={<ComingSoon />} />
+            <Route path="support/tickets" element={<Tickets />} />
             <Route path="settings" element={<ComingSoon />} />
             <Route path="logout" element={<ComingSoon />} />
 
