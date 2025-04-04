@@ -87,11 +87,6 @@ export const SuperadminSidebarSection = (): JSX.Element => {
         },
         {
           icon: <LayersIcon className="w-4 h-4" />,
-          label: "Catégories de produit",
-          path: "/products/categories",
-        },
-        {
-          icon: <LayersIcon className="w-4 h-4" />,
           label: "Carrousel d'accueil",
           path: "/products/carousel",
         },

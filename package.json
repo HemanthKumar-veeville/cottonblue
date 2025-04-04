@@ -39,6 +39,7 @@
     "sass-embedded": "1.86.1",
     "stylus": "0.64.0",
     "sugarss": "5.0.0",
+    "sweetalert2": "^11.17.2",
     "tailwind-merge": "2.5.4",
     "tailwindcss": "4.0.17",
     "terser": "5.39.0",

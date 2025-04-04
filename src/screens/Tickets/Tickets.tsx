@@ -6,6 +6,7 @@ import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
+import TicketModal from "../../components/TicketModal/TicketModal";
 import {
   Select,
   SelectContent,
@@ -14,7 +15,7 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 
-enum TicketStatus {
+export enum TicketStatus {
   OPEN = "Ouvert",
   IN_PROGRESS = "En cours",
   COMPLETED = "Terminé",
@@ -160,10 +161,26 @@ const TicketList: React.FC<TicketListProps> = ({
   </div>
 );
 
+const getStatusColor = (status: TicketStatus): string => {
+  switch (status) {
+    case TicketStatus.OPEN:
+      return "bg-blue-100 text-blue-800";
+    case TicketStatus.IN_PROGRESS:
+      return "bg-yellow-100 text-yellow-800";
+    case TicketStatus.COMPLETED:
+      return "bg-green-100 text-green-800";
+    case TicketStatus.CLOSED:
+      return "bg-gray-100 text-gray-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
+};
+
 export default function Tickets(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<TicketStatus | "all">("all");
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
   const [ticketsInProgress, setTicketsInProgress] = useState<Ticket[]>([
     {
       id: "#123456",
@@ -310,9 +327,12 @@ export default function Tickets(): JSX.Element {
     },
   ]);
 
-  const handleTicketClick = (ticket: Ticket) => {
-    // In a real app, this would open a modal or navigate to a ticket detail page
-    console.log("Ticket clicked:", ticket);
+  const handleTicketClick = (ticket: Ticket): void => {
+    setSelectedTicket(ticket);
+  };
+
+  const handleCloseModal = (): void => {
+    setSelectedTicket(null);
   };
 
   const handleCheckboxClick = (ticket: Ticket, e: React.MouseEvent) => {
@@ -414,6 +434,10 @@ export default function Tickets(): JSX.Element {
           />
         </div>
       </div>
+
+      {selectedTicket && (
+        <TicketModal onClose={handleCloseModal} ticket={selectedTicket} />
+      )}
     </section>
   );
 }

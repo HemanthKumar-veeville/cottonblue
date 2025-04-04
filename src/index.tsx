@@ -26,7 +26,6 @@ createRoot(document.getElementById("app") as HTMLElement).render(
             <Route path="products" element={<ProductList />} />
             <Route path="products/add" element={<ProductSidebarSection />} />
             <Route path="products/stock" element={<ComingSoon />} />
-            <Route path="products/categories" element={<ComingSoon />} />
             <Route path="products/carousel" element={<Carousel />} />
             <Route path="customers" element={<ComingSoon />} />
             <Route path="customers/add" element={<ComingSoon />} />
