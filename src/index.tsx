@@ -10,6 +10,8 @@ import { ProductList } from "./screens/ProductList";
 import LoginPage from "./screens/Login/Login";
 import Carousel from "./screens/Carousel/Carousel";
 import Tickets from "./screens/Tickets/Tickets";
+import "./i18n/config";
+
 // Authentication state
 const isLoggedIn = true;
 

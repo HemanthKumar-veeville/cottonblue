@@ -1,0 +1,33 @@
+{
+  "language": {
+    "en": "Anglais",
+    "fr": "Français"
+  },
+  "header": {
+    "adminManagement": "Gestion Admin",
+    "clientManagement": "Gestion par client"
+  },
+  "sidebar": {
+    "admin": "Admin",
+    "dashboard": "Tableau de bord",
+    "orderHistory": "Historique de commande",
+    "products": {
+      "title": "Produits",
+      "list": "Liste des produits",
+      "add": "Ajouter un produit",
+      "stock": "Gérer le stock",
+      "carousel": "Carrousel d'accueil"
+    },
+    "customers": {
+      "title": "Clients",
+      "list": "Liste des clients",
+      "add": "Ajouter un client"
+    },
+    "support": {
+      "title": "Support",
+      "tickets": "Tickets"
+    },
+    "settings": "Paramètres",
+    "logout": "Déconnexion"
+  }
+}

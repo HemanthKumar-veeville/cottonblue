@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface NavItem {
   icon: JSX.Element;
@@ -52,67 +53,69 @@ const NavButton = ({ icon, label, path }: NavItem) => {
 };
 
 export const SuperadminSidebarSection = (): JSX.Element => {
+  const { t } = useTranslation();
+
   const navigationSections: NavSection[] = [
     {
       items: [
         {
           icon: <HomeIcon className="w-4 h-4" />,
-          label: "Tableau de bord",
+          label: t("sidebar.dashboard"),
           path: "/dashboard",
         },
         {
           icon: <FileTextIcon className="w-4 h-4" />,
-          label: "Historique de commande",
+          label: t("sidebar.orderHistory"),
           path: "/order-history",
         },
       ],
     },
     {
-      title: "Produits",
+      title: t("sidebar.products.title"),
       items: [
         {
           icon: <BookOpenIcon className="w-4 h-4" />,
-          label: "Liste des produits",
+          label: t("sidebar.products.list"),
           path: "/products",
         },
         {
           icon: <PlusCircleIcon className="w-4 h-4" />,
-          label: "Ajouter un produit",
+          label: t("sidebar.products.add"),
           path: "/products/add",
         },
         {
           icon: <PackageIcon className="w-4 h-4" />,
-          label: "Gérer le stock",
+          label: t("sidebar.products.stock"),
           path: "/products/stock",
         },
         {
           icon: <LayersIcon className="w-4 h-4" />,
-          label: "Carrousel d'accueil",
+          label: t("sidebar.products.carousel"),
           path: "/products/carousel",
         },
       ],
     },
     {
-      title: "Clients",
+      title: t("sidebar.customers.title"),
       items: [
         {
           icon: <BookOpenIcon className="w-4 h-4" />,
-          label: "Liste des clients",
+          label: t("sidebar.customers.list"),
           path: "/customers",
         },
         {
           icon: <UserPlusIcon className="w-4 h-4" />,
-          label: "Ajouter un client",
+          label: t("sidebar.customers.add"),
           path: "/customers/add",
         },
       ],
     },
     {
-      title: "Support",
+      title: t("sidebar.support.title"),
       items: [
         {
           icon: <MessageSquareIcon className="w-4 h-4" />,
-          label: "Tickets",
+          label: t("sidebar.support.tickets"),
           path: "/support/tickets",
         },
       ],
@@ -122,12 +125,12 @@ export const SuperadminSidebarSection = (): JSX.Element => {
   const footerNavItems: NavItem[] = [
     {
       icon: <SettingsIcon className="w-4 h-4" />,
-      label: "Paramètres",
+      label: t("sidebar.settings"),
       path: "/settings",
     },
     {
       icon: <LogOutIcon className="w-4 h-4" />,
-      label: "Déconnexion",
+      label: t("sidebar.logout"),
       path: "/logout",
     },
   ];
@@ -142,7 +145,7 @@ export const SuperadminSidebarSection = (): JSX.Element => {
             src="/img/image-280.png"
           />
           <span className="font-text-small text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--text-small-font-size)] tracking-[var(--text-small-letter-spacing)] leading-[var(--text-small-line-height)] whitespace-nowrap">
-            Admin
+            {t("sidebar.admin")}
           </span>
         </div>
       </div>

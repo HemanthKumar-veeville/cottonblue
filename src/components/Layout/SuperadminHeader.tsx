@@ -7,6 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { useTranslation } from "react-i18next";
 
 interface NavTabItem {
   id: number;
@@ -46,6 +47,12 @@ const NavTab = ({ tab }: { tab: NavTabItem }) => (
 );
 
 export const SuperadminHeader = (): JSX.Element => {
+  const { t, i18n } = useTranslation();
+
+  const handleLanguageChange = (value: string) => {
+    i18n.changeLanguage(value);
+  };
+
   return (
     <header className="flex flex-col items-start relative flex-1 self-stretch grow bg-white">
       <div className="flex items-center justify-between px-8 py-4 relative self-stretch w-full flex-[0_0_auto] border-b border-solid border-gray-300">
@@ -91,6 +98,15 @@ export const SuperadminHeader = (): JSX.Element => {
           </div>
         </div>
         <div className="flex items-center gap-4">
+          <Select value={i18n.language} onValueChange={handleLanguageChange}>
+            <SelectTrigger className="w-[120px]">
+              <SelectValue placeholder={t("language.en")} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="en">{t("language.en")}</SelectItem>
+              <SelectItem value="fr">{t("language.fr")}</SelectItem>
+            </SelectContent>
+          </Select>
           <div className="flex items-center justify-center">
             <div className="flex h-12 items-center justify-center p-3 relative">
               <img className="w-6 h-6" alt="Bell" src="/img/bell.svg" />

@@ -1,0 +1,33 @@
+{
+  "language": {
+    "en": "English",
+    "fr": "French"
+  },
+  "header": {
+    "adminManagement": "Admin Management",
+    "clientManagement": "Client Management"
+  },
+  "sidebar": {
+    "admin": "Admin",
+    "dashboard": "Dashboard",
+    "orderHistory": "Order History",
+    "products": {
+      "title": "Products",
+      "list": "Product List",
+      "add": "Add Product",
+      "stock": "Manage Stock",
+      "carousel": "Home Carousel"
+    },
+    "customers": {
+      "title": "Customers",
+      "list": "Customer List",
+      "add": "Add Customer"
+    },
+    "support": {
+      "title": "Support",
+      "tickets": "Tickets"
+    },
+    "settings": "Settings",
+    "logout": "Logout"
+  }
+}
