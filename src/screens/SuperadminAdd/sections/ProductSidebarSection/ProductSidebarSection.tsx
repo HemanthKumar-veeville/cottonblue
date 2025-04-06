@@ -15,6 +15,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { cn } from "../../../../lib/utils";
 import { ProductImageUploader } from "./ProductImageUploader";
+import AddProduct_step_1 from "../../../../screens/AddProduct/AddProduct_step_1";
 
 // Types
 interface StepIndicatorProps {
@@ -177,64 +178,20 @@ const useProductForm = () => {
     imageUrls: {},
   });
 
-  const [errors, setErrors] = useState<ProductFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const validateForm = useCallback((): boolean => {
-    const newErrors: ProductFormErrors = {};
-    const requiredFields = [
-      "name",
-      "category",
-      "gender",
-      "size",
-      "reference",
-    ] as const;
-
-    requiredFields.forEach((field) => {
-      if (!formData[field]?.trim()) {
-        newErrors[field] = t(`productSidebar.validation.${field}Required`);
-      }
-    });
-
-    if (formData.soldByCarton) {
-      ["pricePerCarton", "piecesPerCarton"].forEach((field) => {
-        if (!formData[field as keyof ProductFormData]) {
-          newErrors[field] = t(`productSidebar.validation.${field}Required`);
-        }
-      });
-    }
-
-    if (formData.soldByUnit && !formData.pricePerUnit) {
-      newErrors.pricePerUnit = t(
-        "productSidebar.validation.pricePerUnitRequired"
-      );
-    }
-
-    if (Object.keys(formData.images).length === 0) {
-      newErrors.images = t("productSidebar.validation.mainImageRequired");
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  }, [formData, t]);
 
   const handleInputChange = useCallback(
     (field: keyof ProductFormData, value: string | boolean) => {
       setFormData((prev) => ({ ...prev, [field]: value }));
-      if (errors[field]) {
-        setErrors((prev) => ({ ...prev, [field]: "" }));
-      }
     },
-    [errors]
+    []
   );
 
   return {
     formData,
     setFormData,
-    errors,
     isSubmitting,
     setIsSubmitting,
-    validateForm,
     handleInputChange,
   };
 };
@@ -299,14 +256,13 @@ const SelectField = ({
 export const ProductSidebarSection = (): JSX.Element => {
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(1);
+  const [showStep1, setShowStep1] = useState(false);
   const totalSteps = 3;
   const {
     formData,
     setFormData,
-    errors,
     isSubmitting,
     setIsSubmitting,
-    validateForm,
     handleInputChange,
   } = useProductForm();
 
@@ -367,14 +323,12 @@ export const ProductSidebarSection = (): JSX.Element => {
 
   const handleAction = useCallback(
     async (action: "draft" | "next") => {
-      if (!validateForm()) {
-        toast.error(t("productSidebar.validation.fixErrors"));
-        return;
-      }
-
       setIsSubmitting(true);
       try {
         await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (action === "next") {
+          setShowStep1(true);
+        }
         toast.success(
           t(
             action === "draft"
@@ -394,8 +348,12 @@ export const ProductSidebarSection = (): JSX.Element => {
         setIsSubmitting(false);
       }
     },
-    [validateForm, t, setIsSubmitting]
+    [t, setIsSubmitting]
   );
+
+  if (showStep1) {
+    return <AddProduct_step_1 />;
+  }
 
   return (
     <div className="flex items-start justify-around gap-24 relative flex-1 self-stretch grow">
@@ -417,17 +375,10 @@ export const ProductSidebarSection = (): JSX.Element => {
                   </div>
 
                   {FORM_FIELD_CONFIGS.map((field) => (
-                    <FormField
-                      key={field.id}
-                      error={errors[field.errorKey]}
-                      label={t(field.label)}
-                    >
+                    <FormField key={field.id} label={t(field.label)}>
                       {field.type === "input" ? (
                         <Input
-                          className={cn(
-                            "pt-4 pr-3 pb-2 pl-3 border-gray-300",
-                            errors[field.errorKey] && "border-red-500"
-                          )}
+                          className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
                           value={formData[field.id as keyof ProductFormData]}
                           onChange={(e) =>
                             handleInputChange(
@@ -452,7 +403,6 @@ export const ProductSidebarSection = (): JSX.Element => {
                           }
                           options={field.options || []}
                           placeholder=""
-                          error={errors[field.errorKey]}
                         />
                       )}
                     </FormField>
@@ -462,7 +412,6 @@ export const ProductSidebarSection = (): JSX.Element => {
                     {GENDER_SIZE_CONFIGS.map((field) => (
                       <FormField
                         key={field.id}
-                        error={errors[field.errorKey]}
                         className="flex-1"
                         label={t(field.label)}
                       >
@@ -480,7 +429,6 @@ export const ProductSidebarSection = (): JSX.Element => {
                           }
                           options={field.options || []}
                           placeholder=""
-                          error={errors[field.errorKey]}
                         />
                       </FormField>
                     ))}
@@ -519,16 +467,9 @@ export const ProductSidebarSection = (): JSX.Element => {
 
                   <div className="flex items-start gap-2 relative self-stretch w-full">
                     {PRICE_FIELD_CONFIGS.map((field) => (
-                      <FormField
-                        key={field.id}
-                        error={errors[field.errorKey]}
-                        label={t(field.label)}
-                      >
+                      <FormField key={field.id} label={t(field.label)}>
                         <Input
-                          className={cn(
-                            "pt-4 pr-3 pb-2 pl-3 border-gray-300",
-                            errors[field.errorKey] && "border-red-500"
-                          )}
+                          className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
                           type="number"
                           value={formData[field.id as keyof ProductFormData]}
                           onChange={(e) =>
@@ -546,16 +487,9 @@ export const ProductSidebarSection = (): JSX.Element => {
 
                   <div className="flex items-start gap-2 relative self-stretch w-full">
                     {ADDITIONAL_FIELD_CONFIGS.map((field) => (
-                      <FormField
-                        key={field.id}
-                        error={errors[field.errorKey]}
-                        label={t(field.label)}
-                      >
+                      <FormField key={field.id} label={t(field.label)}>
                         <Input
-                          className={cn(
-                            "pt-4 pr-3 pb-2 pl-3 border-gray-300",
-                            errors[field.errorKey] && "border-red-500"
-                          )}
+                          className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
                           type={field.id === "reference" ? "text" : "number"}
                           value={formData[field.id as keyof ProductFormData]}
                           onChange={(e) =>
