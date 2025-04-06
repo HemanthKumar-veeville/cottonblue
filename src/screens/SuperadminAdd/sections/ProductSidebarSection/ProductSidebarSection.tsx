@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Badge } from "../../../../components/ui/badge";
 import { Button } from "../../../../components/ui/button";
 import { Card, CardContent } from "../../../../components/ui/card";
 import { Checkbox } from "../../../../components/ui/checkbox";
@@ -13,9 +12,46 @@ import {
 } from "../../../../components/ui/select";
 import { Textarea } from "../../../../components/ui/textarea";
 import { useTranslation } from "react-i18next";
-import { ScrollArea } from "../../../../components/ui/scroll-area";
 import { toast } from "sonner";
 import { cn } from "../../../../lib/utils";
+import { ProductImageUploader } from "./ProductImageUploader";
+
+// Types
+interface StepIndicatorProps {
+  currentStep: number;
+  totalSteps: number;
+}
+
+const StepIndicator = ({ currentStep, totalSteps }: StepIndicatorProps) => {
+  return (
+    <div className="flex items-center justify-center gap-2 mb-8">
+      {Array.from({ length: totalSteps }, (_, index) => (
+        <div key={index} className="flex items-center">
+          <div
+            className={cn(
+              "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors",
+              index + 1 === currentStep
+                ? "bg-[#07515f] text-white"
+                : index + 1 < currentStep
+                ? "bg-[#e9fffd] text-[#07515f]"
+                : "bg-gray-100 text-gray-400"
+            )}
+          >
+            {index + 1}
+          </div>
+          {index < totalSteps - 1 && (
+            <div
+              className={cn(
+                "w-12 h-0.5 mx-2",
+                index + 1 < currentStep ? "bg-[#07515f]" : "bg-gray-200"
+              )}
+            />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+};
 
 interface ProductFormData {
   name: string;
@@ -29,102 +65,101 @@ interface ProductFormData {
   piecesPerCarton: string;
   reference: string;
   description: string;
-  images: File[];
-  imageUrls: string[];
+  images: Record<number, File>;
+  imageUrls: Record<number, string>;
 }
 
 interface ProductFormErrors {
   [key: string]: string;
 }
 
-const navTabs = [
-  { id: 1, name: "Gestion Admin", icon: "/img/crown.svg", active: false },
-  { id: 2, name: "Gestion par client", icon: "/img/icon-8.svg", active: true },
+// Constants
+const MAX_IMAGES = 5;
+const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+const FORM_FIELDS = {
+  category: { options: ["Vêtements de travail"] },
+  gender: { options: ["Unisexe"] },
+  size: { options: ["S, M, L"] },
+};
+
+// Define form field configurations
+const FORM_FIELD_CONFIGS = [
+  {
+    id: "name",
+    type: "input",
+    placeholder: "productSidebar.form.productName",
+    label: "productSidebar.form.productName",
+    errorKey: "name",
+  },
+  {
+    id: "category",
+    type: "select",
+    placeholder: "productSidebar.form.category",
+    label: "productSidebar.form.category",
+    errorKey: "category",
+    options: FORM_FIELDS.category.options,
+  },
 ];
 
-interface NavTabProps {
-  tab: {
-    id: number;
-    name: string;
-    icon: string;
-    active: boolean;
-  };
-}
+const GENDER_SIZE_CONFIGS = [
+  {
+    id: "gender",
+    type: "select",
+    placeholder: "productSidebar.form.gender",
+    label: "productSidebar.form.gender",
+    errorKey: "gender",
+    options: FORM_FIELDS.gender.options,
+  },
+  {
+    id: "size",
+    type: "select",
+    placeholder: "productSidebar.form.size",
+    label: "productSidebar.form.size",
+    errorKey: "size",
+    options: FORM_FIELDS.size.options,
+  },
+];
 
-interface DropzoneProps {
-  dropzone: {
-    text1: string;
-    text2: string;
-  };
-  onUpload?: (file: File) => void;
-  disabled?: boolean;
-  imageUrl?: string;
-  onRemove?: () => void;
-}
+const PRICE_FIELD_CONFIGS = [
+  {
+    id: "pricePerCarton",
+    type: "input",
+    placeholder: "productSidebar.form.price.perCarton",
+    label: "productSidebar.form.price.perCarton",
+    errorKey: "pricePerCarton",
+    disabled: (formData: ProductFormData) => !formData.soldByCarton,
+  },
+  {
+    id: "pricePerUnit",
+    type: "input",
+    placeholder: "productSidebar.form.price.perUnit",
+    label: "productSidebar.form.price.perUnit",
+    errorKey: "pricePerUnit",
+    disabled: (formData: ProductFormData) => !formData.soldByUnit,
+  },
+];
 
-const Dropzone: React.FC<DropzoneProps> = ({
-  dropzone,
-  onUpload,
-  disabled,
-  imageUrl,
-  onRemove,
-}) => (
-  <div
-    className={cn(
-      "flex flex-col w-[113px] items-center justify-center gap-2.5 p-2 relative self-stretch rounded-lg overflow-hidden border border-dashed border-gray-300 hover:border-blue-500 transition-colors cursor-pointer",
-      disabled && "opacity-50 cursor-not-allowed"
-    )}
-    onClick={() =>
-      !disabled && !imageUrl && document.getElementById("file-upload")?.click()
-    }
-  >
-    <input
-      id="file-upload"
-      type="file"
-      className="hidden"
-      accept="image/*"
-      onChange={(e) => {
-        const file = e.target.files?.[0];
-        if (file && onUpload) onUpload(file);
-      }}
-    />
-    {imageUrl ? (
-      <div className="relative w-full h-full group">
-        <div
-          className="w-full h-full rounded-lg bg-cover bg-center transition-all duration-300"
-          style={{ backgroundImage: `url(${imageUrl})` }}
-        />
-        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-          <Button
-            variant="outline"
-            size="icon"
-            className="gap-2 p-2 bg-red-500 border-red-500 hover:bg-red-600 transition-colors"
-            onClick={(e) => {
-              e.stopPropagation();
-              onRemove?.();
-            }}
-          >
-            <img className="w-3.5 h-3.5" alt="Delete" src="/img/icon-16.svg" />
-          </Button>
-        </div>
-      </div>
-    ) : (
-      <>
-        <div className="flex w-6 h-6 items-center justify-center gap-2.5 p-px">
-          <img className="w-3.5 h-3.5" alt="Icon" src="/img/icon-20.svg" />
-        </div>
-        <div className="self-stretch font-label-smallest font-bold text-gray-700 text-xs text-center tracking-wide leading-4">
-          {dropzone.text1}
-        </div>
-        <div className="self-stretch font-label-smallest font-bold text-blue-500 text-xs text-center tracking-wide leading-4 underline">
-          {dropzone.text2}
-        </div>
-      </>
-    )}
-  </div>
-);
+const ADDITIONAL_FIELD_CONFIGS = [
+  {
+    id: "piecesPerCarton",
+    type: "input",
+    placeholder: "productSidebar.form.piecesPerCarton",
+    label: "productSidebar.form.piecesPerCarton",
+    errorKey: "piecesPerCarton",
+    disabled: (formData: ProductFormData) => !formData.soldByCarton,
+  },
+  {
+    id: "reference",
+    type: "input",
+    placeholder: "productSidebar.form.reference",
+    label: "productSidebar.form.reference",
+    errorKey: "reference",
+  },
+];
 
-export const ProductSidebarSection = (): JSX.Element => {
+// Custom Hook for Form Logic
+const useProductForm = () => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
@@ -138,44 +173,35 @@ export const ProductSidebarSection = (): JSX.Element => {
     piecesPerCarton: "",
     reference: "",
     description: "",
-    images: [],
-    imageUrls: [],
+    images: {},
+    imageUrls: {},
   });
 
   const [errors, setErrors] = useState<ProductFormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
-
-  // Cleanup image URLs on unmount
-  useEffect(() => {
-    return () => {
-      formData.imageUrls.forEach((url) => URL.revokeObjectURL(url));
-    };
-  }, [formData.imageUrls]);
 
   const validateForm = useCallback((): boolean => {
     const newErrors: ProductFormErrors = {};
+    const requiredFields = [
+      "name",
+      "category",
+      "gender",
+      "size",
+      "reference",
+    ] as const;
 
-    if (!formData.name.trim()) {
-      newErrors.name = t("productSidebar.validation.nameRequired");
-    }
+    requiredFields.forEach((field) => {
+      if (!formData[field]?.trim()) {
+        newErrors[field] = t(`productSidebar.validation.${field}Required`);
+      }
+    });
 
-    if (!formData.category) {
-      newErrors.category = t("productSidebar.validation.categoryRequired");
-    }
-
-    if (!formData.gender) {
-      newErrors.gender = t("productSidebar.validation.genderRequired");
-    }
-
-    if (!formData.size) {
-      newErrors.size = t("productSidebar.validation.sizeRequired");
-    }
-
-    if (formData.soldByCarton && !formData.pricePerCarton) {
-      newErrors.pricePerCarton = t(
-        "productSidebar.validation.pricePerCartonRequired"
-      );
+    if (formData.soldByCarton) {
+      ["pricePerCarton", "piecesPerCarton"].forEach((field) => {
+        if (!formData[field as keyof ProductFormData]) {
+          newErrors[field] = t(`productSidebar.validation.${field}Required`);
+        }
+      });
     }
 
     if (formData.soldByUnit && !formData.pricePerUnit) {
@@ -184,17 +210,7 @@ export const ProductSidebarSection = (): JSX.Element => {
       );
     }
 
-    if (formData.soldByCarton && !formData.piecesPerCarton) {
-      newErrors.piecesPerCarton = t(
-        "productSidebar.validation.piecesPerCartonRequired"
-      );
-    }
-
-    if (!formData.reference.trim()) {
-      newErrors.reference = t("productSidebar.validation.referenceRequired");
-    }
-
-    if (formData.images.length === 0) {
+    if (Object.keys(formData.images).length === 0) {
       newErrors.images = t("productSidebar.validation.mainImageRequired");
     }
 
@@ -205,7 +221,6 @@ export const ProductSidebarSection = (): JSX.Element => {
   const handleInputChange = useCallback(
     (field: keyof ProductFormData, value: string | boolean) => {
       setFormData((prev) => ({ ...prev, [field]: value }));
-      // Clear error when user starts typing
       if (errors[field]) {
         setErrors((prev) => ({ ...prev, [field]: "" }));
       }
@@ -213,9 +228,99 @@ export const ProductSidebarSection = (): JSX.Element => {
     [errors]
   );
 
+  return {
+    formData,
+    setFormData,
+    errors,
+    isSubmitting,
+    setIsSubmitting,
+    validateForm,
+    handleInputChange,
+  };
+};
+
+// Reusable Components
+const FormField = ({
+  label,
+  error,
+  children,
+  className,
+}: {
+  label?: string;
+  error?: string;
+  children: React.ReactNode;
+  className?: string;
+}) => (
+  <div className={cn("relative w-full", className)}>
+    <div className="relative">
+      {children}
+      {label && (
+        <span className="absolute -top-[10px] left-[10px] px-1 bg-white text-sm font-medium text-gray-600">
+          {label}
+        </span>
+      )}
+    </div>
+    {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+  </div>
+);
+
+const SelectField = ({
+  value,
+  onChange,
+  options,
+  placeholder,
+  error,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  options: string[];
+  placeholder: string;
+  error?: string;
+}) => (
+  <Select value={value} onValueChange={onChange}>
+    <SelectTrigger
+      className={cn(
+        "w-full pt-4 pr-3 pb-2 pl-3 border-gray-300 min-h-[3.25rem]",
+        error && "border-red-500"
+      )}
+    >
+      <SelectValue placeholder={placeholder} />
+    </SelectTrigger>
+    <SelectContent>
+      {options.map((option) => (
+        <SelectItem key={option} value={option}>
+          {option}
+        </SelectItem>
+      ))}
+    </SelectContent>
+  </Select>
+);
+
+export const ProductSidebarSection = (): JSX.Element => {
+  const { t } = useTranslation();
+  const [currentStep, setCurrentStep] = useState(1);
+  const totalSteps = 3;
+  const {
+    formData,
+    setFormData,
+    errors,
+    isSubmitting,
+    setIsSubmitting,
+    validateForm,
+    handleInputChange,
+  } = useProductForm();
+
+  useEffect(() => {
+    return () => {
+      Object.values(formData.imageUrls).forEach((url) =>
+        URL.revokeObjectURL(url)
+      );
+    };
+  }, [formData.imageUrls]);
+
   const handleFileUpload = useCallback(
-    (file: File) => {
-      if (file.size > 5 * 1024 * 1024) {
+    (file: File, position: number) => {
+      if (file.size > MAX_FILE_SIZE) {
         toast.error(t("productSidebar.validation.fileTooLarge"));
         return;
       }
@@ -225,7 +330,7 @@ export const ProductSidebarSection = (): JSX.Element => {
         return;
       }
 
-      if (formData.images.length >= 5) {
+      if (Object.keys(formData.images).length >= MAX_IMAGES) {
         toast.error(t("productSidebar.validation.maxImages"));
         return;
       }
@@ -233,443 +338,283 @@ export const ProductSidebarSection = (): JSX.Element => {
       const imageUrl = URL.createObjectURL(file);
       setFormData((prev) => ({
         ...prev,
-        images: [...prev.images, file],
-        imageUrls: [...prev.imageUrls, imageUrl],
+        images: { ...prev.images, [position]: file },
+        imageUrls: { ...prev.imageUrls, [position]: imageUrl },
       }));
     },
-    [t, formData.images.length]
+    [t, formData.images, setFormData]
   );
 
-  const handleRemoveImage = useCallback((index: number) => {
-    setFormData((prev) => {
-      // Revoke the URL to prevent memory leaks
-      URL.revokeObjectURL(prev.imageUrls[index]);
-      return {
-        ...prev,
-        images: prev.images.filter((_, i) => i !== index),
-        imageUrls: prev.imageUrls.filter((_, i) => i !== index),
-      };
-    });
-  }, []);
+  const handleRemoveImage = useCallback(
+    (position: number) => {
+      setFormData((prev) => {
+        if (prev.imageUrls[position]) {
+          URL.revokeObjectURL(prev.imageUrls[position]);
+        }
+        const newImages = { ...prev.images };
+        const newImageUrls = { ...prev.imageUrls };
+        delete newImages[position];
+        delete newImageUrls[position];
+        return {
+          ...prev,
+          images: newImages,
+          imageUrls: newImageUrls,
+        };
+      });
+    },
+    [setFormData]
+  );
 
-  const handlePreviewImage = useCallback((index: number) => {
-    setPreviewIndex(index);
-  }, []);
+  const handleAction = useCallback(
+    async (action: "draft" | "next") => {
+      if (!validateForm()) {
+        toast.error(t("productSidebar.validation.fixErrors"));
+        return;
+      }
 
-  const handleSaveDraft = useCallback(async () => {
-    if (!validateForm()) {
-      toast.error(t("productSidebar.validation.fixErrors"));
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      // TODO: Implement save draft functionality
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulated API call
-      toast.success(t("productSidebar.messages.draftSaved"));
-    } catch (error) {
-      toast.error(t("productSidebar.messages.saveError"));
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [validateForm, t]);
-
-  const handleNext = useCallback(async () => {
-    if (!validateForm()) {
-      toast.error(t("productSidebar.validation.fixErrors"));
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      // TODO: Implement next step functionality
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulated API call
-      toast.success(t("productSidebar.messages.proceedingToNext"));
-    } catch (error) {
-      toast.error(t("productSidebar.messages.nextError"));
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [validateForm, t]);
+      setIsSubmitting(true);
+      try {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        toast.success(
+          t(
+            action === "draft"
+              ? "productSidebar.messages.draftSaved"
+              : "productSidebar.messages.proceedingToNext"
+          )
+        );
+      } catch (error) {
+        toast.error(
+          t(
+            action === "draft"
+              ? "productSidebar.messages.saveError"
+              : "productSidebar.messages.nextError"
+          )
+        );
+      } finally {
+        setIsSubmitting(false);
+      }
+    },
+    [validateForm, t, setIsSubmitting]
+  );
 
   return (
     <div className="flex items-start justify-around gap-24 relative flex-1 self-stretch grow">
       <header className="flex flex-col items-start relative flex-1 self-stretch grow bg-transparent">
-        <div className="h-[calc(100vh-4rem)] w-full overflow-auto scrollbar-hide">
+        <div className="h-[calc(100vh-4rem)] w-full overflow-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <Card className="flex flex-col items-start gap-8 p-6 relative flex-1 self-stretch w-full grow rounded-lg overflow-hidden">
             <CardContent className="p-0 w-full">
-              <div className="flex items-center justify-center relative self-stretch w-full">
-                <div className="flex w-28 items-center relative">
-                  <div className="relative w-8 h-8 rounded-2xl border-2 border-solid border-blue-500">
-                    <div className="relative w-2.5 h-2.5 top-[9px] left-[9px] bg-blue-500 rounded-full" />
-                  </div>
-                  <div className="relative flex-1 grow h-0.5 bg-gray-100" />
-                </div>
-                <div className="flex items-center gap-2.5">
-                  <div className="relative w-8 h-8 rounded-2xl border-2 border-solid border-gray-100" />
-                </div>
-              </div>
-              <div className="flex items-center justify-center gap-2 mt-8">
-                <h3 className="font-heading-h3 font-bold text-gray-700 text-lg tracking-wide leading-6 whitespace-nowrap">
-                  {t("productSidebar.title")}
-                </h3>
-              </div>
-              <div className="flex items-start justify-center gap-6 mt-8 relative flex-1 self-stretch w-full grow">
+              <StepIndicator
+                currentStep={currentStep}
+                totalSteps={totalSteps}
+              />
+
+              <div className="flex items-start justify-center gap-6 relative flex-1 self-stretch w-full grow">
                 <div className="flex flex-col items-start gap-6 relative flex-1 self-stretch grow">
-                  <div className="flex flex-col items-start gap-6 relative self-stretch w-full">
-                    <div className="relative w-full">
-                      <Input
-                        className={cn(
-                          "pt-2 pr-2 pb-2 pl-2",
-                          errors.name && "border-red-500"
-                        )}
-                        type="text"
-                        value={formData.name}
-                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                          handleInputChange("name", e.target.value)
-                        }
-                        placeholder={t("productSidebar.form.productName")}
-                      />
-                      {errors.name && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.name}
-                        </p>
-                      )}
-                    </div>
-                    <div className="w-full relative">
-                      <Select
-                        value={formData.category}
-                        onValueChange={(value) =>
-                          handleInputChange("category", value)
-                        }
-                      >
-                        <SelectTrigger
+                  <div className="flex items-center justify-center gap-2 mt-8">
+                    <h3 className="font-heading-h3 font-bold text-gray-700 text-lg tracking-wide leading-6 whitespace-nowrap">
+                      {t("productSidebar.title")}
+                    </h3>
+                  </div>
+
+                  {FORM_FIELD_CONFIGS.map((field) => (
+                    <FormField
+                      key={field.id}
+                      error={errors[field.errorKey]}
+                      label={t(field.label)}
+                    >
+                      {field.type === "input" ? (
+                        <Input
                           className={cn(
-                            "w-full",
-                            errors.category && "border-red-500"
+                            "pt-4 pr-3 pb-2 pl-3 border-gray-300",
+                            errors[field.errorKey] && "border-red-500"
                           )}
-                        >
-                          <SelectValue
-                            placeholder={t("productSidebar.form.category")}
-                          />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Vêtements de travail">
-                            Vêtements de travail
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                      {errors.category && (
-                        <p className="text-red-500 text-sm mt-1">
-                          {errors.category}
-                        </p>
+                          value={formData[field.id as keyof ProductFormData]}
+                          onChange={(e) =>
+                            handleInputChange(
+                              field.id as keyof ProductFormData,
+                              e.target.value
+                            )
+                          }
+                          placeholder=""
+                        />
+                      ) : (
+                        <SelectField
+                          value={
+                            formData[
+                              field.id as keyof ProductFormData
+                            ] as string
+                          }
+                          onChange={(value) =>
+                            handleInputChange(
+                              field.id as keyof ProductFormData,
+                              value
+                            )
+                          }
+                          options={field.options || []}
+                          placeholder=""
+                          error={errors[field.errorKey]}
+                        />
                       )}
-                    </div>
-                    <div className="flex items-start gap-2 relative self-stretch w-full">
-                      <div className="relative flex-1">
-                        <Select
-                          value={formData.gender}
-                          onValueChange={(value) =>
-                            handleInputChange("gender", value)
+                    </FormField>
+                  ))}
+
+                  <div className="flex items-start gap-2 relative self-stretch w-full">
+                    {GENDER_SIZE_CONFIGS.map((field) => (
+                      <FormField
+                        key={field.id}
+                        error={errors[field.errorKey]}
+                        className="flex-1"
+                        label={t(field.label)}
+                      >
+                        <SelectField
+                          value={
+                            formData[
+                              field.id as keyof ProductFormData
+                            ] as string
                           }
-                        >
-                          <SelectTrigger
-                            className={cn(
-                              "w-full",
-                              errors.gender && "border-red-500"
-                            )}
-                          >
-                            <SelectValue
-                              placeholder={t("productSidebar.form.gender")}
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Unisexe">Unisexe</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {errors.gender && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.gender}
-                          </p>
-                        )}
-                      </div>
-                      <div className="relative flex-1">
-                        <Select
-                          value={formData.size}
-                          onValueChange={(value) =>
-                            handleInputChange("size", value)
+                          onChange={(value) =>
+                            handleInputChange(
+                              field.id as keyof ProductFormData,
+                              value
+                            )
                           }
-                        >
-                          <SelectTrigger
-                            className={cn(
-                              "w-full",
-                              errors.size && "border-red-500"
-                            )}
-                          >
-                            <SelectValue
-                              placeholder={t("productSidebar.form.size")}
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="S, M, L">S, M, L</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        {errors.size && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.size}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2 relative self-stretch w-full">
-                      <div className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative flex-1 grow bg-gray-100 rounded-lg border border-solid border-gray-300">
+                          options={field.options || []}
+                          placeholder=""
+                          error={errors[field.errorKey]}
+                        />
+                      </FormField>
+                    ))}
+                  </div>
+
+                  <div className="flex items-start gap-2 relative self-stretch w-full">
+                    {["carton", "unit"].map((type) => (
+                      <div
+                        key={type}
+                        className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative flex-1 grow bg-gray-100 rounded-lg border border-solid border-gray-300"
+                      >
                         <Checkbox
-                          id="carton"
+                          id={type}
                           className="w-6 h-6"
-                          checked={formData.soldByCarton}
+                          checked={
+                            type === "carton"
+                              ? formData.soldByCarton
+                              : formData.soldByUnit
+                          }
                           onCheckedChange={(checked: boolean) =>
-                            handleInputChange("soldByCarton", checked)
+                            handleInputChange(
+                              type === "carton" ? "soldByCarton" : "soldByUnit",
+                              checked
+                            )
                           }
                         />
                         <label
-                          htmlFor="carton"
-                          className="flex-1 mt-[-1.00px] font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5"
-                        >
-                          {t("productSidebar.form.soldBy.carton")}
-                        </label>
-                      </div>
-                      <div className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 flex-1 self-stretch grow bg-gray-100 rounded-lg border border-solid border-gray-300">
-                        <Checkbox
-                          id="unite"
-                          className="w-6 h-6"
-                          checked={formData.soldByUnit}
-                          onCheckedChange={(checked: boolean) =>
-                            handleInputChange("soldByUnit", checked)
-                          }
-                        />
-                        <label
-                          htmlFor="unite"
+                          htmlFor={type}
                           className="flex-1 font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5"
                         >
-                          {t("productSidebar.form.soldBy.unit")}
+                          {t(`productSidebar.form.soldBy.${type}`)}
                         </label>
                       </div>
-                    </div>
-                    <div className="flex items-start gap-2 relative self-stretch w-full">
-                      <div className="relative flex-1">
-                        <Input
-                          className={cn(
-                            "pt-2 pr-2 pb-2 pl-2",
-                            errors.pricePerCarton && "border-red-500"
-                          )}
-                          type="number"
-                          value={formData.pricePerCarton}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            handleInputChange("pricePerCarton", e.target.value)
-                          }
-                          placeholder={t("productSidebar.form.price.perCarton")}
-                          disabled={!formData.soldByCarton}
-                        />
-                        {errors.pricePerCarton && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.pricePerCarton}
-                          </p>
-                        )}
-                      </div>
-                      <div className="relative flex-1">
-                        <Input
-                          className={cn(
-                            "pt-2 pr-2 pb-2 pl-2 bg-gray-200 border-gray-300",
-                            errors.pricePerUnit && "border-red-500"
-                          )}
-                          type="number"
-                          value={formData.pricePerUnit}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            handleInputChange("pricePerUnit", e.target.value)
-                          }
-                          placeholder={t("productSidebar.form.price.perUnit")}
-                          disabled={!formData.soldByUnit}
-                        />
-                        {errors.pricePerUnit && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.pricePerUnit}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-2 relative self-stretch w-full">
-                      <div className="relative flex-1">
-                        <Input
-                          className={cn(
-                            "pt-2 pr-2 pb-2 pl-2",
-                            errors.piecesPerCarton && "border-red-500"
-                          )}
-                          type="number"
-                          value={formData.piecesPerCarton}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            handleInputChange("piecesPerCarton", e.target.value)
-                          }
-                          placeholder={t("productSidebar.form.piecesPerCarton")}
-                          disabled={!formData.soldByCarton}
-                        />
-                        {errors.piecesPerCarton && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.piecesPerCarton}
-                          </p>
-                        )}
-                      </div>
-                      <div className="relative flex-1">
-                        <Input
-                          className={cn(
-                            "pt-2 pr-2 pb-2 pl-2",
-                            errors.reference && "border-red-500"
-                          )}
-                          type="text"
-                          value={formData.reference}
-                          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                            handleInputChange("reference", e.target.value)
-                          }
-                          placeholder={t("productSidebar.form.reference")}
-                        />
-                        {errors.reference && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.reference}
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <div className="relative w-full h-[175px]">
-                      <Textarea
-                        className="h-full pt-4 pr-4 pb-4 pl-4"
-                        value={formData.description}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                          handleInputChange("description", e.target.value)
-                        }
-                        placeholder={t("productSidebar.form.description")}
-                      />
-                    </div>
+                    ))}
                   </div>
+
+                  <div className="flex items-start gap-2 relative self-stretch w-full">
+                    {PRICE_FIELD_CONFIGS.map((field) => (
+                      <FormField
+                        key={field.id}
+                        error={errors[field.errorKey]}
+                        label={t(field.label)}
+                      >
+                        <Input
+                          className={cn(
+                            "pt-4 pr-3 pb-2 pl-3 border-gray-300",
+                            errors[field.errorKey] && "border-red-500"
+                          )}
+                          type="number"
+                          value={formData[field.id as keyof ProductFormData]}
+                          onChange={(e) =>
+                            handleInputChange(
+                              field.id as keyof ProductFormData,
+                              e.target.value
+                            )
+                          }
+                          placeholder=""
+                          disabled={field.disabled?.(formData)}
+                        />
+                      </FormField>
+                    ))}
+                  </div>
+
+                  <div className="flex items-start gap-2 relative self-stretch w-full">
+                    {ADDITIONAL_FIELD_CONFIGS.map((field) => (
+                      <FormField
+                        key={field.id}
+                        error={errors[field.errorKey]}
+                        label={t(field.label)}
+                      >
+                        <Input
+                          className={cn(
+                            "pt-4 pr-3 pb-2 pl-3 border-gray-300",
+                            errors[field.errorKey] && "border-red-500"
+                          )}
+                          type={field.id === "reference" ? "text" : "number"}
+                          value={formData[field.id as keyof ProductFormData]}
+                          onChange={(e) =>
+                            handleInputChange(
+                              field.id as keyof ProductFormData,
+                              e.target.value
+                            )
+                          }
+                          placeholder=""
+                          disabled={field.disabled?.(formData)}
+                        />
+                      </FormField>
+                    ))}
+                  </div>
+
+                  <FormField label={t("productSidebar.form.description")}>
+                    <Textarea
+                      className="h-[175px] pt-6 pr-3 pb-2 pl-3 border-gray-300"
+                      value={formData.description}
+                      onChange={(e) =>
+                        handleInputChange("description", e.target.value)
+                      }
+                      placeholder=""
+                    />
+                  </FormField>
                 </div>
-                <div className="flex flex-col items-end justify-between relative self-stretch">
+
+                <div className="flex flex-col items-end justify-between relative self-stretch mt-20">
                   <div className="flex flex-col items-start gap-6">
                     <div className="flex items-start gap-4">
                       <div className="flex items-center gap-4">
-                        <div
-                          className={cn(
-                            "flex flex-col w-[250px] h-[250px] justify-end pt-1 pr-1 pb-1 pl-1 rounded-lg bg-cover bg-center items-start gap-6 transition-all duration-300 group",
-                            "hover:shadow-lg hover:scale-[1.02]"
-                          )}
-                          style={{
-                            backgroundImage: formData.imageUrls[0]
-                              ? `url(${formData.imageUrls[0]})`
-                              : "none",
-                          }}
-                        >
-                          {formData.images.length === 0 ? (
-                            <div className="flex flex-col items-center justify-center w-full h-full gap-2.5 p-2 rounded-lg border border-dashed border-gray-300 hover:border-blue-500 transition-colors cursor-pointer">
-                              <div className="flex w-6 h-6 items-center justify-center gap-2.5 p-px">
-                                <img
-                                  className="w-3.5 h-3.5"
-                                  alt="Icon"
-                                  src="/img/icon-20.svg"
-                                />
-                              </div>
-                              <div className="self-stretch font-label-smallest font-bold text-gray-700 text-xs text-center tracking-wide leading-4">
-                                {t("productSidebar.imageUpload.dropMainImage")}
-                              </div>
-                              <div className="self-stretch font-label-smallest font-bold text-blue-500 text-xs text-center tracking-wide leading-4 underline">
-                                {t(
-                                  "productSidebar.imageUpload.orClickToSearch"
-                                )}
-                              </div>
-                            </div>
-                          ) : (
-                            <div className="flex items-start gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                className="gap-2 p-2 bg-red-500 border-red-500 hover:bg-red-600 transition-colors"
-                                onClick={() => handleRemoveImage(0)}
-                              >
-                                <img
-                                  className="w-3.5 h-3.5"
-                                  alt="Delete"
-                                  src="/img/icon-16.svg"
-                                />
-                              </Button>
-                            </div>
-                          )}
-                        </div>
+                        <ProductImageUploader
+                          position={0}
+                          imageUrl={formData.imageUrls[0]}
+                          onUpload={handleFileUpload}
+                          onRemove={handleRemoveImage}
+                          isMain
+                        />
                         <div className="flex flex-col h-[250px] items-start justify-center gap-6">
-                          <div className="flex items-center gap-6 flex-1 self-stretch w-full grow">
-                            <Dropzone
-                              dropzone={{
-                                text1: t(
-                                  "productSidebar.imageUpload.dropImages"
-                                ),
-                                text2: t(
-                                  "productSidebar.imageUpload.orClickToSearch"
-                                ),
-                              }}
-                              onUpload={handleFileUpload}
-                              disabled={formData.images.length >= 5}
-                              imageUrl={formData.imageUrls[1]}
-                              onRemove={() => handleRemoveImage(1)}
-                            />
-                            <Dropzone
-                              dropzone={{
-                                text1: t(
-                                  "productSidebar.imageUpload.dropImages"
-                                ),
-                                text2: t(
-                                  "productSidebar.imageUpload.orClickToSearch"
-                                ),
-                              }}
-                              onUpload={handleFileUpload}
-                              disabled={formData.images.length >= 5}
-                              imageUrl={formData.imageUrls[2]}
-                              onRemove={() => handleRemoveImage(2)}
-                            />
-                          </div>
-                          <div className="flex items-center gap-6 flex-1 grow">
-                            <Dropzone
-                              dropzone={{
-                                text1: t(
-                                  "productSidebar.imageUpload.dropImages"
-                                ),
-                                text2: t(
-                                  "productSidebar.imageUpload.orClickToSearch"
-                                ),
-                              }}
-                              onUpload={handleFileUpload}
-                              disabled={formData.images.length >= 5}
-                              imageUrl={formData.imageUrls[3]}
-                              onRemove={() => handleRemoveImage(3)}
-                            />
-                            <Dropzone
-                              dropzone={{
-                                text1: t(
-                                  "productSidebar.imageUpload.dropImages"
-                                ),
-                                text2: t(
-                                  "productSidebar.imageUpload.orClickToSearch"
-                                ),
-                              }}
-                              onUpload={handleFileUpload}
-                              disabled={formData.images.length >= 5}
-                              imageUrl={formData.imageUrls[4]}
-                              onRemove={() => handleRemoveImage(4)}
-                            />
+                          <div className="grid grid-cols-2 gap-6">
+                            {[1, 2, 3, 4].map((position) => (
+                              <ProductImageUploader
+                                key={position}
+                                position={position}
+                                imageUrl={formData.imageUrls[position]}
+                                onUpload={handleFileUpload}
+                                onRemove={handleRemoveImage}
+                                disabled={
+                                  Object.keys(formData.images).length >=
+                                  MAX_IMAGES
+                                }
+                              />
+                            ))}
                           </div>
                         </div>
-                        {errors.images && (
-                          <p className="text-red-500 text-sm mt-1">
-                            {errors.images}
-                          </p>
-                        )}
                       </div>
                     </div>
                   </div>
+
                   <div className="flex items-start gap-4 mt-6">
                     <Button
                       variant="outline"
@@ -679,7 +624,7 @@ export const ProductSidebarSection = (): JSX.Element => {
                         "disabled:opacity-50 disabled:cursor-not-allowed",
                         isSubmitting && "animate-pulse"
                       )}
-                      onClick={handleSaveDraft}
+                      onClick={() => handleAction("draft")}
                       disabled={isSubmitting}
                     >
                       <span className="font-label-medium font-bold text-gray-700 text-sm tracking-wide leading-5 whitespace-nowrap">
@@ -693,7 +638,7 @@ export const ProductSidebarSection = (): JSX.Element => {
                         "disabled:opacity-50 disabled:cursor-not-allowed",
                         isSubmitting && "animate-pulse"
                       )}
-                      onClick={handleNext}
+                      onClick={() => handleAction("next")}
                       disabled={isSubmitting}
                     >
                       <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5 whitespace-nowrap">
