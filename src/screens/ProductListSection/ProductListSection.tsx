@@ -4,10 +4,37 @@ import { Input } from "../../components/ui/input";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import ImportCSVModal from "../../components/ImportCSVModal/ImportCSVModal";
+import ExportCSV from "../../components/ExportCSV/ExportCSV";
 
 export const ProductListSection = (): JSX.Element => {
   const { t } = useTranslation();
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+
+  const handleImport = async (file: File) => {
+    try {
+      // Create FormData to send the file
+      const formData = new FormData();
+      formData.append("file", file);
+
+      // Make API call to import the CSV
+      const response = await fetch("/api/products/import", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Import failed");
+      }
+
+      // Handle successful import
+      // You might want to refresh the product list here
+      // or show a success message
+    } catch (error) {
+      console.error("Error importing CSV:", error);
+      throw error; // Re-throw to be handled by the modal
+    }
+  };
 
   return (
     <section className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
@@ -50,6 +77,7 @@ export const ProductListSection = (): JSX.Element => {
           <Button
             variant="outline"
             className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
+            onClick={() => setIsExportModalOpen(true)}
           >
             <UploadIcon className="w-6 h-6 text-[color:var(--1-tokens-color-modes-button-secondary-default-icon)]" />
             <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] [font-style:var(--label-smaller-font-style)]">
@@ -59,9 +87,15 @@ export const ProductListSection = (): JSX.Element => {
         </div>
       </div>
 
-      {isImportModalOpen && (
-        <ImportCSVModal onClose={() => setIsImportModalOpen(false)} />
-      )}
+      <ImportCSVModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onImport={handleImport}
+      />
+      <ExportCSV
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+      />
     </section>
   );
 };
