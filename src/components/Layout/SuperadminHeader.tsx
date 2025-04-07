@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, createContext, useContext } from "react";
 import { Badge } from "../ui/badge";
 import {
   Select,
@@ -18,24 +18,46 @@ interface NavTabItem {
   isLast?: boolean;
 }
 
+export const AdminModeContext = createContext<{
+  isAdminMode: boolean;
+  setIsAdminMode: (value: boolean) => void;
+}>({
+  isAdminMode: true,
+  setIsAdminMode: () => {},
+});
+
+export const useAdminMode = () => useContext(AdminModeContext);
+
+export const AdminModeProvider: React.FC<{ children: React.ReactNode }> = ({
+  children,
+}) => {
+  const [isAdminMode, setIsAdminMode] = useState(true);
+
+  return (
+    <AdminModeContext.Provider value={{ isAdminMode, setIsAdminMode }}>
+      {children}
+    </AdminModeContext.Provider>
+  );
+};
+
 const navTabs: NavTabItem[] = [
   {
     id: 1,
     name: "header.adminManagement",
     icon: "/img/crown.svg",
-    active: false,
+    active: true,
     isFirst: true,
   },
   {
     id: 2,
     name: "header.clientManagement",
-    icon: "/img/icon-8.svg",
-    active: true,
+    icon: "/img/crown.svg",
+    active: false,
     isLast: true,
   },
 ];
 
-const NavTab = ({ tab }: { tab: NavTabItem }) => {
+const NavTab = ({ tab, onClick }: { tab: NavTabItem; onClick: () => void }) => {
   const { t } = useTranslation();
 
   const getRoundedClasses = () => {
@@ -46,6 +68,7 @@ const NavTab = ({ tab }: { tab: NavTabItem }) => {
 
   return (
     <button
+      onClick={onClick}
       className={`flex items-center gap-2 px-4 py-3 transition-colors duration-200 ${getRoundedClasses()} ${
         tab.active
           ? "bg-[#07515F] text-white"
@@ -66,6 +89,17 @@ const NavTab = ({ tab }: { tab: NavTabItem }) => {
 
 export const SuperadminHeader = (): JSX.Element => {
   const { t, i18n } = useTranslation();
+  const [tabs, setTabs] = useState<NavTabItem[]>(navTabs);
+  const { setIsAdminMode } = useAdminMode();
+
+  const handleTabClick = (tabId: number) => {
+    const newTabs = tabs.map((tab) => ({
+      ...tab,
+      active: tab.id === tabId,
+    }));
+    setTabs(newTabs);
+    setIsAdminMode(tabId === 1);
+  };
 
   const handleLanguageChange = (value: string) => {
     i18n.changeLanguage(value);
@@ -77,43 +111,49 @@ export const SuperadminHeader = (): JSX.Element => {
         <div className="flex items-center gap-8">
           <div className="flex items-center gap-4">
             <div className="flex items-start bg-[#F8F9FA] p-1 rounded-lg">
-              {navTabs.map((tab) => (
-                <NavTab key={tab.id} tab={tab} />
+              {tabs.map((tab) => (
+                <NavTab
+                  key={tab.id}
+                  tab={tab}
+                  onClick={() => handleTabClick(tab.id)}
+                />
               ))}
             </div>
           </div>
-          <div className="flex items-center gap-3">
-            <div className="flex w-[200px] items-center justify-center gap-3 py-3 px-3 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300">
-              <div className="flex w-6 h-6 items-center justify-center shrink-0">
-                <img className="w-5 h-5" alt="Icon" src="/img/icon-9.svg" />
+          {tabs.find((tab) => tab.id === 2)?.active && (
+            <div className="flex items-center gap-3">
+              <div className="flex w-[200px] items-center justify-center gap-3 py-3 px-3 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300">
+                <div className="flex w-6 h-6 items-center justify-center shrink-0">
+                  <img className="w-5 h-5" alt="Icon" src="/img/icon-9.svg" />
+                </div>
+                <div className="flex-1 font-medium text-gray-700 text-base leading-4 tracking-normal truncate">
+                  Chronodrive
+                </div>
+                <div className="flex w-6 h-6 items-center justify-center shrink-0">
+                  <img
+                    className="w-4 h-4"
+                    alt="Chevron down"
+                    src="/img/icon-13.svg"
+                  />
+                </div>
               </div>
-              <div className="flex-1 font-medium text-gray-700 text-base leading-4 tracking-normal truncate">
-                Chronodrive
-              </div>
-              <div className="flex w-6 h-6 items-center justify-center shrink-0">
-                <img
-                  className="w-4 h-4"
-                  alt="Chevron down"
-                  src="/img/icon-13.svg"
-                />
+              <div className="flex items-center justify-center gap-3 py-3 px-3 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300">
+                <div className="flex w-6 h-6 items-center justify-center shrink-0">
+                  <img className="w-5 h-5" alt="Icon" src="/img/icon-10.svg" />
+                </div>
+                <div className="font-medium text-gray-700 text-base leading-4 truncate">
+                  Marcq-en-Baroeul
+                </div>
+                <div className="flex w-6 h-6 items-center justify-center shrink-0">
+                  <img
+                    className="w-4 h-4"
+                    alt="Chevron down"
+                    src="/img/icon-13.svg"
+                  />
+                </div>
               </div>
             </div>
-            <div className="flex items-center justify-center gap-3 py-3 px-3 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300">
-              <div className="flex w-6 h-6 items-center justify-center shrink-0">
-                <img className="w-5 h-5" alt="Icon" src="/img/icon-10.svg" />
-              </div>
-              <div className="font-medium text-gray-700 text-base leading-4 truncate">
-                Marcq-en-Baroeul
-              </div>
-              <div className="flex w-6 h-6 items-center justify-center shrink-0">
-                <img
-                  className="w-4 h-4"
-                  alt="Chevron down"
-                  src="/img/icon-13.svg"
-                />
-              </div>
-            </div>
-          </div>
+          )}
         </div>
         <div className="flex items-center gap-4">
           <Select

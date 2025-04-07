@@ -9,6 +9,7 @@ import {
   PlusCircleIcon,
   SettingsIcon,
   UserPlusIcon,
+  UsersIcon,
 } from "lucide-react";
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
@@ -52,10 +53,59 @@ const NavButton = ({ icon, label, path }: NavItem) => {
   );
 };
 
-export const SuperadminSidebarSection = (): JSX.Element => {
+export const SuperadminSidebarSection = ({
+  isAdminMode = false,
+}): JSX.Element => {
   const { t } = useTranslation();
 
-  const navigationSections: NavSection[] = [
+  const adminNavigationSections: NavSection[] = [
+    {
+      items: [
+        {
+          icon: <HomeIcon className="w-4 h-4" />,
+          label: t("sidebar.dashboard"),
+          path: "/dashboard",
+        },
+      ],
+    },
+    {
+      title: t("sidebar.products.title"),
+      items: [
+        {
+          icon: <PackageIcon className="w-4 h-4" />,
+          label: t("sidebar.products.stock"),
+          path: "/products/stock",
+        },
+      ],
+    },
+    {
+      title: t("sidebar.customers.title"),
+      items: [
+        {
+          icon: <BookOpenIcon className="w-4 h-4" />,
+          label: t("sidebar.customers.list"),
+          path: "/customers",
+        },
+        {
+          icon: <UserPlusIcon className="w-4 h-4" />,
+          label: t("sidebar.customers.add"),
+          path: "/customers/add",
+        },
+      ],
+    },
+    {
+      title: t("sidebar.support.title"),
+      items: [
+        {
+          icon: <MessageSquareIcon className="w-4 h-4" />,
+          label: t("sidebar.support.tickets"),
+          path: "/support/tickets",
+        },
+      ],
+    },
+  ];
+
+  const clientNavigationSections: NavSection[] = [
     {
       items: [
         {
@@ -129,6 +179,10 @@ export const SuperadminSidebarSection = (): JSX.Element => {
       path: "/logout",
     },
   ];
+
+  const navigationSections = isAdminMode
+    ? adminNavigationSections
+    : clientNavigationSections;
 
   return (
     <aside className="flex flex-col h-screen items-start justify-between pl-4 py-6 bg-defaultwhite border-r border-1-tokens-color-modes-common-neutral-lower overflow-hidden">
