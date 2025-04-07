@@ -307,11 +307,11 @@ const ColorPaletteRecommendation = ({
           >
             <div className="w-6 h-6 rounded-full border shadow-sm overflow-hidden">
               <div
-                className="w-full h-1/2"
+                className="w-1/2 h-full"
                 style={{ backgroundColor: palette.background }}
               />
               <div
-                className="w-full h-1/2"
+                className="w-1/2 h-full"
                 style={{ backgroundColor: palette.text }}
               />
             </div>
