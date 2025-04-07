@@ -90,16 +90,18 @@ const LabeledButton = ({
   icon: Icon,
   checked,
   onChange,
+  onClick,
 }: {
   label: string;
   icon: React.ElementType;
   checked?: boolean;
   onChange?: (checked: boolean) => void;
+  onClick?: () => void;
 }) => (
   <Button
     variant="outline"
     className="w-full justify-start pl-10 py-2 font-text-medium text-[16px] leading-[24px] relative"
-    onClick={() => onChange?.(!checked)}
+    onClick={onClick || (() => onChange?.(!checked))}
   >
     {checked !== undefined && (
       <Checkbox
@@ -326,6 +328,21 @@ const ClientForm = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState(clientData);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [logoFile, setLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setLogoFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setLogoPreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleColorChange = (type: "background" | "text", color: string) => {
     setFormData((prev) => ({
@@ -382,10 +399,43 @@ const ClientForm = () => {
             </div>
 
             <div className="flex flex-col gap-2 relative">
-              <LabeledButton label="Add a logo" icon={Upload} />
+              <input
+                type="file"
+                ref={fileInputRef}
+                className="hidden"
+                accept="image/*"
+                onChange={handleLogoUpload}
+              />
+              <LabeledButton
+                label="Add a logo"
+                icon={Upload}
+                onClick={() => fileInputRef.current?.click()}
+              />
               <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
                 Brand logo
               </span>
+              {logoPreview && (
+                <div className="mt-2 flex items-center gap-2">
+                  <img
+                    src={logoPreview}
+                    alt="Brand logo preview"
+                    className="w-12 h-12 object-contain"
+                  />
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setLogoFile(null);
+                      setLogoPreview(null);
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = "";
+                      }
+                    }}
+                  >
+                    Remove
+                  </Button>
+                </div>
+              )}
             </div>
 
             <div className="relative w-full">
