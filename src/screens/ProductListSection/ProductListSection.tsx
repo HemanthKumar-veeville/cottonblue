@@ -2,9 +2,12 @@ import { DownloadIcon, PlusIcon, SearchIcon, UploadIcon } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import ImportCSVModal from "../../components/ImportCSVModal/ImportCSVModal";
 
 export const ProductListSection = (): JSX.Element => {
   const { t } = useTranslation();
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   return (
     <section className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
@@ -36,6 +39,7 @@ export const ProductListSection = (): JSX.Element => {
           <Button
             variant="outline"
             className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
+            onClick={() => setIsImportModalOpen(true)}
           >
             <DownloadIcon className="w-6 h-6 text-[color:var(--1-tokens-color-modes-button-secondary-default-icon)]" />
             <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] [font-style:var(--label-smaller-font-style)]">
@@ -54,6 +58,10 @@ export const ProductListSection = (): JSX.Element => {
           </Button>
         </div>
       </div>
+
+      {isImportModalOpen && (
+        <ImportCSVModal onClose={() => setIsImportModalOpen(false)} />
+      )}
     </section>
   );
 };
