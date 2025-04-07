@@ -12,6 +12,7 @@ import LoginPage from "./screens/Login/Login";
 import Carousel from "./screens/Carousel/Carousel";
 import Tickets from "./screens/Tickets/Tickets";
 import "./i18n/config";
+import AddClient from "./screens/AddClient/AddClient";
 
 // Authentication state
 const isLoggedIn = true;
@@ -32,7 +33,7 @@ createRoot(document.getElementById("app") as HTMLElement).render(
               <Route path="products/stock" element={<ComingSoon />} />
               <Route path="products/carousel" element={<Carousel />} />
               <Route path="customers" element={<ComingSoon />} />
-              <Route path="customers/add" element={<ComingSoon />} />
+              <Route path="customers/add" element={<AddClient />} />
               <Route path="support/tickets" element={<Tickets />} />
               <Route path="settings" element={<ComingSoon />} />
               <Route path="logout" element={<ComingSoon />} />
