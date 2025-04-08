@@ -13,11 +13,14 @@ export const authService = {
     return response.data;
   },
   login: async (email: string, password: string, company: string): Promise<LoginResponse> => {
-    const response = await axiosInstance.post(`/${company}/login`, {
+    const response = await axiosInstance.post(`/${company.toLowerCase()}/login`, {
         "email":email,
         "password":password
     });
     return response.data;
   },
-
+  logout: async (company: string): Promise<void> => {
+    const response = await axiosInstance.post(`/${company.toLowerCase()}/logout`);
+    return response.data;
+  },
 };

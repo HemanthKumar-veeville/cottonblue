@@ -12,13 +12,17 @@ import {
   UsersIcon,
 } from "lucide-react";
 import React from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+import { logout } from "../../../../store/features/authSlice";
+import { RootState, AppDispatch } from "../../../../store/store";
 
 interface NavItem {
   icon: JSX.Element;
   label: string;
   path: string;
+  onClick?: () => void;
 }
 
 interface NavSection {
@@ -26,9 +30,38 @@ interface NavSection {
   items: NavItem[];
 }
 
-const NavButton = ({ icon, label, path }: NavItem) => {
+const NavButton = ({
+  icon,
+  label,
+  path,
+  onClick,
+}: NavItem & { onClick?: () => void }) => {
   const location = useLocation();
   const isActive = location.pathname === path;
+
+  if (onClick) {
+    return (
+      <button
+        onClick={onClick}
+        className={`flex items-center gap-3 p-2.5 w-full rounded ${
+          isActive
+            ? "bg-[#e9fffd]"
+            : "bg-[color:var(--1-tokens-color-modes-nav-tab-primary-default-background)]"
+        }`}
+      >
+        <div className="flex w-5 h-5 items-center justify-center">{icon}</div>
+        <span
+          className={`flex-1 font-label-small font-[number:var(--label-small-font-weight)] text-[length:var(--label-small-font-size)] tracking-[var(--label-small-letter-spacing)] leading-[var(--label-small-line-height)] text-left ${
+            isActive
+              ? "text-[#07515f]"
+              : "text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]"
+          }`}
+        >
+          {label}
+        </span>
+      </button>
+    );
+  }
 
   return (
     <Link
@@ -57,6 +90,22 @@ export const SuperadminSidebarSection = ({
   isAdminMode = false,
 }): JSX.Element => {
   const { t } = useTranslation();
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+  const company = useSelector((state: RootState) => state.auth.company);
+
+  const handleLogout = async () => {
+    try {
+      if (company) {
+        await dispatch(logout(company)).unwrap();
+        navigate("/");
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+      // Still navigate to root even if logout fails
+      navigate("/");
+    }
+  };
 
   const adminNavigationSections: NavSection[] = [
     {
@@ -177,6 +226,7 @@ export const SuperadminSidebarSection = ({
       icon: <LogOutIcon className="w-4 h-4" />,
       label: t("sidebar.logout"),
       path: "/logout",
+      onClick: handleLogout,
     },
   ];
 
