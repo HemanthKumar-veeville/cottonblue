@@ -1,4 +1,4 @@
-import { StrictMode, useEffect } from "react";
+import { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Provider } from "react-redux";
@@ -19,7 +19,7 @@ import { ClientList } from "./screens/ClientList";
 import { useAppSelector } from "./store/store";
 import { getUser } from "./store/features/authSlice";
 import GlobalLoader from "./components/GlobalLoader";
-
+import { GlobalDashboard } from "./screens/GlobalDashboard/GlobalDashboard";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
 
@@ -37,7 +37,7 @@ function App() {
           // Protected routes - only accessible when logged in
           <Route path="/" element={<SuperadminLayout />}>
             <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<ComingSoon />} />
+            <Route path="dashboard" element={<GlobalDashboard />} />
             <Route path="order-history" element={<ComingSoon />} />
             <Route path="products" element={<ProductList />} />
             <Route path="products/add" element={<ProductSidebarSection />} />
