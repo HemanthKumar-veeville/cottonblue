@@ -23,4 +23,8 @@ export const authService = {
     const response = await axiosInstance.post(`/${company.toLowerCase()}/logout`);
     return response.data;
   },
+  getUser: async (company: string): Promise<void> => {
+    const response = await axiosInstance.get(`/${company.toLowerCase()}/`);
+    return response.data;
+  },
 };

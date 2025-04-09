@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { authService, LoginResponse } from '../../services/authService';
+import { authService } from '../../services/authService';
 
 interface AuthState {
   company: string | null;
@@ -8,6 +8,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   isLoggedIn: boolean;
+  user: any;
 }
 
 const initialState: AuthState = {
@@ -17,6 +18,7 @@ const initialState: AuthState = {
   isLoading: false,
   error: null,
   isLoggedIn: false,
+  user: null,
 };
 
 // Async thunks
@@ -53,6 +55,18 @@ export const logout = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Logout failed');
+    }
+  }
+);
+
+export const getUser = createAsyncThunk(
+  'auth/getUser',
+  async (company: string, { rejectWithValue }) => {
+    try {
+      const response = await authService.getUser(company);  
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch user data');
     }
   }
 );
@@ -111,6 +125,21 @@ const authSlice = createSlice({
         state.isLoggedIn = false;
       })
       .addCase(logout.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // Get User
+      .addCase(getUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload;
+        state.isLoggedIn = action.payload?.logged_in || false;
+        state.company = action.payload?.company_name || null;
+      })
+      .addCase(getUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

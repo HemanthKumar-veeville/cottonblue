@@ -1,8 +1,8 @@
-import { StrictMode } from "react";
+import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Provider } from "react-redux";
-import { store } from "./store/store";
+import { store, useAppDispatch } from "./store/store";
 import { SuperadminLayout } from "./components/Layout/SuperadminLayout";
 import { AdminModeProvider } from "./components/Layout/SuperadminHeader";
 import { ProductSidebarSection } from "./screens/SuperadminAdd/sections/ProductSidebarSection/ProductSidebarSection";
@@ -17,12 +17,21 @@ import "./i18n/config";
 import AddClient from "./screens/AddClient/AddClient";
 import { ClientList } from "./screens/ClientList";
 import { useAppSelector } from "./store/store";
+import { getUser } from "./store/features/authSlice";
+import GlobalLoader from "./components/GlobalLoader";
 
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
 
+  const dispatch = useAppDispatch();
+
+  useEffect(() => {
+    dispatch(getUser("admin"));
+  }, [dispatch]);
+
   return (
     <BrowserRouter>
+      <GlobalLoader />
       <Routes>
         {isLoggedIn ? (
           // Protected routes - only accessible when logged in

@@ -15,13 +15,13 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    dispatch(loginPage("himyt"));
+    dispatch(loginPage("admin"));
   }, [dispatch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await dispatch(login({ email, password, company: "veevy" })).unwrap();
+      await dispatch(login({ email, password, company: "admin" })).unwrap();
       navigate("/dashboard"); // Redirect to dashboard after successful login
     } catch (error) {
       console.error("Login failed:", error);
