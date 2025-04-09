@@ -13,50 +13,50 @@ import {
 const supportTickets = [
   {
     id: 1,
-    col1: "XXX",
-    col2: "XXX",
-    col3: "XXX",
-    col4: "XXX",
-    status: "default",
+    col1: "TICK-2024-001",
+    col2: "Problème de livraison",
+    col3: "En attente",
+    col4: "2h",
+    status: "warning",
   },
   {
     id: 2,
-    col1: "XXX",
-    col2: "XXX",
-    col3: "XXX",
-    col4: "XXX",
+    col1: "TICK-2024-002",
+    col2: "Retour produit",
+    col3: "Résolu",
+    col4: "1j",
     status: "success",
   },
   {
     id: 3,
-    col1: "XXX",
-    col2: "XXX",
-    col3: "XXX",
-    col4: "XXX",
+    col1: "TICK-2024-003",
+    col2: "Question facturation",
+    col3: "En cours",
+    col4: "4h",
     status: "warning",
   },
   {
     id: 4,
-    col1: "XXX",
-    col2: "XXX",
-    col3: "XXX",
-    col4: "XXX",
+    col1: "TICK-2024-004",
+    col2: "Demande de remboursement",
+    col3: "Résolu",
+    col4: "1j",
     status: "success",
   },
   {
     id: 5,
-    col1: "XXX",
-    col2: "XXX",
-    col3: "XXX",
-    col4: "XXX",
+    col1: "TICK-2024-005",
+    col2: "Problème technique",
+    col3: "Nouveau",
+    col4: "30m",
     status: "default",
   },
   {
     id: 6,
-    col1: "XXX",
-    col2: "XXX",
-    col3: "XXX",
-    col4: "XXX",
+    col1: "TICK-2024-006",
+    col2: "Modification commande",
+    col3: "En attente",
+    col4: "1h",
     status: "warning",
   },
 ];
@@ -108,10 +108,12 @@ const SupportTicketsTable = () => (
         <TableHead className="w-11 p-2">
           <Checkbox className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
         </TableHead>
-        {["XXX", "XXX", "XXX", "XXX"].map((header, index) => (
+        {["ID Ticket", "Sujet", "Statut", "Temps"].map((header, index) => (
           <TableHead
             key={index}
-            className="w-[145px] p-2.5 text-[#023337] text-[length:var(--text-small-font-size)] font-text-small"
+            className={`w-[145px] p-2.5 text-[#023337] text-[length:var(--text-small-font-size)] font-text-small ${
+              index === 3 ? "text-right" : ""
+            }`}
           >
             {header}
           </TableHead>
@@ -122,7 +124,7 @@ const SupportTicketsTable = () => (
       {supportTickets.map((ticket) => (
         <TableRow
           key={ticket.id}
-          className="border-b border-primary-neutal-300"
+          className="border-b border-primary-neutal-300 hover:bg-gray-50 transition-colors"
         >
           <TableCell className="w-11 py-3 px-2">
             <Checkbox className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
@@ -132,7 +134,7 @@ const SupportTicketsTable = () => (
               <TableCell
                 key={index}
                 className={`w-[145px] py-3 px-2.5 ${
-                  index === 2 ? "flex items-center justify-center" : ""
+                  index === 3 ? "text-right" : ""
                 }`}
               >
                 <div
