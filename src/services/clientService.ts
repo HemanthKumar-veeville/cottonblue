@@ -49,4 +49,12 @@ export const clientService = {
       },
     });
   },
+
+  /**
+   * Get all companies from the admin endpoint
+   * @returns Promise with companies data
+   */
+  getAllCompanies: async () => {
+    return axiosInstance.get('/admin/get_all_companies');
+  },
 };

@@ -5,12 +5,14 @@ interface ClientState {
   loading: boolean;
   error: string | null;
   success: boolean;
+  companies: any[];
 }
 
 const initialState: ClientState = {
   loading: false,
   error: null,
   success: false,
+  companies: [],
 };
 
 export const registerClient = createAsyncThunk(
@@ -21,6 +23,18 @@ export const registerClient = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Registration failed');
+    }
+  }
+);
+
+export const getAllCompanies = createAsyncThunk(
+  'client/getAllCompanies',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await clientService.getAllCompanies();
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch companies');
     }
   }
 );
@@ -47,6 +61,18 @@ const clientSlice = createSlice({
         state.success = true;
       })
       .addCase(registerClient.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(getAllCompanies.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllCompanies.fulfilled, (state, action) => {
+        state.loading = false;
+        state.companies = action.payload;
+      })
+      .addCase(getAllCompanies.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

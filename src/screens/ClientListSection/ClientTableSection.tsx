@@ -18,209 +18,307 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { useTranslation } from "react-i18next";
-
-// Client data for the table
-const clientData = [
-  {
-    id: 1,
-    clientId: "CLT001",
-    name: "John Doe",
-    email: "john.doe@example.com",
-    phone: "+1 234 567 8900",
-    company: "Acme Corp",
-    status: "Active",
-    lastOrder: "2024-03-15",
-  },
-  {
-    id: 2,
-    clientId: "CLT002",
-    name: "Jane Smith",
-    email: "jane.smith@example.com",
-    phone: "+1 234 567 8901",
-    company: "Tech Solutions",
-    status: "Active",
-    lastOrder: "2024-03-14",
-  },
-  {
-    id: 3,
-    clientId: "CLT003",
-    name: "Mike Johnson",
-    email: "mike.j@example.com",
-    phone: "+1 234 567 8902",
-    company: "Global Industries",
-    status: "Inactive",
-    lastOrder: "2024-02-28",
-  },
-  {
-    id: 4,
-    clientId: "CLT004",
-    name: "Sarah Williams",
-    email: "sarah.w@example.com",
-    phone: "+1 234 567 8903",
-    company: "Digital Dynamics",
-    status: "Active",
-    lastOrder: "2024-03-13",
-  },
-  {
-    id: 5,
-    clientId: "CLT005",
-    name: "Robert Brown",
-    email: "robert.b@example.com",
-    phone: "+1 234 567 8904",
-    company: "Future Systems",
-    status: "Active",
-    lastOrder: "2024-03-12",
-  },
-];
+import { useState, useEffect } from "react";
 
 // Pagination data
 const paginationItems = [1, 2, 3, 4, 5];
 
-export const ClientTableSection = (): JSX.Element => {
+interface ClientTableSectionProps {
+  companies: any[];
+  loading: boolean;
+  error: string | null;
+  searchTerm: string;
+}
+
+export const ClientTableSection = ({
+  companies,
+  loading,
+  error,
+  searchTerm,
+}: ClientTableSectionProps): JSX.Element => {
   const { t } = useTranslation();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedClients, setSelectedClients] = useState<number[]>([]);
+
+  // Debug: Log the props received by this component
+  useEffect(() => {
+    console.log("ClientTableSection received companies:", companies);
+    console.log("ClientTableSection companies type:", typeof companies);
+    console.log(
+      "ClientTableSection is companies an array?",
+      Array.isArray(companies)
+    );
+    if (Array.isArray(companies)) {
+      console.log("ClientTableSection number of companies:", companies.length);
+      if (companies.length > 0) {
+        console.log("First company:", companies[0]);
+      }
+    }
+  }, [companies]);
+
+  // Ensure companies is always an array
+  const companiesArray = Array.isArray(companies) ? companies : [];
+
+  // Reset to first page when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  // Filter companies based on search term
+  const filteredCompanies = companiesArray.filter(
+    (client) =>
+      client.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      client.phone_number?.includes(searchTerm) ||
+      client.city?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // Debug: Log the filtered companies
+  useEffect(() => {
+    console.log("Filtered companies:", filteredCompanies);
+    console.log("Number of filtered companies:", filteredCompanies.length);
+  }, [filteredCompanies]);
+
+  // Pagination logic
+  const itemsPerPage = 5;
+  const totalPages = Math.ceil(filteredCompanies.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentCompanies = filteredCompanies.slice(startIndex, endIndex);
+
+  // Debug: Log the current companies for pagination
+  useEffect(() => {
+    console.log("Current companies for pagination:", currentCompanies);
+    console.log("Number of current companies:", currentCompanies.length);
+  }, [currentCompanies]);
+
+  // Handle checkbox selection
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedClients(currentCompanies.map((client) => client.id));
+    } else {
+      setSelectedClients([]);
+    }
+  };
+
+  const handleSelectClient = (clientId: number, checked: boolean) => {
+    if (checked) {
+      setSelectedClients([...selectedClients, clientId]);
+    } else {
+      setSelectedClients(selectedClients.filter((id) => id !== clientId));
+    }
+  };
+
+  // Handle page change
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  // Format date function
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString();
+  };
 
   return (
     <section className="flex flex-col items-center justify-between w-full gap-6">
       <div className="w-full max-w-[1160px]">
-        <Table>
-          <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
-            <TableRow>
-              <TableHead className="w-11">
-                <div className="flex justify-center">
-                  <Checkbox className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
-                </div>
-              </TableHead>
-              <TableHead className="w-[77px] text-center text-[#1e2324] font-text-small">
-                Client ID
-              </TableHead>
-              <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
-                Name
-              </TableHead>
-              <TableHead className="w-[200px] text-center text-[#1e2324] font-text-small">
-                Email
-              </TableHead>
-              <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
-                Phone
-              </TableHead>
-              <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
-                Company
-              </TableHead>
-              <TableHead className="w-[100px] text-center text-[#1e2324] font-text-small">
-                Status
-              </TableHead>
-              <TableHead className="w-[120px] text-center text-[#1e2324] font-text-small">
-                Last Order
-              </TableHead>
-              <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
-                Actions
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {clientData.map((client) => (
-              <TableRow
-                key={client.id}
-                className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
-              >
-                <TableCell className="w-11">
-                  <div className="flex justify-center">
-                    <Checkbox className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
+        {loading ? (
+          <div className="flex justify-center items-center h-40">
+            <p>Loading clients...</p>
+          </div>
+        ) : error ? (
+          <div className="flex justify-center items-center h-40 text-red-500">
+            <p>Error: {error}</p>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
+              <TableRow>
+                <TableHead className="w-11">
+                  <div className="flex justify-start">
+                    <Checkbox
+                      className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
+                      checked={
+                        selectedClients.length === currentCompanies.length &&
+                        currentCompanies.length > 0
+                      }
+                      onCheckedChange={handleSelectAll}
+                    />
                   </div>
-                </TableCell>
-                <TableCell className="w-[77px] text-center font-text-smaller text-coolgray-100">
-                  {client.clientId}
-                </TableCell>
-                <TableCell className="w-[145px] text-center font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
-                  {client.name}
-                </TableCell>
-                <TableCell className="w-[200px] text-center font-text-smaller text-black">
-                  {client.email}
-                </TableCell>
-                <TableCell className="w-[145px] text-center font-text-smaller text-black">
-                  {client.phone}
-                </TableCell>
-                <TableCell className="w-[145px] text-center font-text-smaller text-black">
-                  {client.company}
-                </TableCell>
-                <TableCell className="w-[100px] text-center">
-                  <span
-                    className={`px-2 py-1 rounded-full text-sm ${
-                      client.status === "Active"
-                        ? "bg-green-100 text-green-800"
-                        : "bg-red-100 text-red-800"
-                    }`}
-                  >
-                    {client.status}
-                  </span>
-                </TableCell>
-                <TableCell className="w-[120px] text-center font-text-smaller text-black">
-                  {client.lastOrder}
-                </TableCell>
-                <TableCell className="w-[145px] text-center">
-                  <Button
-                    variant="link"
-                    className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
-                  >
-                    View Details
-                  </Button>
-                </TableCell>
+                </TableHead>
+                <TableHead className="w-[77px] text-left text-[#1e2324] font-text-small">
+                  ID
+                </TableHead>
+                <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                  Name
+                </TableHead>
+                <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                  Phone
+                </TableHead>
+                <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                  City
+                </TableHead>
+                <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                  Address
+                </TableHead>
+                <TableHead className="w-[100px] text-left text-[#1e2324] font-text-small">
+                  Status
+                </TableHead>
+                <TableHead className="w-[120px] text-left text-[#1e2324] font-text-small">
+                  Created At
+                </TableHead>
+                <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
+                  Actions
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {currentCompanies.length > 0 ? (
+                currentCompanies.map((client) => (
+                  <TableRow
+                    key={client.id}
+                    className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
+                  >
+                    <TableCell className="w-11">
+                      <div className="flex justify-start">
+                        <Checkbox
+                          className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
+                          checked={selectedClients.includes(client.id)}
+                          onCheckedChange={(
+                            checked: boolean | "indeterminate"
+                          ) =>
+                            handleSelectClient(client.id, checked as boolean)
+                          }
+                        />
+                      </div>
+                    </TableCell>
+                    <TableCell className="w-[77px] text-left font-text-smaller text-coolgray-100">
+                      {client.id}
+                    </TableCell>
+                    <TableCell className="w-[145px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
+                      {client.name}
+                    </TableCell>
+                    <TableCell className="w-[145px] text-left font-text-smaller text-black">
+                      {client.phone_number}
+                    </TableCell>
+                    <TableCell className="w-[145px] text-left font-text-smaller text-black">
+                      {client.city}
+                    </TableCell>
+                    <TableCell className="w-[145px] text-left font-text-smaller text-black">
+                      {client.address}
+                    </TableCell>
+                    <TableCell className="w-[100px] text-left">
+                      <span
+                        className={`px-2 py-1 rounded-full text-sm ${
+                          client.is_active
+                            ? "bg-green-100 text-green-800"
+                            : "bg-red-100 text-red-800"
+                        }`}
+                      >
+                        {client.is_active ? "Active" : "Inactive"}
+                      </span>
+                    </TableCell>
+                    <TableCell className="w-[120px] text-left font-text-smaller text-black">
+                      {formatDate(client.created_at)}
+                    </TableCell>
+                    <TableCell className="w-[145px] text-center">
+                      <Button
+                        variant="link"
+                        className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
+                      >
+                        View Details
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={9} className="text-center py-4">
+                    No clients found
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        )}
       </div>
 
-      <Pagination className="flex items-center justify-between w-full max-w-[1160px]">
-        <PaginationPrevious
-          href="#"
-          className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
-        >
-          <img
-            className="w-6 h-6"
-            alt="Arrow left"
-            src="/img/arrow-left-sm.svg"
-          />
-          Previous
-        </PaginationPrevious>
+      {!loading && !error && filteredCompanies.length > 0 && (
+        <Pagination className="flex items-center justify-between w-full max-w-[1160px]">
+          <PaginationPrevious
+            href="#"
+            className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
+            onClick={(e: React.MouseEvent) => {
+              e.preventDefault();
+              if (currentPage > 1) handlePageChange(currentPage - 1);
+            }}
+          >
+            <img
+              className="w-6 h-6"
+              alt="Arrow left"
+              src="/img/arrow-left-sm.svg"
+            />
+            Previous
+          </PaginationPrevious>
 
-        <PaginationContent className="flex items-center gap-3">
-          {paginationItems.map((page) => (
-            <PaginationItem key={page}>
-              <PaginationLink
-                href="#"
-                className={`flex items-center justify-center w-9 h-9 rounded ${
-                  page === 1
-                    ? "bg-cyan-100 font-bold text-[#1e2324]"
-                    : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                }`}
-              >
-                {page}
-              </PaginationLink>
-            </PaginationItem>
-          ))}
-          <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
-          <PaginationItem>
-            <PaginationLink
-              href="#"
-              className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-            >
-              24
-            </PaginationLink>
-          </PaginationItem>
-        </PaginationContent>
+          <PaginationContent className="flex items-center gap-3">
+            {Array.from(
+              { length: Math.min(5, totalPages) },
+              (_, i) => i + 1
+            ).map((page) => (
+              <PaginationItem key={page}>
+                <PaginationLink
+                  href="#"
+                  className={`flex items-center justify-center w-9 h-9 rounded ${
+                    page === currentPage
+                      ? "bg-cyan-100 font-bold text-[#1e2324]"
+                      : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                  }`}
+                  onClick={(e: React.MouseEvent) => {
+                    e.preventDefault();
+                    handlePageChange(page);
+                  }}
+                >
+                  {page}
+                </PaginationLink>
+              </PaginationItem>
+            ))}
+            {totalPages > 5 && (
+              <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+            )}
+            {totalPages > 5 && (
+              <PaginationItem>
+                <PaginationLink
+                  href="#"
+                  className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                  onClick={(e: React.MouseEvent) => {
+                    e.preventDefault();
+                    handlePageChange(totalPages);
+                  }}
+                >
+                  {totalPages}
+                </PaginationLink>
+              </PaginationItem>
+            )}
+          </PaginationContent>
 
-        <PaginationNext
-          href="#"
-          className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
-        >
-          Next
-          <img
-            className="w-6 h-6 rotate-180"
-            alt="Arrow right"
-            src="/img/arrow-left-sm-1.svg"
-          />
-        </PaginationNext>
-      </Pagination>
+          <PaginationNext
+            href="#"
+            className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
+            onClick={(e: React.MouseEvent) => {
+              e.preventDefault();
+              if (currentPage < totalPages) handlePageChange(currentPage + 1);
+            }}
+          >
+            Next
+            <img
+              className="w-6 h-6 rotate-180"
+              alt="Arrow right"
+              src="/img/arrow-left-sm-1.svg"
+            />
+          </PaginationNext>
+        </Pagination>
+      )}
     </section>
   );
 };
