@@ -15,7 +15,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    dispatch(loginPage("admin"));
+    dispatch(loginPage("veeville"));
   }, [dispatch]);
 
   const handleSubmit = async (e: React.FormEvent) => {

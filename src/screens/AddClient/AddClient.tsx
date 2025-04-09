@@ -16,39 +16,43 @@ import { HexColorPicker } from "react-colorful";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { cn } from "../../lib/utils";
+import { useDispatch, useSelector } from "react-redux";
+import { registerClient, resetState } from "../../store/features/clientSlice";
+import { RootState, AppDispatch } from "../../store/store";
 
-const clientData = {
-  name: "Dassault Aviation",
-  url: "https://dassaultaviation.cotton-blue.com/",
+// Initial empty form data
+const initialFormData = {
+  name: "",
+  url: "",
   brandColors: {
     background: "#324b6b",
     text: "#ffffff",
   },
   location: {
     category: "Agency",
-    postalCode: "59472",
-    city: "Seclin",
-    address: "Marcel Dassault Street",
+    postalCode: "",
+    city: "",
+    address: "",
     addressComment: "",
   },
   limits: {
     order: {
       enabled: true,
-      value: "3",
+      value: "",
       period: "Month",
     },
     budget: {
       enabled: false,
-      value: "€4500",
+      value: "",
       period: "Month",
     },
   },
   passwords: {
-    admin: "password",
-    client: "password",
+    admin: "",
+    client: "",
   },
   validation: {
-    email: "pierre.doe@gmail.com",
+    email: "",
   },
 };
 
@@ -326,11 +330,36 @@ const ColorPaletteRecommendation = ({
 
 const ClientForm = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState(clientData);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error, success } = useSelector(
+    (state: RootState) => state.client
+  );
+  const [formData, setFormData] = useState(initialFormData);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Reset state when component unmounts
+  useEffect(() => {
+    return () => {
+      dispatch(resetState());
+    };
+  }, [dispatch]);
+
+  // Handle success state
+  useEffect(() => {
+    if (success) {
+      toast.success("Client added successfully!");
+      navigate("/customers");
+    }
+  }, [success, navigate]);
+
+  // Handle error state
+  useEffect(() => {
+    if (error) {
+      toast.error(error);
+    }
+  }, [error]);
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -355,17 +384,35 @@ const ClientForm = () => {
   };
 
   const handleNext = async () => {
-    setIsSubmitting(true);
-    try {
-      // Here you would typically make an API call to save the client data
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Simulated API call
-      toast.success("Client added successfully!");
-      navigate("/customers");
-    } catch (error) {
-      toast.error("Failed to add client. Please try again.");
-    } finally {
-      setIsSubmitting(false);
+    // Validate required fields
+    if (
+      !formData.name ||
+      !formData.location.city ||
+      !formData.location.address ||
+      !formData.passwords.admin ||
+      !formData.passwords.client ||
+      !formData.validation.email
+    ) {
+      toast.error("Please fill in all required fields");
+      return;
     }
+
+    // Prepare data for API call
+    const clientData = {
+      company_name: formData.name,
+      company_address: formData.location.address,
+      city: formData.location.city,
+      postal_code: formData.location.postalCode,
+      phone_number: "", // Not in the form, but required by API
+      logo: logoFile || new File([], "empty.png"), // Use empty file if no logo
+      color_code: formData.brandColors.background,
+      dns_prefix: formData.name.toLowerCase().replace(/\s+/g, "-"),
+      Admin_email: formData.validation.email,
+      Admin_password: formData.passwords.admin,
+    };
+
+    // Dispatch the registerClient action
+    dispatch(registerClient(clientData));
   };
 
   return (
@@ -394,7 +441,11 @@ const ClientForm = () => {
                 </span>
               </div>
               <p className="text-xs font-text-smaller text-[#475569]">
-                The link will be: {formData.url}
+                The link will be:{" "}
+                {formData.url ||
+                  `https://${formData.name
+                    .toLowerCase()
+                    .replace(/\s+/g, "-")}.cotton-blue.com/`}
               </p>
             </div>
 
@@ -801,9 +852,9 @@ const ClientForm = () => {
               <Button
                 className="bg-[#07515f] text-white h-12 font-text-medium text-[16px] leading-[24px]"
                 onClick={handleNext}
-                disabled={isSubmitting}
+                disabled={loading}
               >
-                {isSubmitting ? "Saving..." : "Next"}
+                {loading ? "Saving..." : "Next"}
               </Button>
             </div>
           </div>
