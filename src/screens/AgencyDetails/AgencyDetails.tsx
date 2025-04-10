@@ -15,8 +15,41 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { CheckCircle, Clock, FileText, XCircle } from "lucide-react";
+import { useState } from "react";
 
-const agencyDetails = {
+// Define proper types for our data
+interface AgencyStatistics {
+  totalOrders: string;
+  monthlyRevenue: string;
+  topProducts: string;
+}
+
+interface AgencyDetails {
+  id: string;
+  name: string;
+  city: string;
+  category: string;
+  registrationDate: string;
+  email: string;
+  status: string;
+  statistics: AgencyStatistics;
+}
+
+interface OrderStatus {
+  text: string;
+  type: "success" | "warning" | "danger";
+}
+
+interface Order {
+  id: string;
+  date: string;
+  price: string;
+  status: OrderStatus;
+  hasInvoice: boolean;
+}
+
+// Static data
+const agencyDetails: AgencyDetails = {
   id: "1021",
   name: "Chronodrive",
   city: "Lyon",
@@ -31,12 +64,12 @@ const agencyDetails = {
   },
 };
 
-const orders = [
+const orders: Order[] = [
   {
     id: "KCJRTAEIJ",
     date: "15/02/2024",
     price: "499.90€",
-    status: { text: "Livréee", type: "success" },
+    status: { text: "Livrée", type: "success" },
     hasInvoice: true,
   },
   {
@@ -55,6 +88,12 @@ const orders = [
   },
 ];
 
+// Helper function to get agency detail by key
+const getAgencyDetail = (key: keyof AgencyDetails): string => {
+  const value = agencyDetails[key];
+  return typeof value === "string" ? value : JSON.stringify(value);
+};
+
 const AgencyDetailsCard = () => (
   <Card className="w-full">
     <CardHeader>
@@ -66,12 +105,12 @@ const AgencyDetailsCard = () => (
       <div className="flex items-start gap-8">
         <div className="flex flex-col items-start gap-8 flex-1">
           <div className="flex flex-col gap-4">
-            {["ID", "Nom", "Ville", "Catégorie"].map((label, index) => (
-              <div key={index} className="font-text-medium text-black">
+            {["id", "name", "city", "category"].map((key) => (
+              <div key={key} className="font-text-medium text-black">
                 <span className="font-[number:var(--text-medium-font-weight)]">
-                  {label} :{" "}
+                  {key.charAt(0).toUpperCase() + key.slice(1)} :{" "}
                 </span>
-                <span>{agencyDetails[label.toLowerCase()]}</span>
+                <span>{getAgencyDetail(key as keyof AgencyDetails)}</span>
               </div>
             ))}
           </div>
@@ -79,20 +118,20 @@ const AgencyDetailsCard = () => (
         </div>
         <div className="flex flex-col items-start gap-8 flex-1">
           <div className="flex flex-col gap-4 h-36">
-            {["Date d'inscription", "Email gestion", "Statut"].map(
-              (label, index) => (
-                <div key={index} className="font-text-medium text-black">
-                  <span className="font-[number:var(--text-medium-font-weight)]">
-                    {label} :{" "}
-                  </span>
-                  <span
-                    className={label === "Statut" ? "text-emerald-500" : ""}
-                  >
-                    {agencyDetails[label.toLowerCase().replace("'", "")]}
-                  </span>
-                </div>
-              )
-            )}
+            {[
+              { key: "registrationDate", label: "Date d'inscription" },
+              { key: "email", label: "Email gestion" },
+              { key: "status", label: "Statut" },
+            ].map(({ key, label }) => (
+              <div key={key} className="font-text-medium text-black">
+                <span className="font-[number:var(--text-medium-font-weight)]">
+                  {label} :{" "}
+                </span>
+                <span className={key === "status" ? "text-emerald-500" : ""}>
+                  {getAgencyDetail(key as keyof AgencyDetails)}
+                </span>
+              </div>
+            ))}
           </div>
           <ActionsBox />
         </div>
@@ -117,112 +156,165 @@ const StatisticsBox = () => (
   </Card>
 );
 
-const ActionsBox = () => (
-  <Card className="w-full bg-[color:var(--1-tokens-color-modes-background-secondary)] border-[color:var(--1-tokens-color-modes-border-primary)]">
-    <CardContent className="p-4 space-y-4">
-      <h3 className="font-text-medium text-black">Actions</h3>
-      {["Modifier l'agence", "Désactiver l'agence"].map((action, index) => (
+const ActionsBox = () => {
+  const [isAgencyActive, setIsAgencyActive] = useState(true);
+
+  const handleToggleAgencyStatus = () => {
+    setIsAgencyActive(!isAgencyActive);
+  };
+
+  return (
+    <Card className="w-full bg-[color:var(--1-tokens-color-modes-background-secondary)] border-[color:var(--1-tokens-color-modes-border-primary)]">
+      <CardContent className="p-4 space-y-4">
+        <h3 className="font-text-medium text-black">Actions</h3>
         <Button
-          key={index}
-          className={`w-full ${
-            index === 0
-              ? "bg-[#07515f]"
-              : "bg-1-tokens-color-modes-common-danger-medium"
-          } text-[color:var(--1-tokens-color-modes-button-primary-default-text)]`}
+          className="w-full bg-[#07515f] text-[color:var(--1-tokens-color-modes-button-primary-default-text)]"
+          onClick={() => alert("Modification d'agence simulée")}
         >
-          {action}
+          Modifier l'agence
         </Button>
-      ))}
-    </CardContent>
-  </Card>
-);
+        <Button
+          className="w-full bg-1-tokens-color-modes-common-danger-medium text-[color:var(--1-tokens-color-modes-button-primary-default-text)]"
+          onClick={handleToggleAgencyStatus}
+        >
+          {isAgencyActive ? "Désactiver l'agence" : "Activer l'agence"}
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
 
-const OrdersTableCard = () => (
-  <Card className="w-full">
-    <CardHeader>
-      <CardTitle className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]">
-        Commande de l&apos;agence
-      </CardTitle>
-    </CardHeader>
-    <CardContent>
-      <Table>
-        <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
-          <TableRow>
-            <TableHead className="w-11">
-              <Checkbox />
-            </TableHead>
-            {[
-              "Commande",
-              "Date",
-              "Prix total",
-              "Statut",
-              "Facture",
-              "Détails",
-            ].map((header, index) => (
-              <TableHead
-                key={index}
-                className="w-[145px] font-text-small text-[#1e2324]"
-              >
-                {header}
+const OrdersTableCard = () => {
+  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedOrders(orders.map((order) => order.id));
+    } else {
+      setSelectedOrders([]);
+    }
+  };
+
+  const handleSelectOrder = (orderId: string, checked: boolean) => {
+    if (checked) {
+      setSelectedOrders([...selectedOrders, orderId]);
+    } else {
+      setSelectedOrders(selectedOrders.filter((id) => id !== orderId));
+    }
+  };
+
+  const handleViewDetails = (orderId: string) => {
+    alert(`Voir les détails de la commande ${orderId}`);
+  };
+
+  return (
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]">
+          Commande de l&apos;agence
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
+            <TableRow>
+              <TableHead className="w-11">
+                <Checkbox
+                  checked={selectedOrders.length === orders.length}
+                  onCheckedChange={(checked: boolean) =>
+                    handleSelectAll(checked)
+                  }
+                />
               </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {orders.map((order, index) => (
-            <TableRow
-              key={index}
-              className="border-b border-primary-neutal-300"
-            >
-              <TableCell className="w-11">
-                <Checkbox />
-              </TableCell>
-              {["id", "date", "price"].map((field, idx) => (
-                <TableCell
-                  key={idx}
-                  className="w-[145px] font-normal text-black text-[15px]"
+              {[
+                "Commande",
+                "Date",
+                "Prix total",
+                "Statut",
+                "Facture",
+                "Détails",
+              ].map((header, index) => (
+                <TableHead
+                  key={index}
+                  className="w-[145px] font-text-small text-[#1e2324]"
                 >
-                  {order[field]}
-                </TableCell>
+                  {header}
+                </TableHead>
               ))}
-              <TableCell className="w-[145px]">
-                <div className="flex items-center gap-2">
-                  {order.status.type === "success" && (
-                    <CheckCircle className="w-6 h-6 text-1-tokens-color-modes-common-success-medium" />
-                  )}
-                  {order.status.type === "warning" && (
-                    <Clock className="w-6 h-6 text-1-tokens-color-modes-common-warning-medium" />
-                  )}
-                  {order.status.type === "danger" && (
-                    <XCircle className="w-6 h-6 text-1-tokens-color-modes-common-danger-medium" />
-                  )}
-                  <span
-                    className={`text-1-tokens-color-modes-common-${order.status.type}-medium`}
-                  >
-                    {order.status.text}
-                  </span>
-                </div>
-              </TableCell>
-              <TableCell className="w-[69px] text-center">
-                <FileText className="w-4 h-4 mx-auto" />
-              </TableCell>
-              <TableCell className="w-[145px] text-center">
-                <Button
-                  variant="link"
-                  className="font-label-medium text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] underline"
-                >
-                  Détails
-                </Button>
-              </TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </CardContent>
-  </Card>
-);
+          </TableHeader>
+          <TableBody>
+            {orders.map((order, index) => (
+              <TableRow
+                key={index}
+                className="border-b border-primary-neutal-300"
+              >
+                <TableCell className="w-11">
+                  <Checkbox
+                    checked={selectedOrders.includes(order.id)}
+                    onCheckedChange={(checked: boolean) =>
+                      handleSelectOrder(order.id, checked)
+                    }
+                  />
+                </TableCell>
+                <TableCell className="w-[145px] font-normal text-black text-[15px]">
+                  {order.id}
+                </TableCell>
+                <TableCell className="w-[145px] font-normal text-black text-[15px]">
+                  {order.date}
+                </TableCell>
+                <TableCell className="w-[145px] font-normal text-black text-[15px]">
+                  {order.price}
+                </TableCell>
+                <TableCell className="w-[145px]">
+                  <div className="flex items-center gap-2">
+                    {order.status.type === "success" && (
+                      <CheckCircle className="w-6 h-6 text-1-tokens-color-modes-common-success-medium" />
+                    )}
+                    {order.status.type === "warning" && (
+                      <Clock className="w-6 h-6 text-1-tokens-color-modes-common-warning-medium" />
+                    )}
+                    {order.status.type === "danger" && (
+                      <XCircle className="w-6 h-6 text-1-tokens-color-modes-common-danger-medium" />
+                    )}
+                    <span
+                      className={`text-1-tokens-color-modes-common-${order.status.type}-medium`}
+                    >
+                      {order.status.text}
+                    </span>
+                  </div>
+                </TableCell>
+                <TableCell className="w-[69px] text-center">
+                  {order.hasInvoice ? (
+                    <FileText
+                      className="w-4 h-4 mx-auto cursor-pointer"
+                      onClick={() =>
+                        alert(`Télécharger la facture pour ${order.id}`)
+                      }
+                    />
+                  ) : (
+                    <span className="text-gray-400">-</span>
+                  )}
+                </TableCell>
+                <TableCell className="w-[145px] text-center">
+                  <Button
+                    variant="link"
+                    className="font-label-medium text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] underline"
+                    onClick={() => handleViewDetails(order.id)}
+                  >
+                    Détails
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
+  );
+};
 
-const TableContainer = (): JSX.Element => {
+const AgencyDetails = (): JSX.Element => {
   return (
     <div className="flex flex-col items-start gap-8 p-6">
       <AgencyDetailsCard />
@@ -231,4 +323,4 @@ const TableContainer = (): JSX.Element => {
   );
 };
 
-export default TableContainer;
+export default AgencyDetails;
