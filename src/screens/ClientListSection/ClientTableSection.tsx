@@ -19,6 +19,7 @@ import {
 } from "../../components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 // Pagination data
 const paginationItems = [1, 2, 3, 4, 5];
@@ -37,6 +38,7 @@ export const ClientTableSection = ({
   searchTerm,
 }: ClientTableSectionProps): JSX.Element => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedClients, setSelectedClients] = useState<number[]>([]);
 
@@ -117,6 +119,11 @@ export const ClientTableSection = ({
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString();
+  };
+
+  // Handle view details click
+  const handleViewDetails = (clientId: number) => {
+    navigate(`/customers/${clientId}`);
   };
 
   return (
@@ -225,6 +232,7 @@ export const ClientTableSection = ({
                       <Button
                         variant="link"
                         className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
+                        onClick={() => handleViewDetails(client.id)}
                       >
                         View Details
                       </Button>

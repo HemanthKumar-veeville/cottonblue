@@ -20,6 +20,7 @@ import { useAppSelector } from "./store/store";
 import { getUser } from "./store/features/authSlice";
 import GlobalLoader from "./components/GlobalLoader";
 import { GlobalDashboard } from "./screens/GlobalDashboard/GlobalDashboard";
+import AgencyDetails from "./screens/AgencyDetails/AgencyDetails";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
 
@@ -44,6 +45,7 @@ function App() {
             <Route path="products/stock" element={<ComingSoon />} />
             <Route path="products/carousel" element={<Carousel />} />
             <Route path="customers" element={<ClientList />} />
+            <Route path="customers/:id" element={<AgencyDetails />} />
             <Route path="customers/add" element={<AddClient />} />
             <Route path="support/tickets" element={<Tickets />} />
             <Route path="settings" element={<ComingSoon />} />
