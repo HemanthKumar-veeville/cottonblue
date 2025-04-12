@@ -200,7 +200,7 @@ export const SuperadminSidebarSection = ({
         {
           icon: <BookOpenIcon className="w-4 h-4" />,
           label: t("sidebar.customers.list"),
-          path: "/customers",
+          path: "/agencies",
         },
       ],
     },

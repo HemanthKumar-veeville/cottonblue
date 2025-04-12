@@ -8,6 +8,7 @@ interface AuthState {
   isLoading: boolean;
   error: string | null;
   isLoggedIn: boolean;
+  isAdmin: boolean;
   user: any;
 }
 
@@ -19,6 +20,7 @@ const initialState: AuthState = {
   error: null,
   isLoggedIn: false,
   user: null,
+  isAdmin: false,
 };
 
 // Async thunks
