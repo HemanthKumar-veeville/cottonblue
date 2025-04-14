@@ -8,6 +8,12 @@ import {
   SelectValue,
 } from "../ui/select";
 import { useTranslation } from "react-i18next";
+import { useAppDispatch } from "../../store/store";
+import {
+  getAllCompanies,
+  setSelectedCompany,
+} from "../../store/features/clientSlice";
+import { useAppSelector } from "../../store/store";
 
 interface NavTabItem {
   id: number;
@@ -91,6 +97,15 @@ export const SuperadminHeader = (): JSX.Element => {
   const { t, i18n } = useTranslation();
   const [tabs, setTabs] = useState<NavTabItem[]>(navTabs);
   const { setIsAdminMode } = useAdminMode();
+  const dispatch = useAppDispatch();
+  const { companies, selectedCompany } = useAppSelector(
+    (state) => state.client
+  );
+  const companyList =
+    companies?.companies?.map((company) => ({
+      id: company.id,
+      name: company.name,
+    })) || [];
 
   const handleTabClick = (tabId: number) => {
     const newTabs = tabs.map((tab) => ({
@@ -99,10 +114,15 @@ export const SuperadminHeader = (): JSX.Element => {
     }));
     setTabs(newTabs);
     setIsAdminMode(tabId === 1);
+    dispatch(getAllCompanies());
   };
 
   const handleLanguageChange = (value: string) => {
     i18n.changeLanguage(value);
+  };
+
+  const handleCompanySelect = (company: { id: string; name: string }) => {
+    dispatch(setSelectedCompany(company));
   };
 
   return (
@@ -122,19 +142,51 @@ export const SuperadminHeader = (): JSX.Element => {
           </div>
           {tabs.find((tab) => tab.id === 2)?.active && (
             <div className="flex items-center gap-3">
-              <div className="flex w-[200px] items-center justify-center gap-3 py-3 px-3 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300">
-                <div className="flex w-6 h-6 items-center justify-center shrink-0">
-                  <img className="w-5 h-5" alt="Icon" src="/img/icon-9.svg" />
+              <div className="relative">
+                <div
+                  className="flex w-[200px] items-center justify-center gap-3 py-3 px-3 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300 cursor-pointer"
+                  onClick={() => {
+                    const dropdown =
+                      document.getElementById("company-dropdown");
+                    if (dropdown) {
+                      dropdown.classList.toggle("hidden");
+                    }
+                  }}
+                >
+                  <div className="flex w-6 h-6 items-center justify-center shrink-0">
+                    <img className="w-5 h-5" alt="Icon" src="/img/icon-9.svg" />
+                  </div>
+                  <div className="flex-1 font-medium text-gray-700 text-base leading-4 tracking-normal truncate">
+                    {selectedCompany?.name || "Select Company"}
+                  </div>
+                  <div className="flex w-6 h-6 items-center justify-center shrink-0">
+                    <img
+                      className="w-4 h-4"
+                      alt="Chevron down"
+                      src="/img/icon-13.svg"
+                    />
+                  </div>
                 </div>
-                <div className="flex-1 font-medium text-gray-700 text-base leading-4 tracking-normal truncate">
-                  Chronodrive
-                </div>
-                <div className="flex w-6 h-6 items-center justify-center shrink-0">
-                  <img
-                    className="w-4 h-4"
-                    alt="Chevron down"
-                    src="/img/icon-13.svg"
-                  />
+                <div
+                  id="company-dropdown"
+                  className="hidden absolute top-full left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50"
+                >
+                  {companyList.map((company) => (
+                    <div
+                      key={company.id}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => {
+                        handleCompanySelect(company);
+                        const dropdown =
+                          document.getElementById("company-dropdown");
+                        if (dropdown) {
+                          dropdown.classList.add("hidden");
+                        }
+                      }}
+                    >
+                      {company.name}
+                    </div>
+                  ))}
                 </div>
               </div>
               <div className="flex items-center justify-center gap-3 py-3 px-3 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300">

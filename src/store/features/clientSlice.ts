@@ -6,6 +6,10 @@ interface ClientState {
   error: string | null;
   success: boolean;
   companies: any[];
+  selectedCompany: {
+    id: string;
+    name: string;
+  } | null;
 }
 
 const initialState: ClientState = {
@@ -13,6 +17,7 @@ const initialState: ClientState = {
   error: null,
   success: false,
   companies: [],
+  selectedCompany: null,
 };
 
 export const registerClient = createAsyncThunk(
@@ -48,6 +53,9 @@ const clientSlice = createSlice({
       state.error = null;
       state.success = false;
     },
+    setSelectedCompany: (state, action) => {
+      state.selectedCompany = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -71,6 +79,12 @@ const clientSlice = createSlice({
       .addCase(getAllCompanies.fulfilled, (state, action) => {
         state.loading = false;
         state.companies = action.payload;
+        if (!state.selectedCompany && action.payload.length > 0) {
+          state.selectedCompany = {
+            id: action.payload[0].id,
+            name: action.payload[0].name,
+          };
+        }
       })
       .addCase(getAllCompanies.rejected, (state, action) => {
         state.loading = false;
@@ -79,5 +93,5 @@ const clientSlice = createSlice({
   },
 });
 
-export const { resetState } = clientSlice.actions;
+export const { resetState, setSelectedCompany } = clientSlice.actions;
 export default clientSlice.reducer;
