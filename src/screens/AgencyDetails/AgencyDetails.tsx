@@ -28,10 +28,15 @@ interface AgencyDetails {
   id: string;
   name: string;
   city: string;
-  category: string;
-  registrationDate: string;
-  email: string;
-  status: string;
+  address: string;
+  phone_number: string;
+  longitude: string;
+  latitude: string;
+  created_at: string;
+  updated_at: string;
+  company_id: number;
+  postal_code: string;
+  is_active: boolean;
   statistics: AgencyStatistics;
 }
 
@@ -53,10 +58,15 @@ const agencyDetails: AgencyDetails = {
   id: "1021",
   name: "Chronodrive",
   city: "Lyon",
-  category: "Agence",
-  registrationDate: "22/03/2025",
-  email: "jean.morel@chronodrive.com",
-  status: "Actif",
+  address: "123 Rue de la République",
+  phone_number: "+33 4 78 34 56 78",
+  longitude: "4.8357",
+  latitude: "45.7640",
+  created_at: "22/03/2025",
+  updated_at: "22/03/2025",
+  company_id: 1,
+  postal_code: "69001",
+  is_active: true,
   statistics: {
     totalOrders: "342",
     monthlyRevenue: "8 500 €",
@@ -90,8 +100,10 @@ const orders: Order[] = [
 
 // Helper function to get agency detail by key
 const getAgencyDetail = (key: keyof AgencyDetails): string => {
-  const value = agencyDetails[key];
-  return typeof value === "string" ? value : JSON.stringify(value);
+  if (key === "is_active") {
+    return agencyDetails.is_active ? "Active" : "Inactive";
+  }
+  return agencyDetails[key]?.toString() || "";
 };
 
 const AgencyDetailsCard = () => (
@@ -105,7 +117,7 @@ const AgencyDetailsCard = () => (
       <div className="flex items-start gap-8">
         <div className="flex flex-col items-start gap-8 flex-1">
           <div className="flex flex-col gap-4">
-            {["id", "name", "city", "category"].map((key) => (
+            {["id", "name", "city", "address"].map((key) => (
               <div key={key} className="font-text-medium text-black">
                 <span className="font-[number:var(--text-medium-font-weight)]">
                   {key.charAt(0).toUpperCase() + key.slice(1)} :{" "}
@@ -119,15 +131,15 @@ const AgencyDetailsCard = () => (
         <div className="flex flex-col items-start gap-8 flex-1">
           <div className="flex flex-col gap-4 h-36">
             {[
-              { key: "registrationDate", label: "Date d'inscription" },
-              { key: "email", label: "Email gestion" },
-              { key: "status", label: "Statut" },
+              { key: "phone_number", label: "Téléphone" },
+              { key: "postal_code", label: "Code postal" },
+              { key: "is_active", label: "Statut" },
             ].map(({ key, label }) => (
               <div key={key} className="font-text-medium text-black">
                 <span className="font-[number:var(--text-medium-font-weight)]">
                   {label} :{" "}
                 </span>
-                <span className={key === "status" ? "text-emerald-500" : ""}>
+                <span className={key === "is_active" ? "text-emerald-500" : ""}>
                   {getAgencyDetail(key as keyof AgencyDetails)}
                 </span>
               </div>

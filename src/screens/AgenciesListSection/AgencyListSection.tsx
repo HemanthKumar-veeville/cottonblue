@@ -64,9 +64,9 @@ export const AgencyListSection = ({
     // For demonstration, we'll create a sample CSV
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      "ID,Name,Contact Person,Email,Phone,City,Status,Last Updated\n" +
-      "1,Creative Solutions Agency,John Smith,john@creativesolutions.com,+1 (555) 123-4567,New York,Active,2023-01-15\n" +
-      "2,Digital Marketing Pro,Sarah Johnson,sarah@digitalmarketingpro.com,+1 (555) 987-6543,Los Angeles,Active,2023-02-20\n";
+      "ID,Name,Phone,City,Address,Longitude,Latitude,Created At,Updated At,Company ID,Postal Code,Status\n" +
+      "1,Store 1,1234567890,City A,123 Main St,56.78,12.34,2025-04-14,2025-04-14,12,12345,Active\n" +
+      "2,Store 2,9876543210,City B,456 Oak Ave,78.90,34.56,2025-04-15,2025-04-15,12,54321,Active\n";
 
     // Create a download link
     const encodedUri = encodeURI(csvContent);

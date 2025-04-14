@@ -1,6 +1,22 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { agencyService } from '../../services/agencyService';
 
+// Define the Agency interface
+interface Agency {
+  id: number;
+  name: string;
+  phone_number: string;
+  city: string;
+  address: string;
+  longitude: string;
+  latitude: string;
+  created_at: string;
+  updated_at: string;
+  company_id: number;
+  postal_code: string;
+  is_active: boolean;
+}
+
 // Define the store data interface
 interface StoreData {
   company_id: string;
@@ -15,7 +31,7 @@ interface StoreData {
 
 // Define the state interface
 interface AgencyState {
-  stores: any[];
+  stores: Agency[] | { stores?: Agency[] } | any;
   loading: boolean;
   error: string | null;
   registerSuccess: boolean;

@@ -14,6 +14,7 @@ import {
   setSelectedCompany,
 } from "../../store/features/clientSlice";
 import { useAppSelector } from "../../store/store";
+import { fetchAllStores } from "../../store/features/agencySlice";
 
 interface NavTabItem {
   id: number;
@@ -101,6 +102,18 @@ export const SuperadminHeader = (): JSX.Element => {
   const { companies, selectedCompany } = useAppSelector(
     (state) => state.client
   );
+  const { stores } = useAppSelector((state) => state.agency);
+  const [selectedStore, setSelectedStore] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
+  const storeList = stores?.stores?.map(
+    (store: { id: string; name: string }) => ({
+      id: store.id,
+      name: store.name,
+    })
+  );
+  console.log({ storeList });
   const companyList =
     companies?.companies?.map((company) => ({
       id: company.id,
@@ -123,6 +136,12 @@ export const SuperadminHeader = (): JSX.Element => {
 
   const handleCompanySelect = (company: { id: string; name: string }) => {
     dispatch(setSelectedCompany(company));
+    dispatch(fetchAllStores(company.name));
+  };
+
+  const handleStoreSelect = (store: { id: string; name: string }) => {
+    setSelectedStore(store);
+    // Add any additional store selection logic here
   };
 
   return (
@@ -189,19 +208,50 @@ export const SuperadminHeader = (): JSX.Element => {
                   ))}
                 </div>
               </div>
-              <div className="flex items-center justify-center gap-3 py-3 px-3 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300">
-                <div className="flex w-6 h-6 items-center justify-center shrink-0">
-                  <img className="w-5 h-5" alt="Icon" src="/img/icon-10.svg" />
+              <div className="relative">
+                <div
+                  className="flex w-[200px] items-center justify-center gap-3 py-3 px-3 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300 cursor-pointer"
+                  onClick={() => {
+                    const dropdown = document.getElementById("store-dropdown");
+                    if (dropdown) {
+                      dropdown.classList.toggle("hidden");
+                    }
+                  }}
+                >
+                  <div className="flex w-6 h-6 items-center justify-center shrink-0">
+                    <img className="w-5 h-5" alt="Icon" src="/img/icon-9.svg" />
+                  </div>
+                  <div className="flex-1 font-medium text-gray-700 text-base leading-4 tracking-normal truncate">
+                    {selectedStore?.name || "Select Store"}
+                  </div>
+                  <div className="flex w-6 h-6 items-center justify-center shrink-0">
+                    <img
+                      className="w-4 h-4"
+                      alt="Chevron down"
+                      src="/img/icon-13.svg"
+                    />
+                  </div>
                 </div>
-                <div className="font-medium text-gray-700 text-base leading-4 truncate">
-                  Marcq-en-Baroeul
-                </div>
-                <div className="flex w-6 h-6 items-center justify-center shrink-0">
-                  <img
-                    className="w-4 h-4"
-                    alt="Chevron down"
-                    src="/img/icon-13.svg"
-                  />
+                <div
+                  id="store-dropdown"
+                  className="hidden absolute top-full left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50"
+                >
+                  {storeList?.map((store: { id: string; name: string }) => (
+                    <div
+                      key={store.id}
+                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                      onClick={() => {
+                        handleStoreSelect(store);
+                        const dropdown =
+                          document.getElementById("store-dropdown");
+                        if (dropdown) {
+                          dropdown.classList.add("hidden");
+                        }
+                      }}
+                    >
+                      {store.name}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

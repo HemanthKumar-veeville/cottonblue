@@ -30,10 +30,13 @@ interface Agency {
   phone_number: string;
   city: string;
   address: string;
-  status: string;
+  longitude: string;
+  latitude: string;
   created_at: string;
-  contact_person: string;
-  email: string;
+  updated_at: string;
+  company_id: number;
+  postal_code: string;
+  is_active: boolean;
 }
 
 interface AgencyTableSectionProps {
@@ -84,8 +87,8 @@ export const AgencyTableSection = ({
       agency.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       agency.phone_number?.includes(searchTerm) ||
       agency.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agency.contact_person?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agency.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      agency.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      agency.postal_code?.includes(searchTerm)
   );
 
   // Debug: Log the filtered agencies
@@ -248,12 +251,12 @@ export const AgencyTableSection = ({
                     <TableCell className="w-[100px] text-left">
                       <span
                         className={`px-2 py-1 rounded-full text-sm ${
-                          agency.status === "Active"
+                          agency.is_active
                             ? "bg-green-100 text-green-800"
                             : "bg-red-100 text-red-800"
                         }`}
                       >
-                        {agency.status}
+                        {agency.is_active ? "Active" : "Inactive"}
                       </span>
                     </TableCell>
                     <TableCell className="w-[120px] text-left font-text-smaller text-black">

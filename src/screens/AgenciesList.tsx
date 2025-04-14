@@ -12,15 +12,19 @@ interface Agency {
   phone_number: string;
   city: string;
   address: string;
-  status: string;
+  longitude: string;
+  latitude: string;
   created_at: string;
-  contact_person: string;
-  email: string;
+  updated_at: string;
+  company_id: number;
+  postal_code: string;
+  is_active: boolean;
 }
 
 interface AgenciesResponse {
   data?: Agency[];
   agencies?: Agency[];
+  stores?: Agency[];
 }
 
 export const AgenciesList = (): JSX.Element => {
@@ -28,26 +32,19 @@ export const AgenciesList = (): JSX.Element => {
   const { stores, loading, error } = useSelector(
     (state: RootState) => state.agency
   );
-  const company = useSelector((state: RootState) => state.auth.company);
+
+  const company = useSelector(
+    (state: RootState) => state.client.selectedCompany
+  );
   console.log("Company:", company);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     // Dispatch the fetchAllStores action to get agencies data
     if (company) {
-      dispatch(fetchAllStores(company));
+      dispatch(fetchAllStores(company.name));
     }
   }, [dispatch, company]);
-
-  // Debug: Log the agencies data
-  useEffect(() => {
-    console.log("Agencies from Redux store:", stores);
-    console.log("Agencies type:", typeof stores);
-    console.log("Is agencies an array?", Array.isArray(stores));
-    if (Array.isArray(stores)) {
-      console.log("Number of agencies:", stores.length);
-    }
-  }, [stores]);
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
@@ -56,7 +53,7 @@ export const AgenciesList = (): JSX.Element => {
   // Ensure agencies is an array and has the correct structure
   let agenciesArray: Agency[] = [];
 
-  if (Array.isArray(stores)) {
+  if (stores && Array.isArray(stores)) {
     agenciesArray = stores;
   } else if (stores && typeof stores === "object") {
     const agenciesObj = stores as AgenciesResponse;
@@ -65,6 +62,8 @@ export const AgenciesList = (): JSX.Element => {
       agenciesArray = agenciesObj.data;
     } else if (agenciesObj.agencies && Array.isArray(agenciesObj.agencies)) {
       agenciesArray = agenciesObj.agencies;
+    } else if (agenciesObj.stores && Array.isArray(agenciesObj.stores)) {
+      agenciesArray = agenciesObj.stores;
     } else {
       // If it's an object but doesn't have expected properties, try to convert it to an array
       agenciesArray = Object.values(agenciesObj) as Agency[];
