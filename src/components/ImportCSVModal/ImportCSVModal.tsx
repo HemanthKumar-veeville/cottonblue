@@ -1,34 +1,34 @@
 import { useState, useCallback } from "react";
-import { Button } from "../../components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "../../components/ui/dialog";
-import { Input } from "../../components/ui/input";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { Paperclip, Upload, Wrench, X, AlertCircle } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
+import * as XLSX from "xlsx";
+import { getFormattedTimestamp } from "../../utils/dateUtils";
 
-interface ImportCSVModalProps {
+export interface ImportCSVModalProps {
   isOpen: boolean;
   onClose: () => void;
   onImport: (file: File) => Promise<void>;
+  templateColumns: string[];
+  sheetName: string;
 }
 
 const Header = ({ onClose }: { onClose: () => void }) => (
   <DialogHeader className="flex items-center p-0 mb-8">
     <DialogTitle className="text-xl font-semibold text-[#1E2324]">
-      Importer un fichier CSV
+      Import CSV File
     </DialogTitle>
   </DialogHeader>
 );
 
 const FileDropArea = ({
   onFileSelect,
+  isImporting,
 }: {
   onFileSelect: (file: File | null) => void;
+  isImporting: boolean;
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -36,11 +36,16 @@ const FileDropArea = ({
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       const file = acceptedFiles[0];
-      if (file && file.type === "text/csv") {
+      if (
+        file &&
+        (file.type === "text/csv" ||
+          file.name.endsWith(".xlsx") ||
+          file.name.endsWith(".xls"))
+      ) {
         setSelectedFile(file);
         onFileSelect(file);
       } else {
-        toast.error("Veuillez sélectionner un fichier CSV valide");
+        toast.error("Please select a valid CSV or Excel file");
       }
     },
     [onFileSelect]
@@ -50,10 +55,15 @@ const FileDropArea = ({
     onDrop,
     accept: {
       "text/csv": [".csv"],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [
+        ".xlsx",
+      ],
+      "application/vnd.ms-excel": [".xls"],
     },
     maxFiles: 1,
     onDragEnter: () => setIsDragging(true),
     onDragLeave: () => setIsDragging(false),
+    disabled: isImporting,
   });
 
   return (
@@ -77,15 +87,15 @@ const FileDropArea = ({
         ) : (
           <div className="space-y-1">
             <p className="text-base font-medium text-[#1E2324]">
-              Glissez un fichier ici
+              Drop a file here
             </p>
             <p className="text-sm text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
-              ou cliquez pour en sélectionner un
+              or click to select one
             </p>
           </div>
         )}
       </div>
-      {selectedFile && (
+      {selectedFile && !isImporting && (
         <Button
           variant="ghost"
           size="sm"
@@ -96,42 +106,66 @@ const FileDropArea = ({
           }}
           className="text-red-500 hover:text-red-600"
         >
-          Supprimer
+          Remove
         </Button>
       )}
     </div>
   );
 };
 
-const Footer = () => (
-  <div className="flex flex-col items-center gap-4 mt-4">
-    <Button
-      variant="link"
-      className="font-medium text-sm text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] hover:text-[#07515f] flex items-center gap-1.5 p-0"
-      onClick={() => {
-        // Implement CSV template download
-        const template = "column1,column2,column3\nvalue1,value2,value3";
-        const blob = new Blob([template], { type: "text/csv" });
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "template.csv";
-        a.click();
-        window.URL.revokeObjectURL(url);
-      }}
-    >
-      <Paperclip className="h-4 w-4" />
-      Télécharger le modèle CSV
-    </Button>
-    <div className="flex items-center gap-2 text-sm text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] leading-5">
-      <Wrench className="h-4 w-4 flex-shrink-0" />
-      <span>
-        Assurez-vous que le fichier respecte bien le format requis (colonnes,
-        types, etc.)
-      </span>
+const Footer = ({
+  templateColumns,
+  sheetName,
+}: {
+  templateColumns: string[];
+  sheetName: string;
+}) => {
+  const downloadTemplate = () => {
+    // Create workbook
+    const wb = XLSX.utils.book_new();
+
+    // Create worksheet with header row only
+    const ws = XLSX.utils.aoa_to_sheet([
+      templateColumns.map((col) =>
+        col
+          .split("_")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" ")
+      ),
+    ]);
+
+    // Set column widths
+    const colWidths = templateColumns.map(() => ({ wch: 20 }));
+    ws["!cols"] = colWidths;
+
+    // Add the worksheet to the workbook
+    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+
+    // Generate and download the file with timestamp
+    const timestamp = getFormattedTimestamp();
+    XLSX.writeFile(wb, `${sheetName.toLowerCase()}_template_${timestamp}.xlsx`);
+    toast.success("Template downloaded successfully");
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-4 mt-4">
+      <Button
+        variant="link"
+        className="font-medium text-sm text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] hover:text-[#07515f] flex items-center gap-1.5 p-0"
+        onClick={downloadTemplate}
+      >
+        <Paperclip className="h-4 w-4" />
+        Download Template
+      </Button>
+      <div className="flex items-center gap-2 text-sm text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] leading-5">
+        <Wrench className="h-4 w-4 flex-shrink-0" />
+        <span>
+          Make sure the file follows the required format (columns, types, etc.)
+        </span>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ImportButton = ({
   onImport,
@@ -145,7 +179,7 @@ const ImportButton = ({
     onClick={onImport}
     disabled={disabled}
   >
-    Importer
+    Import
   </Button>
 );
 
@@ -153,6 +187,8 @@ export default function ImportCSVModal({
   isOpen,
   onClose,
   onImport,
+  templateColumns,
+  sheetName,
 }: ImportCSVModalProps): JSX.Element {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isImporting, setIsImporting] = useState(false);
@@ -167,10 +203,10 @@ export default function ImportCSVModal({
     try {
       setIsImporting(true);
       await onImport(selectedFile);
-      toast.success("Fichier importé avec succès");
+      toast.success("File imported successfully");
       onClose();
     } catch (error) {
-      toast.error("Erreur lors de l'importation du fichier");
+      toast.error("Error importing file");
       console.error("Import error:", error);
     } finally {
       setIsImporting(false);
@@ -181,8 +217,11 @@ export default function ImportCSVModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="p-6 max-w-md">
         <Header onClose={onClose} />
-        <FileDropArea onFileSelect={handleFileSelect} />
-        <Footer />
+        <FileDropArea
+          onFileSelect={handleFileSelect}
+          isImporting={isImporting}
+        />
+        <Footer templateColumns={templateColumns} sheetName={sheetName} />
         <ImportButton
           onImport={handleImport}
           disabled={!selectedFile || isImporting}

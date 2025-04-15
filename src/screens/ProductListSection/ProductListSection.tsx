@@ -4,7 +4,7 @@ import { Input } from "../../components/ui/input";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import ImportCSVModal from "../../components/ImportCSVModal/ImportCSVModal";
-import ExportCSV from "../../components/ExportCSV/ExportCSV";
+import { ExportCSV } from "../../components/ExportCSV/ExportCSV";
 
 export const ProductListSection = (): JSX.Element => {
   const { t } = useTranslation();

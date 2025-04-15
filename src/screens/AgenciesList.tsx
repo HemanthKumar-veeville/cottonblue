@@ -72,7 +72,7 @@ export const AgenciesList = (): JSX.Element => {
 
   return (
     <main className="flex flex-col w-full gap-8 p-6 bg-white rounded-lg">
-      <AgencyListSection onSearch={handleSearch} />
+      <AgencyListSection onSearch={handleSearch} agencies={agenciesArray} />
       <AgencyTableSection
         agencies={agenciesArray}
         loading={loading}
