@@ -202,6 +202,11 @@ export const SuperadminSidebarSection = ({
           label: t("sidebar.customers.list"),
           path: "/agencies",
         },
+        {
+          icon: <PlusCircleIcon className="w-4 h-4" />,
+          label: t("sidebar.customers.add"),
+          path: "/agencies/add",
+        },
       ],
     },
     {
