@@ -1,6 +1,9 @@
 import { ComponentType, useState } from "react";
 import ImportCSVModal from "../ImportCSVModal/ImportCSVModal";
 import { ExportCSV } from "../ExportCSV/ExportCSV";
+import { agencyService } from "../../services/agencyService";
+import { useAppSelector } from "../../store/store";
+import { RootState } from "../../store/store";
 
 interface Agency {
   id: number;
@@ -40,16 +43,19 @@ export const withCSVModals = <P extends object>(
   return (props: P) => {
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+    const company = useAppSelector(
+      (state: RootState) => state.client.selectedCompany
+    );
 
     const handleImport = async (file: File) => {
       try {
         const formData = new FormData();
         formData.append("file", file);
 
-        const response = await fetch(config.importEndpoint, {
-          method: "POST",
-          body: formData,
-        });
+        const response = await agencyService.registerStore(
+          company?.name,
+          formData
+        );
 
         if (!response.ok) {
           throw new Error("Import failed");
