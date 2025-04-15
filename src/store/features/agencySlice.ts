@@ -50,7 +50,11 @@ export const registerStore = createAsyncThunk(
   'agency/registerStore',
   async ({ dnsPrefix, data }: { dnsPrefix: string; data: StoreData }, { rejectWithValue }) => {
     try {
-      const response = await agencyService.registerStore(dnsPrefix, data);
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+          formData.append(key, value.toString());
+      });
+      const response = await agencyService.registerStore(dnsPrefix, formData);
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to register store');

@@ -1,37 +1,23 @@
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
 import { Input } from "../../components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../components/ui/select";
-import { Separator } from "../../components/ui/separator";
 import { Textarea } from "../../components/ui/textarea";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useAppSelector } from "../../store/store";
+import { registerStore } from "../../store/features/agencySlice";
+import { useAppDispatch } from "../../store/store";
 
 interface FormData {
-  category: string;
-  location: {
-    postalCode: string;
-    city: string;
-    address: string;
-    addressComment: string;
-  };
-  limits: {
-    order: {
-      enabled: boolean;
-      value: string;
-    };
-    budget: {
-      enabled: boolean;
-      value: string;
-    };
-  };
+  company_id: string;
+  store_name: string;
+  store_address: string;
+  city: string;
+  postal_code: string;
+  phone_number?: string;
+  latitude?: number;
+  longitude?: number;
   passwords: {
     admin: string;
     client: string;
@@ -39,40 +25,17 @@ interface FormData {
   validation: {
     email: string;
   };
-}
-
-const initialFormData: FormData = {
-  category: "Agence",
-  location: {
-    postalCode: "",
-    city: "",
-    address: "",
-    addressComment: "",
-  },
   limits: {
     order: {
-      enabled: true,
-      value: "",
-    },
+      enabled: boolean;
+      value: string;
+    };
     budget: {
-      enabled: false,
-      value: "",
-    },
-  },
-  passwords: {
-    admin: "",
-    client: "",
-  },
-  validation: {
-    email: "",
-  },
-};
-
-const SectionHeader = ({ title }: { title: string }) => (
-  <h2 className="font-heading-h3 text-[20px] font-bold leading-[28px] text-[#475569] mb-2">
-    {title}
-  </h2>
-);
+      enabled: boolean;
+      value: string;
+    };
+  };
+}
 
 const LabeledInput = ({
   label,
@@ -130,14 +93,42 @@ const CheckboxField = ({
 
 export default function AddAgency() {
   const navigate = useNavigate();
+  const { selectedCompany } = useAppSelector((state) => state.client);
+
+  const initialFormData: FormData = {
+    company_id: selectedCompany?.id || "",
+    store_name: "",
+    store_address: "",
+    city: "",
+    postal_code: "",
+    phone_number: "",
+    passwords: {
+      admin: "",
+      client: "",
+    },
+    validation: {
+      email: "",
+    },
+    limits: {
+      order: {
+        enabled: true,
+        value: "",
+      },
+      budget: {
+        enabled: false,
+        value: "",
+      },
+    },
+  };
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [loading, setLoading] = useState(false);
+  const dispatch = useAppDispatch();
 
   const handleSubmit = async () => {
     // Validate required fields
     if (
-      !formData.location.city ||
-      !formData.location.address ||
+      !formData.city ||
+      !formData.store_address ||
       !formData.passwords.admin ||
       !formData.passwords.client ||
       !formData.validation.email
@@ -147,9 +138,18 @@ export default function AddAgency() {
     }
 
     setLoading(true);
+    setFormData((prev) => ({
+      ...prev,
+      company_id: selectedCompany?.id || "",
+    }));
+
     try {
-      // Add your API call here
-      // await addAgency(formData);
+      dispatch(
+        registerStore({
+          dnsPrefix: selectedCompany?.name || "",
+          data: formData,
+        })
+      );
       toast.success("Agency added successfully!");
       navigate("/agencies");
     } catch (error) {
@@ -167,52 +167,49 @@ export default function AddAgency() {
         </h1>
       </header>
 
-      <div className="flex flex-col w-[820px] items-start gap-6">
-        <div className="flex flex-col items-start gap-6 w-full">
-          <div className="relative w-full">
-            <Select
-              value={formData.category}
-              onValueChange={(value) =>
-                setFormData((prev) => ({ ...prev, category: value }))
-              }
-            >
-              <SelectTrigger className="w-full bg-gray-100 rounded-lg border">
-                <SelectValue placeholder="Select a category" />
-              </SelectTrigger>
-              <SelectContent>
-                {["Agence", "Client", "Fournisseur"].map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
-              Client Category
-            </span>
-          </div>
-
+      <div className="flex items-start justify-around gap-6 flex-1 w-full overflow-hidden">
+        <div className="flex flex-col gap-6 flex-1 overflow-hidden">
           <div className="flex flex-col gap-6">
-            <div className="flex gap-4">
+            <div className="flex gap-4 mt-2">
               <LabeledInput
-                label="Postal code"
-                id="postalCode"
-                value={formData.location.postalCode}
+                label="Company ID"
+                id="company_id"
+                value={selectedCompany?.id || ""}
+                disabled={true}
+              />
+              <LabeledInput
+                label="Store Name"
+                id="store_name"
+                value={formData.store_name}
                 onChange={(value) =>
                   setFormData((prev) => ({
                     ...prev,
-                    location: { ...prev.location, postalCode: value },
+                    store_name: value,
+                  }))
+                }
+              />
+            </div>
+
+            <div className="flex gap-4">
+              <LabeledInput
+                label="Postal code"
+                id="postal_code"
+                value={formData.postal_code}
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    postal_code: value,
                   }))
                 }
               />
               <LabeledInput
                 label="City"
                 id="city"
-                value={formData.location.city}
+                value={formData.city}
                 onChange={(value) =>
                   setFormData((prev) => ({
                     ...prev,
-                    location: { ...prev.location, city: value },
+                    city: value,
                   }))
                 }
               />
@@ -220,28 +217,25 @@ export default function AddAgency() {
 
             <LabeledInput
               label="Address"
-              id="address"
-              value={formData.location.address}
+              id="store_address"
+              value={formData.store_address}
               onChange={(value) =>
                 setFormData((prev) => ({
                   ...prev,
-                  location: { ...prev.location, address: value },
+                  store_address: value,
                 }))
               }
             />
 
             <div className="relative w-full">
               <Textarea
-                className="min-h-[100px] bg-gray-100 rounded-lg border font-text-medium text-[16px] leading-[24px]"
+                className="min-h-[100px] font-text-medium text-[16px] leading-[24px] bg-gray-100 rounded-lg border"
                 placeholder="Example: Building number 2"
-                value={formData.location.addressComment}
+                value={formData.store_address}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    location: {
-                      ...prev.location,
-                      addressComment: e.target.value,
-                    },
+                    store_address: e.target.value,
                   }))
                 }
               />
@@ -251,38 +245,42 @@ export default function AddAgency() {
             </div>
           </div>
 
-          <div className="w-full h-0.5 bg-gray-200 rounded-full" />
+          <div className="h-0.5 bg-gray-300 rounded-full" />
 
-          <div className="flex flex-col gap-6 w-full">
+          <div className="flex flex-col gap-6">
             <div className="flex gap-4">
-              <CheckboxField
-                label="Order limit"
-                id="orderLimit"
-                checked={formData.limits.order.enabled}
-                onChange={(checked) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    limits: {
-                      ...prev.limits,
-                      order: { ...prev.limits.order, enabled: checked },
-                    },
-                  }))
-                }
-              />
-              <CheckboxField
-                label="Budget limit"
-                id="budgetLimit"
-                checked={formData.limits.budget.enabled}
-                onChange={(checked) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    limits: {
-                      ...prev.limits,
-                      budget: { ...prev.limits.budget, enabled: checked },
-                    },
-                  }))
-                }
-              />
+              <div className="flex-1">
+                <CheckboxField
+                  label="Order limit"
+                  id="orderLimit"
+                  checked={formData.limits.order.enabled}
+                  onChange={(checked) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      limits: {
+                        ...prev.limits,
+                        order: { ...prev.limits.order, enabled: checked },
+                      },
+                    }))
+                  }
+                />
+              </div>
+              <div className="flex-1">
+                <CheckboxField
+                  label="Budget limit"
+                  id="budgetLimit"
+                  checked={formData.limits.budget.enabled}
+                  onChange={(checked) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      limits: {
+                        ...prev.limits,
+                        budget: { ...prev.limits.budget, enabled: checked },
+                      },
+                    }))
+                  }
+                />
+              </div>
             </div>
 
             <div className="flex gap-4">
@@ -319,7 +317,7 @@ export default function AddAgency() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-6 w-full">
+          <div className="flex flex-col gap-6">
             <div className="flex gap-4">
               <LabeledInput
                 label="ADMIN password"
@@ -347,29 +345,42 @@ export default function AddAgency() {
               />
             </div>
 
-            <LabeledInput
-              label="N+1 validation email"
-              id="validationEmail"
-              type="email"
-              value={formData.validation.email}
-              onChange={(value) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  validation: { ...prev.validation, email: value },
-                }))
-              }
-            />
+            <div className="flex gap-4">
+              <LabeledInput
+                label="N+1 validation email"
+                id="validationEmail"
+                type="email"
+                value={formData.validation.email}
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    validation: { ...prev.validation, email: value },
+                  }))
+                }
+              />
+              <LabeledInput
+                label="Phone Number"
+                id="phone_number"
+                value={formData.phone_number || ""}
+                onChange={(value) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    phone_number: value,
+                  }))
+                }
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="flex justify-end w-full mt-6">
-          <Button
-            className="bg-[#07515f] text-white h-12 font-text-medium text-[16px] leading-[24px]"
-            onClick={handleSubmit}
-            disabled={loading}
-          >
-            {loading ? "Saving..." : "Next"}
-          </Button>
+          <div className="flex justify-end mt-6">
+            <Button
+              className="bg-[#07515f] text-white h-12 font-text-medium text-[16px] leading-[24px]"
+              onClick={handleSubmit}
+              disabled={loading}
+            >
+              {loading ? "Saving..." : "Next"}
+            </Button>
+          </div>
         </div>
       </div>
     </div>
