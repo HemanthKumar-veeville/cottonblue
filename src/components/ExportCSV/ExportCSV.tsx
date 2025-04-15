@@ -1,12 +1,6 @@
-import { Button } from "../../components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  DialogFooter,
-} from "../../components/ui/dialog";
-import { Checkbox } from "../../components/ui/checkbox";
-import { Label } from "../../components/ui/label";
+import { Button } from "../ui/button";
+import { Dialog, DialogContent, DialogTitle, DialogFooter } from "../ui/dialog";
+import { Checkbox } from "../ui/checkbox";
 import { useTranslation } from "react-i18next";
 import * as XLSX from "xlsx";
 import { useState } from "react";
@@ -33,6 +27,16 @@ interface ExportCSVProps {
   agencies: Agency[];
   sheetName?: string;
 }
+
+const headerDisplayNames = {
+  store_name: "Store Name",
+  store_address: "Store Address",
+  city: "City",
+  postal_code: "Postal Code",
+  phone_number: "Phone Number",
+  latitude: "Latitude",
+  longitude: "Longitude",
+};
 
 const FieldCheckbox = ({
   label,
@@ -64,8 +68,8 @@ export const ExportCSV = ({
 }: ExportCSVProps) => {
   const { t } = useTranslation();
   const [selectedFields, setSelectedFields] = useState({
-    name: true,
-    address: true,
+    store_name: true,
+    store_address: true,
     city: true,
     postal_code: true,
     phone_number: true,
@@ -75,24 +79,34 @@ export const ExportCSV = ({
 
   const handleExport = () => {
     try {
-      // Filter agencies data based on selected fields
+      // Filter agencies data based on selected fields and map to new field names
       const exportData = agencies.map((agency) => {
         const filteredAgency: Record<string, any> = {};
-        Object.entries(selectedFields).forEach(([field, isSelected]) => {
-          if (isSelected) {
-            filteredAgency[field] = agency[field as keyof Agency];
-          }
-        });
+        if (selectedFields.store_name) filteredAgency.store_name = agency.name;
+        if (selectedFields.store_address)
+          filteredAgency.store_address = agency.address;
+        if (selectedFields.city) filteredAgency.city = agency.city;
+        if (selectedFields.postal_code)
+          filteredAgency.postal_code = agency.postal_code;
+        if (selectedFields.phone_number)
+          filteredAgency.phone_number = agency.phone_number;
+        if (selectedFields.latitude) filteredAgency.latitude = agency.latitude;
+        if (selectedFields.longitude)
+          filteredAgency.longitude = agency.longitude;
         return filteredAgency;
       });
 
       // Create worksheet
       const ws = XLSX.utils.json_to_sheet(exportData);
 
-      // Format headers
-      const headers = Object.keys(selectedFields).filter(
-        (field) => selectedFields[field as keyof typeof selectedFields]
-      );
+      // Format headers with proper display names
+      const headers = Object.keys(selectedFields)
+        .filter((field) => selectedFields[field as keyof typeof selectedFields])
+        .map(
+          (field) =>
+            headerDisplayNames[field as keyof typeof headerDisplayNames]
+        );
+
       XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
 
       // Create workbook
@@ -117,7 +131,9 @@ export const ExportCSV = ({
             {Object.entries(selectedFields).map(([field, isSelected]) => (
               <FieldCheckbox
                 key={field}
-                label={field}
+                label={
+                  headerDisplayNames[field as keyof typeof headerDisplayNames]
+                }
                 checked={isSelected}
                 onChange={(checked) =>
                   setSelectedFields((prev) => ({ ...prev, [field]: checked }))
@@ -126,14 +142,14 @@ export const ExportCSV = ({
             ))}
           </div>
         </div>
-        <div className="flex justify-end gap-3">
+        <DialogFooter className="flex justify-end gap-3">
           <Button variant="outline" onClick={onClose}>
             {t("common.cancel", "Cancel")}
           </Button>
           <Button onClick={handleExport}>
             {t("exportCSV.export", "Export")}
           </Button>
-        </div>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

@@ -117,8 +117,8 @@ const AgencyListSectionBase = ({
 // Configure the CSV functionality for agencies
 const csvConfig = {
   templateColumns: [
-    "name",
-    "address",
+    "store_name",
+    "store_address",
     "city",
     "postal_code",
     "phone_number",
