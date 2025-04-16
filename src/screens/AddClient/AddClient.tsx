@@ -13,11 +13,15 @@ import { Textarea } from "../../components/ui/textarea";
 import { PlusCircle, Upload, User } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
 import { HexColorPicker } from "react-colorful";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { toast } from "sonner";
 import { cn } from "../../lib/utils";
 import { useDispatch, useSelector } from "react-redux";
-import { registerClient, resetState } from "../../store/features/clientSlice";
+import {
+  registerClient,
+  modifyCompany,
+  resetState,
+} from "../../store/features/clientSlice";
 import { RootState, AppDispatch } from "../../store/store";
 
 // Initial empty form data
@@ -330,11 +334,53 @@ const ColorPaletteRecommendation = ({
 
 const ClientForm = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch<AppDispatch>();
   const { loading, error, success } = useSelector(
     (state: RootState) => state.client
   );
-  const [formData, setFormData] = useState(initialFormData);
+
+  // Get prefill data from location state if it exists
+  const prefillData = location.state || {};
+  console.log({ prefillData });
+  const isEditMode = prefillData.is_edit_mode || false;
+
+  const [formData, setFormData] = useState({
+    ...initialFormData,
+    name: prefillData.name || "",
+    url: prefillData.url || "",
+    brandColors: {
+      background: prefillData.color_code || "#324b6b",
+      text: prefillData.text_color || "#ffffff",
+    },
+    location: {
+      category: prefillData.category || "Agency",
+      postalCode: prefillData.postal_code || "",
+      city: prefillData.city || "",
+      address: prefillData.address || "",
+      addressComment: prefillData.address_comment || "",
+    },
+    limits: {
+      order: {
+        enabled: prefillData.order_limit_enabled || true,
+        value: prefillData.order_limit_value || "",
+        period: prefillData.order_limit_period || "Month",
+      },
+      budget: {
+        enabled: prefillData.budget_limit_enabled || false,
+        value: prefillData.budget_limit_value || "",
+        period: prefillData.budget_limit_period || "Month",
+      },
+    },
+    passwords: {
+      admin: prefillData.admin_password || "",
+      client: prefillData.client_password || "",
+    },
+    validation: {
+      email: prefillData.validation_email || "",
+    },
+  });
+
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -349,10 +395,14 @@ const ClientForm = () => {
   // Handle success state
   useEffect(() => {
     if (success) {
-      toast.success("Client added successfully!");
+      toast.success(
+        isEditMode
+          ? "Client updated successfully!"
+          : "Client added successfully!"
+      );
       navigate("/customers");
     }
-  }, [success, navigate]);
+  }, [success, navigate, isEditMode]);
 
   // Handle error state
   useEffect(() => {
@@ -411,15 +461,26 @@ const ClientForm = () => {
       Admin_password: formData.passwords.admin,
     };
 
-    // Dispatch the registerClient action
-    dispatch(registerClient(clientData));
+    if (isEditMode) {
+      // For edit mode, dispatch modifyCompany action
+      dispatch(
+        modifyCompany({
+          dns_prefix: prefillData.dns_prefix,
+          company_id: prefillData.company_id,
+          data: clientData,
+        })
+      );
+    } else {
+      // For create mode, dispatch registerClient action
+      dispatch(registerClient(clientData));
+    }
   };
 
   return (
     <div className="flex flex-col min-h-[854px] gap-8 p-6 bg-white rounded-lg overflow-hidden">
       <header className="inline-flex items-center gap-2">
         <h1 className="font-heading-h3 text-[20px] font-bold leading-[28px] text-[#475569]">
-          Add a Client
+          {isEditMode ? "Edit Client" : "Add a Client"}
         </h1>
       </header>
 
@@ -854,7 +915,7 @@ const ClientForm = () => {
                 onClick={handleNext}
                 disabled={loading}
               >
-                {loading ? "Saving..." : "Next"}
+                {loading ? "Saving..." : isEditMode ? "Save Changes" : "Next"}
               </Button>
             </div>
           </div>

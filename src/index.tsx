@@ -49,7 +49,8 @@ function App() {
             <Route path="customers" element={<ClientList />} />
             <Route path="agencies" element={<AgenciesList />} />
             <Route path="agencies/add" element={<AddAgency />} />
-            <Route path="customers/:id" element={<AgencyDetails />} />
+            <Route path="customers/:company_name" element={<AgencyDetails />} />
+            <Route path="customers/edit" element={<AddClient />} />
             <Route path="customers/add" element={<AddClient />} />
             <Route path="support/tickets" element={<Tickets />} />
             <Route path="settings" element={<ComingSoon />} />

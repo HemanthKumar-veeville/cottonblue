@@ -82,5 +82,46 @@
       "saveDraft": "Save as draft",
       "next": "Next"
     }
+  },
+  "agencyDetails": {
+    "title": "Agency Details - {{name}} {{city}}",
+    "fields": {
+      "id": "ID",
+      "name": "Name",
+      "city": "City",
+      "address": "Address",
+      "phone": "Phone",
+      "postalCode": "Postal Code",
+      "status": "Status",
+      "notAvailable": "Not Available"
+    },
+    "statistics": {
+      "title": "Statistics",
+      "totalOrders": "Total Orders",
+      "monthlyRevenue": "Monthly Revenue",
+      "topProducts": "Top Products"
+    },
+    "actions": {
+      "title": "Actions",
+      "modify": "Modify Agency",
+      "activate": "Activate Agency",
+      "deactivate": "Deactivate Agency"
+    },
+    "orders": {
+      "title": "Agency Orders",
+      "table": {
+        "order": "Order",
+        "date": "Date",
+        "totalPrice": "Total Price",
+        "status": "Status",
+        "invoice": "Invoice",
+        "details": "Details"
+      },
+      "status": {
+        "delivered": "Delivered",
+        "inProgress": "In Progress",
+        "cancelled": "Cancelled"
+      }
+    }
   }
 }

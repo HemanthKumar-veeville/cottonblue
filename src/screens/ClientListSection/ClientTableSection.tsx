@@ -232,7 +232,7 @@ export const ClientTableSection = ({
                       <Button
                         variant="link"
                         className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
-                        onClick={() => handleViewDetails(client.id)}
+                        onClick={() => handleViewDetails(client.dns_prefix)}
                       >
                         View Details
                       </Button>

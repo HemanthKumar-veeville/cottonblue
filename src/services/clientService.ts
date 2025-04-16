@@ -57,4 +57,40 @@ export const clientService = {
   getAllCompanies: async () => {
     return axiosInstance.get('/admin/get_all_companies');
   },
+
+  /**
+   * Get company details by DNS prefix
+   * @param dns_prefix DNS prefix of the company
+   * @returns Promise with company details
+   */
+  getCompanyByDnsPrefix: async (dns_prefix: string) => {
+    return axiosInstance.get(`/${dns_prefix}/client/details`);
+  },
+
+  /**
+   * Modify company details by DNS prefix and company ID
+   * @param dns_prefix DNS prefix of the company
+   * @param company_id ID of the company
+   * @returns Promise with modification response
+   */
+  modifyCompany: async (dns_prefix: string, company_id: string, data: any) => {
+    // Create FormData object
+    const formData = new FormData();
+    
+    // Add all fields from data object to FormData
+    Object.entries(data).forEach(([key, value]) => {
+      // Handle File objects separately to preserve them
+      if (value instanceof File) {
+        formData.append(key, value);
+      } else {
+        formData.append(key, String(value));
+      }
+    });
+
+    return axiosInstance.put(`/${dns_prefix}/client/${company_id}/modify`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
 };

@@ -82,5 +82,46 @@
       "saveDraft": "Enregistrer en brouillon",
       "next": "Suivant"
     }
+  },
+  "agencyDetails": {
+    "title": "Détail de l'agence - {{name}} {{city}}",
+    "fields": {
+      "id": "ID",
+      "name": "Nom",
+      "city": "Ville",
+      "address": "Adresse",
+      "phone": "Téléphone",
+      "postalCode": "Code postal",
+      "status": "Statut",
+      "notAvailable": "Non disponible"
+    },
+    "statistics": {
+      "title": "Statistiques",
+      "totalOrders": "Total des commandes",
+      "monthlyRevenue": "Revenu mensuel",
+      "topProducts": "Produits populaires"
+    },
+    "actions": {
+      "title": "Actions",
+      "modify": "Modifier l'agence",
+      "activate": "Activer l'agence",
+      "deactivate": "Désactiver l'agence"
+    },
+    "orders": {
+      "title": "Commandes de l'agence",
+      "table": {
+        "order": "Commande",
+        "date": "Date",
+        "totalPrice": "Prix total",
+        "status": "Statut",
+        "invoice": "Facture",
+        "details": "Détails"
+      },
+      "status": {
+        "delivered": "Livrée",
+        "inProgress": "En cours",
+        "cancelled": "Annulée"
+      }
+    }
   }
 }

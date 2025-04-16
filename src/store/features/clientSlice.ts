@@ -1,6 +1,17 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { clientService, ClientRegistrationData } from '../../services/clientService';
 
+export interface CompanyModificationData {
+  company_name?: string;
+  company_address?: string;
+  city?: string;
+  postal_code?: string;
+  phone_number?: string;
+  logo?: File;
+  color_code?: string;
+  is_active?: boolean;
+}
+
 interface ClientState {
   loading: boolean;
   error: string | null;
@@ -10,6 +21,7 @@ interface ClientState {
     id: string;
     name: string;
   } | null;
+  companyDetails: any | null;
 }
 
 const initialState: ClientState = {
@@ -18,6 +30,7 @@ const initialState: ClientState = {
   success: false,
   companies: [],
   selectedCompany: null,
+  companyDetails: null,
 };
 
 export const registerClient = createAsyncThunk(
@@ -40,6 +53,38 @@ export const getAllCompanies = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch companies');
+    }
+  }
+);
+
+export const getCompanyByDnsPrefix = createAsyncThunk(
+  'client/getCompanyByDnsPrefix',
+  async (dns_prefix: string, { rejectWithValue }) => {
+    try {
+      const response = await clientService.getCompanyByDnsPrefix(dns_prefix);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch company details');
+    }
+  }
+);
+
+export const modifyCompany = createAsyncThunk(
+  'client/modifyCompany',
+  async ({ 
+    dns_prefix, 
+    company_id, 
+    data 
+  }: { 
+    dns_prefix: string; 
+    company_id: string; 
+    data: CompanyModificationData 
+  }, { rejectWithValue }) => {
+    try {
+      const response = await clientService.modifyCompany(dns_prefix, company_id, data);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to modify company');
     }
   }
 );
@@ -89,6 +134,32 @@ const clientSlice = createSlice({
       .addCase(getAllCompanies.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      .addCase(getCompanyByDnsPrefix.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getCompanyByDnsPrefix.fulfilled, (state, action) => {
+        state.loading = false;
+        state.companyDetails = action.payload;
+      })
+      .addCase(getCompanyByDnsPrefix.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(modifyCompany.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(modifyCompany.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(modifyCompany.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.success = false;
       });
   },
 });
