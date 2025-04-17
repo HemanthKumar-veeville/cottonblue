@@ -1,4 +1,5 @@
 import React from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
 import {
@@ -193,6 +194,7 @@ const OrderRow = ({ order, index }: { order: any; index: number }) => (
 
 export const OrderDetailsSection = (): JSX.Element => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   return (
     <div className="flex flex-col items-center justify-between relative flex-1 self-stretch w-full grow">
@@ -271,6 +273,7 @@ export const OrderDetailsSection = (): JSX.Element => {
                 <Button
                   variant="ghost"
                   className="p-0 underline font-medium text-[color:var(--1-tokens-color-modes-button-ghost-default-text)]"
+                  onClick={() => navigate(`/order-details/${order.id}`)}
                 >
                   {t("history.table.details")}
                 </Button>

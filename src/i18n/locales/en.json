@@ -239,5 +239,28 @@
       "previous": "Previous",
       "next": "Next"
     }
+  },
+  "orderDetails": {
+    "title": "Order Details",
+    "downloadInvoice": "Download Invoice",
+    "fields": {
+      "order": "Order",
+      "date": "Date",
+      "totalPrice": "Total Price",
+      "status": "Status",
+      "customer": "Customer",
+      "managementEmail": "Management Email",
+      "shippingAddress": "Shipping Address"
+    },
+    "products": {
+      "title": "Ordered Products",
+      "table": {
+        "product": "Product",
+        "ref": "Ref.",
+        "unitPrice": "Unit Price",
+        "quantity": "Quantity",
+        "total": "Total"
+      }
+    }
   }
 }

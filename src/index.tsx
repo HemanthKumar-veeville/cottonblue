@@ -28,6 +28,7 @@ import { ClientLayout } from "./components/Layout/ClientLayout";
 import ClientProduct from "./screens/ClientProduct/ClientProduct";
 import CartContainer from "./screens/Cart/Cart";
 import History from "./screens/History/History";
+import OrderDetails from "./screens/OrderDetails/OrderDetails";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
@@ -86,6 +87,7 @@ function App() {
             <Route path="product/:id" element={<ClientProduct />} />
             <Route path="cart" element={<CartContainer />} />
             <Route path="history" element={<History />} />
+            <Route path="order-details/:id" element={<OrderDetails />} />
           </Route>
         )}
 
