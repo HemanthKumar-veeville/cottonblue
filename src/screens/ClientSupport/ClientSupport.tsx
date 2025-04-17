@@ -7,6 +7,7 @@ import { ArrowLeft, CheckCircle, Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import ClientTicketPopup from "../ClientTicketPopup/ClientTicketPopup";
+import { motion, AnimatePresence } from "framer-motion";
 
 const TicketCard = ({
   ticket,
@@ -19,37 +20,50 @@ const TicketCard = ({
 }) => {
   const { t } = useTranslation();
   return (
-    <Card
-      className="border-[color:var(--1-tokens-color-modes-border-primary)] rounded-[var(--2-tokens-screen-modes-common-spacing-XS)] overflow-hidden cursor-pointer"
-      onClick={onClick}
+    <motion.div
+      layout
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.2 }}
     >
-      <CardContent className="p-[var(--2-tokens-screen-modes-common-spacing-m)]">
-        <div className="flex items-center justify-between p-[var(--2-tokens-screen-modes-common-spacing-s)] bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)]">
-          <div className="flex flex-col gap-1.5">
-            <h5 className="font-label-medium font-[number:var(--label-medium-font-weight)] text-black text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)]">
-              {ticket.id} - {ticket.title}
-            </h5>
-            <p className="font-label-smaller font-[number:var(--label-smaller-font-weight)] text-black text-[length:var(--label-smaller-font-size)] tracking-[var(--label-smaller-letter-spacing)] leading-[var(--label-smaller-line-height)]">
-              {t("clientSupport.ticket.location")}: {ticket.location}
-            </p>
-            <p className="font-label-smaller font-[number:var(--label-smaller-font-weight)] text-black text-[length:var(--label-smaller-font-size)] tracking-[var(--label-smaller-letter-spacing)] leading-[var(--label-smaller-line-height)]">
-              {t("clientSupport.ticket.status")}: {ticket.status}
-            </p>
-          </div>
-          <div
-            className={`relative w-[var(--2-tokens-screen-modes-common-spacing-l)] h-6 ${
-              isCompleted ? "bg-white" : ""
-            } rounded-[35px] border-2 ${
-              isCompleted ? "border-none" : "border-dashed"
-            } border-1-tokens-color-modes-common-success-medium`}
-          >
-            {isCompleted && (
-              <CheckCircle className="absolute w-[24px] h-[24px] top-[3px] left-[3px] text-1-tokens-color-modes-common-success-medium" />
+      <Card
+        className="border-[color:var(--1-tokens-color-modes-border-primary)] rounded-[var(--2-tokens-screen-modes-common-spacing-XS)] overflow-hidden cursor-pointer hover:bg-[color:var(--1-tokens-color-modes-input-primary-hover-background)] transition-colors"
+        onClick={onClick}
+      >
+        <CardContent className="p-[var(--2-tokens-screen-modes-common-spacing-m)]">
+          <div className="flex items-center justify-between p-[var(--2-tokens-screen-modes-common-spacing-s)]">
+            <div className="flex flex-col gap-1.5">
+              <h5 className="font-label-medium font-[number:var(--label-medium-font-weight)] text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)]">
+                {ticket.id} - {ticket.title}
+              </h5>
+              <p className="font-label-smaller font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] tracking-[var(--label-smaller-letter-spacing)] leading-[var(--label-smaller-line-height)]">
+                {t("clientSupport.ticket.location")}: {ticket.location}
+              </p>
+              <p className="font-label-smaller font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] tracking-[var(--label-smaller-letter-spacing)] leading-[var(--label-smaller-line-height)]">
+                {t("clientSupport.ticket.status")}: {ticket.status}
+              </p>
+            </div>
+            {isCompleted ? (
+              <motion.div
+                className="relative w-[var(--2-tokens-screen-modes-common-spacing-l)] h-6 bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[35px]"
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ type: "spring", stiffness: 500, damping: 30 }}
+              >
+                <CheckCircle className="absolute w-[24px] h-[24px] top-[3px] left-[3px] text-1-tokens-color-modes-common-success-medium" />
+              </motion.div>
+            ) : (
+              <motion.div
+                className="relative w-[var(--2-tokens-screen-modes-common-spacing-l)] h-6 rounded-[35px] border-2 border-dashed border-1-tokens-color-modes-common-success-medium cursor-pointer hover:border-green-700"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+              />
             )}
           </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </motion.div>
   );
 };
 
@@ -66,52 +80,159 @@ const TicketList = ({
 }) => {
   const { t } = useTranslation();
   return (
-    <>
-      <h4 className="text-1-tokens-color-modes-common-neutral-hightest text-[length:var(--label-medium-font-size)] leading-[var(--label-medium-line-height)] font-label-medium font-[number:var(--label-medium-font-weight)] tracking-[var(--label-medium-letter-spacing)] [font-style:var(--label-medium-font-style)]">
+    <div className="flex flex-col h-[250px] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-input-border-radius)] border border-[color:var(--1-tokens-color-modes-input-primary-default-border)] p-4">
+      <h4 className="text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-medium-font-size)] leading-[var(--label-medium-line-height)] font-label-medium font-[number:var(--label-medium-font-weight)] tracking-[var(--label-medium-letter-spacing)] [font-style:var(--label-medium-font-style)] mb-4">
         {title}
       </h4>
-      {tickets.map((ticket: any, index: number) => (
-        <TicketCard
-          key={`${isCompleted ? "completed" : "active"}-${index}`}
-          ticket={ticket}
-          isCompleted={isCompleted}
-          onClick={() => onTicketClick(ticket)}
-        />
-      ))}
-    </>
+      <motion.div
+        className="flex flex-col gap-2.5 overflow-y-auto pr-2 scrollbar-hide"
+        layout
+        style={{
+          height: "calc(100% - 40px)",
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
+        }}
+      >
+        <AnimatePresence mode="popLayout">
+          {tickets.map((ticket: any, index: number) => (
+            <TicketCard
+              key={`${isCompleted ? "completed" : "active"}-${index}`}
+              ticket={ticket}
+              isCompleted={isCompleted}
+              onClick={() => onTicketClick(ticket)}
+            />
+          ))}
+        </AnimatePresence>
+      </motion.div>
+    </div>
   );
 };
 
 export default function ClientSupportTicket() {
   const { t } = useTranslation();
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
-
-  const activeTickets = [
+  const [activeTickets, setActiveTickets] = useState([
     {
-      id: "#123456",
+      id: "#123456a",
       title: "Problème de connexion",
       location: "Chronodrive - Lille",
       status: "Ouvert",
     },
-  ];
+    {
+      id: "#123456b",
+      title: "Problème de connexion",
+      location: "Chronodrive - Lille",
+      status: "Ouvert",
+    },
+    {
+      id: "#123456c",
+      title: "Problème de connexion",
+      location: "Chronodrive - Lille",
+      status: "Ouvert",
+    },
+    {
+      id: "#123456d",
+      title: "Problème de connexion",
+      location: "Chronodrive - Lille",
+      status: "Ouvert",
+    },
+    {
+      id: "#123456e",
+      title: "Problème de connexion",
+      location: "Chronodrive - Lille",
+      status: "Ouvert",
+    },
+  ]);
 
-  const completedTickets = [
+  const [completedTickets, setCompletedTickets] = useState([
     {
-      id: "#123456",
+      id: "#123456a1",
       title: "Problème de connexion",
       location: "Chronodrive - Lille",
       status: "Terminé",
     },
     {
-      id: "#123456",
+      id: "#123456b1",
       title: "Problème de connexion",
       location: "Chronodrive - Lille",
       status: "Terminé",
     },
-  ];
+    {
+      id: "#123456c1",
+      title: "Problème de connexion",
+      location: "Chronodrive - Lille",
+      status: "Terminé",
+    },
+    {
+      id: "#123456d1",
+      title: "Problème de connexion",
+      location: "Chronodrive - Lille",
+      status: "Terminé",
+    },
+    {
+      id: "#123456e1",
+      title: "Problème de connexion",
+      location: "Chronodrive - Lille",
+      status: "Terminé",
+    },
+    {
+      id: "#123456f1",
+      title: "Problème de connexion",
+      location: "Chronodrive - Lille",
+      status: "Terminé",
+    },
+    {
+      id: "#123456g1",
+      title: "Problème de connexion",
+      location: "Chronodrive - Lille",
+      status: "Terminé",
+    },
+    {
+      id: "#123456h1",
+      title: "Problème de connexion",
+      location: "Chronodrive - Lille",
+      status: "Terminé",
+    },
+    {
+      id: "#123456i1",
+      title: "Problème de connexion",
+      location: "Chronodrive - Lille",
+      status: "Terminé",
+    },
+    {
+      id: "#123456j1",
+      title: "Problème de connexion",
+      location: "Chronodrive - Lille",
+      status: "Terminé",
+    },
+    {
+      id: "#123456k1",
+      title: "Problème de connexion",
+      location: "Chronodrive - Lille",
+      status: "Terminé",
+    },
+    {
+      id: "#123456l1",
+      title: "Problème de connexion",
+      location: "Chronodrive - Lille",
+      status: "Terminé",
+    },
+  ]);
 
   const handleTicketClick = (ticket: any) => {
     setSelectedTicket(ticket);
+  };
+
+  const handleTicketComplete = (ticket: any) => {
+    // Remove from active tickets
+    setActiveTickets((prev) => prev.filter((t) => t.id !== ticket.id));
+
+    // Add to completed tickets with updated status
+    const updatedTicket = {
+      ...ticket,
+      status: "Terminé",
+    };
+    setCompletedTickets((prev) => [updatedTicket, ...prev]);
   };
 
   return (
@@ -168,13 +289,20 @@ export default function ClientSupportTicket() {
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col gap-2.5 p-2.5">
+          <div className="flex-1 flex flex-col gap-5 p-2.5 h-[calc(100vh-200px)] min-h-[500px]">
             <TicketList
               tickets={activeTickets}
               title={t("clientSupport.activeTickets")}
               isCompleted={false}
-              onTicketClick={handleTicketClick}
+              onTicketClick={(ticket) => {
+                if (!ticket.isCompleted) {
+                  handleTicketComplete(ticket);
+                } else {
+                  handleTicketClick(ticket);
+                }
+              }}
             />
+            <div className="h-[1px] bg-[color:var(--1-tokens-color-modes-input-primary-default-border)]" />
             <TicketList
               tickets={completedTickets}
               title={t("clientSupport.completedTickets")}
