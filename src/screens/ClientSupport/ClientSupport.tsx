@@ -13,10 +13,12 @@ const TicketCard = ({
   ticket,
   isCompleted,
   onClick,
+  onCircleClick,
 }: {
   ticket: any;
   isCompleted: boolean;
   onClick: () => void;
+  onCircleClick?: () => void;
 }) => {
   const { t } = useTranslation();
   return (
@@ -58,6 +60,10 @@ const TicketCard = ({
                 className="relative w-[var(--2-tokens-screen-modes-common-spacing-l)] h-6 rounded-[35px] border-2 border-dashed border-1-tokens-color-modes-common-success-medium cursor-pointer hover:border-green-700"
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  onCircleClick?.();
+                }}
               />
             )}
           </div>
@@ -72,11 +78,13 @@ const TicketList = ({
   title,
   isCompleted,
   onTicketClick,
+  onCircleClick,
 }: {
   tickets: any;
   title: string;
   isCompleted: boolean;
   onTicketClick: (ticket: any) => void;
+  onCircleClick?: (ticket: any) => void;
 }) => {
   const { t } = useTranslation();
   return (
@@ -100,6 +108,7 @@ const TicketList = ({
               ticket={ticket}
               isCompleted={isCompleted}
               onClick={() => onTicketClick(ticket)}
+              onCircleClick={() => onCircleClick?.(ticket)}
             />
           ))}
         </AnimatePresence>
@@ -294,13 +303,8 @@ export default function ClientSupportTicket() {
               tickets={activeTickets}
               title={t("clientSupport.activeTickets")}
               isCompleted={false}
-              onTicketClick={(ticket) => {
-                if (!ticket.isCompleted) {
-                  handleTicketComplete(ticket);
-                } else {
-                  handleTicketClick(ticket);
-                }
-              }}
+              onTicketClick={(ticket) => handleTicketClick(ticket)}
+              onCircleClick={(ticket) => handleTicketComplete(ticket)}
             />
             <div className="h-[1px] bg-[color:var(--1-tokens-color-modes-input-primary-default-border)]" />
             <TicketList
