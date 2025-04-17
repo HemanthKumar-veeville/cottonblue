@@ -282,5 +282,12 @@
       "support": "Support - CottonBlue :",
       "you": "Vous :"
     }
+  },
+  "clientLogin": {
+    "greeting": "Bonjour !",
+    "selectStore": "Choisissez votre magasin",
+    "password": "Mot de passe",
+    "login": "Connexion",
+    "poweredBy": "par Cotton Blue"
   }
 }

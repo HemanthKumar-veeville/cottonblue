@@ -30,6 +30,7 @@ import CartContainer from "./screens/Cart/Cart";
 import History from "./screens/History/History";
 import OrderDetails from "./screens/OrderDetails/OrderDetails";
 import ClientSupport from "./screens/ClientSupport/ClientSupport";
+import ClientLogin from "./screens/ClientLogin/ClientLogin";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
@@ -82,7 +83,7 @@ function App() {
             // Public routes - only accessible when logged out
             <Route path="/" element={<LoginPage />} />
           )
-        ) : (
+        ) : isLoggedIn ? (
           <Route path="/" element={<ClientLayout />}>
             <Route index element={<AdminClientHome />} />
             <Route path="product/:id" element={<ClientProduct />} />
@@ -91,6 +92,8 @@ function App() {
             <Route path="order-details/:id" element={<OrderDetails />} />
             <Route path="support" element={<ClientSupport />} />
           </Route>
+        ) : (
+          <Route path="/" element={<ClientLogin />} />
         )}
 
         {/* 404 Route - Must be last */}
