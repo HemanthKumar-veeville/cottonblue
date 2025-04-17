@@ -1,11 +1,9 @@
-// import { ClientSidebarSection } from "../";
-// import { DashboardSection } from "./sections/DashboardSection/DashboardSection";
+import { DashboardSection } from "../ClientHomeSection/DashboardSection/DashboardSection";
 
 export const AdminClientHome = (): JSX.Element => {
   return (
-    <main className="flex w-full min-h-screen bg-gray-50 font-montserrat">
-      {/* <ClientSidebarSection />
-      <DashboardSection /> */}
+    <main className="flex w-full h-screen overflow-hidden bg-gray-50 font-montserrat">
+      <DashboardSection />
     </main>
   );
 };

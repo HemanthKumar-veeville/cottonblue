@@ -20,15 +20,21 @@
     },
     "customers": {
       "title": "Clients",
-      "list": "Agencies List",
-      "add": "Add Agency"
+      "list": "Clients List",
+      "add": "Add Client"
     },
     "support": {
       "title": "Support",
       "tickets": "Tickets"
     },
     "settings": "Settings",
-    "logout": "Logout"
+    "logout": "Logout",
+    "home": "Home",
+    "budget": {
+      "title": "Monthly Budget",
+      "expenses": "Expenses",
+      "orders": "Orders"
+    }
   },
   "productList": {
     "title": "Product List",
@@ -121,6 +127,60 @@
         "delivered": "Delivered",
         "inProgress": "In Progress",
         "cancelled": "Cancelled"
+      }
+    }
+  },
+  "clientHeader": {
+    "search": {
+      "placeholder": "Search a product"
+    },
+    "account": {
+      "title": "My account"
+    },
+    "cart": "Cart",
+    "notifications": "Notifications"
+  },
+  "dashboard": {
+    "sections": {
+      "mostOrdered": "Most Ordered",
+      "storeRange": "Store Range",
+      "workClothes": "Work Clothes"
+    },
+    "status": {
+      "inStock": "In Stock",
+      "outOfStock": "Out of Stock"
+    }
+  },
+  "clientProduct": {
+    "breadcrumb": {
+      "catalog": "Catalog",
+      "workwear": "Workwear"
+    },
+    "category": "WORKWEAR",
+    "description": {
+      "title": "Description",
+      "color": "Color",
+      "sizes": "Available in 5 sizes",
+      "composition": "Composition",
+      "features": "Features",
+      "packaging": "Packaging"
+    },
+    "selectors": {
+      "quantity": "Quantity",
+      "sizes": "Sizes"
+    },
+    "price": {
+      "perUnit": "per",
+      "vatExcluded": "Price excl. VAT"
+    },
+    "buttons": {
+      "addToCart": "Add to cart"
+    },
+    "relatedProducts": {
+      "title": "Other products",
+      "status": {
+        "inStock": "In Stock",
+        "outOfStock": "Out of Stock"
       }
     }
   }

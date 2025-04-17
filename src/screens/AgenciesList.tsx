@@ -5,6 +5,7 @@ import { AgencyTableSection } from "./AgenciesListSection/AgencyTableSection";
 import { RootState } from "../store/store";
 import { AppDispatch } from "../store/store";
 import { fetchAllStores } from "../store/features/agencySlice";
+import { useParams } from "react-router-dom";
 
 interface Agency {
   id: number;
@@ -32,19 +33,16 @@ export const AgenciesList = (): JSX.Element => {
   const { stores, loading, error } = useSelector(
     (state: RootState) => state.agency
   );
+  const { company_name } = useParams();
 
-  const company = useSelector(
-    (state: RootState) => state.client.selectedCompany
-  );
-  console.log("Company:", company);
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     // Dispatch the fetchAllStores action to get agencies data
-    if (company) {
-      dispatch(fetchAllStores(company.name));
+    if (company_name) {
+      dispatch(fetchAllStores(company_name));
     }
-  }, [dispatch, company]);
+  }, [dispatch, company_name]);
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);

@@ -23,9 +23,15 @@ import { GlobalDashboard } from "./screens/GlobalDashboard/GlobalDashboard";
 import AgencyDetails from "./screens/AgencyDetails/AgencyDetails";
 import { AgenciesList } from "./screens/AgenciesList";
 import AddAgency from "./screens/AddAgency/AddAgency";
+import { AdminClientHome } from "./screens/AdminClientHome/AdminClientHome";
+import { ClientLayout } from "./components/Layout/ClientLayout";
+import ClientProduct from "./screens/ClientProduct/ClientProduct";
+import CartContainer from "./screens/Cart/Cart";
+import History from "./screens/History/History";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
-  const isAdmin = useAppSelector((state) => state.auth.isAdmin);
+  const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
+
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -36,36 +42,51 @@ function App() {
     <BrowserRouter>
       <GlobalLoader />
       <Routes>
-        {isLoggedIn ? (
-          // Protected routes - only accessible when logged in
-          <Route path="/" element={<SuperadminLayout />}>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<GlobalDashboard />} />
-            <Route path="order-history" element={<ComingSoon />} />
-            <Route path="products" element={<ProductList />} />
-            <Route path="products/add" element={<ProductSidebarSection />} />
-            <Route path="products/stock" element={<ComingSoon />} />
-            <Route path="products/carousel" element={<Carousel />} />
-            <Route path="customers" element={<ClientList />} />
-            <Route path="agencies" element={<AgenciesList />} />
-            <Route path="agencies/add" element={<AddAgency />} />
-            <Route path="customers/:company_name" element={<AgencyDetails />} />
-            <Route path="customers/edit" element={<AddClient />} />
-            <Route path="customers/add" element={<AddClient />} />
-            <Route path="support/tickets" element={<Tickets />} />
-            <Route path="settings" element={<ComingSoon />} />
-            <Route path="logout" element={<ComingSoon />} />
-            {/* Coming Soon Routes */}
-            <Route path="analytics" element={<ComingSoon />} />
-            <Route path="reports" element={<ComingSoon />} />
-            <Route path="integrations" element={<ComingSoon />} />
+        {isSuperAdmin ? (
+          isLoggedIn ? (
+            // Protected routes - only accessible when logged in
+            <Route path="/" element={<SuperadminLayout />}>
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<GlobalDashboard />} />
+              <Route path="order-history" element={<ComingSoon />} />
+              <Route path="products" element={<ProductList />} />
+              <Route path="products/add" element={<ProductSidebarSection />} />
+              <Route path="products/stock" element={<ComingSoon />} />
+              <Route path="products/carousel" element={<Carousel />} />
+              <Route path="customers" element={<ClientList />} />
+              <Route
+                path="customers/:company_name/agencies"
+                element={<AgenciesList />}
+              />
+              <Route path="agencies/add" element={<AddAgency />} />
+              <Route
+                path="customers/:company_name/agencies/:agency_id"
+                element={<AgencyDetails />}
+              />
+              <Route path="customers/edit" element={<AddClient />} />
+              <Route path="customers/add" element={<AddClient />} />
+              <Route path="support/tickets" element={<Tickets />} />
+              <Route path="settings" element={<ComingSoon />} />
+              <Route path="logout" element={<ComingSoon />} />
+              {/* Coming Soon Routes */}
+              <Route path="analytics" element={<ComingSoon />} />
+              <Route path="reports" element={<ComingSoon />} />
+              <Route path="integrations" element={<ComingSoon />} />
 
-            {/* Error Routes */}
-            <Route path="error" element={<Error />} />
-          </Route>
+              {/* Error Routes */}
+              <Route path="error" element={<Error />} />
+            </Route>
+          ) : (
+            // Public routes - only accessible when logged out
+            <Route path="/" element={<LoginPage />} />
+          )
         ) : (
-          // Public routes - only accessible when logged out
-          <Route path="/" element={<LoginPage />} />
+          <Route path="/" element={<ClientLayout />}>
+            <Route index element={<AdminClientHome />} />
+            <Route path="product/:id" element={<ClientProduct />} />
+            <Route path="cart" element={<CartContainer />} />
+            <Route path="history" element={<History />} />
+          </Route>
         )}
 
         {/* 404 Route - Must be last */}

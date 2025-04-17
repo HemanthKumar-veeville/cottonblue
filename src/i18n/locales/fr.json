@@ -28,7 +28,13 @@
       "tickets": "Tickets"
     },
     "settings": "Paramètres",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "home": "Accueil",
+    "budget": {
+      "title": "Budget du mois",
+      "expenses": "Dépenses",
+      "orders": "Commandes"
+    }
   },
   "productList": {
     "title": "Liste des produits",
@@ -121,6 +127,60 @@
         "delivered": "Livrée",
         "inProgress": "En cours",
         "cancelled": "Annulée"
+      }
+    }
+  },
+  "clientHeader": {
+    "search": {
+      "placeholder": "Rechercher un produit"
+    },
+    "account": {
+      "title": "Mon compte"
+    },
+    "cart": "Panier",
+    "notifications": "Notifications"
+  },
+  "dashboard": {
+    "sections": {
+      "mostOrdered": "Les plus commandés",
+      "storeRange": "Gamme magasins",
+      "workClothes": "Vêtements de travail"
+    },
+    "status": {
+      "inStock": "En stock",
+      "outOfStock": "Épuisé"
+    }
+  },
+  "clientProduct": {
+    "breadcrumb": {
+      "catalog": "Catalogue",
+      "workwear": "Vêtements de travail"
+    },
+    "category": "VÊTEMENTS DE TRAVAIL",
+    "description": {
+      "title": "Description",
+      "color": "Couleur",
+      "sizes": "Disponible en 5 tailles",
+      "composition": "Composition",
+      "features": "Caractéristiques",
+      "packaging": "Conditionnement"
+    },
+    "selectors": {
+      "quantity": "Quantités",
+      "sizes": "Tailles"
+    },
+    "price": {
+      "perUnit": "par",
+      "vatExcluded": "Prix HT"
+    },
+    "buttons": {
+      "addToCart": "Ajouter au panier"
+    },
+    "relatedProducts": {
+      "title": "Autres produits",
+      "status": {
+        "inStock": "En stock",
+        "outOfStock": "Épuisé"
       }
     }
   }
