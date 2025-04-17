@@ -31,23 +31,29 @@ import History from "./screens/History/History";
 import OrderDetails from "./screens/OrderDetails/OrderDetails";
 import ClientSupport from "./screens/ClientSupport/ClientSupport";
 import ClientLogin from "./screens/ClientLogin/ClientLogin";
+import { isAdminHostname } from "./utils/hostUtils";
+
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
-
+  const isAdminDomain = isAdminHostname();
+  console.log({ isAdminDomain, isSuperAdmin, isLoggedIn });
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(getUser("admin"));
-  }, [dispatch]);
+    // Only fetch admin user data if we're on admin domain
+    if (isAdminDomain) {
+      dispatch(getUser("admin"));
+    }
+  }, [dispatch, isAdminDomain]);
 
   return (
     <BrowserRouter>
       <GlobalLoader />
       <Routes>
-        {isSuperAdmin ? (
-          isLoggedIn ? (
-            // Protected routes - only accessible when logged in
+        {isAdminDomain ? (
+          isLoggedIn && isSuperAdmin ? (
+            // Protected admin routes - only accessible when logged in as super admin
             <Route path="/" element={<SuperadminLayout />}>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<GlobalDashboard />} />
@@ -71,19 +77,17 @@ function App() {
               <Route path="support/tickets" element={<Tickets />} />
               <Route path="settings" element={<ComingSoon />} />
               <Route path="logout" element={<ComingSoon />} />
-              {/* Coming Soon Routes */}
               <Route path="analytics" element={<ComingSoon />} />
               <Route path="reports" element={<ComingSoon />} />
               <Route path="integrations" element={<ComingSoon />} />
-
-              {/* Error Routes */}
               <Route path="error" element={<Error />} />
             </Route>
           ) : (
-            // Public routes - only accessible when logged out
+            // Admin login route
             <Route path="/" element={<LoginPage />} />
           )
-        ) : isLoggedIn ? (
+        ) : // Client routes
+        isLoggedIn ? (
           <Route path="/" element={<ClientLayout />}>
             <Route index element={<AdminClientHome />} />
             <Route path="product/:id" element={<ClientProduct />} />
