@@ -262,5 +262,25 @@
         "total": "Total"
       }
     }
+  },
+  "clientSupport": {
+    "title": "Open a support ticket",
+    "activeTickets": "Active tickets",
+    "completedTickets": "Completed tickets",
+    "form": {
+      "title": "Request title",
+      "message": "Message"
+    },
+    "ticket": {
+      "location": "Location",
+      "status": "Status",
+      "submit": "Submit ticket"
+    },
+    "popup": {
+      "writeResponse": "Write a response...",
+      "sendResponse": "Send response",
+      "support": "Support - CottonBlue :",
+      "you": "You :"
+    }
   }
 }
