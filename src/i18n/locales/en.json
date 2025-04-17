@@ -183,5 +183,61 @@
         "outOfStock": "Out of Stock"
       }
     }
+  },
+  "cart": {
+    "title": "Cart",
+    "table": {
+      "product": "Product",
+      "ref": "Ref.",
+      "unitPrice": "Unit price",
+      "quantity": "Quantity",
+      "total": "Total"
+    },
+    "summary": {
+      "totalHT": "Total excl. VAT",
+      "shippingCost": "Shipping cost",
+      "totalTTC": "Total incl. VAT"
+    },
+    "shipping": {
+      "title": "Your shipping address",
+      "firstName": "First name",
+      "lastName": "Last name"
+    },
+    "billing": {
+      "title": "Your billing address"
+    },
+    "validation": {
+      "title": "N+1 Validation",
+      "email": "Email"
+    },
+    "comments": {
+      "title": "Comments",
+      "placeholder": "If you would like to add a comment about your order, please write it here."
+    },
+    "buttons": {
+      "validateOrder": "Validate order"
+    }
+  },
+  "history": {
+    "title": "Order History",
+    "downloadSelectedInvoices": "Download selected invoices",
+    "table": {
+      "order": "Order",
+      "date": "Date",
+      "totalPrice": "Total Price",
+      "status": "Status",
+      "invoice": "Invoice",
+      "details": "Details"
+    },
+    "status": {
+      "delivered": "Delivered",
+      "inDelivery": "In Delivery",
+      "shipped": "Shipped",
+      "cancelled": "Cancelled"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next"
+    }
   }
 }

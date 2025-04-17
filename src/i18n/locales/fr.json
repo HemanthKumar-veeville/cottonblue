@@ -183,5 +183,61 @@
         "outOfStock": "Épuisé"
       }
     }
+  },
+  "cart": {
+    "title": "Panier",
+    "table": {
+      "product": "Produit",
+      "ref": "Réf.",
+      "unitPrice": "Prix unitaire",
+      "quantity": "Quantité",
+      "total": "Total"
+    },
+    "summary": {
+      "totalHT": "Total HT",
+      "shippingCost": "Frais de livraison",
+      "totalTTC": "Total TTC"
+    },
+    "shipping": {
+      "title": "Votre adresse de livraison",
+      "firstName": "Prénom",
+      "lastName": "Nom"
+    },
+    "billing": {
+      "title": "Votre adresse de facturation"
+    },
+    "validation": {
+      "title": "Validation N+1",
+      "email": "Email"
+    },
+    "comments": {
+      "title": "Commentaires",
+      "placeholder": "Si vous souhaitez ajouter un commentaire sur votre commande, veuillez l'écrire ici."
+    },
+    "buttons": {
+      "validateOrder": "Valider la commande"
+    }
+  },
+  "history": {
+    "title": "Historique de commande",
+    "downloadSelectedInvoices": "Télécharger les factures sélectionnées",
+    "table": {
+      "order": "Commande",
+      "date": "Date",
+      "totalPrice": "Prix total",
+      "status": "Statut",
+      "invoice": "Facture",
+      "details": "Détails"
+    },
+    "status": {
+      "delivered": "Livrée",
+      "inDelivery": "En livraison",
+      "shipped": "Expédié",
+      "cancelled": "Annulée"
+    },
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant"
+    }
   }
 }

@@ -16,13 +16,14 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
+import { useTranslation } from "react-i18next";
 
 const orders = [
   {
     id: "KCJRTAEIJ",
     date: "15/02/2024",
     price: "499.90€",
-    status: "Livrée",
+    status: "history.status.delivered",
     statusType: "success",
     invoiceImg: "/img/invoice.svg",
   },
@@ -30,7 +31,7 @@ const orders = [
     id: "KCJRTAEIJ",
     date: "22/03/2025",
     price: "149.90€",
-    status: "En livraison",
+    status: "history.status.inDelivery",
     statusType: "warning",
     invoiceImg: "/img/invoice-1.svg",
   },
@@ -38,7 +39,7 @@ const orders = [
     id: "KCJRTAEIJ",
     date: "30/04/2024",
     price: "499.90€",
-    status: "Livrée",
+    status: "history.status.delivered",
     statusType: "success",
     invoiceImg: "/img/invoice-2.svg",
   },
@@ -46,7 +47,7 @@ const orders = [
     id: "KCJRTAEIJ",
     date: "12/05/2025",
     price: "399.90€",
-    status: "Expédié",
+    status: "history.status.shipped",
     statusType: "default",
     invoiceImg: "/img/invoice-3.svg",
   },
@@ -54,7 +55,7 @@ const orders = [
     id: "KCJRTAEIJ",
     date: "18/06/2024",
     price: "149.90€",
-    status: "En livraison",
+    status: "history.status.inDelivery",
     statusType: "warning",
     invoiceImg: "/img/invoice-4.svg",
   },
@@ -62,7 +63,7 @@ const orders = [
     id: "KCJRTAEIJ",
     date: "25/07/2025",
     price: "799.90€",
-    status: "Annulée",
+    status: "history.status.cancelled",
     statusType: "danger",
     invoiceImg: "/img/invoice-5.svg",
   },
@@ -70,7 +71,7 @@ const orders = [
     id: "KCJRTAEIJ",
     date: "09/08/2024",
     price: "499.90€",
-    status: "Livrée",
+    status: "history.status.delivered",
     statusType: "success",
     invoiceImg: "/img/invoice-6.svg",
   },
@@ -78,7 +79,7 @@ const orders = [
     id: "KCJRTAEIJ",
     date: "14/09/2025",
     price: "399.90€",
-    status: "Livrée",
+    status: "history.status.delivered",
     statusType: "success",
     invoiceImg: "/img/invoice-7.svg",
   },
@@ -86,7 +87,7 @@ const orders = [
     id: "KCJRTAEIJ",
     date: "30/10/2024",
     price: "799.90€",
-    status: "Livrée",
+    status: "history.status.delivered",
     statusType: "success",
     invoiceImg: "/img/invoice-8.svg",
   },
@@ -191,6 +192,8 @@ const OrderRow = ({ order, index }: { order: any; index: number }) => (
 );
 
 export const OrderDetailsSection = (): JSX.Element => {
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col items-center justify-between relative flex-1 self-stretch w-full grow">
       <Table className="bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)]">
@@ -200,12 +203,12 @@ export const OrderDetailsSection = (): JSX.Element => {
               <Checkbox className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
             </TableHead>
             {[
-              "Commande",
-              "Date",
-              "Prix total",
-              "Statut",
-              "Facture",
-              "Détails",
+              t("history.table.order"),
+              t("history.table.date"),
+              t("history.table.totalPrice"),
+              t("history.table.status"),
+              t("history.table.invoice"),
+              t("history.table.details"),
             ].map((header, index) => (
               <TableHead
                 key={index}
@@ -220,7 +223,59 @@ export const OrderDetailsSection = (): JSX.Element => {
         </TableHeader>
         <TableBody>
           {orders.map((order, index) => (
-            <OrderRow key={index} order={order} index={index} />
+            <TableRow
+              key={index}
+              className="border-b border-primary-neutal-300"
+            >
+              <TableCell className="w-11 py-3 px-2">
+                <Checkbox className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
+              </TableCell>
+              <TableCell className="w-[129px] p-2.5 text-center">
+                <span
+                  className={`font-normal ${
+                    index === 0 ? "text-coolgray-100" : "text-[#121619]"
+                  } text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]`}
+                >
+                  {order.id}
+                </span>
+              </TableCell>
+              <TableCell className="w-[145px] p-2.5 text-center">
+                <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
+                  {order.date}
+                </span>
+              </TableCell>
+              <TableCell className="w-[145px] p-2.5 text-center">
+                <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
+                  {order.price}
+                </span>
+              </TableCell>
+              <TableCell className="w-[145px] p-2.5">
+                <div className="flex items-center gap-2">
+                  <div className="relative w-6 h-6">
+                    <StatusIcon type={order.statusType} />
+                  </div>
+                  <StatusText
+                    status={t(order.status)}
+                    type={order.statusType}
+                  />
+                </div>
+              </TableCell>
+              <TableCell className="w-[69px] p-2.5 text-center">
+                <img
+                  className="inline-block w-4 h-4"
+                  alt={t("history.table.invoice")}
+                  src={order.invoiceImg}
+                />
+              </TableCell>
+              <TableCell className="w-[145px] p-2.5 text-center">
+                <Button
+                  variant="ghost"
+                  className="p-0 underline font-medium text-[color:var(--1-tokens-color-modes-button-ghost-default-text)]"
+                >
+                  {t("history.table.details")}
+                </Button>
+              </TableCell>
+            </TableRow>
           ))}
         </TableBody>
       </Table>
@@ -232,11 +287,11 @@ export const OrderDetailsSection = (): JSX.Element => {
         >
           <img
             className="w-6 h-6"
-            alt="Arrow left"
+            alt={t("history.pagination.previous")}
             src="/img/arrow-left-sm.svg"
           />
           <span className="font-medium text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
-            Précédent
+            {t("history.pagination.previous")}
           </span>
         </Button>
 
@@ -271,11 +326,11 @@ export const OrderDetailsSection = (): JSX.Element => {
           className="h-[42px] gap-1 pl-2 pr-3 py-2.5 bg-white rounded-lg shadow-1dp-ambient"
         >
           <span className="font-medium text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
-            Suivant
+            {t("history.pagination.next")}
           </span>
           <img
             className="w-6 h-6"
-            alt="Arrow right"
+            alt={t("history.pagination.next")}
             src="/img/arrow-left-sm-1.svg"
           />
         </Button>
