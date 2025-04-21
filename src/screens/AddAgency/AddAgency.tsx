@@ -13,6 +13,7 @@ interface FormData {
   company_id: string;
   store_name: string;
   store_address: string;
+  store_region: "North" | "South";
   city: string;
   postal_code: string;
   phone_number?: string;
@@ -67,6 +68,73 @@ const LabeledInput = ({
   </div>
 );
 
+const LabeledSelect = ({
+  label,
+  id,
+  value,
+  options,
+  onChange,
+}: {
+  label: string;
+  id: string;
+  value: string;
+  options: { value: string; label: string }[];
+  onChange?: (value: string) => void;
+}) => {
+  const [selectedValue, setSelectedValue] = useState(value);
+
+  return (
+    <div className="relative w-full pt-2">
+      <div className="relative">
+        <div
+          className="flex w-full items-center justify-center gap-3 py-3 px-3 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300 cursor-pointer"
+          onClick={() => {
+            const dropdown = document.getElementById(`${id}-dropdown`);
+            if (dropdown) {
+              dropdown.classList.toggle("hidden");
+            }
+          }}
+        >
+          <div className="flex-1 font-medium text-gray-700 text-base leading-4 tracking-normal truncate">
+            {selectedValue || "Select Region"}
+          </div>
+          <div className="flex w-6 h-6 items-center justify-center shrink-0">
+            <img
+              className="w-4 h-4"
+              alt="Chevron down"
+              src="/img/icon-13.svg"
+            />
+          </div>
+        </div>
+        <div
+          id={`${id}-dropdown`}
+          className="hidden absolute top-full left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50"
+        >
+          {options.map((option) => (
+            <div
+              key={option.value}
+              className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+              onClick={() => {
+                setSelectedValue(option.label);
+                onChange?.(option.value);
+                const dropdown = document.getElementById(`${id}-dropdown`);
+                if (dropdown) {
+                  dropdown.classList.add("hidden");
+                }
+              }}
+            >
+              {option.label}
+            </div>
+          ))}
+        </div>
+      </div>
+      <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
+        {label}
+      </span>
+    </div>
+  );
+};
+
 const CheckboxField = ({
   label,
   id,
@@ -99,6 +167,7 @@ export default function AddAgency() {
     company_id: selectedCompany?.id || "",
     store_name: "",
     store_address: "",
+    store_region: "North",
     city: "",
     postal_code: "",
     phone_number: "",
@@ -125,29 +194,32 @@ export default function AddAgency() {
   const dispatch = useAppDispatch();
 
   const handleSubmit = async () => {
-    // Validate required fields
+    // Validate required fields including company ID
     if (
       !formData.city ||
       !formData.store_address ||
       !formData.passwords.admin ||
       !formData.passwords.client ||
-      !formData.validation.email
+      !formData.validation.email ||
+      !selectedCompany?.id // Add company ID validation
     ) {
       toast.error("Please fill in all required fields");
       return;
     }
 
     setLoading(true);
-    setFormData((prev) => ({
-      ...prev,
-      company_id: selectedCompany?.id || "",
-    }));
 
     try {
+      // Create a new object with the updated company ID to ensure it's included
+      const submitData = {
+        ...formData,
+        company_id: selectedCompany.id, // Directly use the selected company ID
+      };
+
       dispatch(
         registerStore({
           dnsPrefix: selectedCompany?.name || "",
-          data: formData,
+          data: submitData, // Use the new object with guaranteed company ID
         })
       );
       toast.success("Agency added successfully!");
@@ -215,17 +287,38 @@ export default function AddAgency() {
               />
             </div>
 
-            <LabeledInput
-              label="Address"
-              id="store_address"
-              value={formData.store_address}
-              onChange={(value) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  store_address: value,
-                }))
-              }
-            />
+            <div className="flex gap-4">
+              <div className="flex-1">
+                <LabeledInput
+                  label="Address"
+                  id="store_address"
+                  value={formData.store_address}
+                  onChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      store_address: value,
+                    }))
+                  }
+                />
+              </div>
+              <div className="flex-1">
+                <LabeledSelect
+                  label="Store Region"
+                  id="store_region"
+                  value={formData.store_region}
+                  options={[
+                    { value: "North", label: "North" },
+                    { value: "South", label: "South" },
+                  ]}
+                  onChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      store_region: value as "North" | "South",
+                    }))
+                  }
+                />
+              </div>
+            </div>
 
             <div className="relative w-full">
               <Textarea
@@ -316,7 +409,6 @@ export default function AddAgency() {
               />
             </div>
           </div>
-
           <div className="flex flex-col gap-6">
             <div className="flex gap-4">
               <LabeledInput

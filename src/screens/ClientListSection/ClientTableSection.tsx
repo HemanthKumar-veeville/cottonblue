@@ -123,7 +123,7 @@ export const ClientTableSection = ({
 
   // Handle view details click
   const handleViewDetails = (clientId: number) => {
-    navigate(`/customers/${clientId}/agencies`);
+    navigate(`/customers/${clientId}`);
   };
 
   return (

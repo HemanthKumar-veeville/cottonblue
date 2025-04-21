@@ -124,6 +124,7 @@ const csvConfig = {
     "phone_number",
     "latitude",
     "longitude",
+    "store_region",
   ],
   sheetName: "Agencies",
   importEndpoint: "/api/agencies/import",

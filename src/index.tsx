@@ -64,14 +64,11 @@ function App() {
               <Route path="products/carousel" element={<Carousel />} />
               <Route path="customers" element={<ClientList />} />
               <Route
-                path="customers/:company_name/agencies"
-                element={<AgenciesList />}
-              />
-              <Route path="agencies/add" element={<AddAgency />} />
-              <Route
-                path="customers/:company_name/agencies/:agency_id"
+                path="customers/:company_name"
                 element={<AgencyDetails />}
               />
+              <Route path="agencies" element={<AgenciesList />} />
+              <Route path="agencies/add" element={<AddAgency />} />
               <Route path="customers/edit" element={<AddClient />} />
               <Route path="customers/add" element={<AddClient />} />
               <Route path="support/tickets" element={<Tickets />} />

@@ -199,12 +199,12 @@ export const SuperadminSidebarSection = ({
       items: [
         {
           icon: <BookOpenIcon className="w-4 h-4" />,
-          label: t("sidebar.customers.list"),
+          label: t("sidebar.agencies.list"),
           path: "/agencies",
         },
         {
           icon: <PlusCircleIcon className="w-4 h-4" />,
-          label: t("sidebar.customers.add"),
+          label: t("sidebar.agencies.add"),
           path: "/agencies/add",
         },
       ],

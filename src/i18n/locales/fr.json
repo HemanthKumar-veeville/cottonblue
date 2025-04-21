@@ -23,6 +23,11 @@
       "list": "Liste des clients",
       "add": "Ajouter un client"
     },
+    "agencies": {
+      "title": "Agences",
+      "list": "Liste des agences",
+      "add": "Ajouter une agence"
+    },
     "support": {
       "title": "Support",
       "tickets": "Tickets"

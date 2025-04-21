@@ -23,6 +23,11 @@
       "list": "Clients List",
       "add": "Add Client"
     },
+    "agencies": {
+      "title": "Agencies",
+      "list": "Agencies List",
+      "add": "Add Agency"
+    },
     "support": {
       "title": "Support",
       "tickets": "Tickets"
