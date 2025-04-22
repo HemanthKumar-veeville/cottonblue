@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { productService, CreateProductData } from '../../services/productService.ts';
+import { productService, CreateProductData, UpdateProductData } from '../../services/productService.ts';
 
 // Define types for the product state
 interface Product {
@@ -20,9 +20,11 @@ interface ProductState {
   products: {
     products: Product[];
   };
+  currentProduct: Product | null;
   loading: boolean;
   error: string | null;
   createSuccess: boolean;
+  updateSuccess: boolean;
 }
 
 // Initial state
@@ -30,9 +32,11 @@ const initialState: ProductState = {
   products: {
     products: []
   },
+  currentProduct: null,
   loading: false,
   error: null,
   createSuccess: false,
+  updateSuccess: false,
 };
 
 // Create async thunks for API calls
@@ -60,6 +64,30 @@ export const fetchAllProducts = createAsyncThunk(
   }
 );
 
+export const getProductById = createAsyncThunk(
+  'product/getProductById',
+  async ({ dnsPrefix, productId }: { dnsPrefix: string; productId: string }, { rejectWithValue }) => {
+    try {
+      const response = await productService.getProductById(dnsPrefix, productId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch product');
+    }
+  }
+);
+
+export const updateProduct = createAsyncThunk(
+  'product/updateProduct',
+  async ({ dnsPrefix, productId, data }: { dnsPrefix: string; productId: string; data: UpdateProductData | FormData }, { rejectWithValue }) => {
+    try {
+      const response = await productService.updateProduct(dnsPrefix, productId, data);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update product');
+    }
+  }
+);
+
 // Create the product slice
 const productSlice = createSlice({
   name: 'product',
@@ -69,6 +97,7 @@ const productSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.createSuccess = false;
+      state.updateSuccess = false;
     },
   },
   extraReducers: (builder) => {
@@ -100,6 +129,34 @@ const productSlice = createSlice({
       .addCase(fetchAllProducts.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      // Get product by ID cases
+      .addCase(getProductById.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProductById.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentProduct = action.payload;
+      })
+      .addCase(getProductById.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      // Update product cases
+      .addCase(updateProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.updateSuccess = false;
+      })
+      .addCase(updateProduct.fulfilled, (state) => {
+        state.loading = false;
+        state.updateSuccess = true;
+      })
+      .addCase(updateProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.updateSuccess = false;
       });
   },
 });

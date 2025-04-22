@@ -95,7 +95,8 @@
     },
     "actions": {
       "saveDraft": "Enregistrer en brouillon",
-      "next": "Suivant"
+      "next": "Suivant",
+      "save": "Enregistrer"
     }
   },
   "agencyDetails": {
@@ -298,5 +299,23 @@
     "password": "Mot de passe",
     "login": "Connexion",
     "poweredBy": "par Cotton Blue"
+  },
+  "productDetails": {
+    "header": "Détails du produit",
+    "reference": "Référence : ",
+    "info": {
+      "category": "Catégorie",
+      "sizes": "Tailles disponibles",
+      "soldBy": "Vendu par",
+      "price": "Prix",
+      "stock": "Stock disponible"
+    },
+    "actions": {
+      "modify": "Modifier le produit",
+      "delete": "Supprimer"
+    },
+    "description": {
+      "title": "Description"
+    }
   }
 }

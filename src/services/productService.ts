@@ -10,6 +10,15 @@ export interface CreateProductData {
   total_stock: number;
 }
 
+export interface UpdateProductData {
+  product_name?: string;
+  product_description?: string;
+  product_price?: number;
+  available_region?: string;
+  total_stock?: number;
+  product_image?: File;
+}
+
 export const productService = {
   /**
    * Create a new product
@@ -46,5 +55,44 @@ export const productService = {
    */
   getAllProducts: async (dnsPrefix: string) => {
     return axiosInstance.get(`/${dnsPrefix}/all/products`);
+  },
+
+  /**
+   * Get a single product by ID
+   * @param dnsPrefix DNS prefix of the company
+   * @param productId ID of the product to retrieve
+   * @returns Promise with product data
+   */
+  getProductById: async (dnsPrefix: string, productId: string) => {
+    return axiosInstance.get(`/${dnsPrefix}/product/${productId}`);
+  },
+
+  /**
+   * Update an existing product
+   * @param dnsPrefix DNS prefix of the company
+   * @param productId ID of the product to update
+   * @param data Product update data
+   * @returns Promise with update response
+   */
+  updateProduct: async (dnsPrefix: string, productId: string, data: UpdateProductData | FormData) => {
+    // If data is already FormData, use it directly
+    const formData = data instanceof FormData ? data : new FormData();
+    
+    // Only convert to FormData if the input is not already FormData
+    if (!(data instanceof FormData)) {
+      Object.entries(data).forEach(([key, value]) => {
+        if (value instanceof File) {
+          formData.append(key, value);
+        } else if (value !== undefined) {
+          formData.append(key, value.toString());
+        }
+      });
+    }
+
+    return axiosInstance.put(`/${dnsPrefix}/update/product/${productId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
   },
 };

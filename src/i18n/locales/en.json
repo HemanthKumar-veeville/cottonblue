@@ -95,7 +95,17 @@
     },
     "actions": {
       "saveDraft": "Save as draft",
-      "next": "Next"
+      "next": "Next",
+      "save": "Save"
+    },
+    "messages": {
+      "loadError": "Failed to load product",
+      "updateError": "Failed to update product",
+      "publishError": "Failed to publish product",
+      "draftSaved": "Draft saved successfully",
+      "published": "Product published successfully",
+      "updated": "Product updated successfully",
+      "noChanges": "No changes detected to update"
     }
   },
   "agencyDetails": {
@@ -298,5 +308,23 @@
     "password": "Password",
     "login": "Login",
     "poweredBy": "by Cotton Blue"
+  },
+  "productDetails": {
+    "header": "Product Details",
+    "reference": "Reference: ",
+    "info": {
+      "category": "Category",
+      "sizes": "Available Sizes",
+      "soldBy": "Sold by",
+      "price": "Price",
+      "stock": "Available Stock"
+    },
+    "actions": {
+      "modify": "Modify Product",
+      "delete": "Delete"
+    },
+    "description": {
+      "title": "Description"
+    }
   }
 }

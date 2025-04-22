@@ -61,7 +61,14 @@ function App() {
               <Route path="order-history" element={<ComingSoon />} />
               <Route path="products" element={<ProductList />} />
               <Route path="products/:id" element={<ProductDetails />} />
-              <Route path="products/add" element={<ProductSidebarSection />} />
+              <Route
+                path="products/add"
+                element={<ProductSidebarSection mode="add" />}
+              />
+              <Route
+                path="products/edit/:id"
+                element={<ProductSidebarSection mode="edit" />}
+              />
               <Route path="products/stock" element={<ComingSoon />} />
               <Route path="products/carousel" element={<Carousel />} />
               <Route path="customers" element={<ClientList />} />

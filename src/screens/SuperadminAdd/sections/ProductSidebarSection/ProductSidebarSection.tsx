@@ -17,9 +17,13 @@ import { cn } from "../../../../lib/utils";
 import { ProductImageUploader } from "./ProductImageUploader";
 import AddProduct_step_1 from "../../../../screens/AddProduct/AddProduct_step_1";
 import { useAppDispatch, useAppSelector } from "../../../../store/store";
-import { createProduct } from "../../../../store/features/productSlice";
+import {
+  createProduct,
+  getProductById,
+  updateProduct,
+} from "../../../../store/features/productSlice";
 import { CreateProductData } from "../../../../services/productService";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 
 // Types
 interface StepIndicatorProps {
@@ -181,7 +185,9 @@ const useProductForm = () => {
     images: {},
     imageUrls: {},
   });
-
+  const [originalData, setOriginalData] = useState<ProductFormData | null>(
+    null
+  );
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleInputChange = useCallback(
@@ -194,6 +200,8 @@ const useProductForm = () => {
   return {
     formData,
     setFormData,
+    originalData,
+    setOriginalData,
     isSubmitting,
     setIsSubmitting,
     handleInputChange,
@@ -257,21 +265,81 @@ const SelectField = ({
   </Select>
 );
 
-export const ProductSidebarSection = (): JSX.Element => {
+interface ProductSidebarSectionProps {
+  mode?: "add" | "edit";
+}
+
+export const ProductSidebarSection = ({
+  mode = "add",
+}: ProductSidebarSectionProps): JSX.Element => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const { selectedCompany } = useAppSelector((state) => state.client);
   const navigate = useNavigate();
+  const { id } = useParams<{ id: string }>();
+  const { selectedCompany } = useAppSelector((state) => state.client);
   const [currentStep, setCurrentStep] = useState(1);
   const [showStep1, setShowStep1] = useState(false);
   const totalSteps = 3;
   const {
     formData,
     setFormData,
+    originalData,
+    setOriginalData,
     isSubmitting,
     setIsSubmitting,
     handleInputChange,
   } = useProductForm();
+
+  // Load product data in edit mode
+  useEffect(() => {
+    const loadProductData = async () => {
+      if (mode === "edit" && id && selectedCompany?.name) {
+        try {
+          const resultAction = await dispatch(
+            getProductById({
+              dnsPrefix: selectedCompany.name,
+              productId: id,
+            }) as any
+          );
+
+          if (getProductById.fulfilled.match(resultAction)) {
+            const {
+              available_region,
+              description,
+              name,
+              price,
+              product_image,
+              stock,
+            } = resultAction.payload?.product;
+
+            const initialData = {
+              name: name || "",
+              region: available_region || "",
+              gender: "Unisexe",
+              size: "S, M, L",
+              soldByCarton: true,
+              soldByUnit: false,
+              pricePerCarton: price?.toString() || "",
+              pricePerUnit: "",
+              piecesPerCarton: stock?.toString() || "",
+              reference: "",
+              description: description || "",
+              images: {},
+              imageUrls: { 0: product_image || "" },
+            };
+
+            setFormData(initialData);
+            setOriginalData(initialData);
+          }
+        } catch (error) {
+          console.error("Error loading product:", error);
+          toast.error(t("productSidebar.messages.loadError"));
+        }
+      }
+    };
+
+    loadProductData();
+  }, [mode, id, selectedCompany, dispatch, setFormData, setOriginalData, t]);
 
   useEffect(() => {
     return () => {
@@ -367,48 +435,100 @@ export const ProductSidebarSection = (): JSX.Element => {
       setIsSubmitting(true);
       try {
         if (action === "next") {
-          // Validate form
-          // validateForm();
-
-          // Prepare product data
-          const createProductData: CreateProductData = {
+          // Base product data
+          const baseProductData = {
             company_id: selectedCompany!.id,
             product_name: formData.name,
             product_description: formData.description,
             product_price: formData.soldByCarton
               ? parseFloat(formData.pricePerCarton)
               : parseFloat(formData.pricePerUnit),
-            available_region: formData.region, // Using category as region for now
+            available_region: formData.region,
             total_stock: formData.soldByCarton
               ? parseInt(formData.piecesPerCarton)
               : 1,
-            product_image: formData.images[0], // Using the main image
+            product_image: formData.images[0] || formData.imageUrls[0],
           };
 
-          // Console log the data before API call
-          console.log("Next Button - Form Data:", {
-            ...formData,
-            timestamp: new Date().toISOString(),
-            processedData: createProductData,
-          });
+          if (mode === "edit" && id && originalData) {
+            // Create an object with only the changed fields
+            const updatedFields: Partial<typeof baseProductData> = {};
 
-          // Dispatch create product action
-          const resultAction = await dispatch(
-            createProduct({
-              dnsPrefix: selectedCompany!.name,
-              data: createProductData,
-            }) as any
-          );
+            // Compare and add only changed fields
+            if (formData.name !== originalData.name) {
+              updatedFields.product_name = formData.name;
+            }
+            if (formData.description !== originalData.description) {
+              updatedFields.product_description = formData.description;
+            }
+            if (
+              (formData.soldByCarton &&
+                formData.pricePerCarton !== originalData.pricePerCarton) ||
+              (!formData.soldByCarton &&
+                formData.pricePerUnit !== originalData.pricePerUnit)
+            ) {
+              updatedFields.product_price = baseProductData.product_price;
+            }
+            if (formData.region !== originalData.region) {
+              updatedFields.available_region = formData.region;
+            }
+            if (
+              (formData.soldByCarton &&
+                formData.piecesPerCarton !== originalData.piecesPerCarton) ||
+              (!formData.soldByCarton &&
+                formData.soldByUnit !== originalData.soldByUnit)
+            ) {
+              updatedFields.total_stock = baseProductData.total_stock;
+            }
 
-          if (createProduct.fulfilled.match(resultAction)) {
-            console.log("API Response:", resultAction.payload);
-            toast.success(t("productSidebar.messages.published"));
-            setShowStep1(true);
-          } else {
-            throw new Error(
-              resultAction.error?.message ||
-                t("productSidebar.messages.publishError")
+            // Check if image has changed
+            const hasNewImage = formData.images[0];
+            if (hasNewImage) {
+              updatedFields.product_image = formData.images[0];
+            }
+
+            // Only proceed if there are actual changes
+            if (Object.keys(updatedFields).length === 0) {
+              toast.info(t("productSidebar.messages.noChanges"));
+              return;
+            }
+
+            // Handle edit mode with only changed fields
+            const resultAction = await dispatch(
+              updateProduct({
+                dnsPrefix: selectedCompany!.name,
+                productId: id,
+                data: updatedFields,
+              }) as any
             );
+
+            if (updateProduct.fulfilled.match(resultAction)) {
+              toast.success(t("productSidebar.messages.updated"));
+              navigate(`/products/${id}`);
+            } else {
+              throw new Error(
+                resultAction.error?.message ||
+                  t("productSidebar.messages.updateError")
+              );
+            }
+          } else {
+            // Handle add mode
+            const resultAction = await dispatch(
+              createProduct({
+                dnsPrefix: selectedCompany!.name,
+                data: baseProductData,
+              }) as any
+            );
+
+            if (createProduct.fulfilled.match(resultAction)) {
+              toast.success(t("productSidebar.messages.published"));
+              navigate(`/products`);
+            } else {
+              throw new Error(
+                resultAction.error?.message ||
+                  t("productSidebar.messages.publishError")
+              );
+            }
           }
         } else {
           // Handle draft save
@@ -417,7 +537,6 @@ export const ProductSidebarSection = (): JSX.Element => {
             timestamp: new Date().toISOString(),
             isDraft: true,
           });
-          await new Promise((resolve) => setTimeout(resolve, 1000));
           toast.success(t("productSidebar.messages.draftSaved"));
         }
       } catch (error: any) {
@@ -427,12 +546,12 @@ export const ProductSidebarSection = (): JSX.Element => {
         setIsSubmitting(false);
       }
     },
-    [t, dispatch, formData, selectedCompany, setShowStep1]
+    [t, dispatch, formData, originalData, selectedCompany, mode, id, navigate]
   );
 
-  if (showStep1) {
-    return <AddProduct_step_1 />;
-  }
+  // if (showStep1) {
+  //   return <AddProduct_step_1 />;
+  // }
 
   return (
     <div className="flex items-start justify-around gap-24 relative flex-1 self-stretch grow">
@@ -440,10 +559,12 @@ export const ProductSidebarSection = (): JSX.Element => {
         <div className="h-[calc(100vh-4rem)] w-full overflow-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <Card className="flex flex-col items-start gap-8 p-6 relative flex-1 self-stretch w-full grow rounded-lg overflow-hidden">
             <CardContent className="p-0 w-full">
-              <StepIndicator
-                currentStep={currentStep}
-                totalSteps={totalSteps}
-              />
+              {/* {mode === "add" && (
+                <StepIndicator
+                  currentStep={currentStep}
+                  totalSteps={totalSteps}
+                />
+              )} */}
 
               <div className="flex items-start justify-center gap-6 relative flex-1 self-stretch w-full grow">
                 <div className="flex flex-col items-start gap-6 relative flex-1 self-stretch grow">
@@ -657,7 +778,7 @@ export const ProductSidebarSection = (): JSX.Element => {
                       disabled={isSubmitting}
                     >
                       <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5 whitespace-nowrap">
-                        {t("productSidebar.actions.next")}
+                        {t("productSidebar.actions.save")}
                       </span>
                     </Button>
                   </div>
