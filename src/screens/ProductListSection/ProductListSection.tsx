@@ -2,38 +2,69 @@ import { DownloadIcon, PlusIcon, SearchIcon, UploadIcon } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ImportCSVModal from "../../components/ImportCSVModal/ImportCSVModal";
 import { ExportCSV } from "../../components/ExportCSV/ExportCSV";
+import { useAppDispatch, useAppSelector } from "../../store/store";
+import {
+  createProduct,
+  fetchAllProducts,
+} from "../../store/features/productSlice";
+import { useNavigate } from "react-router-dom";
+import type { Product } from "../../store/features/productSlice";
+import { toast } from "sonner";
 
 export const ProductListSection = (): JSX.Element => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
+  // Get products from Redux store
+  const { products, loading, error } = useAppSelector((state) => state.product);
+  const { selectedCompany } = useAppSelector((state) => state.client);
+  const productList = products?.products || [];
+
+  // Fetch products on component mount
+  useEffect(() => {
+    dispatch(fetchAllProducts(selectedCompany?.name || ""));
+  }, [dispatch, selectedCompany?.name]);
+
   const handleImport = async (file: File) => {
     try {
-      // Create FormData to send the file
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("csv_file", file);
+      formData.append("company_id", selectedCompany!.id);
+      // Dispatch create product action
+      const resultAction = await dispatch(
+        createProduct({
+          dnsPrefix: selectedCompany!.name,
+          data: formData as any,
+        }) as any
+      );
 
-      // Make API call to import the CSV
-      const response = await fetch("/api/products/import", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        throw new Error("Import failed");
+      if (createProduct.fulfilled.match(resultAction)) {
+        console.log("API Response:", resultAction.payload);
+        toast.success(t("productSidebar.messages.published"));
+      } else {
+        throw new Error(
+          resultAction.error?.message ||
+            t("productSidebar.messages.publishError")
+        );
       }
 
-      // Handle successful import
-      // You might want to refresh the product list here
-      // or show a success message
+      // Refresh products list after successful import
+      dispatch(fetchAllProducts(selectedCompany?.name || ""));
     } catch (error) {
       console.error("Error importing CSV:", error);
-      throw error; // Re-throw to be handled by the modal
+      throw error;
     }
+  };
+
+  const handleCreateProduct = () => {
+    navigate("/products/create");
   };
 
   return (
@@ -49,6 +80,8 @@ export const ProductListSection = (): JSX.Element => {
           <Input
             className="pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] pr-12 py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)] rounded-[var(--2-tokens-screen-modes-input-border-radius)]"
             placeholder={t("productList.search.placeholder")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
           <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center w-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)] h-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)]">
             <SearchIcon className="w-5 h-5 text-[color:var(--1-tokens-color-modes-input-primary-default-icon)]" />
@@ -56,7 +89,10 @@ export const ProductListSection = (): JSX.Element => {
         </div>
 
         <div className="flex items-center gap-[var(--2-tokens-screen-modes-common-spacing-m)]">
-          <Button className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[#07515f] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)]">
+          <Button
+            className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[#07515f] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)]"
+            onClick={handleCreateProduct}
+          >
             <PlusIcon className="w-6 h-6" />
             <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] [font-style:var(--label-smaller-font-style)]">
               {t("productList.actions.create")}
@@ -91,10 +127,20 @@ export const ProductListSection = (): JSX.Element => {
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
         onImport={handleImport}
+        templateColumns={[
+          "Product Name",
+          "Product Description",
+          "Product Price",
+          "Available Region",
+          "Total Stock",
+        ]}
+        sheetName="Products"
       />
       <ExportCSV
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
+        products={productList}
+        sheetName="Products"
       />
     </section>
   );

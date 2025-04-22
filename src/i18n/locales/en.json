@@ -59,7 +59,10 @@
       "size": "Size",
       "soldBy": "Sold By",
       "price": "Price",
-      "details": "Details"
+      "details": "Details",
+      "stock": "Stock",
+      "availableRegion": "Available Region",
+      "description": "Description"
     },
     "pagination": {
       "previous": "Previous",
@@ -73,6 +76,7 @@
       "category": "Category",
       "gender": "Gender",
       "size": "Size",
+      "region": "Region",
       "soldBy": {
         "carton": "Sold by carton",
         "unit": "Sold by unit"

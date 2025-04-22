@@ -9,7 +9,9 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { cn } from "../../lib/utils";
 import { useNavigate } from "react-router-dom";
-
+import { createProduct } from "../../store/features/productSlice";
+import { useAppDispatch, useAppSelector } from "../../store/store";
+import { CreateProductData } from "../../services/productService";
 // Types
 interface Store {
   id: string;
@@ -19,9 +21,11 @@ interface Store {
 }
 
 interface ProductDetails {
-  name: string;
-  category: string;
-  imageUrl: string;
+  product_name: string;
+  product_description: string;
+  product_price: number;
+  total_stock: number;
+  product_image: File | null;
 }
 
 // Constants
@@ -120,14 +124,20 @@ const ProductCard = ({ product }: { product: ProductDetails }) => (
     <CardContent className="flex items-center p-4">
       <div
         className="w-[50px] h-[50px] rounded-lg bg-cover bg-center mr-4"
-        style={{ backgroundImage: `url(${product.imageUrl})` }}
+        style={{
+          backgroundImage: `url(${
+            product.product_image
+              ? URL.createObjectURL(product.product_image)
+              : ""
+          })`,
+        }}
       />
       <div className="flex flex-col items-start gap-1">
         <h4 className="[font-family:'Inter-Bold',Helvetica] font-bold text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-xl leading-7">
-          {product.name}
+          {product.product_name}
         </h4>
         <p className="font-text-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--text-medium-font-size)] leading-[var(--text-medium-line-height)]">
-          {product.category}
+          {product.product_description}
         </p>
       </div>
     </CardContent>
@@ -208,6 +218,32 @@ const StoreBadgesGrid = ({
   </div>
 );
 
+const StoreList = ({
+  stores,
+  onToggleStore,
+}: {
+  stores: Store[];
+  onToggleStore: (storeId: string) => void;
+}) => (
+  <div className="mt-4 grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto">
+    {stores.map((store) => (
+      <div
+        key={store.id}
+        className="flex items-center justify-between p-2 border rounded-md hover:bg-gray-50"
+      >
+        <div className="flex items-center gap-2">
+          <Checkbox
+            checked={store.isSelected}
+            onCheckedChange={() => onToggleStore(store.id)}
+          />
+          <span>{store.name}</span>
+        </div>
+        <Info className="w-4 h-4 text-gray-400" />
+      </div>
+    ))}
+  </div>
+);
+
 const FooterButtons = ({
   onSaveDraft,
   onPublish,
@@ -239,6 +275,9 @@ const FooterButtons = ({
 const ProductDetails = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { selectedCompany } = useAppSelector((state) => state.client);
+
   const [stores, setStores] = useState<Store[]>(
     storeLocations.map((location, index) => ({
       id: `store-${index}`,
@@ -249,10 +288,12 @@ const ProductDetails = () => {
   );
   const [searchQuery, setSearchQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [product] = useState<ProductDetails>({
-    name: "Fleece jacket",
-    category: "Workwear",
-    imageUrl: "/img/frame-4347.png",
+  const [productData, setProductData] = useState<ProductDetails>({
+    product_name: "",
+    product_description: "",
+    product_price: 0,
+    total_stock: 0,
+    product_image: null,
   });
 
   const handleSelectAll = useCallback((checked: boolean) => {
@@ -265,6 +306,16 @@ const ProductDetails = () => {
     setSearchQuery(query);
   }, []);
 
+  const handleToggleStore = useCallback((storeId: string) => {
+    setStores((prev) =>
+      prev.map((store) =>
+        store.id === storeId
+          ? { ...store, isSelected: !store.isSelected }
+          : store
+      )
+    );
+  }, []);
+
   const handleRemoveStore = useCallback((storeId: string) => {
     setStores((prev) =>
       prev.map((store) =>
@@ -273,9 +324,49 @@ const ProductDetails = () => {
     );
   }, []);
 
+  const handleBack = useCallback(() => {
+    navigate(-1);
+  }, [navigate]);
+
+  const validateForm = () => {
+    const selectedStores = stores.filter((store) => store.isSelected);
+    if (selectedStores.length === 0) {
+      throw new Error("Please select at least one store");
+    }
+
+    if (!selectedCompany?.id) {
+      throw new Error("No company selected");
+    }
+
+    if (!productData.product_name) {
+      throw new Error("Product name is required");
+    }
+
+    if (!productData.product_description) {
+      throw new Error("Product description is required");
+    }
+
+    if (!productData.product_price || productData.product_price <= 0) {
+      throw new Error("Valid product price is required");
+    }
+
+    if (!productData.total_stock || productData.total_stock <= 0) {
+      throw new Error("Valid total stock is required");
+    }
+
+    if (!productData.product_image) {
+      throw new Error("Product image is required");
+    }
+  };
+
   const handleSaveDraft = useCallback(async () => {
     setIsSubmitting(true);
     try {
+      // Log form data
+      console.log("Product Data:", {
+        ...productData,
+        selectedStores: stores.filter((store) => store.isSelected),
+      });
       await new Promise((resolve) => setTimeout(resolve, 1000));
       toast.success(t("productDetails.messages.draftSaved"));
     } catch (error) {
@@ -283,29 +374,70 @@ const ProductDetails = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [t]);
+  }, [t, productData, stores]);
 
   const handlePublish = useCallback(async () => {
     setIsSubmitting(true);
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success(t("productDetails.messages.published"));
-      navigate("/products");
-    } catch (error) {
-      toast.error(t("productDetails.messages.publishError"));
+      // Validate form
+      validateForm();
+
+      // Get selected stores
+      const selectedStores = stores.filter((store) => store.isSelected);
+
+      // Log form data before submission
+      console.log("Publishing Product Data:", {
+        ...productData,
+        selectedStores,
+        company_id: selectedCompany?.id,
+      });
+
+      // Ensure product_image is not null (validateForm already checks this)
+      if (!productData.product_image) {
+        throw new Error("Product image is required");
+      }
+
+      // Create the product data
+      const createProductData: CreateProductData = {
+        company_id: selectedCompany!.id,
+        product_name: productData.product_name,
+        product_description: productData.product_description,
+        product_price: productData.product_price,
+        available_region: selectedStores
+          .map((store) => store.location)
+          .join(","),
+        total_stock: productData.total_stock,
+        product_image: productData.product_image,
+      };
+
+      // Dispatch the create product action
+      const resultAction = await dispatch(
+        createProduct({
+          dnsPrefix: selectedCompany!.name,
+          data: createProductData,
+        }) as any
+      );
+
+      if (createProduct.fulfilled.match(resultAction)) {
+        toast.success(t("productDetails.messages.published"));
+        navigate("/products");
+      } else {
+        throw new Error(
+          resultAction.error?.message || "Failed to create product"
+        );
+      }
+    } catch (error: any) {
+      toast.error(error.message || t("productDetails.messages.publishError"));
     } finally {
       setIsSubmitting(false);
     }
-  }, [t, navigate]);
-
-  const handleBack = useCallback(() => {
-    // Handle back navigation
-  }, []);
+  }, [t, navigate, dispatch, productData, stores, selectedCompany]);
 
   const filteredStores = stores.filter((store) =>
     store.location.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const selectedStores = stores.filter((store) => store.isSelected);
   const isAllSelected = stores.every((store) => store.isSelected);
 
   return (
@@ -313,18 +445,27 @@ const ProductDetails = () => {
       <ProgressIndicator />
       <Header onBack={handleBack} />
       <div className="flex flex-col w-full justify-between flex-1 items-start">
-        <div className="inline-flex gap-8 flex-col items-start">
-          <ProductCard product={product} />
-          <div className="flex flex-col gap-8">
+        <div className="inline-flex gap-8 flex-col items-start w-full">
+          <ProductCard product={productData} />
+          <div className="flex flex-col gap-8 w-full">
             <StoreSelectionControls
               onSelectAll={handleSelectAll}
               onSearch={handleSearch}
               isAllSelected={isAllSelected}
             />
-            <StoreBadgesGrid
+            <StoreList
               stores={filteredStores}
-              onRemoveStore={handleRemoveStore}
+              onToggleStore={handleToggleStore}
             />
+            {selectedStores.length > 0 && (
+              <div className="mt-4">
+                <h4 className="text-sm font-medium mb-2">Selected Stores</h4>
+                <StoreBadgesGrid
+                  stores={selectedStores}
+                  onRemoveStore={handleRemoveStore}
+                />
+              </div>
+            )}
           </div>
         </div>
         <FooterButtons

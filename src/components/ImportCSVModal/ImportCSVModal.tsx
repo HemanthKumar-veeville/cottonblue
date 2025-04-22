@@ -125,17 +125,10 @@ const Footer = ({
     const wb = XLSX.utils.book_new();
 
     // Create worksheet with header row only
-    const ws = XLSX.utils.aoa_to_sheet([
-      templateColumns.map((col) =>
-        col
-          .split("_")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" ")
-      ),
-    ]);
+    const ws = XLSX.utils.aoa_to_sheet([templateColumns]);
 
-    // Set column widths
-    const colWidths = templateColumns.map(() => ({ wch: 20 }));
+    // Set column widths - adjust width for longer column names
+    const colWidths = templateColumns.map(() => ({ wch: 25 }));
     ws["!cols"] = colWidths;
 
     // Add the worksheet to the workbook
@@ -183,6 +176,39 @@ const ImportButton = ({
   </Button>
 );
 
+const convertToCSV = async (file: File): Promise<File> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = e.target?.result;
+        const workbook = XLSX.read(data, { type: "binary" });
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+
+        // Convert to CSV
+        const csvContent = XLSX.utils.sheet_to_csv(worksheet);
+
+        // Create a new File object with CSV content
+        const csvBlob = new Blob([csvContent], { type: "text/csv" });
+        const csvFile = new File(
+          [csvBlob],
+          file.name.replace(/\.(xlsx|xls)$/, ".csv"),
+          {
+            type: "text/csv",
+          }
+        );
+
+        resolve(csvFile);
+      } catch (error) {
+        reject(error);
+      }
+    };
+    reader.onerror = (error) => reject(error);
+    reader.readAsBinaryString(file);
+  });
+};
+
 export default function ImportCSVModal({
   isOpen,
   onClose,
@@ -202,7 +228,17 @@ export default function ImportCSVModal({
 
     try {
       setIsImporting(true);
-      await onImport(selectedFile);
+
+      // Convert Excel files to CSV if needed
+      let fileToImport = selectedFile;
+      if (
+        selectedFile.name.endsWith(".xlsx") ||
+        selectedFile.name.endsWith(".xls")
+      ) {
+        fileToImport = await convertToCSV(selectedFile);
+      }
+
+      await onImport(fileToImport);
       toast.success("File imported successfully");
       onClose();
     } catch (error) {

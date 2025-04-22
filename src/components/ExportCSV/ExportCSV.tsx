@@ -6,36 +6,33 @@ import * as XLSX from "xlsx";
 import { useState } from "react";
 import { getFormattedTimestamp } from "../../utils/dateUtils";
 
-interface Agency {
+interface Product {
   id: number;
   name: string;
-  phone_number: string;
-  city: string;
-  address: string;
-  longitude: string;
-  latitude: string;
+  description: string;
+  price: number;
+  stock: number;
+  available_region: string;
   created_at: string;
   updated_at: string;
   company_id: number;
-  postal_code: string;
+  product_image: string;
   is_active: boolean;
 }
 
 interface ExportCSVProps {
   isOpen: boolean;
   onClose: () => void;
-  agencies: Agency[];
+  products: Product[];
   sheetName?: string;
 }
 
 const headerDisplayNames = {
-  store_name: "Store Name",
-  store_address: "Store Address",
-  city: "City",
-  postal_code: "Postal Code",
-  phone_number: "Phone Number",
-  latitude: "Latitude",
-  longitude: "Longitude",
+  name: "Product Name",
+  description: "Product Description",
+  price: "Product Price",
+  available_region: "Available Region",
+  stock: "Total Stock",
 };
 
 const FieldCheckbox = ({
@@ -63,37 +60,31 @@ const FieldCheckbox = ({
 export const ExportCSV = ({
   isOpen,
   onClose,
-  agencies,
-  sheetName = "Agencies",
+  products,
+  sheetName = "Products",
 }: ExportCSVProps) => {
   const { t } = useTranslation();
   const [selectedFields, setSelectedFields] = useState({
-    store_name: true,
-    store_address: true,
-    city: true,
-    postal_code: true,
-    phone_number: true,
-    latitude: true,
-    longitude: true,
+    name: true,
+    description: true,
+    price: true,
+    available_region: true,
+    stock: true,
   });
 
   const handleExport = () => {
     try {
-      // Filter agencies data based on selected fields and map to new field names
-      const exportData = agencies.map((agency) => {
-        const filteredAgency: Record<string, any> = {};
-        if (selectedFields.store_name) filteredAgency.store_name = agency.name;
-        if (selectedFields.store_address)
-          filteredAgency.store_address = agency.address;
-        if (selectedFields.city) filteredAgency.city = agency.city;
-        if (selectedFields.postal_code)
-          filteredAgency.postal_code = agency.postal_code;
-        if (selectedFields.phone_number)
-          filteredAgency.phone_number = agency.phone_number;
-        if (selectedFields.latitude) filteredAgency.latitude = agency.latitude;
-        if (selectedFields.longitude)
-          filteredAgency.longitude = agency.longitude;
-        return filteredAgency;
+      // Filter products data based on selected fields
+      const exportData = products.map((product) => {
+        const filteredProduct: Record<string, any> = {};
+        if (selectedFields.name) filteredProduct.name = product.name;
+        if (selectedFields.description)
+          filteredProduct.description = product.description;
+        if (selectedFields.price) filteredProduct.price = product.price;
+        if (selectedFields.available_region)
+          filteredProduct.available_region = product.available_region;
+        if (selectedFields.stock) filteredProduct.stock = product.stock;
+        return filteredProduct;
       });
 
       // Create worksheet
@@ -125,7 +116,7 @@ export const ExportCSV = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
-        <DialogTitle>{t("exportCSV.title", "Export Agencies")}</DialogTitle>
+        <DialogTitle>{t("exportCSV.title", "Export Products")}</DialogTitle>
         <div className="grid gap-4 py-4">
           <div className="flex flex-col gap-3">
             {Object.entries(selectedFields).map(([field, isSelected]) => (

@@ -18,66 +18,63 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { useTranslation } from "react-i18next";
-
-// Product data for the table
-const productData = [
-  {
-    id: 1,
-    sku: "ABC123",
-    photo: "/img/frame-4347-4.png",
-    name: "Veste polaire",
-    category: "Vêtements",
-    size: "S,M,L",
-    soldBy: "Carton",
-    price: "64,00€/5pcs",
-  },
-  {
-    id: 2,
-    sku: "ABC123",
-    photo: "/img/frame-4347-4.png",
-    name: "Veste polaire",
-    category: "Vêtements",
-    size: "S,M,L",
-    soldBy: "Carton",
-    price: "64,00€/5pcs",
-  },
-  {
-    id: 3,
-    sku: "ABC123",
-    photo: "/img/frame-4347-4.png",
-    name: "Veste polaire",
-    category: "Vêtements",
-    size: "S,M,L",
-    soldBy: "Carton",
-    price: "64,00€/5pcs",
-  },
-  {
-    id: 4,
-    sku: "ABC123",
-    photo: "/img/frame-4347-4.png",
-    name: "Veste polaire",
-    category: "Vêtements",
-    size: "S,M,L",
-    soldBy: "Carton",
-    price: "64,00€/5pcs",
-  },
-  {
-    id: 5,
-    sku: "ABC123",
-    photo: "/img/frame-4347-4.png",
-    name: "Veste polaire",
-    category: "Vêtements",
-    size: "S,M,L",
-    soldBy: "Carton",
-    price: "64,00€/5pcs",
-  },
-];
-
-// Pagination data
-const paginationItems = [1, 2, 3, 4, 5];
-
+import { useState, useMemo } from "react";
+import { useAppSelector } from "../../store/store";
+import type { Product } from "../../store/features/productSlice";
+import { useNavigate } from "react-router-dom";
 export const ProductTableSection = (): JSX.Element => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { products, loading } = useAppSelector((state) => state.product);
+  const productList = products?.products || [];
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
+  const [selectAll, setSelectAll] = useState(false);
+
+  const ITEMS_PER_PAGE = 5;
+
+  // Calculate total pages
+  const totalPages = Math.ceil(productList.length / ITEMS_PER_PAGE);
+
+  // Get current page products
+  const currentProducts = useMemo(() => {
+    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+    return productList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [productList, currentPage]);
+
+  // Handle select all checkbox
+  const handleSelectAll = () => {
+    if (selectAll) {
+      setSelectedProducts([]);
+    } else {
+      setSelectedProducts(currentProducts.map((product) => product.id));
+    }
+    setSelectAll(!selectAll);
+  };
+
+  // Handle individual product selection
+  const handleSelectProduct = (productId: number) => {
+    setSelectedProducts((prev) => {
+      if (prev.includes(productId)) {
+        return prev.filter((id) => id !== productId);
+      } else {
+        return [...prev, productId];
+      }
+    });
+  };
+
+  // Generate pagination items
+  const paginationItems = useMemo(() => {
+    const items = [];
+    for (let i = 1; i <= totalPages; i++) {
+      items.push(i);
+    }
+    return items;
+  }, [totalPages]);
+
+  if (loading) {
+    return <div className="text-center py-4">{t("common.loading")}</div>;
+  }
 
   return (
     <section className="flex flex-col items-center justify-between w-full gap-6">
@@ -87,70 +84,91 @@ export const ProductTableSection = (): JSX.Element => {
             <TableRow>
               <TableHead className="w-11">
                 <div className="flex justify-center">
-                  <Checkbox className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
+                  <Checkbox
+                    className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
+                    checked={selectAll}
+                    onCheckedChange={handleSelectAll}
+                  />
                 </div>
               </TableHead>
-              <TableHead className="w-[77px] text-center text-[#1e2324] font-text-small">
+              <TableHead className="w-[77px] text-left text-[#1e2324] font-text-small">
                 {t("productList.table.sku")}
               </TableHead>
-              <TableHead className="w-[77px] text-center text-[#1e2324] font-text-small">
+              <TableHead className="w-[77px] text-left text-[#1e2324] font-text-small">
                 {t("productList.table.photo")}
               </TableHead>
-              <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
+              <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
                 {t("productList.table.name")}
               </TableHead>
-              <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
+              <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
                 {t("productList.table.category")}
               </TableHead>
-              <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
-                {t("productList.table.size")}
+              <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                {t("productList.table.description")}
               </TableHead>
-              <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
-                {t("productList.table.soldBy")}
+              <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                {t("productList.table.stock")}
               </TableHead>
-              <TableHead className="w-[69px] text-center text-[#1e2324] font-text-small">
+              <TableHead className="w-[69px] text-left text-[#1e2324] font-text-small">
                 {t("productList.table.price")}
               </TableHead>
-              <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
+              <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
                 {t("productList.table.details")}
               </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-            {productData.map((product) => (
+            {currentProducts.map((product: Product) => (
               <TableRow
                 key={product.id}
                 className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
               >
                 <TableCell className="w-11">
                   <div className="flex justify-center">
-                    <Checkbox className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
+                    <Checkbox
+                      className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
+                      checked={selectedProducts.includes(product.id)}
+                      onCheckedChange={() => handleSelectProduct(product.id)}
+                    />
                   </div>
                 </TableCell>
-                <TableCell className="w-[77px] text-center font-text-smaller text-coolgray-100">
-                  {product.sku}
+                <TableCell className="w-[77px] text-left font-text-smaller text-coolgray-100">
+                  {product.id ?? "Not available"}
                 </TableCell>
-                <TableCell className="w-[77px] text-center">
-                  <div className="mx-auto w-[50px] h-[50px] rounded-[var(--2-tokens-screen-modes-button-border-radius)] bg-[url(/img/frame-4347-4.png)] bg-cover bg-center" />
+                <TableCell className="w-[77px]">
+                  <div
+                    className="w-[50px] h-[50px] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
+                    style={{
+                      backgroundImage: product.product_image
+                        ? `url(${product.product_image})`
+                        : "none",
+                      backgroundColor: !product.product_image
+                        ? "#f0f0f0"
+                        : "transparent",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center",
+                    }}
+                  />
                 </TableCell>
-                <TableCell className="w-[145px] text-center font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
-                  {product.name}
+                <TableCell className="w-[145px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
+                  {product.name ?? "Not available"}
                 </TableCell>
-                <TableCell className="w-[145px] text-center font-text-smaller text-black">
-                  {product.category}
+                <TableCell className="w-[145px] text-left font-text-smaller text-black">
+                  {product.available_region ?? "Not available"}
                 </TableCell>
-                <TableCell className="w-[145px] text-center font-text-smaller text-black">
-                  {product.size}
+                <TableCell className="w-[145px] text-left font-text-smaller text-black">
+                  {product.description ?? "Not available"}
                 </TableCell>
-                <TableCell className="w-[145px] text-center font-text-smaller text-black">
-                  {product.soldBy}
+                <TableCell className="w-[145px] text-left font-text-smaller text-black">
+                  {product.stock ? `${product.stock} units` : "Not available"}
                 </TableCell>
-                <TableCell className="w-[69px] text-center font-text-smaller text-black">
-                  {product.price}
+                <TableCell className="w-[69px] text-left font-text-smaller text-black">
+                  {product.price ? `${product.price}€` : "Not available"}
                 </TableCell>
-                <TableCell className="w-[145px] text-center">
+                <TableCell className="w-[145px] text-left">
                   <Button
                     variant="link"
+                    onClick={() => navigate(`/products/${product.id}`)}
                     className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
                   >
                     {t("productList.table.details")}
@@ -166,6 +184,8 @@ export const ProductTableSection = (): JSX.Element => {
         <PaginationPrevious
           href="#"
           className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
+          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+          disabled={currentPage === 1}
         >
           <img
             className="w-6 h-6"
@@ -181,29 +201,39 @@ export const ProductTableSection = (): JSX.Element => {
               <PaginationLink
                 href="#"
                 className={`flex items-center justify-center w-9 h-9 rounded ${
-                  page === 1
+                  page === currentPage
                     ? "bg-cyan-100 font-bold text-[#1e2324]"
                     : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
                 }`}
+                onClick={() => setCurrentPage(page)}
               >
                 {page}
               </PaginationLink>
             </PaginationItem>
           ))}
-          <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
-          <PaginationItem>
-            <PaginationLink
-              href="#"
-              className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-            >
-              24
-            </PaginationLink>
-          </PaginationItem>
+          {totalPages > 5 && (
+            <>
+              <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+              <PaginationItem>
+                <PaginationLink
+                  href="#"
+                  className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                  onClick={() => setCurrentPage(totalPages)}
+                >
+                  {totalPages}
+                </PaginationLink>
+              </PaginationItem>
+            </>
+          )}
         </PaginationContent>
 
         <PaginationNext
           href="#"
           className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+          }
+          disabled={currentPage === totalPages}
         >
           {t("productList.pagination.next")}
           <img

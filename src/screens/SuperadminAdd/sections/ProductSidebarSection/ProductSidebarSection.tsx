@@ -16,6 +16,10 @@ import { toast } from "sonner";
 import { cn } from "../../../../lib/utils";
 import { ProductImageUploader } from "./ProductImageUploader";
 import AddProduct_step_1 from "../../../../screens/AddProduct/AddProduct_step_1";
+import { useAppDispatch, useAppSelector } from "../../../../store/store";
+import { createProduct } from "../../../../store/features/productSlice";
+import { CreateProductData } from "../../../../services/productService";
+import { useNavigate } from "react-router-dom";
 
 // Types
 interface StepIndicatorProps {
@@ -56,7 +60,7 @@ const StepIndicator = ({ currentStep, totalSteps }: StepIndicatorProps) => {
 
 interface ProductFormData {
   name: string;
-  category: string;
+  region: string;
   gender: string;
   size: string;
   soldByCarton: boolean;
@@ -79,7 +83,7 @@ const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const FORM_FIELDS = {
-  category: { options: ["Vêtements de travail"] },
+  region: { options: ["North", "South"] },
   gender: { options: ["Unisexe"] },
   size: { options: ["S, M, L"] },
 };
@@ -94,12 +98,12 @@ const FORM_FIELD_CONFIGS = [
     errorKey: "name",
   },
   {
-    id: "category",
+    id: "region",
     type: "select",
-    placeholder: "productSidebar.form.category",
-    label: "productSidebar.form.category",
-    errorKey: "category",
-    options: FORM_FIELDS.category.options,
+    placeholder: "productSidebar.form.region",
+    label: "productSidebar.form.region",
+    errorKey: "region",
+    options: FORM_FIELDS.region.options,
   },
 ];
 
@@ -164,7 +168,7 @@ const useProductForm = () => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
-    category: "",
+    region: "",
     gender: "",
     size: "",
     soldByCarton: true,
@@ -243,9 +247,9 @@ const SelectField = ({
     >
       <SelectValue placeholder={placeholder} />
     </SelectTrigger>
-    <SelectContent>
+    <SelectContent className="max-h-[200px]">
       {options.map((option) => (
-        <SelectItem key={option} value={option}>
+        <SelectItem key={option} value={option} className="cursor-pointer">
           {option}
         </SelectItem>
       ))}
@@ -255,6 +259,9 @@ const SelectField = ({
 
 export const ProductSidebarSection = (): JSX.Element => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const { selectedCompany } = useAppSelector((state) => state.client);
+  const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [showStep1, setShowStep1] = useState(false);
   const totalSteps = 3;
@@ -321,34 +328,106 @@ export const ProductSidebarSection = (): JSX.Element => {
     [setFormData]
   );
 
+  const validateForm = () => {
+    if (!selectedCompany?.id) {
+      throw new Error(t("productSidebar.validation.noCompany"));
+    }
+
+    if (!formData.name) {
+      throw new Error(t("productSidebar.validation.nameRequired"));
+    }
+
+    if (!formData.description) {
+      throw new Error(t("productSidebar.validation.descriptionRequired"));
+    }
+
+    if (!formData.images[0]) {
+      throw new Error(t("productSidebar.validation.mainImageRequired"));
+    }
+
+    const price = formData.soldByCarton
+      ? parseFloat(formData.pricePerCarton)
+      : parseFloat(formData.pricePerUnit);
+
+    if (isNaN(price) || price <= 0) {
+      throw new Error(t("productSidebar.validation.validPriceRequired"));
+    }
+
+    const stock = formData.soldByCarton
+      ? parseInt(formData.piecesPerCarton)
+      : 1;
+
+    if (isNaN(stock) || stock <= 0) {
+      throw new Error(t("productSidebar.validation.validStockRequired"));
+    }
+  };
+
   const handleAction = useCallback(
     async (action: "draft" | "next") => {
       setIsSubmitting(true);
       try {
-        await new Promise((resolve) => setTimeout(resolve, 1000));
         if (action === "next") {
-          setShowStep1(true);
+          // Validate form
+          // validateForm();
+
+          // Prepare product data
+          const createProductData: CreateProductData = {
+            company_id: selectedCompany!.id,
+            product_name: formData.name,
+            product_description: formData.description,
+            product_price: formData.soldByCarton
+              ? parseFloat(formData.pricePerCarton)
+              : parseFloat(formData.pricePerUnit),
+            available_region: formData.region, // Using category as region for now
+            total_stock: formData.soldByCarton
+              ? parseInt(formData.piecesPerCarton)
+              : 1,
+            product_image: formData.images[0], // Using the main image
+          };
+
+          // Console log the data before API call
+          console.log("Next Button - Form Data:", {
+            ...formData,
+            timestamp: new Date().toISOString(),
+            processedData: createProductData,
+          });
+
+          // Dispatch create product action
+          const resultAction = await dispatch(
+            createProduct({
+              dnsPrefix: selectedCompany!.name,
+              data: createProductData,
+            }) as any
+          );
+
+          if (createProduct.fulfilled.match(resultAction)) {
+            console.log("API Response:", resultAction.payload);
+            toast.success(t("productSidebar.messages.published"));
+            setShowStep1(true);
+          } else {
+            throw new Error(
+              resultAction.error?.message ||
+                t("productSidebar.messages.publishError")
+            );
+          }
+        } else {
+          // Handle draft save
+          console.log("Draft Data:", {
+            ...formData,
+            timestamp: new Date().toISOString(),
+            isDraft: true,
+          });
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+          toast.success(t("productSidebar.messages.draftSaved"));
         }
-        toast.success(
-          t(
-            action === "draft"
-              ? "productSidebar.messages.draftSaved"
-              : "productSidebar.messages.proceedingToNext"
-          )
-        );
-      } catch (error) {
-        toast.error(
-          t(
-            action === "draft"
-              ? "productSidebar.messages.saveError"
-              : "productSidebar.messages.nextError"
-          )
-        );
+      } catch (error: any) {
+        console.error("Error:", error);
+        toast.error(error.message || t("productSidebar.messages.error"));
       } finally {
         setIsSubmitting(false);
       }
     },
-    [t, setIsSubmitting]
+    [t, dispatch, formData, selectedCompany, setShowStep1]
   );
 
   if (showStep1) {
@@ -379,7 +458,9 @@ export const ProductSidebarSection = (): JSX.Element => {
                       {field.type === "input" ? (
                         <Input
                           className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
-                          value={formData[field.id as keyof ProductFormData]}
+                          value={String(
+                            formData[field.id as keyof ProductFormData] || ""
+                          )}
                           onChange={(e) =>
                             handleInputChange(
                               field.id as keyof ProductFormData,

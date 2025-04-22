@@ -32,6 +32,7 @@ import OrderDetails from "./screens/OrderDetails/OrderDetails";
 import ClientSupport from "./screens/ClientSupport/ClientSupport";
 import ClientLogin from "./screens/ClientLogin/ClientLogin";
 import { isAdminHostname } from "./utils/hostUtils";
+import ProductDetails from "./screens/ProductDetails/ProductDetails";
 
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
@@ -59,6 +60,7 @@ function App() {
               <Route path="dashboard" element={<GlobalDashboard />} />
               <Route path="order-history" element={<ComingSoon />} />
               <Route path="products" element={<ProductList />} />
+              <Route path="products/:id" element={<ProductDetails />} />
               <Route path="products/add" element={<ProductSidebarSection />} />
               <Route path="products/stock" element={<ComingSoon />} />
               <Route path="products/carousel" element={<Carousel />} />

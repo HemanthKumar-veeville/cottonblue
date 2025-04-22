@@ -59,7 +59,10 @@
       "size": "Taille",
       "soldBy": "Vendu par",
       "price": "Prix",
-      "details": "Détails"
+      "details": "Détails",
+      "stock": "Stock",
+      "availableRegion": "Région disponible",
+      "description": "Description"
     },
     "pagination": {
       "previous": "Précédent",
@@ -71,6 +74,7 @@
     "form": {
       "productName": "Nom du produit",
       "category": "Catégorie",
+      "region": "Région",
       "gender": "Genre",
       "size": "Taille",
       "soldBy": {
