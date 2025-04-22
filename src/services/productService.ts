@@ -95,4 +95,14 @@ export const productService = {
       },
     });
   },
+
+  /**
+   * Delete a product by ID
+   * @param dnsPrefix DNS prefix of the company
+   * @param productId ID of the product to delete
+   * @returns Promise with deletion response
+   */
+  deleteProduct: async (dnsPrefix: string, productId: string) => {
+    return axiosInstance.delete(`/${dnsPrefix}/delete/product/${productId}`);
+  },
 };

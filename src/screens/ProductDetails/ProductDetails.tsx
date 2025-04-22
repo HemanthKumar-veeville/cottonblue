@@ -7,6 +7,7 @@ import { useAppDispatch, useAppSelector } from "../../store/store";
 import {
   getProductById,
   type Product,
+  deleteProduct,
 } from "../../store/features/productSlice";
 import { useTranslation } from "react-i18next";
 
@@ -95,11 +96,34 @@ const ProductInfo = ({ product }: { product: any }) => {
 const ProductActions = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { id } = useParams<{ id: string }>();
+  const { selectedCompany } = useAppSelector((state) => state.client);
 
   const handleEdit = () => {
     navigate(`/products/edit/${id}`);
   };
+
+  const handleDelete = async () => {
+    if (id && selectedCompany?.name) {
+      const resultAction = await dispatch(
+        deleteProduct({ dnsPrefix: selectedCompany.name, productId: id })
+      ).unwrap();
+
+      if (resultAction?.product_id) {
+        navigate("/products");
+      }
+    }
+  };
+
+  //   useEffect(() => {
+  //     if (deleteSuccess) {
+  //       if (selectedCompany?.name) {
+  //         dispatch(fetchAllProducts(selectedCompany.name));
+  //       }
+  //       navigate("/products");
+  //     }
+  //   }, [deleteSuccess, navigate, dispatch, selectedCompany?.name]);
 
   return (
     <div className="flex items-start gap-2 w-full">
@@ -112,6 +136,7 @@ const ProductActions = () => {
       <Button
         variant="destructive"
         className="flex-1 bg-red-600 rounded-lg border border-solid border-red-200"
+        onClick={handleDelete}
       >
         {t("productDetails.actions.delete")}
       </Button>
@@ -139,8 +164,7 @@ export default function ProductDetails() {
   const { currentProduct, loading, error } = useAppSelector(
     (state) => state.product
   );
-  const product: Product = currentProduct?.product || ({} as Product);
-  console.log({ product });
+  const product = currentProduct?.product || ({} as Product);
   const { selectedCompany } = useAppSelector((state) => state.client);
 
   useEffect(() => {

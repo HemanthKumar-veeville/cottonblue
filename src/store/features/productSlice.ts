@@ -25,6 +25,7 @@ interface ProductState {
   error: string | null;
   createSuccess: boolean;
   updateSuccess: boolean;
+  deleteSuccess: boolean;
 }
 
 // Initial state
@@ -37,6 +38,7 @@ const initialState: ProductState = {
   error: null,
   createSuccess: false,
   updateSuccess: false,
+  deleteSuccess: false,
 };
 
 // Create async thunks for API calls
@@ -88,6 +90,18 @@ export const updateProduct = createAsyncThunk(
   }
 );
 
+export const deleteProduct = createAsyncThunk(
+  'product/deleteProduct',
+  async ({ dnsPrefix, productId }: { dnsPrefix: string; productId: string }, { rejectWithValue }) => {
+    try {
+      const response = await productService.deleteProduct(dnsPrefix, productId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete product');
+    }
+  }
+);
+
 // Create the product slice
 const productSlice = createSlice({
   name: 'product',
@@ -98,6 +112,7 @@ const productSlice = createSlice({
       state.error = null;
       state.createSuccess = false;
       state.updateSuccess = false;
+      state.deleteSuccess = false;
     },
   },
   extraReducers: (builder) => {
@@ -157,6 +172,27 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         state.updateSuccess = false;
+      })
+      // Delete product cases
+      .addCase(deleteProduct.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.deleteSuccess = false;
+      })
+      .addCase(deleteProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        state.deleteSuccess = true;
+        // Remove the deleted product from the products array
+        if (state.products.products) {
+          state.products.products = state.products.products.filter(
+            (product) => product.id !== parseInt(action.meta.arg.productId)
+          );
+        }
+      })
+      .addCase(deleteProduct.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.deleteSuccess = false;
       });
   },
 });

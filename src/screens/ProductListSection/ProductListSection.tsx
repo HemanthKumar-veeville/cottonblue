@@ -64,7 +64,7 @@ export const ProductListSection = (): JSX.Element => {
   };
 
   const handleCreateProduct = () => {
-    navigate("/products/create");
+    navigate("/products/add");
   };
 
   return (
