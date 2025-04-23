@@ -16,8 +16,8 @@ interface Ticket {
   title: string;
   status: TicketStatus;
   description?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface TicketModalProps {
@@ -85,12 +85,12 @@ const MessageList = ({
 export default function TicketModal({ onClose, ticket }: TicketModalProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
-  const [ticketTitle, setTicketTitle] = useState(ticket.title);
+  const [ticketTitle, setTicketTitle] = useState(ticket?.ticket_title ?? "");
   const [ticketDescription, setTicketDescription] = useState(
-    ticket.description || ""
+    ticket?.description ?? ""
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const isNewTicket = ticket.title === "";
+  const isNewTicket = !ticket?.ticket_title;
 
   const handleSubmit = async () => {
     if (isNewTicket) {
@@ -105,8 +105,8 @@ export default function TicketModal({ onClose, ticket }: TicketModalProps) {
           createTicket({
             dnsPrefix: "admin", // You'll need to get this from your app configuration
             data: {
-              ticket_title: ticketTitle.trim(),
-              ticket_description: ticketDescription.trim(),
+              title: ticketTitle.trim(),
+              description: ticketDescription.trim(),
             },
           })
         ).unwrap();
@@ -129,7 +129,9 @@ export default function TicketModal({ onClose, ticket }: TicketModalProps) {
         <Card className="w-full max-w-2xl bg-white rounded-md overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between p-3 pb-0">
             <CardTitle className="font-bold text-gray-900 text-base flex items-center gap-2 flex-1">
-              {ticket.id} -
+              {`${!isNewTicket ? "#" : ""} ${
+                !isNewTicket ? `${ticket?.id} - ` : ""
+              }`}
               {isNewTicket ? (
                 <Input
                   value={ticketTitle}
@@ -138,7 +140,7 @@ export default function TicketModal({ onClose, ticket }: TicketModalProps) {
                   className="flex-1"
                 />
               ) : (
-                ticket.title
+                ticket?.ticket_title ?? "Untitled"
               )}
             </CardTitle>
             <Button

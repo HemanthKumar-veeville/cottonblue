@@ -331,12 +331,11 @@
       "all": "Tous les statuts",
       "open": "Ouvert",
       "inProgress": "En cours",
-      "completed": "Terminé",
       "closed": "Fermé"
     },
     "lists": {
       "inProgress": "Tickets en cours",
-      "completed": "Tickets terminés"
+      "closed": "Tickets fermés"
     },
     "ticket": {
       "id": "ID",

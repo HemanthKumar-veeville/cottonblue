@@ -1,137 +1,86 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { ticketService } from '../../services/ticketService';
 import { TicketStatus } from '../../screens/Tickets/Tickets';
 
-// Types
-export interface Ticket {
+interface Ticket {
   id: string;
   title: string;
-  description?: string;
   status: TicketStatus;
+  description?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 interface TicketState {
   tickets: Ticket[];
-  selectedTicket: Ticket | null;
-  isLoading: boolean;
+  status: 'idle' | 'loading' | 'succeeded' | 'failed';
   error: string | null;
-  statusFilter: TicketStatus | 'all';
-  searchQuery: string;
 }
 
-// Initial state
 const initialState: TicketState = {
   tickets: [],
-  selectedTicket: null,
-  isLoading: false,
-  error: null,
-  statusFilter: 'all',
-  searchQuery: '',
+  status: 'idle',
+  error: null
 };
 
-// Async thunks
 export const createTicket = createAsyncThunk(
   'tickets/createTicket',
-  async ({ dnsPrefix, data }: { dnsPrefix: string; data: { ticket_title: string; ticket_description: string } }) => {
-    const response = await ticketService.createTicket(dnsPrefix, data);
-    return response;
+  async ({ dnsPrefix, data }: { dnsPrefix: string; data: { title: string; description: string } }) => {
+    const response = await ticketService.createTicket(dnsPrefix, {
+      ticket_title: data.title,
+      ticket_description: data.description
+    });
+    // Transform the API response to match our Ticket interface
+    return {
+      id: response.ticket_id || response.id,
+      title: response.ticket_title || response.title,
+      status: response.ticket_status || response.status || TicketStatus.OPEN,
+      description: response.ticket_description || response.description,
+      createdAt: new Date(response.created_at || response.createdAt),
+      updatedAt: new Date(response.updated_at || response.updatedAt)
+    };
   }
 );
 
-// Slice
+export const fetchTickets = createAsyncThunk(
+  'tickets/fetchTickets',
+  async ({ dnsPrefix, ticketStatus }: { dnsPrefix: string; ticketStatus?: string }) => {
+    const response = await ticketService.getTickets(dnsPrefix, ticketStatus);
+    return response?.tickets || [];
+  }
+);
+
 const ticketSlice = createSlice({
   name: 'tickets',
   initialState,
-  reducers: {
-    setSelectedTicket: (state, action: PayloadAction<Ticket | null>) => {
-      state.selectedTicket = action.payload;
-    },
-    setStatusFilter: (state, action: PayloadAction<TicketStatus | 'all'>) => {
-      state.statusFilter = action.payload;
-    },
-    setSearchQuery: (state, action: PayloadAction<string>) => {
-      state.searchQuery = action.payload;
-    },
-    updateTicketStatus: (state, action: PayloadAction<{ ticketId: string; status: TicketStatus }>) => {
-      const ticket = state.tickets.find(t => t.id === action.payload.ticketId);
-      if (ticket) {
-        ticket.status = action.payload.status;
-        ticket.updatedAt = new Date();
-      }
-    },
-    addTicket: (state, action: PayloadAction<Ticket>) => {
-      state.tickets.unshift(action.payload);
-    },
-    updateTicket: (state, action: PayloadAction<Ticket>) => {
-      const index = state.tickets.findIndex(t => t.id === action.payload.id);
-      if (index !== -1) {
-        state.tickets[index] = action.payload;
-      }
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
+      // Create Ticket
       .addCase(createTicket.pending, (state) => {
-        state.isLoading = true;
-        state.error = null;
+        state.status = 'loading';
       })
       .addCase(createTicket.fulfilled, (state, action) => {
-        state.isLoading = false;
-        const newTicket: Ticket = {
-          id: `#${Math.floor(Math.random() * 1000000)}`, // You might want to use the ID from the API response instead
-          title: action.payload.ticket_title,
-          description: action.payload.ticket_description,
-          status: TicketStatus.OPEN,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-        state.tickets.unshift(newTicket);
+        state.status = 'succeeded';
+        state.tickets.push(action.payload);
       })
       .addCase(createTicket.rejected, (state, action) => {
-        state.isLoading = false;
+        state.status = 'failed';
         state.error = action.error.message || 'Failed to create ticket';
+      })
+      // Fetch Tickets
+      .addCase(fetchTickets.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(fetchTickets.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        state.tickets = action.payload;
+      })
+      .addCase(fetchTickets.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Failed to fetch tickets';
       });
   },
 });
 
-// Selectors
-export const selectAllTickets = (state: { tickets: TicketState }) => state.tickets.tickets;
-export const selectFilteredTickets = (state: { tickets: TicketState }) => {
-  const { tickets, statusFilter, searchQuery } = state.tickets;
-  return tickets.filter((ticket) => {
-    const matchesStatus = statusFilter === 'all' || ticket.status === statusFilter;
-    const matchesSearch = 
-      ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      ticket.description?.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
-};
-export const selectTicketsInProgress = (state: { tickets: TicketState }) => {
-  return state.tickets.tickets.filter(
-    (ticket) => ticket.status === TicketStatus.OPEN || ticket.status === TicketStatus.IN_PROGRESS
-  );
-};
-export const selectCompletedTickets = (state: { tickets: TicketState }) => {
-  return state.tickets.tickets.filter(
-    (ticket) => ticket.status === TicketStatus.COMPLETED || ticket.status === TicketStatus.CLOSED
-  );
-};
-export const selectSelectedTicket = (state: { tickets: TicketState }) => state.tickets.selectedTicket;
-export const selectTicketLoading = (state: { tickets: TicketState }) => state.tickets.isLoading;
-export const selectTicketError = (state: { tickets: TicketState }) => state.tickets.error;
-
-// Actions
-export const {
-  setSelectedTicket,
-  setStatusFilter,
-  setSearchQuery,
-  updateTicketStatus,
-  addTicket,
-  updateTicket,
-} = ticketSlice.actions;
-
-// Reducer
 export default ticketSlice.reducer;

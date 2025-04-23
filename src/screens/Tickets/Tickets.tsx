@@ -1,7 +1,7 @@
 import { Card, CardContent } from "../../components/ui/card";
 import { ScrollArea } from "../../components/ui/scroll-area";
 import { CheckCircle, Search, Loader2 } from "lucide-react";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { Badge } from "../../components/ui/badge";
@@ -15,12 +15,13 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { useTranslation } from "react-i18next";
+import { fetchTickets } from "../../store/features/ticketSlice";
+import { useAppDispatch, RootState, useAppSelector } from "../../store/store";
 
 export enum TicketStatus {
-  OPEN = "tickets.status.open",
-  IN_PROGRESS = "tickets.status.inProgress",
-  COMPLETED = "tickets.status.completed",
-  CLOSED = "tickets.status.closed",
+  OPEN = "open",
+  IN_PROGRESS = "in progress",
+  CLOSED = "closed",
 }
 
 interface Ticket {
@@ -51,8 +52,6 @@ const TicketCard: React.FC<TicketCardProps> = ({
         return "bg-blue-100 text-blue-800";
       case TicketStatus.IN_PROGRESS:
         return "bg-yellow-100 text-yellow-800";
-      case TicketStatus.COMPLETED:
-        return "bg-green-100 text-green-800";
       case TicketStatus.CLOSED:
         return "bg-gray-100 text-gray-800";
       default:
@@ -83,22 +82,24 @@ const TicketCard: React.FC<TicketCardProps> = ({
           <div className="flex w-full items-center justify-between p-[var(--2-tokens-screen-modes-common-spacing-s)] bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)] hover:bg-gray-50 transition-colors duration-200">
             <div className="flex flex-col items-start gap-1.5 flex-1 mr-4">
               <div className="font-label-medium font-[number:var(--label-medium-font-weight)] text-[color:var(--1-tokens-color-modes-common-neutral-hightest)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] [font-style:var(--label-medium-font-style)] break-words">
-                {ticket.id} - {ticket.title}
+                {ticket?.id ?? "#N/A"} - {ticket?.ticket_title ?? "Untitled"}
               </div>
               <div className="flex items-center gap-2">
                 <Badge
                   className={`${getStatusColor(
-                    ticket.status
+                    ticket?.status ?? TicketStatus.OPEN
                   )} font-label-small pointer-events-none`}
                 >
-                  {t(ticket.status)}
+                  {t(ticket?.status ?? TicketStatus.OPEN)}
                 </Badge>
                 <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
-                  {new Date(ticket.createdAt).toLocaleDateString()}
+                  {new Date(
+                    ticket?.createdAt ?? new Date()
+                  ).toLocaleDateString()}
                 </span>
               </div>
             </div>
-            {ticket.status === TicketStatus.COMPLETED ? (
+            {ticket?.status === TicketStatus.CLOSED ? (
               <motion.div
                 className="relative w-[var(--2-tokens-screen-modes-common-spacing-l)] h-6 bg-white rounded-[35px] shrink-0"
                 initial={{ scale: 0 }}
@@ -170,8 +171,6 @@ const getStatusColor = (status: TicketStatus): string => {
       return "bg-blue-100 text-blue-800";
     case TicketStatus.IN_PROGRESS:
       return "bg-yellow-100 text-yellow-800";
-    case TicketStatus.COMPLETED:
-      return "bg-green-100 text-green-800";
     case TicketStatus.CLOSED:
       return "bg-gray-100 text-gray-800";
     default:
@@ -181,155 +180,32 @@ const getStatusColor = (status: TicketStatus): string => {
 
 export default function Tickets(): JSX.Element {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<TicketStatus | "all">("all");
-  const [isLoading, setIsLoading] = useState(false);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-  const [ticketsInProgress, setTicketsInProgress] = useState<Ticket[]>([
-    {
-      id: "#123456",
-      title: "Problème de connexion",
-      status: TicketStatus.OPEN,
-      createdAt: new Date("2024-03-20"),
-      updatedAt: new Date("2024-03-20"),
-    },
-    {
-      id: "#123457",
-      title: "Erreur de paiement",
-      status: TicketStatus.IN_PROGRESS,
-      createdAt: new Date("2024-03-19"),
-      updatedAt: new Date("2024-03-20"),
-    },
-    {
-      id: "#123458",
-      title: "Bug dans le formulaire d'inscription",
-      status: TicketStatus.OPEN,
-      createdAt: new Date("2024-03-20"),
-      updatedAt: new Date("2024-03-20"),
-    },
-    {
-      id: "#123459",
-      title: "Problème d'affichage sur mobile",
-      status: TicketStatus.IN_PROGRESS,
-      createdAt: new Date("2024-03-19"),
-      updatedAt: new Date("2024-03-20"),
-    },
-    {
-      id: "#123460",
-      title: "Erreur lors de l'upload de fichiers",
-      status: TicketStatus.OPEN,
-      createdAt: new Date("2024-03-20"),
-      updatedAt: new Date("2024-03-20"),
-    },
-    {
-      id: "#123461",
-      title: "Problème de synchronisation des données",
-      status: TicketStatus.IN_PROGRESS,
-      createdAt: new Date("2024-03-19"),
-      updatedAt: new Date("2024-03-20"),
-    },
-    {
-      id: "#123462",
-      title: "Erreur dans le calcul des totaux",
-      status: TicketStatus.OPEN,
-      createdAt: new Date("2024-03-20"),
-      updatedAt: new Date("2024-03-20"),
-    },
-    {
-      id: "#123463",
-      title: "Problème de performance sur la page d'accueil",
-      status: TicketStatus.IN_PROGRESS,
-      createdAt: new Date("2024-03-19"),
-      updatedAt: new Date("2024-03-20"),
-    },
-    {
-      id: "#123464",
-      title: "Erreur dans l'export des rapports",
-      status: TicketStatus.OPEN,
-      createdAt: new Date("2024-03-20"),
-      updatedAt: new Date("2024-03-20"),
-    },
-    {
-      id: "#123465",
-      title: "Problème d'authentification",
-      status: TicketStatus.IN_PROGRESS,
-      createdAt: new Date("2024-03-19"),
-      updatedAt: new Date("2024-03-20"),
-    },
-  ]);
 
-  const [ticketsCompleted, setTicketsCompleted] = useState<Ticket[]>([
-    {
-      id: "#123466",
-      title: "Problème de connexion",
-      status: TicketStatus.COMPLETED,
-      createdAt: new Date("2024-03-18"),
-      updatedAt: new Date("2024-03-19"),
-    },
-    {
-      id: "#123467",
-      title: "Erreur de paiement",
-      status: TicketStatus.COMPLETED,
-      createdAt: new Date("2024-03-17"),
-      updatedAt: new Date("2024-03-18"),
-    },
-    {
-      id: "#123468",
-      title: "Bug dans le formulaire d'inscription",
-      status: TicketStatus.COMPLETED,
-      createdAt: new Date("2024-03-16"),
-      updatedAt: new Date("2024-03-17"),
-    },
-    {
-      id: "#123469",
-      title: "Problème d'affichage sur mobile",
-      status: TicketStatus.COMPLETED,
-      createdAt: new Date("2024-03-15"),
-      updatedAt: new Date("2024-03-16"),
-    },
-    {
-      id: "#123470",
-      title: "Erreur lors de l'upload de fichiers",
-      status: TicketStatus.COMPLETED,
-      createdAt: new Date("2024-03-14"),
-      updatedAt: new Date("2024-03-15"),
-    },
-    {
-      id: "#123471",
-      title: "Problème de synchronisation des données",
-      status: TicketStatus.COMPLETED,
-      createdAt: new Date("2024-03-13"),
-      updatedAt: new Date("2024-03-14"),
-    },
-    {
-      id: "#123472",
-      title: "Erreur dans le calcul des totaux",
-      status: TicketStatus.COMPLETED,
-      createdAt: new Date("2024-03-12"),
-      updatedAt: new Date("2024-03-13"),
-    },
-    {
-      id: "#123473",
-      title: "Problème de performance sur la page d'accueil",
-      status: TicketStatus.COMPLETED,
-      createdAt: new Date("2024-03-11"),
-      updatedAt: new Date("2024-03-12"),
-    },
-    {
-      id: "#123474",
-      title: "Erreur dans l'export des rapports",
-      status: TicketStatus.COMPLETED,
-      createdAt: new Date("2024-03-10"),
-      updatedAt: new Date("2024-03-11"),
-    },
-    {
-      id: "#123475",
-      title: "Problème d'authentification",
-      status: TicketStatus.COMPLETED,
-      createdAt: new Date("2024-03-09"),
-      updatedAt: new Date("2024-03-10"),
-    },
-  ]);
+  const { tickets, status } = useAppSelector(
+    (state: RootState) => state.ticket
+  );
+  const isLoading = status === "loading";
+
+  useEffect(() => {
+    const fetchTicketsData = async () => {
+      try {
+        await dispatch(
+          fetchTickets({
+            dnsPrefix: "admin", // You'll need to get this from your app configuration
+            ticketStatus: statusFilter === "all" ? undefined : statusFilter,
+          })
+        ).unwrap();
+      } catch (error) {
+        console.error("Failed to fetch tickets:", error);
+      }
+    };
+
+    fetchTicketsData();
+  }, [dispatch, statusFilter]);
 
   const handleTicketClick = (ticket: Ticket): void => {
     setSelectedTicket(ticket);
@@ -339,18 +215,21 @@ export default function Tickets(): JSX.Element {
     setSelectedTicket(null);
   };
 
-  const handleCheckboxClick = (ticket: Ticket, e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent triggering the card click
-    if (ticket.status !== TicketStatus.COMPLETED) {
-      // Remove from in progress
-      setTicketsInProgress((prev) => prev.filter((t) => t.id !== ticket.id));
-      // Add to completed with updated status
-      const updatedTicket = {
-        ...ticket,
-        status: TicketStatus.COMPLETED,
-        updatedAt: new Date(),
-      };
-      setTicketsCompleted((prev) => [updatedTicket, ...prev]);
+  const handleCheckboxClick = async (ticket: Ticket, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (ticket.status !== TicketStatus.CLOSED) {
+      // Here you would typically call an API to update the ticket status
+      // For now, we'll just refetch the tickets
+      try {
+        await dispatch(
+          fetchTickets({
+            dnsPrefix: "admin",
+            ticketStatus: statusFilter === "all" ? undefined : statusFilter,
+          })
+        ).unwrap();
+      } catch (error) {
+        console.error("Failed to update ticket status:", error);
+      }
     }
   };
 
@@ -366,26 +245,22 @@ export default function Tickets(): JSX.Element {
   };
 
   const filteredTicketsInProgress = useMemo(() => {
-    return ticketsInProgress.filter((ticket) => {
-      const matchesSearch =
-        ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ticket.id.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus =
-        statusFilter === "all" || ticket.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [ticketsInProgress, searchQuery, statusFilter]);
+    return (
+      tickets?.filter(
+        (ticket: any) =>
+          ticket?.ticket_status === TicketStatus.OPEN ||
+          ticket?.ticket_status === TicketStatus.IN_PROGRESS
+      ) ?? []
+    );
+  }, [tickets]);
 
-  const filteredTicketsCompleted = useMemo(() => {
-    return ticketsCompleted.filter((ticket) => {
-      const matchesSearch =
-        ticket.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        ticket.id.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesStatus =
-        statusFilter === "all" || ticket.status === statusFilter;
-      return matchesSearch && matchesStatus;
-    });
-  }, [ticketsCompleted, searchQuery, statusFilter]);
+  const filteredTicketsClosed = useMemo(() => {
+    return (
+      tickets?.filter(
+        (ticket: any) => ticket?.ticket_status === TicketStatus.CLOSED
+      ) ?? []
+    );
+  }, [tickets]);
 
   return (
     <section className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-l)] p-[var(--2-tokens-screen-modes-common-spacing-l)] bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)] w-full">
@@ -444,8 +319,8 @@ export default function Tickets(): JSX.Element {
         <div className="w-[1px] mx-4 bg-[color:var(--1-tokens-color-modes-input-primary-disable-background)] self-stretch" />
         <div className="flex-1">
           <TicketList
-            tickets={filteredTicketsCompleted}
-            title={t("tickets.lists.completed")}
+            tickets={filteredTicketsClosed}
+            title={t("tickets.lists.closed")}
             onTicketClick={handleTicketClick}
             onCheckboxClick={handleCheckboxClick}
             isLoading={isLoading}

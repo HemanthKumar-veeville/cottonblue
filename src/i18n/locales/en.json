@@ -337,7 +337,7 @@
       "placeholder": "Search a ticket..."
     },
     "status": {
-      "all": "All statuses",
+      "all": "All",
       "open": "Open",
       "inProgress": "In Progress",
       "completed": "Completed",
@@ -345,7 +345,7 @@
     },
     "lists": {
       "inProgress": "Tickets in progress",
-      "completed": "Completed tickets"
+      "closed": "Closed tickets"
     },
     "ticket": {
       "id": "ID",

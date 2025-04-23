@@ -13,5 +13,14 @@ export const ticketService = {
       },
     });
     return response.data;
+  },
+
+  getTickets: async (dnsPrefix: string, ticketStatus?: string) => {
+    const url = ticketStatus 
+      ? `/${dnsPrefix}/tickets?ticket_status=${ticketStatus}`
+      : `/${dnsPrefix}/tickets`;
+      
+    const response = await axiosInstance.get(url);
+    return response.data;
   }
 };

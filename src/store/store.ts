@@ -4,6 +4,7 @@ import authReducer from './features/authSlice';
 import clientReducer from './features/clientSlice';
 import agencyReducer from './features/agencySlice';
 import productReducer from './features/productSlice';
+import ticketReducer from './features/ticketSlice';
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +12,7 @@ export const store = configureStore({
     client: clientReducer,
     agency: agencyReducer,
     product: productReducer,
+    ticket: ticketReducer,
   },
 });
 
