@@ -3,6 +3,9 @@
     "en": "English",
     "fr": "French"
   },
+  "common": {
+    "loading": "Chargement..."
+  },
   "header": {
     "adminManagement": "Gestion des administrateurs",
     "clientManagement": "Gestion des clients"

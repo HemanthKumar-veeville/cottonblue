@@ -3,6 +3,9 @@
     "en": "English",
     "fr": "French"
   },
+  "common": {
+    "loading": "Loading..."
+  },
   "header": {
     "adminManagement": "Admin Management",
     "clientManagement": "Client Management"
