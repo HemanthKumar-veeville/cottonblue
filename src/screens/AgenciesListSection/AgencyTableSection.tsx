@@ -20,6 +20,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAppSelector } from "../../store/store";
 
 // Pagination data
 const paginationItems = [1, 2, 3, 4, 5];
@@ -56,7 +57,7 @@ export const AgencyTableSection = ({
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAgencies, setSelectedAgencies] = useState<number[]>([]);
-  const { company_name } = useParams();
+  const { selectedCompany } = useAppSelector((state) => state.client);
   // Debug: Log the props received by this component
   useEffect(() => {
     console.log("AgencyTableSection received agencies:", agencies);
@@ -137,7 +138,7 @@ export const AgencyTableSection = ({
   };
 
   const handleViewDetails = (agencyId: number) => {
-    navigate(`/customers/${company_name}/agencies/${agencyId}`);
+    navigate(`/customers/${selectedCompany?.name}/agencies/${agencyId}`);
   };
 
   if (loading) {

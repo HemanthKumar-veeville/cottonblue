@@ -20,13 +20,13 @@
     },
     "customers": {
       "title": "Clients",
-      "list": "Clients List",
+      "list": "Clients",
       "add": "Add Client"
     },
     "agencies": {
-      "title": "Agencies",
-      "list": "Agencies List",
-      "add": "Add Agency"
+      "title": "Stores",
+      "list": "Stores",
+      "add": "Add Store"
     },
     "support": {
       "title": "Support",
