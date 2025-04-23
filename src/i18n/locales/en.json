@@ -329,5 +329,48 @@
     "description": {
       "title": "Description"
     }
+  },
+  "tickets": {
+    "title": "Tickets",
+    "newTicket": "New ticket",
+    "search": {
+      "placeholder": "Search a ticket..."
+    },
+    "status": {
+      "all": "All statuses",
+      "open": "Open",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "closed": "Closed"
+    },
+    "lists": {
+      "inProgress": "Tickets in progress",
+      "completed": "Completed tickets"
+    },
+    "ticket": {
+      "id": "ID",
+      "title": "Title",
+      "status": "Status",
+      "createdAt": "Created at",
+      "updatedAt": "Updated at"
+    },
+    "modal": {
+      "messages": {
+        "support": "Support - CottonBlue:",
+        "you": "Client:",
+        "investigating": "Hello, we are currently investigating the connection issue.",
+        "thanks": "Thank you for your response.",
+        "resetPassword": "Have you tried resetting your password?",
+        "noSuccess": "Yes, without success.",
+        "working": "It's working now!",
+        "perfect": "Perfect, glad it's resolved."
+      },
+      "writeResponse": "Write a response...",
+      "markAsComplete": "Mark as complete",
+      "sendResponse": "Send response",
+      "enterTitle": "Enter ticket title...",
+      "enterDescription": "Enter ticket description...",
+      "createTicket": "Create ticket"
+    }
   }
 }

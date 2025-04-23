@@ -14,12 +14,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
+import { useTranslation } from "react-i18next";
 
 export enum TicketStatus {
-  OPEN = "Ouvert",
-  IN_PROGRESS = "En cours",
-  COMPLETED = "Terminé",
-  CLOSED = "Fermé",
+  OPEN = "tickets.status.open",
+  IN_PROGRESS = "tickets.status.inProgress",
+  COMPLETED = "tickets.status.completed",
+  CLOSED = "tickets.status.closed",
 }
 
 interface Ticket {
@@ -42,6 +43,8 @@ const TicketCard: React.FC<TicketCardProps> = ({
   onClick,
   onCheckboxClick,
 }) => {
+  const { t } = useTranslation();
+
   const getStatusColor = (status: TicketStatus) => {
     switch (status) {
       case TicketStatus.OPEN:
@@ -88,7 +91,7 @@ const TicketCard: React.FC<TicketCardProps> = ({
                     ticket.status
                   )} font-label-small pointer-events-none`}
                 >
-                  {ticket.status}
+                  {t(ticket.status)}
                 </Badge>
                 <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
                   {new Date(ticket.createdAt).toLocaleDateString()}
@@ -177,6 +180,7 @@ const getStatusColor = (status: TicketStatus): string => {
 };
 
 export default function Tickets(): JSX.Element {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<TicketStatus | "all">("all");
   const [isLoading, setIsLoading] = useState(false);
@@ -350,6 +354,17 @@ export default function Tickets(): JSX.Element {
     }
   };
 
+  const handleNewTicket = (): void => {
+    const newTicket: Ticket = {
+      id: `#${Math.floor(Math.random() * 1000000)}`,
+      title: "",
+      status: TicketStatus.OPEN,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
+    setSelectedTicket(newTicket);
+  };
+
   const filteredTicketsInProgress = useMemo(() => {
     return ticketsInProgress.filter((ticket) => {
       const matchesSearch =
@@ -376,10 +391,13 @@ export default function Tickets(): JSX.Element {
     <section className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-l)] p-[var(--2-tokens-screen-modes-common-spacing-l)] bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)] w-full">
       <div className="flex items-center justify-between w-full">
         <h1 className="font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
-          Tickets
+          {t("tickets.title")}
         </h1>
-        <Button className="bg-[color:var(--1-tokens-color-modes-button-primary-default-background)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] hover:bg-[color:var(--1-tokens-color-modes-button-primary-hover-background)]">
-          Nouveau ticket
+        <Button
+          className="bg-[color:var(--1-tokens-color-modes-button-primary-default-background)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] hover:bg-[color:var(--1-tokens-color-modes-button-primary-hover-background)]"
+          onClick={handleNewTicket}
+        >
+          {t("tickets.newTicket")}
         </Button>
       </div>
 
@@ -387,7 +405,7 @@ export default function Tickets(): JSX.Element {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[color:var(--1-tokens-color-modes-common-neutral-medium)] w-4 h-4 pointer-events-none" />
           <Input
-            placeholder="Rechercher un ticket..."
+            placeholder={t("tickets.search.placeholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-12 w-full placeholder:text-[color:var(--1-tokens-color-modes-common-neutral-medium)] placeholder:pl-0 font-label-medium"
@@ -400,13 +418,13 @@ export default function Tickets(): JSX.Element {
           }
         >
           <SelectTrigger className="w-[180px] font-label-medium">
-            <SelectValue placeholder="Filtrer par statut" />
+            <SelectValue placeholder={t("tickets.status.all")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Tous les statuts</SelectItem>
+            <SelectItem value="all">{t("tickets.status.all")}</SelectItem>
             {Object.values(TicketStatus).map((status) => (
               <SelectItem key={status} value={status}>
-                {status}
+                {t(status)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -417,7 +435,7 @@ export default function Tickets(): JSX.Element {
         <div className="flex-1">
           <TicketList
             tickets={filteredTicketsInProgress}
-            title="Tickets en cours"
+            title={t("tickets.lists.inProgress")}
             onTicketClick={handleTicketClick}
             onCheckboxClick={handleCheckboxClick}
             isLoading={isLoading}
@@ -427,7 +445,7 @@ export default function Tickets(): JSX.Element {
         <div className="flex-1">
           <TicketList
             tickets={filteredTicketsCompleted}
-            title="Tickets terminés"
+            title={t("tickets.lists.completed")}
             onTicketClick={handleTicketClick}
             onCheckboxClick={handleCheckboxClick}
             isLoading={isLoading}

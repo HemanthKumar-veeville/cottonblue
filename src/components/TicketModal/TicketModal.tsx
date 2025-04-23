@@ -2,8 +2,14 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ScrollArea } from "../ui/scroll-area";
 import { Textarea } from "../ui/textarea";
+import { Input } from "../ui/input";
 import { X } from "lucide-react";
 import { TicketStatus } from "../../screens/Tickets/Tickets";
+import { useTranslation } from "react-i18next";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { createTicket } from "../../store/features/ticketSlice";
+import { AppDispatch } from "../../store/store";
 
 interface Ticket {
   id: string;
@@ -21,28 +27,28 @@ interface TicketModalProps {
 
 const messageData = [
   {
-    sender: "Support - CottonBlue :",
-    message: "Bonjour, nous investiguons actuellement le souci de connexion.",
+    sender: "tickets.modal.messages.support",
+    message: "tickets.modal.messages.investigating",
   },
   {
-    sender: "Vous :",
-    message: "Merci pour votre retour.",
+    sender: "tickets.modal.messages.you",
+    message: "tickets.modal.messages.thanks",
   },
   {
-    sender: "Support - CottonBlue :",
-    message: "Avez-vous tenté de réinitialiser votre mot de passe ?",
+    sender: "tickets.modal.messages.support",
+    message: "tickets.modal.messages.resetPassword",
   },
   {
-    sender: "Vous :",
-    message: "Oui, sans succès.",
+    sender: "tickets.modal.messages.you",
+    message: "tickets.modal.messages.noSuccess",
   },
   {
-    sender: "Vous :",
-    message: "C'est bon, cela fonctionne !",
+    sender: "tickets.modal.messages.you",
+    message: "tickets.modal.messages.working",
   },
   {
-    sender: "Support - CottonBlue :",
-    message: "Parfait, ravi que ce soit réglé.",
+    sender: "tickets.modal.messages.support",
+    message: "tickets.modal.messages.perfect",
   },
 ];
 
@@ -52,12 +58,15 @@ const MessageItem = ({
 }: {
   sender: string;
   message: string;
-}) => (
-  <div className="flex flex-col gap-1.5 p-2 bg-gray-100 rounded-md">
-    <div className="font-medium text-gray-900 text-sm">{sender}</div>
-    <div className="font-medium text-gray-900 text-sm">{message}</div>
-  </div>
-);
+}) => {
+  const { t } = useTranslation();
+  return (
+    <div className="flex flex-col gap-1.5 p-2 bg-gray-100 rounded-md">
+      <div className="font-medium text-gray-900 text-sm">{t(sender)}</div>
+      <div className="font-medium text-gray-900 text-sm">{t(message)}</div>
+    </div>
+  );
+};
 
 const MessageList = ({
   messages,
@@ -74,13 +83,63 @@ const MessageList = ({
 );
 
 export default function TicketModal({ onClose, ticket }: TicketModalProps) {
+  const { t } = useTranslation();
+  const dispatch = useDispatch<AppDispatch>();
+  const [ticketTitle, setTicketTitle] = useState(ticket.title);
+  const [ticketDescription, setTicketDescription] = useState(
+    ticket.description || ""
+  );
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const isNewTicket = ticket.title === "";
+
+  const handleSubmit = async () => {
+    if (isNewTicket) {
+      if (!ticketTitle.trim()) {
+        // You might want to add proper form validation and error handling here
+        return;
+      }
+
+      setIsSubmitting(true);
+      try {
+        await dispatch(
+          createTicket({
+            dnsPrefix: "admin", // You'll need to get this from your app configuration
+            data: {
+              ticket_title: ticketTitle.trim(),
+              ticket_description: ticketDescription.trim(),
+            },
+          })
+        ).unwrap();
+        onClose();
+      } catch (error) {
+        console.error("Failed to create ticket:", error);
+        // You might want to add proper error handling here
+      } finally {
+        setIsSubmitting(false);
+      }
+    } else {
+      // Handle existing ticket response submission
+      // This would be implemented separately
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="w-full h-full flex items-center justify-center p-4">
         <Card className="w-full max-w-2xl bg-white rounded-md overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between p-3 pb-0">
-            <CardTitle className="font-bold text-gray-900 text-base">
-              {ticket.id} - {ticket.title}
+            <CardTitle className="font-bold text-gray-900 text-base flex items-center gap-2 flex-1">
+              {ticket.id} -
+              {isNewTicket ? (
+                <Input
+                  value={ticketTitle}
+                  onChange={(e) => setTicketTitle(e.target.value)}
+                  placeholder={t("tickets.modal.enterTitle")}
+                  className="flex-1"
+                />
+              ) : (
+                ticket.title
+              )}
             </CardTitle>
             <Button
               variant="ghost"
@@ -93,22 +152,38 @@ export default function TicketModal({ onClose, ticket }: TicketModalProps) {
           </CardHeader>
 
           <CardContent className="flex flex-col gap-6 p-4">
-            <MessageList messages={messageData} />
+            {!isNewTicket && <MessageList messages={messageData} />}
 
             <Textarea
-              placeholder="Écrire une réponse..."
+              value={ticketDescription}
+              onChange={(e) => setTicketDescription(e.target.value)}
+              placeholder={
+                isNewTicket
+                  ? t("tickets.modal.enterDescription")
+                  : t("tickets.modal.writeResponse")
+              }
               className="h-24 min-h-24 bg-gray-50 rounded-md border border-solid border-gray-300 text-gray-500"
             />
 
             <div className="flex justify-end gap-2">
+              {!isNewTicket && (
+                <Button
+                  variant="outline"
+                  className="h-10 border border-solid border-gray-300 text-gray-900"
+                >
+                  {t("tickets.modal.markAsComplete")}
+                </Button>
+              )}
               <Button
-                variant="outline"
-                className="h-10 border border-solid border-gray-300 text-gray-900"
+                className="h-10 bg-teal-700 border border-solid border-gray-300 text-white"
+                onClick={handleSubmit}
+                disabled={isSubmitting}
               >
-                Marquer comme terminé
-              </Button>
-              <Button className="h-10 bg-teal-700 border border-solid border-gray-300 text-white">
-                Envoyer la réponse
+                {isNewTicket
+                  ? isSubmitting
+                    ? t("tickets.modal.creating")
+                    : t("tickets.modal.createTicket")
+                  : t("tickets.modal.sendResponse")}
               </Button>
             </div>
           </CardContent>

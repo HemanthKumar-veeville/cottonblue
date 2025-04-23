@@ -1,0 +1,17 @@
+import { axiosInstance } from '../lib/axios';
+
+export const ticketService = {
+  createTicket: async (dnsPrefix: string, data: { ticket_title: string; ticket_description: string }) => {
+    const formData = new FormData();
+    console.log({ dnsPrefix, data });
+    formData.append('ticket_title', data.ticket_title);
+    formData.append('ticket_description', data.ticket_description);
+    
+    const response = await axiosInstance.post(`/${dnsPrefix}/ticket`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
+  }
+};
