@@ -19,23 +19,26 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../store/store";
 import { useAppDispatch } from "../../store/store";
-import { getStoreDetails } from "../../store/features/agencySlice";
+import {
+  getCompanyByDnsPrefix,
+  modifyCompany,
+} from "../../store/features/clientSlice";
 import { useTranslation } from "react-i18next";
 
 // Define proper types for our data
-interface Agency {
+interface Company {
   id: number;
   name: string;
   city: string;
   address: string;
-  phone_number: string;
-  longitude: string;
-  latitude: string;
+  phone_number: string | null;
   created_at: string;
   updated_at: string;
-  company_id: number;
   postal_code: string;
   is_active: boolean;
+  dns_prefix: string;
+  logo: string;
+  color_code: string;
 }
 
 interface AgencyStatistics {
@@ -118,19 +121,19 @@ const orders: Order[] = [
   },
 ];
 
-// Helper function to get store detail by key
-const getStoreDetail = (store: Agency, key: keyof Agency): string => {
-  if (!store) return "Not Available";
+// Helper function to get company detail by key
+const getCompanyDetail = (company: Company, key: keyof Company): string => {
+  if (!company) return "Not Available";
   if (key === "is_active") {
-    return store.is_active ? "Active" : "Inactive";
+    return company.is_active ? "Active" : "Inactive";
   }
-  const value = store[key];
+  const value = company[key];
   return value !== null && value !== undefined
     ? String(value)
     : "Not Available";
 };
 
-const AgencyDetailsCard = ({ store }: { store: Agency }) => {
+const AgencyDetailsCard = ({ company }: { company: Company }) => {
   const { t } = useTranslation();
 
   return (
@@ -138,8 +141,8 @@ const AgencyDetailsCard = ({ store }: { store: Agency }) => {
       <CardHeader>
         <CardTitle className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]">
           {t("agencyDetails.title", {
-            name: store?.name || t("agencyDetails.fields.notAvailable"),
-            city: store?.city || "",
+            name: company?.name || t("agencyDetails.fields.notAvailable"),
+            city: company?.city || "",
           })}
         </CardTitle>
       </CardHeader>
@@ -152,7 +155,7 @@ const AgencyDetailsCard = ({ store }: { store: Agency }) => {
                   <span className="font-[number:var(--text-medium-font-weight)]">
                     {t(`agencyDetails.fields.${key}`)} :{" "}
                   </span>
-                  <span>{getStoreDetail(store, key as keyof Agency)}</span>
+                  <span>{getCompanyDetail(company, key as keyof Company)}</span>
                 </div>
               ))}
             </div>
@@ -172,7 +175,7 @@ const AgencyDetailsCard = ({ store }: { store: Agency }) => {
                   <span
                     className={key === "is_active" ? "text-emerald-500" : ""}
                   >
-                    {getStoreDetail(store, key as keyof Agency)}
+                    {getCompanyDetail(company, key as keyof Company)}
                   </span>
                 </div>
               ))}
@@ -217,19 +220,19 @@ const ActionsBox = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { company_name } = useParams();
-  const { storeDetails } = useAppSelector((state) => state.agency);
-  console.log({ storeDetails });
+  const { companyDetails } = useAppSelector((state) => state.client);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleModify = () => {
     // Prepare the data to be passed to the AddClient component
     const prefillData = {
-      name: storeDetails?.name || "",
-      city: storeDetails?.city || "",
-      address: storeDetails?.address || "",
-      postal_code: storeDetails?.postal_code || "",
-      company_id: storeDetails?.company_id || "",
+      name: companyDetails?.company?.name || "",
+      city: companyDetails?.company?.city || "",
+      address: companyDetails?.company?.company_address || "",
+      postal_code: companyDetails?.company?.postal_code || "",
+      color_code: companyDetails?.company?.color_code || "",
+      dns_prefix: companyDetails?.company?.dns_prefix || "",
+      company_id: companyDetails?.company?.id || "",
       is_edit_mode: true,
     };
 
@@ -237,26 +240,24 @@ const ActionsBox = () => {
   };
 
   const handleToggleAgencyStatus = async () => {
-    if (!storeDetails) return;
+    if (!companyDetails?.company) return;
 
     setIsLoading(true);
     try {
       await dispatch(
-        getStoreDetails({
-          dnsPrefix: company_name!,
-          storeId: storeDetails.id.toString(),
+        modifyCompany({
+          dns_prefix: companyDetails.company.dns_prefix,
+          company_id: companyDetails.company.id,
+          data: {
+            is_active: !companyDetails.company.is_active,
+          },
         })
       ).unwrap();
 
-      // Refresh store details after status change
-      dispatch(
-        getStoreDetails({
-          dnsPrefix: company_name!,
-          storeId: storeDetails.id.toString(),
-        })
-      );
+      // Refresh company details after status change
+      dispatch(getCompanyByDnsPrefix(companyDetails.company.dns_prefix));
     } catch (error) {
-      console.error("Failed to toggle store status:", error);
+      console.error("Failed to toggle company status:", error);
     } finally {
       setIsLoading(false);
     }
@@ -281,7 +282,7 @@ const ActionsBox = () => {
         >
           {isLoading
             ? "loading..."
-            : storeDetails?.is_active
+            : companyDetails?.company?.is_active
             ? t("agencyDetails.actions.deactivate")
             : t("agencyDetails.actions.activate")}
         </Button>
@@ -420,36 +421,26 @@ const OrdersTableCard = () => {
   );
 };
 
-const AgencyDetails = (): JSX.Element => {
-  const { company_name, agency_id } = useParams();
+const ClientDetails = (): JSX.Element => {
+  const { company_name } = useParams();
   const dispatch = useAppDispatch();
-  const { storeDetails, loading, error } = useAppSelector(
-    (state) => state.agency
+  const { companyDetails, loading, error } = useAppSelector(
+    (state) => state.client
   );
-  const store = storeDetails?.store as Agency;
+  const company = companyDetails?.company || {};
 
   useEffect(() => {
-    if (company_name && agency_id) {
-      dispatch(
-        getStoreDetails({ dnsPrefix: company_name, storeId: agency_id })
-      );
+    if (company_name) {
+      dispatch(getCompanyByDnsPrefix(company_name));
     }
-  }, [company_name, agency_id, dispatch]);
-
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  }, [company_name, dispatch]);
 
   return (
     <div className="flex flex-col items-start gap-8 p-6">
-      <AgencyDetailsCard store={store} />
+      <AgencyDetailsCard company={company} />
       <OrdersTableCard />
     </div>
   );
 };
 
-export default AgencyDetails;
+export default ClientDetails;

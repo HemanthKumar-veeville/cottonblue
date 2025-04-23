@@ -35,6 +35,7 @@ interface AgencyState {
   loading: boolean;
   error: string | null;
   registerSuccess: boolean;
+  storeDetails: Agency | null;
 }
 
 // Initial state
@@ -43,6 +44,7 @@ const initialState: AgencyState = {
   loading: false,
   error: null,
   registerSuccess: false,
+  storeDetails: null,
 };
 
 // Create async thunks for API calls
@@ -74,6 +76,18 @@ export const fetchAllStores = createAsyncThunk(
   }
 );
 
+export const getStoreDetails = createAsyncThunk(
+  'agency/getStoreDetails',
+  async ({ dnsPrefix, storeId }: { dnsPrefix: string; storeId: string }, { rejectWithValue }) => {
+    try {
+      const response = await agencyService.getStoreDetails(dnsPrefix, storeId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch store details');
+    }
+  }
+);
+
 // Create the slice
 const agencySlice = createSlice({
   name: 'agency',
@@ -84,6 +98,9 @@ const agencySlice = createSlice({
     },
     clearError: (state) => {
       state.error = null;
+    },
+    clearStoreDetails: (state) => {
+      state.storeDetails = null;
     },
   },
   extraReducers: (builder) => {
@@ -117,8 +134,23 @@ const agencySlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       });
+
+    // Get store details
+    builder
+      .addCase(getStoreDetails.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getStoreDetails.fulfilled, (state, action) => {
+        state.loading = false;
+        state.storeDetails = action.payload;
+      })
+      .addCase(getStoreDetails.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 
-export const { resetRegisterSuccess, clearError } = agencySlice.actions;
+export const { resetRegisterSuccess, clearError, clearStoreDetails } = agencySlice.actions;
 export default agencySlice.reducer;

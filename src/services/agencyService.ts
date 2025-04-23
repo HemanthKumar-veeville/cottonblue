@@ -21,5 +21,14 @@ export const agencyService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  getStoreDetails: async (dnsPrefix: string, storeId: string) => {
+    try {
+      const response = await axiosInstance.get(`/${dnsPrefix}/store/${storeId}/details`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 };

@@ -20,6 +20,7 @@ import { useAppSelector } from "./store/store";
 import { getUser } from "./store/features/authSlice";
 import GlobalLoader from "./components/GlobalLoader";
 import { GlobalDashboard } from "./screens/GlobalDashboard/GlobalDashboard";
+import ClientDetails from "./screens/ClientDetails/ClientDetails";
 import AgencyDetails from "./screens/AgencyDetails/AgencyDetails";
 import { AgenciesList } from "./screens/AgenciesList";
 import AddAgency from "./screens/AddAgency/AddAgency";
@@ -74,7 +75,7 @@ function App() {
               <Route path="customers" element={<ClientList />} />
               <Route
                 path="customers/:company_name"
-                element={<AgencyDetails />}
+                element={<ClientDetails />}
               />
               <Route path="agencies" element={<AgenciesList />} />
               <Route
