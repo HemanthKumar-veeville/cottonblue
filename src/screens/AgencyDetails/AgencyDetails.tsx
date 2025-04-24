@@ -21,6 +21,8 @@ import { useAppSelector } from "../../store/store";
 import { useAppDispatch } from "../../store/store";
 import { getStoreDetails } from "../../store/features/agencySlice";
 import { useTranslation } from "react-i18next";
+import { Skeleton } from "../../components/Skeleton";
+import Loader from "../../components/Loader";
 
 // Define proper types for our data
 interface Agency {
@@ -218,8 +220,7 @@ const ActionsBox = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { company_name } = useParams();
-  const { storeDetails } = useAppSelector((state) => state.agency);
-  console.log({ storeDetails });
+  const { storeDetails, loading } = useAppSelector((state) => state.agency);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleModify = () => {
@@ -279,11 +280,16 @@ const ActionsBox = () => {
           onClick={handleToggleAgencyStatus}
           disabled={isLoading}
         >
-          {isLoading
-            ? "loading..."
-            : storeDetails?.is_active
-            ? t("agencyDetails.actions.deactivate")
-            : t("agencyDetails.actions.activate")}
+          {isLoading ? (
+            <div className="flex items-center justify-center">
+              <Loader size="sm" className="mr-2" />
+              {t("common.loading")}
+            </div>
+          ) : storeDetails?.is_active ? (
+            t("agencyDetails.actions.deactivate")
+          ) : (
+            t("agencyDetails.actions.activate")
+          )}
         </Button>
       </CardContent>
     </Card>
@@ -437,7 +443,11 @@ const AgencyDetails = (): JSX.Element => {
   }, [company_name, agency_id, dispatch]);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex flex-col items-start gap-8 p-6">
+        <Skeleton variant="details" />
+      </div>
+    );
   }
 
   if (error) {

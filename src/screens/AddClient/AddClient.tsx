@@ -23,6 +23,8 @@ import {
   resetState,
 } from "../../store/features/clientSlice";
 import { RootState, AppDispatch } from "../../store/store";
+import Loader from "../../components/Loader";
+import { useTranslation } from "react-i18next";
 
 // Initial empty form data
 const initialFormData = {
@@ -339,6 +341,7 @@ const ClientForm = () => {
   const { loading, error, success } = useSelector(
     (state: RootState) => state.client
   );
+  const { t } = useTranslation();
 
   // Get prefill data from location state if it exists
   const prefillData = location.state || {};
@@ -915,7 +918,16 @@ const ClientForm = () => {
                 onClick={handleNext}
                 disabled={loading}
               >
-                {loading ? "Saving..." : isEditMode ? "Save Changes" : "Next"}
+                {loading ? (
+                  <div className="flex items-center justify-center">
+                    <Loader size="sm" className="mr-2" />
+                    {t("common.loading")}
+                  </div>
+                ) : isEditMode ? (
+                  t("common.save")
+                ) : (
+                  t("common.next")
+                )}
               </Button>
             </div>
           </div>

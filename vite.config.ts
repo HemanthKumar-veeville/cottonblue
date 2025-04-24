@@ -11,6 +11,5 @@ export default defineConfig({
     postcss: {
       plugins: [tailwind()],
     },
-  },
-  assetsInclude: ["**/*.lottie"],
+  }
 });

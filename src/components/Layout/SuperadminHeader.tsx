@@ -1,4 +1,4 @@
-import React, { useState, createContext, useContext } from "react";
+import React, { useState, createContext, useContext, useEffect } from "react";
 import { Badge } from "../ui/badge";
 import {
   Select,
@@ -38,7 +38,7 @@ export const useAdminMode = () => useContext(AdminModeContext);
 export const AdminModeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [isAdminMode, setIsAdminMode] = useState(true);
+  const [isAdminMode, setIsAdminMode] = useState(false);
 
   return (
     <AdminModeContext.Provider value={{ isAdminMode, setIsAdminMode }}>
@@ -52,14 +52,14 @@ const navTabs: NavTabItem[] = [
     id: 1,
     name: "header.adminManagement",
     icon: "/img/crown.svg",
-    active: true,
+    active: false,
     isFirst: true,
   },
   {
     id: 2,
     name: "header.clientManagement",
     icon: "/img/crown.svg",
-    active: false,
+    active: true,
     isLast: true,
   },
 ];
@@ -118,7 +118,12 @@ export const SuperadminHeader = (): JSX.Element => {
     companies?.companies?.map((company) => ({
       id: company.id,
       name: company.name,
+      dns: company.dns_prefix,
     })) || [];
+
+  useEffect(() => {
+    dispatch(getAllCompanies());
+  }, [dispatch]);
 
   const handleTabClick = (tabId: number) => {
     const newTabs = tabs.map((tab) => ({
@@ -127,7 +132,6 @@ export const SuperadminHeader = (): JSX.Element => {
     }));
     setTabs(newTabs);
     setIsAdminMode(tabId === 1);
-    dispatch(getAllCompanies());
   };
 
   const handleLanguageChange = (value: string) => {
@@ -136,7 +140,7 @@ export const SuperadminHeader = (): JSX.Element => {
 
   const handleCompanySelect = (company: { id: string; name: string }) => {
     dispatch(setSelectedCompany(company));
-    dispatch(fetchAllStores(company.name));
+    dispatch(fetchAllStores(company.dns));
   };
 
   const handleStoreSelect = (store: { id: string; name: string }) => {
@@ -208,52 +212,59 @@ export const SuperadminHeader = (): JSX.Element => {
                   ))}
                 </div>
               </div>
-              <div className="relative">
-                <div
-                  className="flex w-[200px] items-center justify-center gap-3 py-3 px-3 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300 cursor-pointer"
-                  onClick={() => {
-                    const dropdown = document.getElementById("store-dropdown");
-                    if (dropdown) {
-                      dropdown.classList.toggle("hidden");
-                    }
-                  }}
-                >
-                  <div className="flex w-6 h-6 items-center justify-center shrink-0">
-                    <img className="w-5 h-5" alt="Icon" src="/img/icon-9.svg" />
-                  </div>
-                  <div className="flex-1 font-medium text-gray-700 text-base leading-4 tracking-normal truncate">
-                    {selectedStore?.name || "Select Store"}
-                  </div>
-                  <div className="flex w-6 h-6 items-center justify-center shrink-0">
-                    <img
-                      className="w-4 h-4"
-                      alt="Chevron down"
-                      src="/img/icon-13.svg"
-                    />
-                  </div>
-                </div>
-                <div
-                  id="store-dropdown"
-                  className="hidden absolute top-full left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50"
-                >
-                  {storeList?.map((store: { id: string; name: string }) => (
-                    <div
-                      key={store.id}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => {
-                        handleStoreSelect(store);
-                        const dropdown =
-                          document.getElementById("store-dropdown");
-                        if (dropdown) {
-                          dropdown.classList.add("hidden");
-                        }
-                      }}
-                    >
-                      {store.name}
+              {storeList && storeList.length > 0 && (
+                <div className="relative">
+                  <div
+                    className="flex w-[200px] items-center justify-center gap-3 py-3 px-3 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300 cursor-pointer"
+                    onClick={() => {
+                      const dropdown =
+                        document.getElementById("store-dropdown");
+                      if (dropdown) {
+                        dropdown.classList.toggle("hidden");
+                      }
+                    }}
+                  >
+                    <div className="flex w-6 h-6 items-center justify-center shrink-0">
+                      <img
+                        className="w-5 h-5"
+                        alt="Icon"
+                        src="/img/icon-9.svg"
+                      />
                     </div>
-                  ))}
+                    <div className="flex-1 font-medium text-gray-700 text-base leading-4 tracking-normal truncate">
+                      {selectedStore?.name || "Select Store"}
+                    </div>
+                    <div className="flex w-6 h-6 items-center justify-center shrink-0">
+                      <img
+                        className="w-4 h-4"
+                        alt="Chevron down"
+                        src="/img/icon-13.svg"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    id="store-dropdown"
+                    className="hidden absolute top-full left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50"
+                  >
+                    {storeList?.map((store: { id: string; name: string }) => (
+                      <div
+                        key={store.id}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          handleStoreSelect(store);
+                          const dropdown =
+                            document.getElementById("store-dropdown");
+                          if (dropdown) {
+                            dropdown.classList.add("hidden");
+                          }
+                        }}
+                      >
+                        {store.name}
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>

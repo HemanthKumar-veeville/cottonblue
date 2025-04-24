@@ -21,6 +21,10 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppSelector } from "../../store/store";
+import { Skeleton } from "../../components/Skeleton";
+import EmptyState from "../../components/EmptyState";
+import ErrorState from "../../components/ErrorState";
+import { Store } from "lucide-react";
 
 // Pagination data
 const paginationItems = [1, 2, 3, 4, 5];
@@ -47,7 +51,7 @@ interface AgencyTableSectionProps {
   searchTerm: string;
 }
 
-export const AgencyTableSection = ({
+export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
   agencies,
   loading,
   error,
@@ -142,22 +146,16 @@ export const AgencyTableSection = ({
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
+    return <Skeleton variant="table" />;
   }
 
   if (error) {
     return (
-      <div
-        className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-        role="alert"
-      >
-        <strong className="font-bold">Error: </strong>
-        <span className="block sm:inline">{error}</span>
-      </div>
+      <ErrorState
+        message={error}
+        variant="inline"
+        onRetry={() => window.location.reload()}
+      />
     );
   }
 
@@ -165,13 +163,25 @@ export const AgencyTableSection = ({
     <section className="flex flex-col items-center justify-between w-full gap-6">
       <div className="w-full max-w-[1160px]">
         {loading ? (
-          <div className="flex justify-center items-center h-40">
-            <p>Loading agencies...</p>
-          </div>
+          <Skeleton variant="table" />
         ) : error ? (
-          <div className="flex justify-center items-center h-40 text-red-500">
-            <p>Error: {error}</p>
-          </div>
+          <ErrorState
+            message={error}
+            variant="inline"
+            onRetry={() => window.location.reload()}
+          />
+        ) : currentAgencies.length === 0 ? (
+          <EmptyState
+            icon={Store}
+            title={t("agencyTable.noAgencies")}
+            description={
+              searchTerm
+                ? t("agencyTable.noSearchResults")
+                : t("agencyTable.emptyMessage")
+            }
+            actionLabel={searchTerm ? t("agencyTable.clearSearch") : undefined}
+            onAction={searchTerm ? () => window.location.reload() : undefined}
+          />
         ) : (
           <Table>
             <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">

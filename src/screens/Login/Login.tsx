@@ -4,12 +4,15 @@ import { useAppDispatch, useAppSelector } from "../../store/store";
 import { login, loginPage } from "../../store/features/authSlice";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Loader from "../../components/Loader";
+import { useTranslation } from "react-i18next";
 
 export default function LoginPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { isLoading, error, company, companyColor, companyLogo } =
     useAppSelector((state) => state.auth);
+  const { t } = useTranslation();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,17 +35,11 @@ export default function LoginPage() {
     <div className="flex h-screen">
       {/* Left Panel */}
       <div
-        className={`hidden md:flex md:w-2/5 bg-[${
-          companyColor || "#07515f"
-        }] flex-col items-center justify-center relative overflow-hidden`}
+        className={`hidden md:flex md:w-2/5 bg-[${"#07515f"}] flex-col items-center justify-center relative overflow-hidden`}
       >
         <div className="flex flex-col items-center justify-center w-full">
           <div className="inline-flex flex-col items-center">
-            <img
-              className=""
-              alt="Logo"
-              src={companyLogo || "/img/Logo_cb_svg.svg"}
-            />
+            <img className="" alt="Logo" src={"/img/Logo_cb_svg.svg"} />
           </div>
         </div>
       </div>
@@ -84,7 +81,14 @@ export default function LoginPage() {
               disabled={isLoading}
               className="w-full bg-[#07515f] hover:bg-[#07515f]/90 text-white py-3 rounded-md transition-colors"
             >
-              {isLoading ? "Connexion..." : "Connexion"}
+              {isLoading ? (
+                <div className="flex items-center justify-center">
+                  <Loader size="sm" className="mr-2" />
+                  {t("common.loading")}
+                </div>
+              ) : (
+                t("login.submit")
+              )}
             </Button>
           </form>
         </div>

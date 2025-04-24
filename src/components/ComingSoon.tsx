@@ -1,16 +1,12 @@
 import React from "react";
-import { DotLottieReact } from "@lottiefiles/dotlottie-react";
-import lottie from "../../static/img/webdesign.lottie";
 
 const ComingSoon: React.FC = () => {
   return (
-    <div className="flex  flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-50">
-      <DotLottieReact
-        src={lottie}
-        autoplay
-        loop
-        style={{ width: "90%", height: "90%" }}
-      />
+    <div className="flex flex-col items-center justify-center h-full bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="text-center">
+        <h1 className="text-3xl font-bold text-gray-800 mb-4">Coming Soon</h1>
+        <p className="text-gray-600">This feature is under development</p>
+      </div>
     </div>
   );
 };

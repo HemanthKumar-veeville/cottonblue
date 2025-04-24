@@ -29,8 +29,10 @@ export const ProductListSection = (): JSX.Element => {
 
   // Fetch products on component mount
   useEffect(() => {
-    dispatch(fetchAllProducts(selectedCompany?.name || ""));
-  }, [dispatch, selectedCompany?.name]);
+    if (selectedCompany?.dns) {
+      dispatch(fetchAllProducts(selectedCompany?.dns));
+    }
+  }, [dispatch, selectedCompany?.dns]);
 
   const handleImport = async (file: File) => {
     try {
@@ -56,7 +58,7 @@ export const ProductListSection = (): JSX.Element => {
       }
 
       // Refresh products list after successful import
-      dispatch(fetchAllProducts(selectedCompany?.name || ""));
+      dispatch(fetchAllProducts(selectedCompany?.dns || ""));
     } catch (error) {
       console.error("Error importing CSV:", error);
       throw error;

@@ -8,6 +8,9 @@ import { toast } from "sonner";
 import { useAppSelector } from "../../store/store";
 import { registerStore } from "../../store/features/agencySlice";
 import { useAppDispatch } from "../../store/store";
+import Loader from "../../components/Loader";
+import { useTranslation } from "react-i18next";
+import { Skeleton } from "../../components/Skeleton";
 
 interface FormData {
   company_id: string;
@@ -162,6 +165,7 @@ const CheckboxField = ({
 export default function AddAgency() {
   const navigate = useNavigate();
   const { selectedCompany } = useAppSelector((state) => state.client);
+  const { t } = useTranslation();
 
   const initialFormData: FormData = {
     company_id: selectedCompany?.id || "",
@@ -230,6 +234,10 @@ export default function AddAgency() {
       setLoading(false);
     }
   };
+
+  if (loading) {
+    return <Skeleton variant="form" />;
+  }
 
   return (
     <div className="flex flex-col min-h-[854px] gap-8 p-6 bg-white rounded-lg overflow-hidden">
@@ -470,7 +478,14 @@ export default function AddAgency() {
               onClick={handleSubmit}
               disabled={loading}
             >
-              {loading ? "Saving..." : "Next"}
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <Loader size="sm" className="mr-2" />
+                  {t("common.loading")}
+                </div>
+              ) : (
+                t("common.next")
+              )}
             </Button>
           </div>
         </div>

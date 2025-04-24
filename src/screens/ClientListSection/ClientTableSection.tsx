@@ -20,6 +20,10 @@ import {
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Skeleton } from "../../components/Skeleton";
+import EmptyState from "../../components/EmptyState";
+import ErrorState from "../../components/ErrorState";
+import { Users } from "lucide-react";
 
 // Pagination data
 const paginationItems = [1, 2, 3, 4, 5];
@@ -130,13 +134,25 @@ export const ClientTableSection = ({
     <section className="flex flex-col items-center justify-between w-full gap-6">
       <div className="w-full max-w-[1160px]">
         {loading ? (
-          <div className="flex justify-center items-center h-40">
-            <p>Loading clients...</p>
-          </div>
+          <Skeleton variant="table" />
         ) : error ? (
-          <div className="flex justify-center items-center h-40 text-red-500">
-            <p>Error: {error}</p>
-          </div>
+          <ErrorState
+            message={error}
+            variant="inline"
+            onRetry={() => window.location.reload()}
+          />
+        ) : currentCompanies.length === 0 ? (
+          <EmptyState
+            icon={Users}
+            title={t("clientTable.noClients")}
+            description={
+              searchTerm
+                ? t("clientTable.noSearchResults")
+                : t("clientTable.emptyMessage")
+            }
+            actionLabel={searchTerm ? t("clientTable.clearSearch") : undefined}
+            onAction={searchTerm ? () => window.location.reload() : undefined}
+          />
         ) : (
           <Table>
             <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
@@ -154,28 +170,28 @@ export const ClientTableSection = ({
                   </div>
                 </TableHead>
                 <TableHead className="w-[77px] text-left text-[#1e2324] font-text-small">
-                  ID
+                  {t("clientTable.columns.id")}
                 </TableHead>
                 <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
-                  Name
+                  {t("clientTable.columns.name")}
                 </TableHead>
                 <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
-                  Phone
+                  {t("clientTable.columns.phone")}
                 </TableHead>
                 <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
-                  City
+                  {t("clientTable.columns.city")}
                 </TableHead>
                 <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
-                  Address
+                  {t("clientTable.columns.address")}
                 </TableHead>
                 <TableHead className="w-[100px] text-left text-[#1e2324] font-text-small">
-                  Status
+                  {t("clientTable.columns.status")}
                 </TableHead>
                 <TableHead className="w-[120px] text-left text-[#1e2324] font-text-small">
-                  Created At
+                  {t("clientTable.columns.createdAt")}
                 </TableHead>
                 <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
-                  Actions
+                  {t("clientTable.columns.actions")}
                 </TableHead>
               </TableRow>
             </TableHeader>
@@ -222,7 +238,9 @@ export const ClientTableSection = ({
                             : "bg-red-100 text-red-800"
                         }`}
                       >
-                        {client.is_active ? "Active" : "Inactive"}
+                        {client.is_active
+                          ? t("clientTable.status.active")
+                          : t("clientTable.status.inactive")}
                       </span>
                     </TableCell>
                     <TableCell className="w-[120px] text-left font-text-smaller text-black">
@@ -234,7 +252,7 @@ export const ClientTableSection = ({
                         className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
                         onClick={() => handleViewDetails(client.dns_prefix)}
                       >
-                        View Details
+                        {t("clientTable.actions.viewDetails")}
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -242,7 +260,7 @@ export const ClientTableSection = ({
               ) : (
                 <TableRow>
                   <TableCell colSpan={9} className="text-center py-4">
-                    No clients found
+                    {t("clientTable.noClients")}
                   </TableCell>
                 </TableRow>
               )}
@@ -266,7 +284,7 @@ export const ClientTableSection = ({
               alt="Arrow left"
               src="/img/arrow-left-sm.svg"
             />
-            Previous
+            {t("clientTable.pagination.previous")}
           </PaginationPrevious>
 
           <PaginationContent className="flex items-center gap-3">
@@ -318,7 +336,7 @@ export const ClientTableSection = ({
               if (currentPage < totalPages) handlePageChange(currentPage + 1);
             }}
           >
-            Next
+            {t("clientTable.pagination.next")}
             <img
               className="w-6 h-6 rotate-180"
               alt="Arrow right"

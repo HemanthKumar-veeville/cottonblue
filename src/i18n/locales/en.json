@@ -4,7 +4,9 @@
     "fr": "French"
   },
   "common": {
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "next": "Next",
+    "previous": "Previous"
   },
   "header": {
     "adminManagement": "Admin Management",
@@ -23,8 +25,11 @@
     },
     "customers": {
       "title": "Clients",
-      "list": "Clients",
-      "add": "Add Client"
+      "list": "Client List",
+      "add": "Add Client",
+      "search": {
+        "placeholder": "Search clients..."
+      }
     },
     "agencies": {
       "title": "Stores",
@@ -347,6 +352,10 @@
       "inProgress": "Tickets in progress",
       "closed": "Closed tickets"
     },
+    "empty": {
+      "title": "No tickets found",
+      "description": "There are no tickets in this section yet. Create a new ticket to get started."
+    },
     "ticket": {
       "id": "ID",
       "title": "Title",
@@ -373,5 +382,44 @@
       "createTicket": "Create ticket",
       "reopenTicket": "Reopen ticket"
     }
+  },
+  "clientTable": {
+    "columns": {
+      "id": "ID",
+      "name": "Name",
+      "phone": "Phone",
+      "city": "City",
+      "address": "Address",
+      "status": "Status",
+      "createdAt": "Created At",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "viewDetails": "View Details"
+    },
+    "noClients": "No Clients Found",
+    "emptyMessage": "There are no clients in your list yet. Add your first client to get started.",
+    "noSearchResults": "No clients match your search criteria.",
+    "clearSearch": "Clear Search",
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next"
+    }
+  },
+  "agencyTable": {
+    "noAgencies": "No Agencies Found",
+    "emptyMessage": "There are no agencies in your list yet. Add your first agency to get started.",
+    "noSearchResults": "No agencies match your search criteria.",
+    "clearSearch": "Clear Search"
+  },
+  "productTable": {
+    "noProducts": "No Products Found",
+    "emptyMessage": "There are no products in your list yet. Add your first product to get started.",
+    "noSearchResults": "No products match your search criteria.",
+    "clearSearch": "Clear Search"
   }
 }

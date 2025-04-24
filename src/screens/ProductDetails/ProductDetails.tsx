@@ -10,6 +10,7 @@ import {
   deleteProduct,
 } from "../../store/features/productSlice";
 import { useTranslation } from "react-i18next";
+import { Skeleton } from "../../components/Skeleton";
 
 const ProductHeader = () => {
   const { t } = useTranslation();
@@ -116,15 +117,6 @@ const ProductActions = () => {
     }
   };
 
-  //   useEffect(() => {
-  //     if (deleteSuccess) {
-  //       if (selectedCompany?.name) {
-  //         dispatch(fetchAllProducts(selectedCompany.name));
-  //       }
-  //       navigate("/products");
-  //     }
-  //   }, [deleteSuccess, navigate, dispatch, selectedCompany?.name]);
-
   return (
     <div className="flex items-start gap-2 w-full">
       <Button
@@ -177,8 +169,8 @@ export default function ProductDetails() {
 
   if (loading) {
     return (
-      <Card className="flex flex-col items-center gap-8 p-6 bg-white rounded-lg overflow-hidden">
-        <div className="text-center py-4">Loading...</div>
+      <Card className="w-full">
+        <Skeleton variant="details" />
       </Card>
     );
   }

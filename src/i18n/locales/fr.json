@@ -4,7 +4,9 @@
     "fr": "French"
   },
   "common": {
-    "loading": "Chargement..."
+    "loading": "Chargement...",
+    "next": "Suivant",
+    "previous": "Précédent"
   },
   "header": {
     "adminManagement": "Gestion des administrateurs",
@@ -24,7 +26,10 @@
     "customers": {
       "title": "Clients",
       "list": "Liste des clients",
-      "add": "Ajouter un client"
+      "add": "Ajouter un client",
+      "search": {
+        "placeholder": "Rechercher des clients..."
+      }
     },
     "agencies": {
       "title": "Agences",
@@ -337,6 +342,10 @@
       "inProgress": "Tickets en cours",
       "closed": "Tickets fermés"
     },
+    "empty": {
+      "title": "Aucun ticket trouvé",
+      "description": "Il n'y a pas encore de tickets dans cette section. Créez un nouveau ticket pour commencer."
+    },
     "ticket": {
       "id": "ID",
       "title": "Titre",
@@ -362,6 +371,30 @@
       "enterDescription": "Entrer la description du ticket...",
       "createTicket": "Créer le ticket",
       "reopenTicket": "Réouvrir le ticket"
+    }
+  },
+  "clientTable": {
+    "columns": {
+      "id": "ID",
+      "name": "Nom",
+      "phone": "Téléphone",
+      "city": "Ville",
+      "address": "Adresse",
+      "status": "Statut",
+      "createdAt": "Créé le",
+      "actions": "Actions"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "actions": {
+      "viewDetails": "Voir détails"
+    },
+    "noClients": "Aucun client trouvé",
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant"
     }
   }
 }

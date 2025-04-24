@@ -20,6 +20,7 @@ interface ClientState {
   selectedCompany: {
     id: string;
     name: string;
+    dns: string;
   } | null;
   companyDetails: any | null;
 }
@@ -124,10 +125,12 @@ const clientSlice = createSlice({
       .addCase(getAllCompanies.fulfilled, (state, action) => {
         state.loading = false;
         state.companies = action.payload;
-        if (!state.selectedCompany && action.payload.length > 0) {
+        
+        if (!state.selectedCompany && action.payload.companies.length > 0) {
           state.selectedCompany = {
-            id: action.payload[0].id,
-            name: action.payload[0].name,
+            id: action.payload.companies[0].id,
+            name: action.payload.companies[0].name,
+            dns: action.payload.companies[0].dns_prefix,
           };
         }
       })

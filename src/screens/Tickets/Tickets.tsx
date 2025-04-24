@@ -1,6 +1,6 @@
 import { Card, CardContent } from "../../components/ui/card";
 import { ScrollArea } from "../../components/ui/scroll-area";
-import { CheckCircle, Search, Loader2 } from "lucide-react";
+import { CheckCircle, Search, Inbox } from "lucide-react";
 import React, { useState, useMemo, useEffect } from "react";
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
@@ -17,6 +17,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { fetchTickets } from "../../store/features/ticketSlice";
 import { useAppDispatch, RootState, useAppSelector } from "../../store/store";
+import { Skeleton } from "../../components/Skeleton";
 
 export enum TicketStatus {
   OPEN = "open",
@@ -131,39 +132,76 @@ interface TicketListProps {
   isLoading?: boolean;
 }
 
+const EmptyState = ({
+  title,
+  description,
+}: {
+  title: string;
+  description: string;
+}) => (
+  <div className="flex flex-col items-center justify-center h-full py-8 px-4">
+    <div className="rounded-full bg-gray-100 p-3 mb-4">
+      <Inbox className="w-6 h-6 text-gray-400" />
+    </div>
+    <h3 className="text-lg font-medium text-gray-900 mb-1">{title}</h3>
+    <p className="text-sm text-gray-500 text-center">{description}</p>
+  </div>
+);
+
 const TicketList: React.FC<TicketListProps> = ({
   tickets,
   title,
   onTicketClick,
   onCheckboxClick,
   isLoading = false,
-}) => (
-  <div className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-m)] bg-white w-full">
-    <h2 className="font-label-medium font-[number:var(--label-medium-font-weight)] text-1-tokens-color-modes-common-neutral-hightest text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] [font-style:var(--label-medium-font-style)]">
-      {title}
-    </h2>
-    <ScrollArea className="h-[742px] w-full md:h-[600px] sm:h-[400px]">
-      {isLoading ? (
-        <div className="flex items-center justify-center h-full">
-          <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
-        </div>
-      ) : (
-        <motion.div className="flex flex-col gap-2.5" layout>
-          <AnimatePresence mode="popLayout">
-            {tickets.map((ticket) => (
-              <TicketCard
-                key={ticket.id}
-                ticket={ticket}
-                onClick={onTicketClick}
-                onCheckboxClick={onCheckboxClick}
-              />
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-m)] bg-white w-full">
+      <h2 className="font-label-medium font-[number:var(--label-medium-font-weight)] text-1-tokens-color-modes-common-neutral-hightest text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] [font-style:var(--label-medium-font-style)]">
+        {title}
+      </h2>
+      <ScrollArea className="h-[742px] w-full md:h-[600px] sm:h-[400px]">
+        {isLoading ? (
+          <div className="space-y-3">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="w-full">
+                <CardContent className="p-4">
+                  <div className="animate-pulse flex items-center justify-between">
+                    <div className="space-y-2 flex-1">
+                      <div className="h-4 bg-gray-200 rounded w-3/4" />
+                      <div className="h-4 bg-gray-200 rounded w-1/4" />
+                    </div>
+                    <div className="h-6 w-6 bg-gray-200 rounded-full" />
+                  </div>
+                </CardContent>
+              </Card>
             ))}
-          </AnimatePresence>
-        </motion.div>
-      )}
-    </ScrollArea>
-  </div>
-);
+          </div>
+        ) : tickets.length === 0 ? (
+          <EmptyState
+            title={t("tickets.empty.title")}
+            description={t("tickets.empty.description")}
+          />
+        ) : (
+          <motion.div className="flex flex-col gap-2.5" layout>
+            <AnimatePresence mode="popLayout">
+              {tickets.map((ticket) => (
+                <TicketCard
+                  key={ticket.id}
+                  ticket={ticket}
+                  onClick={onTicketClick}
+                  onCheckboxClick={onCheckboxClick}
+                />
+              ))}
+            </AnimatePresence>
+          </motion.div>
+        )}
+      </ScrollArea>
+    </div>
+  );
+};
 
 const getStatusColor = (status: TicketStatus): string => {
   switch (status) {
@@ -261,6 +299,10 @@ export default function Tickets(): JSX.Element {
       ) ?? []
     );
   }, [tickets]);
+
+  if (isLoading) {
+    return <Skeleton variant="tickets" />;
+  }
 
   return (
     <section className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-l)] p-[var(--2-tokens-screen-modes-common-spacing-l)] bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)] w-full">
