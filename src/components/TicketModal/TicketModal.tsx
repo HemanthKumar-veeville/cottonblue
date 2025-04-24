@@ -6,9 +6,13 @@ import { Input } from "../ui/input";
 import { X } from "lucide-react";
 import { TicketStatus } from "../../screens/Tickets/Tickets";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { createTicket } from "../../store/features/ticketSlice";
+import {
+  createTicket,
+  getTicketById,
+  updateTicketStatus,
+} from "../../store/features/ticketSlice";
 import { AppDispatch } from "../../store/store";
 
 interface Ticket {
@@ -16,8 +20,8 @@ interface Ticket {
   title: string;
   status: TicketStatus;
   description?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string | Date;
+  updatedAt: string | Date;
 }
 
 interface TicketModalProps {
@@ -91,11 +95,22 @@ export default function TicketModal({ onClose, ticket }: TicketModalProps) {
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
   const isNewTicket = !ticket?.ticket_title;
+  const isClosedTicket = ticket?.ticket_status === TicketStatus.CLOSED;
+
+  useEffect(() => {
+    if (!isNewTicket && ticket.id) {
+      dispatch(
+        getTicketById({
+          dnsPrefix: "admin", // You'll need to get this from your app configuration
+          ticketId: ticket.id,
+        })
+      );
+    }
+  }, [dispatch, isNewTicket, ticket.id]);
 
   const handleSubmit = async () => {
     if (isNewTicket) {
       if (!ticketTitle.trim()) {
-        // You might want to add proper form validation and error handling here
         return;
       }
 
@@ -113,13 +128,52 @@ export default function TicketModal({ onClose, ticket }: TicketModalProps) {
         onClose();
       } catch (error) {
         console.error("Failed to create ticket:", error);
-        // You might want to add proper error handling here
       } finally {
         setIsSubmitting(false);
       }
     } else {
       // Handle existing ticket response submission
       // This would be implemented separately
+    }
+  };
+
+  const handleMarkAsComplete = async () => {
+    if (!isNewTicket && ticket.id) {
+      setIsSubmitting(true);
+      try {
+        await dispatch(
+          updateTicketStatus({
+            dnsPrefix: "admin", // You'll need to get this from your app configuration
+            ticketId: ticket.id,
+            status: TicketStatus.CLOSED,
+          })
+        ).unwrap();
+        onClose();
+      } catch (error) {
+        console.error("Failed to update ticket status:", error);
+      } finally {
+        setIsSubmitting(false);
+      }
+    }
+  };
+
+  const handleReopenTicket = async () => {
+    if (!isNewTicket && ticket.id) {
+      setIsSubmitting(true);
+      try {
+        await dispatch(
+          updateTicketStatus({
+            dnsPrefix: "admin", // You'll need to get this from your app configuration
+            ticketId: ticket.id,
+            status: TicketStatus.OPEN,
+          })
+        ).unwrap();
+        onClose();
+      } catch (error) {
+        console.error("Failed to reopen ticket:", error);
+      } finally {
+        setIsSubmitting(false);
+      }
     }
   };
 
@@ -154,39 +208,68 @@ export default function TicketModal({ onClose, ticket }: TicketModalProps) {
           </CardHeader>
 
           <CardContent className="flex flex-col gap-6 p-4">
-            {!isNewTicket && <MessageList messages={messageData} />}
+            {!isNewTicket && (
+              <div className="h-[250px] w-full rounded-md">
+                <MessageList messages={messageData} />
+              </div>
+            )}
 
-            <Textarea
-              value={ticketDescription}
-              onChange={(e) => setTicketDescription(e.target.value)}
-              placeholder={
-                isNewTicket
-                  ? t("tickets.modal.enterDescription")
-                  : t("tickets.modal.writeResponse")
-              }
-              className="h-24 min-h-24 bg-gray-50 rounded-md border border-solid border-gray-300 text-gray-500"
-            />
+            {!isClosedTicket && !isNewTicket && (
+              <Textarea
+                value={ticketDescription}
+                onChange={(e) => setTicketDescription(e.target.value)}
+                placeholder={
+                  isNewTicket
+                    ? t("tickets.modal.enterDescription")
+                    : t("tickets.modal.writeResponse")
+                }
+                className="h-24 min-h-24 bg-gray-50 rounded-md border border-solid border-gray-300 text-gray-500"
+              />
+            )}
+
+            {isNewTicket && (
+              <Textarea
+                value={ticketDescription}
+                onChange={(e) => setTicketDescription(e.target.value)}
+                placeholder={t("tickets.modal.enterDescription")}
+                className="h-24 min-h-24 bg-gray-50 rounded-md border border-solid border-gray-300 text-gray-500"
+              />
+            )}
 
             <div className="flex justify-end gap-2">
-              {!isNewTicket && (
+              {!isNewTicket && !isClosedTicket && (
                 <Button
                   variant="outline"
                   className="h-10 border border-solid border-gray-300 text-gray-900"
+                  onClick={handleMarkAsComplete}
+                  disabled={isSubmitting}
                 >
                   {t("tickets.modal.markAsComplete")}
                 </Button>
               )}
-              <Button
-                className="h-10 bg-teal-700 border border-solid border-gray-300 text-white"
-                onClick={handleSubmit}
-                disabled={isSubmitting}
-              >
-                {isNewTicket
-                  ? isSubmitting
-                    ? t("tickets.modal.creating")
-                    : t("tickets.modal.createTicket")
-                  : t("tickets.modal.sendResponse")}
-              </Button>
+              {!isNewTicket && isClosedTicket && (
+                <Button
+                  variant="outline"
+                  className="h-10 border border-solid border-gray-300 text-gray-900"
+                  onClick={handleReopenTicket}
+                  disabled={isSubmitting}
+                >
+                  {t("tickets.modal.reopenTicket")}
+                </Button>
+              )}
+              {(!isClosedTicket || isNewTicket) && (
+                <Button
+                  className="h-10 bg-teal-700 border border-solid border-gray-300 text-white"
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                >
+                  {isNewTicket
+                    ? isSubmitting
+                      ? t("tickets.modal.creating")
+                      : t("tickets.modal.createTicket")
+                    : t("tickets.modal.sendResponse")}
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>

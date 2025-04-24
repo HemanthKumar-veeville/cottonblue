@@ -370,7 +370,8 @@
       "sendResponse": "Send response",
       "enterTitle": "Enter ticket title...",
       "enterDescription": "Enter ticket description...",
-      "createTicket": "Create ticket"
+      "createTicket": "Create ticket",
+      "reopenTicket": "Reopen ticket"
     }
   }
 }

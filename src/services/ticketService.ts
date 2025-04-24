@@ -22,5 +22,15 @@ export const ticketService = {
       
     const response = await axiosInstance.get(url);
     return response.data;
+  },
+
+  updateTicketStatus: async (dnsPrefix: string, ticketId: string, status: string) => {
+    const response = await axiosInstance.put(`/${dnsPrefix}/ticket/${ticketId}/${status}`);
+    return response.data;
+  },
+
+  getTicketById: async (dnsPrefix: string, ticketId: string) => {
+    const response = await axiosInstance.get(`/${dnsPrefix}/ticket/${ticketId}`);
+    return response.data;
   }
 };

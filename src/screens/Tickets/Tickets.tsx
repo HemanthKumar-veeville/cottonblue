@@ -87,10 +87,10 @@ const TicketCard: React.FC<TicketCardProps> = ({
               <div className="flex items-center gap-2">
                 <Badge
                   className={`${getStatusColor(
-                    ticket?.status ?? TicketStatus.OPEN
+                    ticket?.ticket_status ?? TicketStatus.OPEN
                   )} font-label-small pointer-events-none`}
                 >
-                  {t(ticket?.status ?? TicketStatus.OPEN)}
+                  {t(ticket?.ticket_status ?? TicketStatus.OPEN)}
                 </Badge>
                 <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
                   {new Date(
@@ -99,7 +99,7 @@ const TicketCard: React.FC<TicketCardProps> = ({
                 </span>
               </div>
             </div>
-            {ticket?.status === TicketStatus.CLOSED ? (
+            {ticket?.ticket_status === TicketStatus.CLOSED ? (
               <motion.div
                 className="relative w-[var(--2-tokens-screen-modes-common-spacing-l)] h-6 bg-white rounded-[35px] shrink-0"
                 initial={{ scale: 0 }}
@@ -217,7 +217,7 @@ export default function Tickets(): JSX.Element {
 
   const handleCheckboxClick = async (ticket: Ticket, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (ticket.status !== TicketStatus.CLOSED) {
+    if (ticket.ticket_status !== TicketStatus.CLOSED) {
       // Here you would typically call an API to update the ticket status
       // For now, we'll just refetch the tickets
       try {
