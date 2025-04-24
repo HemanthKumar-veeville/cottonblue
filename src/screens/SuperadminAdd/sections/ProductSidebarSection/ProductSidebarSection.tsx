@@ -293,11 +293,11 @@ export const ProductSidebarSection = ({
   // Load product data in edit mode
   useEffect(() => {
     const loadProductData = async () => {
-      if (mode === "edit" && id && selectedCompany?.name) {
+      if (mode === "edit" && id && selectedCompany?.dns) {
         try {
           const resultAction = await dispatch(
             getProductById({
-              dnsPrefix: selectedCompany.name,
+              dnsPrefix: selectedCompany.dns,
               productId: id,
             }) as any
           );
@@ -496,7 +496,7 @@ export const ProductSidebarSection = ({
             // Handle edit mode with only changed fields
             const resultAction = await dispatch(
               updateProduct({
-                dnsPrefix: selectedCompany!.name,
+                dnsPrefix: selectedCompany!.dns,
                 productId: id,
                 data: updatedFields,
               }) as any
@@ -515,7 +515,7 @@ export const ProductSidebarSection = ({
             // Handle add mode
             const resultAction = await dispatch(
               createProduct({
-                dnsPrefix: selectedCompany!.name,
+                dnsPrefix: selectedCompany!.dns,
                 data: baseProductData,
               }) as any
             );

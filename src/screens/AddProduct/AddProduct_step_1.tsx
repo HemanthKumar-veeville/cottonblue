@@ -413,7 +413,7 @@ const ProductDetails = () => {
       // Dispatch the create product action
       const resultAction = await dispatch(
         createProduct({
-          dnsPrefix: selectedCompany!.name,
+          dnsPrefix: selectedCompany!.dns,
           data: createProductData,
         }) as any
       );

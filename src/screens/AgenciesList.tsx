@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { AgencyListSection } from "./AgenciesListSection/AgencyListSection";
 import { AgencyTableSection } from "./AgenciesListSection/AgencyTableSection";
-import { RootState } from "../store/store";
+import { RootState, useAppSelector } from "../store/store";
 import { AppDispatch } from "../store/store";
 import { fetchAllStores } from "../store/features/agencySlice";
 import { useParams } from "react-router-dom";
@@ -33,16 +33,17 @@ export const AgenciesList = (): JSX.Element => {
   const { stores, loading, error } = useSelector(
     (state: RootState) => state.agency
   );
-  const { company_name } = useParams();
+  const { selectedCompany } = useAppSelector((state) => state.client);
 
   const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     // Dispatch the fetchAllStores action to get agencies data
-    if (company_name) {
-      dispatch(fetchAllStores(company_name));
+    console.log("selectedCompany", selectedCompany);
+    if (selectedCompany?.dns) {
+      dispatch(fetchAllStores(selectedCompany.dns));
     }
-  }, [dispatch, company_name]);
+  }, [dispatch]);
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);

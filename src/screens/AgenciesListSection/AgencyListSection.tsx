@@ -8,7 +8,7 @@ import {
   withCSVModals,
   CSVModalProps,
 } from "../../components/CSVModals/withCSVModals";
-
+import { useNavigate } from "react-router-dom";
 interface Agency {
   id: number;
   name: string;
@@ -37,6 +37,7 @@ const AgencyListSectionBase = ({
 }: AgencyListSectionProps & CSVModalProps): JSX.Element => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
   // Handle search input change
@@ -49,7 +50,7 @@ const AgencyListSectionBase = ({
   // Handle add agency button click
   const handleAddAgency = () => {
     // This would typically open a modal or navigate to a form
-    console.log("Add agency clicked");
+    navigate("/agencies/add");
   };
 
   return (
@@ -117,14 +118,14 @@ const AgencyListSectionBase = ({
 // Configure the CSV functionality for agencies
 const csvConfig = {
   templateColumns: [
-    "store_name",
-    "store_address",
-    "city",
-    "postal_code",
-    "phone_number",
-    "latitude",
-    "longitude",
-    "store_region",
+    "Store Name",
+    "Store Address",
+    "City",
+    "Postal Code",
+    "Phone Number",
+    "Latitude",
+    "Longitude",
+    "Store Region",
   ],
   sheetName: "Agencies",
   importEndpoint: "/api/agencies/import",

@@ -142,7 +142,7 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
   };
 
   const handleViewDetails = (agencyId: number) => {
-    navigate(`/customers/${selectedCompany?.name}/agencies/${agencyId}`);
+    navigate(`/customers/${selectedCompany?.dns}/agencies/${agencyId}`);
   };
 
   if (loading) {

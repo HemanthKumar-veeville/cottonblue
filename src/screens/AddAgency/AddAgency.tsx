@@ -220,9 +220,9 @@ export default function AddAgency() {
         company_id: selectedCompany.id, // Directly use the selected company ID
       };
 
-      dispatch(
+      await dispatch(
         registerStore({
-          dnsPrefix: selectedCompany?.name || "",
+          dnsPrefix: selectedCompany?.dns || "",
           data: submitData, // Use the new object with guaranteed company ID
         })
       );

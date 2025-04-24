@@ -3,7 +3,9 @@ import ImportCSVModal from "../ImportCSVModal/ImportCSVModal";
 import { ExportCSV } from "../ExportCSV/ExportCSV";
 import { agencyService } from "../../services/agencyService";
 import { useAppSelector } from "../../store/store";
-import { RootState } from "../../store/store";
+import { fetchAllStores } from "../../store/features/agencySlice";
+import { useAppDispatch } from "../../store/store";
+
 import * as XLSX from "xlsx";
 
 interface Agency {
@@ -44,10 +46,8 @@ export const withCSVModals = <P extends object>(
   return (props: P) => {
     const [isImportModalOpen, setIsImportModalOpen] = useState(false);
     const [isExportModalOpen, setIsExportModalOpen] = useState(false);
-    const company = useAppSelector(
-      (state: RootState) => state.client.selectedCompany
-    );
-
+    const { selectedCompany } = useAppSelector((state) => state.client);
+    const dispatch = useAppDispatch();
     const handleImport = async (file: File) => {
       try {
         let csvFile = file;
@@ -79,19 +79,17 @@ export const withCSVModals = <P extends object>(
 
         const formData = new FormData();
         formData.append("csv_file", csvFile);
-        formData.append("company_id", company?.id?.toString() || "");
+        formData.append("company_id", selectedCompany?.id?.toString() || "");
 
         const response = await agencyService.registerStore(
-          company?.name || "",
+          selectedCompany?.dns || "",
           formData
         );
 
-        if (!response.ok) {
-          throw new Error("Import failed");
-        }
-
-        // Handle successful import
+        console.log("Import response:", response);
+        await dispatch(fetchAllStores(selectedCompany?.dns || ""));
         setIsImportModalOpen(false);
+        return response;
       } catch (error) {
         console.error("Error importing CSV:", error);
         throw error;

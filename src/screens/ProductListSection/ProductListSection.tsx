@@ -42,7 +42,7 @@ export const ProductListSection = (): JSX.Element => {
       // Dispatch create product action
       const resultAction = await dispatch(
         createProduct({
-          dnsPrefix: selectedCompany!.name,
+          dnsPrefix: selectedCompany!.dns,
           data: formData as any,
         }) as any
       );
