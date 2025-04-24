@@ -112,7 +112,7 @@ function App() {
         )}
 
         {/* 404 Route - Must be last */}
-        <Route path="*" element={<NotFound />} />
+        {isLoggedIn ? <Route path="*" element={<NotFound />} /> : null}
       </Routes>
     </BrowserRouter>
   );
