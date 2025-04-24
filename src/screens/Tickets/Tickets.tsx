@@ -310,12 +310,6 @@ export default function Tickets(): JSX.Element {
         <h1 className="font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
           {t("tickets.title")}
         </h1>
-        <Button
-          className="bg-[color:var(--1-tokens-color-modes-button-primary-default-background)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] hover:bg-[color:var(--1-tokens-color-modes-button-primary-hover-background)]"
-          onClick={handleNewTicket}
-        >
-          {t("tickets.newTicket")}
-        </Button>
       </div>
 
       <div className="flex items-center gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">

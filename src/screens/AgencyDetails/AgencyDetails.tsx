@@ -234,7 +234,7 @@ const ActionsBox = () => {
       is_edit_mode: true,
     };
 
-    navigate("/customers/edit", { state: prefillData });
+    navigate("/agencies/edit", { state: prefillData });
   };
 
   const handleToggleAgencyStatus = async () => {

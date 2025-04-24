@@ -101,6 +101,7 @@ function App() {
                 element={<ClientDetails />}
               />
               <Route path="agencies" element={<AgenciesList />} />
+              <Route path="agencies/edit/:id" element={<AddAgency />} />
               <Route path="agencies/add" element={<AddAgency />} />
               <Route
                 path="customers/:company_name/agencies/:agency_id"
