@@ -61,7 +61,6 @@ function App() {
               <Route path="dashboard" element={<GlobalDashboard />} />
               <Route path="order-history" element={<ComingSoon />} />
               <Route path="products" element={<ProductList />} />
-              <Route path="products/:id" element={<ProductDetails />} />
               <Route
                 path="products/add"
                 element={<ProductSidebarSection mode="add" />}
@@ -70,21 +69,22 @@ function App() {
                 path="products/edit/:id"
                 element={<ProductSidebarSection mode="edit" />}
               />
+              <Route path="products/:id" element={<ProductDetails />} />
               <Route path="products/stock" element={<ComingSoon />} />
               <Route path="products/carousel" element={<Carousel />} />
               <Route path="customers" element={<ClientList />} />
+              <Route path="customers/edit" element={<AddClient />} />
+              <Route path="customers/add" element={<AddClient />} />
               <Route
                 path="customers/:company_name"
                 element={<ClientDetails />}
               />
               <Route path="agencies" element={<AgenciesList />} />
+              <Route path="agencies/add" element={<AddAgency />} />
               <Route
-                path="/customers/:company_name/agencies/:agency_id"
+                path="customers/:company_name/agencies/:agency_id"
                 element={<AgencyDetails />}
               />
-              <Route path="agencies/add" element={<AddAgency />} />
-              <Route path="customers/edit" element={<AddClient />} />
-              <Route path="customers/add" element={<AddClient />} />
               <Route path="support/tickets" element={<Tickets />} />
               <Route path="settings" element={<ComingSoon />} />
               <Route path="logout" element={<ComingSoon />} />
