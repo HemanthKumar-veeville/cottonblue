@@ -6,7 +6,10 @@
   "common": {
     "loading": "Chargement...",
     "next": "Suivant",
-    "previous": "Précédent"
+    "previous": "Précédent",
+    "save": "Enregistrer",
+    "success": "Succès",
+    "error": "Erreur"
   },
   "header": {
     "adminManagement": "Gestion des administrateurs",

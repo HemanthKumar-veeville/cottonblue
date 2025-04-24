@@ -6,7 +6,10 @@
   "common": {
     "loading": "Loading...",
     "next": "Next",
-    "previous": "Previous"
+    "previous": "Previous",
+    "save": "Save",
+    "success": "Success",
+    "error": "Error"
   },
   "header": {
     "adminManagement": "Admin Management",

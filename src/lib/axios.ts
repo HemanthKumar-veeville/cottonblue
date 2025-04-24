@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 const baseURL = import.meta.env.VITE_API_URL;
 
@@ -14,29 +15,80 @@ export const axiosInstance = axios.create({
   withCredentials: true,
 });
 
-// // Request interceptor for adding auth token
-// axiosInstance.interceptors.request.use(
-//   (config) => {
-//     const token = localStorage.getItem('token');
-//     if (token) {
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-//     return config;
-//   },
-//   (error) => {
-//     return Promise.reject(error);
-//   }
-// );
+// Request interceptor
+axiosInstance.interceptors.request.use(
+  (config) => {
+    // You can handle loading states here if needed
+    return config;
+  },
+  (error) => {
+    toast.error('Request failed to send');
+    return Promise.reject(error);
+  }
+);
 
-// // Response interceptor for handling errors
-// axiosInstance.interceptors.response.use(
-//   (response) => response,
-//   (error) => {
-//     if (error.response?.status === 401) {
-//       // Handle unauthorized access
-//       localStorage.removeItem('token');
-//       window.location.href = '/login';
-//     }
-//     return Promise.reject(error);
-//   }
-// ); 
+// Response interceptor
+axiosInstance.interceptors.response.use(
+  (response) => {
+    // Show success toast only for non-GET requests
+    if (response.config.method !== 'get') {
+      // Check if there's a custom success message in the response
+      const message = response.data?.message || 'Operation successful';
+      toast.success(message, {
+        duration: 5000,
+        position: 'top-right',
+        style: {
+          background: '#10B981', // Green color
+          color: '#fff',
+        },
+      });
+    }
+    return response;
+  },
+  (error) => {
+    // Handle different types of errors
+    let errorMessage = 'Something went wrong';
+
+    if (error.response) {
+      // The request was made and the server responded with a status code
+      // that falls out of the range of 2xx
+      errorMessage = error.response.data?.message || error.response.data?.error || errorMessage;
+      
+      // Handle specific status codes
+      switch (error.response.status) {
+        case 401:
+          errorMessage = 'Unauthorized access. Please login again.';
+          break;
+        case 403:
+          errorMessage = 'You do not have permission to perform this action.';
+          break;
+        case 404:
+          errorMessage = 'The requested resource was not found.';
+          break;
+        case 422:
+          errorMessage = 'Validation failed. Please check your input.';
+          break;
+        case 500:
+          errorMessage = 'Server error. Please try again later.';
+          break;
+      }
+    } else if (error.request) {
+      // The request was made but no response was received
+      errorMessage = 'No response from server. Please check your internet connection.';
+    }
+
+    toast.error(errorMessage, {
+      duration: 6000, // Slightly longer duration for error messages
+      position: 'top-right',
+      style: {
+        background: '#EF4444', // Red color
+        color: '#fff',
+      },
+    });
+
+    return Promise.reject(error);
+  }
+);
+
+export default axiosInstance;
+

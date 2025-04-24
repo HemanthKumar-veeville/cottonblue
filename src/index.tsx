@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Provider } from "react-redux";
+import { Toaster } from "react-hot-toast";
 import { store, useAppDispatch } from "./store/store";
 import { SuperadminLayout } from "./components/Layout/SuperadminLayout";
 import { AdminModeProvider } from "./components/Layout/SuperadminHeader";
@@ -51,6 +52,26 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 3000,
+          style: {
+            background: "#363636",
+            color: "#fff",
+          },
+          success: {
+            style: {
+              background: "green",
+            },
+          },
+          error: {
+            style: {
+              background: "red",
+            },
+          },
+        }}
+      />
       <GlobalLoader />
       <Routes>
         {isAdminDomain ? (
