@@ -106,9 +106,9 @@ const ProductActions = () => {
   };
 
   const handleDelete = async () => {
-    if (id && selectedCompany?.name) {
+    if (id && selectedCompany?.dns) {
       const resultAction = await dispatch(
-        deleteProduct({ dnsPrefix: selectedCompany.name, productId: id })
+        deleteProduct({ dnsPrefix: selectedCompany.dns, productId: id })
       ).unwrap();
 
       if (resultAction?.product_id) {
@@ -160,12 +160,12 @@ export default function ProductDetails() {
   const { selectedCompany } = useAppSelector((state) => state.client);
 
   useEffect(() => {
-    if (id && selectedCompany?.name) {
+    if (id && selectedCompany?.dns) {
       dispatch(
-        getProductById({ dnsPrefix: selectedCompany.name, productId: id })
+        getProductById({ dnsPrefix: selectedCompany.dns, productId: id })
       );
     }
-  }, [dispatch, id, selectedCompany?.name]);
+  }, [dispatch, id, selectedCompany?.dns]);
 
   if (loading) {
     return (

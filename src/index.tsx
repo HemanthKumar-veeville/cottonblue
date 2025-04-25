@@ -37,7 +37,7 @@ import { isAdminHostname } from "./utils/hostUtils";
 import ProductDetails from "./screens/ProductDetails/ProductDetails";
 
 function App() {
-  const isLoggedIn = useAppSelector((state) => state.auth.isLoggedIn);
+  const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
   const isAdminDomain = isAdminHostname();
   console.log({ isAdminDomain, isSuperAdmin, isLoggedIn });
