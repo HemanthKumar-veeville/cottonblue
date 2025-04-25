@@ -32,5 +32,21 @@ export const ticketService = {
   getTicketById: async (dnsPrefix: string, ticketId: string) => {
     const response = await axiosInstance.get(`/${dnsPrefix}/ticket/${ticketId}/messages`);
     return response.data;
+  },
+
+  replyToTicket: async (dnsPrefix: string, ticketId: string, data: { message: string; image?: File }) => {
+    const formData = new FormData();
+    formData.append('message', data.message);
+    
+    if (data.image) {
+      formData.append('image', data.image);
+    }
+    
+    const response = await axiosInstance.post(`/${dnsPrefix}/ticket/${ticketId}/reply`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    return response.data;
   }
 };

@@ -78,10 +78,22 @@ export const getTicketById = createAsyncThunk(
   }
 );
 
+export const replyToTicket = createAsyncThunk(
+  'tickets/replyToTicket',
+  async ({ dnsPrefix, ticketId, data }: { dnsPrefix: string; ticketId: string; data: { message: string; image?: File } }) => {
+    const response = await ticketService.replyToTicket(dnsPrefix, ticketId, data);
+    return response;
+  }
+);
+
 const ticketSlice = createSlice({
   name: 'tickets',
   initialState,
-  reducers: {},
+  reducers: {
+    resetCurrentTicket: (state) => {
+      state.currentTicket = null;
+    }
+  },
   extraReducers: (builder) => {
     builder
       // Create Ticket
@@ -145,8 +157,24 @@ const ticketSlice = createSlice({
       .addCase(getTicketById.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.error.message || 'Failed to fetch ticket';
+      })
+      // Reply to Ticket
+      .addCase(replyToTicket.pending, (state) => {
+        state.status = 'loading';
+      })
+      .addCase(replyToTicket.fulfilled, (state, action) => {
+        state.status = 'succeeded';
+        // If we have the current ticket loaded, update its messages
+        if (state.currentTicket) {
+          state.currentTicket = action.payload;
+        }
+      })
+      .addCase(replyToTicket.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.error.message || 'Failed to reply to ticket';
       });
   },
 });
 
+export const { resetCurrentTicket } = ticketSlice.actions;
 export default ticketSlice.reducer;

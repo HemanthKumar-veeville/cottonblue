@@ -9,7 +9,9 @@ import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
   getTicketById,
+  replyToTicket,
   updateTicketStatus,
+  resetCurrentTicket,
 } from "../../store/features/ticketSlice";
 import { AppDispatch, RootState, useAppSelector } from "../../store/store";
 import { Badge } from "../ui/badge";
@@ -63,7 +65,7 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
 
   const ticket = currentTicket?.ticket || null;
   const isClosedTicket = ticket?.ticket_status === TicketStatus.CLOSED;
-
+  console.log({ ticketId, currentTicket });
   useEffect(() => {
     const fetchTicketMessages = async () => {
       try {
@@ -80,11 +82,23 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
     if (!ticket) {
       fetchTicketMessages();
     }
-  }, [ticket]);
+  }, [ticketId]);
 
   const handleSubmit = async () => {
-    // Handle existing ticket response submission
-    // This would be implemented separately
+    setIsSubmitting(true);
+    try {
+      await dispatch(
+        replyToTicket({
+          dnsPrefix: "admin",
+          ticketId,
+          data: { message: description },
+        })
+      ).unwrap();
+    } catch (error) {
+      console.error("Failed to reply to ticket:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleMarkAsComplete = async () => {
@@ -98,6 +112,8 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
         })
       ).unwrap();
       onClose();
+      await dispatch(resetCurrentTicket());
+      await dispatch(getTicketById({ dnsPrefix: "admin", ticketId }));
     } catch (error) {
       console.error("Failed to update ticket status:", error);
     } finally {
@@ -116,6 +132,8 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
         })
       ).unwrap();
       onClose();
+      await dispatch(resetCurrentTicket());
+      await dispatch(getTicketById({ dnsPrefix: "admin", ticketId }));
     } catch (error) {
       console.error("Failed to reopen ticket:", error);
     } finally {
@@ -163,7 +181,7 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
                   </span>
                 )}
               </div>
-              <div className="h-[400px] w-full overflow-auto">
+              <div className="h-[400px] w-full overflow-auto pr-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
                 <div className="space-y-4">
                   {ticket?.messages?.map((message: TicketMessage) => (
                     <div

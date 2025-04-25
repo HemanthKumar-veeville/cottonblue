@@ -15,13 +15,17 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { useTranslation } from "react-i18next";
-import { fetchTickets } from "../../store/features/ticketSlice";
+import {
+  fetchTickets,
+  resetCurrentTicket,
+  updateTicketStatus,
+} from "../../store/features/ticketSlice";
 import { useAppDispatch, RootState, useAppSelector } from "../../store/store";
 import { Skeleton } from "../../components/Skeleton";
 
 export enum TicketStatus {
   OPEN = "open",
-  IN_PROGRESS = "in progress",
+  IN_PROGRESS = "in_progress",
   CLOSED = "closed",
 }
 
@@ -244,25 +248,24 @@ export default function Tickets(): JSX.Element {
     (state: RootState) => state.ticket
   );
   const isLoading = status === "loading";
-
+  const fetchTicketsData = async () => {
+    try {
+      await dispatch(
+        fetchTickets({
+          dnsPrefix: "admin",
+          ticketStatus: statusFilter === "all" ? undefined : statusFilter,
+        })
+      ).unwrap();
+    } catch (error) {
+      console.error("Failed to fetch tickets:", error);
+    }
+  };
   useEffect(() => {
-    const fetchTicketsData = async () => {
-      try {
-        await dispatch(
-          fetchTickets({
-            dnsPrefix: "admin",
-            ticketStatus: statusFilter === "all" ? undefined : statusFilter,
-          })
-        ).unwrap();
-      } catch (error) {
-        console.error("Failed to fetch tickets:", error);
-      }
-    };
-
     fetchTicketsData();
-  }, [dispatch, statusFilter]);
+  }, [dispatch, statusFilter, selectedTicket]);
 
   const handleTicketClick = (ticket: Ticket): void => {
+    dispatch(resetCurrentTicket());
     setSelectedTicket(ticket);
   };
 
@@ -275,11 +278,13 @@ export default function Tickets(): JSX.Element {
     if (ticket.ticket_status !== TicketStatus.CLOSED) {
       try {
         await dispatch(
-          fetchTickets({
+          updateTicketStatus({
             dnsPrefix: "admin",
-            ticketStatus: statusFilter === "all" ? undefined : statusFilter,
+            ticketId: ticket?.ticket_id?.toString(),
+            status: TicketStatus.CLOSED,
           })
         ).unwrap();
+        await fetchTicketsData();
       } catch (error) {
         console.error("Failed to update ticket status:", error);
       }
