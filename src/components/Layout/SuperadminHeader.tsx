@@ -15,6 +15,7 @@ import {
 } from "../../store/features/clientSlice";
 import { useAppSelector } from "../../store/store";
 import { fetchAllStores } from "../../store/features/agencySlice";
+import { useNavigate } from "react-router-dom";
 
 interface NavTabItem {
   id: number;
@@ -99,6 +100,7 @@ export const SuperadminHeader = (): JSX.Element => {
   const [tabs, setTabs] = useState<NavTabItem[]>(navTabs);
   const { setIsAdminMode } = useAdminMode();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { companies, selectedCompany } = useAppSelector(
     (state) => state.client
   );
@@ -132,6 +134,7 @@ export const SuperadminHeader = (): JSX.Element => {
     }));
     setTabs(newTabs);
     setIsAdminMode(tabId === 1);
+    navigate("/dashboard");
   };
 
   const handleLanguageChange = (value: string) => {

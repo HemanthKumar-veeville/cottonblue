@@ -195,7 +195,7 @@ export const SuperadminSidebarSection = ({
       ],
     },
     {
-      title: t("sidebar.customers.title"),
+      title: t("sidebar.agencies.title"),
       items: [
         {
           icon: <BookOpenIcon className="w-4 h-4" />,
@@ -206,16 +206,6 @@ export const SuperadminSidebarSection = ({
           icon: <PlusCircleIcon className="w-4 h-4" />,
           label: t("sidebar.agencies.add"),
           path: "/agencies/add",
-        },
-      ],
-    },
-    {
-      title: t("sidebar.support.title"),
-      items: [
-        {
-          icon: <MessageSquareIcon className="w-4 h-4" />,
-          label: t("sidebar.support.tickets"),
-          path: "/support/tickets",
         },
       ],
     },
