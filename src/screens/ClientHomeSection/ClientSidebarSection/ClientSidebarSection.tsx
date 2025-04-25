@@ -9,17 +9,20 @@ import {
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent } from "../../../components/ui/card";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAppDispatch } from "../../../store/store";
+import { logout } from "../../../store/features/authSlice";
 
 const navItems = [
   {
     icon: <HomeIcon className="w-4 h-4" />,
     label: "sidebar.home",
-    active: true,
+    path: "/",
   },
   {
     icon: <ClipboardListIcon className="w-4 h-4" />,
     label: "sidebar.orderHistory",
-    active: false,
+    path: "/history",
   },
 ];
 
@@ -27,14 +30,17 @@ const bottomNavItems = [
   {
     icon: <LifeBuoyIcon className="w-4 h-4" />,
     label: "sidebar.support.title",
+    path: "/support",
   },
   {
     icon: <SettingsIcon className="w-4 h-4" />,
     label: "sidebar.settings",
+    path: "/settings",
   },
   {
     icon: <LogOutIcon className="w-4 h-4" />,
     label: "sidebar.logout",
+    path: "/logout",
   },
 ];
 
@@ -74,14 +80,18 @@ const LogoSection = () => (
 
 const NavigationMenu = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
+
   return (
     <nav className="w-full space-y-2">
       {navItems.map((item, index) => (
         <Button
           key={index}
           variant="ghost"
+          onClick={() => navigate(item.path)}
           className={`flex justify-start items-center w-full gap-2 py-2 px-4 rounded-lg ${
-            item.active
+            location.pathname === item.path
               ? "bg-[#e9f9ef] text-[#1e2324]"
               : "bg-[color:var(--1-tokens-color-modes-nav-tab-primary-default-background)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]"
           }`}
@@ -131,13 +141,36 @@ const BudgetSection = () => {
 
 const BottomNavigation = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const dispatch = useAppDispatch();
+
+  const handleClick = async (path: string) => {
+    if (path === "/logout") {
+      try {
+        await dispatch(logout(window.location.hostname.split(".")[0]));
+        navigate("/");
+      } catch (error) {
+        console.error("Logout failed:", error);
+        navigate("/");
+      }
+    } else {
+      navigate(path);
+    }
+  };
+
   return (
     <div className="flex flex-col items-start gap-3 w-full">
       {bottomNavItems.map((item, index) => (
         <Button
           key={index}
           variant="ghost"
-          className="flex justify-start items-center w-full gap-2 py-2 px-4 rounded-lg bg-[color:var(--1-tokens-color-modes-nav-tab-primary-default-background)]"
+          onClick={() => handleClick(item.path)}
+          className={`flex justify-start items-center w-full gap-2 py-2 px-4 rounded-lg ${
+            location.pathname === item.path
+              ? "bg-[#e9f9ef] text-[#1e2324]"
+              : "bg-[color:var(--1-tokens-color-modes-nav-tab-primary-default-background)]"
+          }`}
         >
           {item.icon}
           <span className="mt-[-1.00px] font-label-small text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]">

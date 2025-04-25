@@ -318,7 +318,9 @@
     "selectStore": "Choose your store",
     "password": "Password",
     "login": "Login",
-    "poweredBy": "by Cotton Blue"
+    "poweredBy": "by Cotton Blue",
+    "email": "Email",
+    "emailPlaceholder": "Enter your email"
   },
   "productDetails": {
     "header": "Product Details",

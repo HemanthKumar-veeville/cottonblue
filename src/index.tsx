@@ -47,6 +47,8 @@ function App() {
     // Only fetch admin user data if we're on admin domain
     if (isAdminDomain) {
       dispatch(getUser("admin"));
+    } else {
+      dispatch(getUser(window.location.hostname.split(".")[0]));
     }
   }, [dispatch, isAdminDomain]);
 
@@ -128,6 +130,7 @@ function App() {
             <Route path="history" element={<History />} />
             <Route path="order-details/:id" element={<OrderDetails />} />
             <Route path="support" element={<ClientSupport />} />
+            <Route path="settings" element={<ComingSoon />} />
           </Route>
         ) : (
           <Route path="/" element={<ClientLogin />} />

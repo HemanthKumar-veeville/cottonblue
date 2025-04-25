@@ -309,7 +309,9 @@
     "selectStore": "Choisissez votre magasin",
     "password": "Mot de passe",
     "login": "Connexion",
-    "poweredBy": "par Cotton Blue"
+    "poweredBy": "par Cotton Blue",
+    "email": "Email",
+    "emailPlaceholder": "Entrez votre email"
   },
   "productDetails": {
     "header": "Détails du produit",

@@ -105,7 +105,7 @@ const authSlice = createSlice({
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.company = action.payload.company_name;
+        state.company = action.payload.company;
         state.companyColor = action.payload.company_color;
         state.companyLogo = action.payload.company_logo;
         state.isLoggedIn = true;
@@ -138,8 +138,8 @@ const authSlice = createSlice({
       .addCase(getUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload;
-        state.isLoggedIn = action.payload?.logged_in || false;
-        state.company = action.payload?.company_name || null;
+        state.isLoggedIn = true;
+        state.company = action.payload.company || null;
       })
       .addCase(getUser.rejected, (state, action) => {
         state.isLoading = false;
