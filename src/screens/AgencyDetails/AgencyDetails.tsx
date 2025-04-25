@@ -19,7 +19,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../store/store";
 import { useAppDispatch } from "../../store/store";
-import { getStoreDetails } from "../../store/features/agencySlice";
+import { getStoreDetails, modifyStore } from "../../store/features/agencySlice";
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "../../components/Skeleton";
 import Loader from "../../components/Loader";
@@ -245,9 +245,12 @@ const ActionsBox = () => {
     setIsLoading(true);
     try {
       await dispatch(
-        getStoreDetails({
+        modifyStore({
           dnsPrefix: company_name!,
-          storeId: storeDetails.id.toString(),
+          storeId: storeDetails?.store?.id,
+          data: {
+            is_active: !storeDetails?.store?.is_active,
+          },
         })
       ).unwrap();
 
@@ -255,7 +258,7 @@ const ActionsBox = () => {
       dispatch(
         getStoreDetails({
           dnsPrefix: company_name!,
-          storeId: storeDetails.id.toString(),
+          storeId: storeDetails?.store?.id,
         })
       );
     } catch (error) {
@@ -287,7 +290,7 @@ const ActionsBox = () => {
               <Loader size="sm" className="mr-2" />
               {t("common.loading")}
             </div>
-          ) : storeDetails?.is_active ? (
+          ) : storeDetails?.store?.is_active ? (
             t("agencyDetails.actions.deactivate")
           ) : (
             t("agencyDetails.actions.activate")
