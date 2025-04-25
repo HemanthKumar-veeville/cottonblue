@@ -35,6 +35,7 @@ interface AgencyState {
   loading: boolean;
   error: string | null;
   registerSuccess: boolean;
+  modifySuccess: boolean;
   storeDetails: Agency | null;
 }
 
@@ -44,6 +45,7 @@ const initialState: AgencyState = {
   loading: false,
   error: null,
   registerSuccess: false,
+  modifySuccess: false,
   storeDetails: null,
 };
 
@@ -60,6 +62,23 @@ export const registerStore = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to register store');
+    }
+  }
+);
+
+export const modifyStore = createAsyncThunk(
+  'agency/modifyStore',
+  async ({ dnsPrefix, storeId, data }: { dnsPrefix: string; storeId: string; data: StoreData }, { rejectWithValue }) => {
+    try {
+      const formData = new FormData();
+      Object.entries(data).forEach(([key, value]) => {
+          formData.append(key, value);
+      });
+      const response = await agencyService.modifyStore(dnsPrefix, storeId, formData);
+      return response;
+    } catch (error: any) {
+      console.log({ error });
+      return rejectWithValue(error.response?.data?.message || 'Failed to modify store');
     }
   }
 );
@@ -96,6 +115,9 @@ const agencySlice = createSlice({
     resetRegisterSuccess: (state) => {
       state.registerSuccess = false;
     },
+    resetModifySuccess: (state) => {
+      state.modifySuccess = false;
+    },
     clearError: (state) => {
       state.error = null;
     },
@@ -116,6 +138,22 @@ const agencySlice = createSlice({
         state.registerSuccess = true;
       })
       .addCase(registerStore.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      
+    // Modify store
+    builder
+      .addCase(modifyStore.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.modifySuccess = false;
+      })
+      .addCase(modifyStore.fulfilled, (state) => {
+        state.loading = false;
+        state.modifySuccess = true;
+      })
+      .addCase(modifyStore.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       })
@@ -152,5 +190,5 @@ const agencySlice = createSlice({
   },
 });
 
-export const { resetRegisterSuccess, clearError, clearStoreDetails } = agencySlice.actions;
+export const { resetRegisterSuccess, resetModifySuccess, clearError, clearStoreDetails } = agencySlice.actions;
 export default agencySlice.reducer;

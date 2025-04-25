@@ -30,5 +30,18 @@ export const agencyService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  modifyStore: async (dnsPrefix: string, storeId: string, data: FormData) => {
+    try {
+      const response = await axiosInstance.put(`/${dnsPrefix}/store/${storeId}/modify`, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 };

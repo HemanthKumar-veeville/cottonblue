@@ -2,11 +2,15 @@ import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
 import { Input } from "../../components/ui/input";
 import { Textarea } from "../../components/ui/textarea";
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useAppSelector } from "../../store/store";
-import { registerStore } from "../../store/features/agencySlice";
+import {
+  registerStore,
+  modifyStore,
+  getStoreDetails,
+} from "../../store/features/agencySlice";
 import { useAppDispatch } from "../../store/store";
 import Loader from "../../components/Loader";
 import { useTranslation } from "react-i18next";
@@ -164,9 +168,19 @@ const CheckboxField = ({
 
 export default function AddAgency() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { id } = useParams();
   const { selectedCompany } = useAppSelector((state) => state.client);
+  const { storeDetails, loading, error } = useAppSelector(
+    (state) => state.agency
+  );
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const store = storeDetails?.store;
 
+  // Check if we're in edit mode
+  const isEditMode = location.pathname.includes("/edit");
+  console.log({ isEditMode, id });
   const initialFormData: FormData = {
     company_id: selectedCompany?.id || "",
     store_name: "",
@@ -193,9 +207,54 @@ export default function AddAgency() {
       },
     },
   };
+
   const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [loading, setLoading] = useState(false);
-  const dispatch = useAppDispatch();
+
+  // Fetch store details if in edit mode
+  useEffect(() => {
+    if (isEditMode && id && selectedCompany?.dns) {
+      dispatch(
+        getStoreDetails({ dnsPrefix: selectedCompany.dns, storeId: id })
+      );
+    }
+  }, [isEditMode, id, selectedCompany?.dns, dispatch]);
+
+  // Update form data when store details are loaded
+  useEffect(() => {
+    if (isEditMode && store) {
+      setFormData({
+        company_id: store?.company_id ?? "",
+        store_name: store?.name ?? "",
+        store_address: store?.address ?? "",
+        store_region:
+          store?.region === "all"
+            ? "North"
+            : (store?.region as "North" | "South") ?? "North",
+        city: store?.city ?? "",
+        postal_code: store?.postal_code ?? "",
+        phone_number: store?.phone_number ?? "",
+        latitude: store?.latitude ? parseFloat(store.latitude) : undefined,
+        longitude: store?.longitude ? parseFloat(store.longitude) : undefined,
+        passwords: {
+          admin: "",
+          client: "",
+        },
+        validation: {
+          email: "",
+        },
+        limits: {
+          order: {
+            enabled: true,
+            value: "",
+          },
+          budget: {
+            enabled: false,
+            value: "",
+          },
+        },
+      });
+    }
+  }, [isEditMode, store]);
 
   const handleSubmit = async () => {
     // Validate required fields including company ID
@@ -205,36 +264,44 @@ export default function AddAgency() {
       !formData.passwords.admin ||
       !formData.passwords.client ||
       !formData.validation.email ||
-      !selectedCompany?.id // Add company ID validation
+      !selectedCompany?.id
     ) {
       toast.error("Please fill in all required fields");
       return;
     }
 
-    setLoading(true);
-
     try {
-      // Create a new object with the updated company ID to ensure it's included
       const submitData = {
         ...formData,
-        company_id: selectedCompany.id, // Directly use the selected company ID
+        company_id: selectedCompany.id,
       };
 
-      await dispatch(
-        registerStore({
-          dnsPrefix: selectedCompany?.dns || "",
-          data: submitData, // Use the new object with guaranteed company ID
-        })
-      );
-      toast.success("Agency added successfully!");
+      if (isEditMode && id) {
+        await dispatch(
+          modifyStore({
+            dnsPrefix: selectedCompany.dns || "",
+            storeId: id,
+            data: submitData,
+          })
+        ).unwrap();
+        toast.success("Agency updated successfully!");
+      } else {
+        await dispatch(
+          registerStore({
+            dnsPrefix: selectedCompany.dns || "",
+            data: submitData,
+          })
+        ).unwrap();
+        toast.success("Agency added successfully!");
+      }
       navigate("/agencies");
     } catch (error) {
-      toast.error("Failed to add agency");
-    } finally {
-      setLoading(false);
+      toast.error(
+        isEditMode ? "Failed to update agency" : "Failed to add agency"
+      );
     }
   };
-
+  console.log({ error });
   if (loading) {
     return <Skeleton variant="form" />;
   }
@@ -243,7 +310,7 @@ export default function AddAgency() {
     <div className="flex flex-col min-h-[854px] gap-8 p-6 bg-white rounded-lg overflow-hidden">
       <header className="inline-flex items-center gap-2">
         <h1 className="font-heading-h3 text-[20px] font-bold leading-[28px] text-[#475569]">
-          Add an Agency
+          {isEditMode ? "Edit Agency" : "Add an Agency"}
         </h1>
       </header>
 
@@ -483,6 +550,8 @@ export default function AddAgency() {
                   <Loader size="sm" className="mr-2" />
                   {t("common.loading")}
                 </div>
+              ) : isEditMode ? (
+                t("common.save")
               ) : (
                 t("common.next")
               )}
