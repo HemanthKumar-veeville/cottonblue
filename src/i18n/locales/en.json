@@ -383,7 +383,8 @@
       "enterTitle": "Enter ticket title...",
       "enterDescription": "Enter ticket description...",
       "createTicket": "Create ticket",
-      "reopenTicket": "Reopen ticket"
+      "reopenTicket": "Reopen ticket",
+      "enterResponse": "Enter response..."
     }
   },
   "clientTable": {

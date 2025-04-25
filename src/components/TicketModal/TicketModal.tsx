@@ -2,178 +2,124 @@ import { Button } from "../ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 import { ScrollArea } from "../ui/scroll-area";
 import { Textarea } from "../ui/textarea";
-import { Input } from "../ui/input";
 import { X } from "lucide-react";
 import { TicketStatus } from "../../screens/Tickets/Tickets";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import {
-  createTicket,
   getTicketById,
   updateTicketStatus,
 } from "../../store/features/ticketSlice";
-import { AppDispatch } from "../../store/store";
+import { AppDispatch, RootState, useAppSelector } from "../../store/store";
+import { Badge } from "../ui/badge";
+
+interface TicketMessage {
+  message_id: number;
+  sender: string;
+  message: string;
+  ticket_image: string | null;
+  created_at: string;
+}
 
 interface Ticket {
-  id: string;
-  title: string;
-  status: TicketStatus;
+  ticket_id: number;
+  ticket_title: string;
+  ticket_status: TicketStatus;
+  company_name: string;
+  store_name: string | null;
+  created_at: string;
+  closed_at: string | null;
   description?: string;
-  createdAt: string | Date;
-  updatedAt: string | Date;
+  messages?: TicketMessage[];
 }
 
 interface TicketModalProps {
   onClose: () => void;
-  ticket: Ticket;
+  ticketId: string;
 }
 
-const messageData = [
-  {
-    sender: "tickets.modal.messages.support",
-    message: "tickets.modal.messages.investigating",
-  },
-  {
-    sender: "tickets.modal.messages.you",
-    message: "tickets.modal.messages.thanks",
-  },
-  {
-    sender: "tickets.modal.messages.support",
-    message: "tickets.modal.messages.resetPassword",
-  },
-  {
-    sender: "tickets.modal.messages.you",
-    message: "tickets.modal.messages.noSuccess",
-  },
-  {
-    sender: "tickets.modal.messages.you",
-    message: "tickets.modal.messages.working",
-  },
-  {
-    sender: "tickets.modal.messages.support",
-    message: "tickets.modal.messages.perfect",
-  },
-];
-
-const MessageItem = ({
-  sender,
-  message,
-}: {
-  sender: string;
-  message: string;
-}) => {
-  const { t } = useTranslation();
-  return (
-    <div className="flex flex-col gap-1.5 p-2 bg-gray-100 rounded-md">
-      <div className="font-medium text-gray-900 text-sm">{t(sender)}</div>
-      <div className="font-medium text-gray-900 text-sm">{t(message)}</div>
-    </div>
-  );
+const getStatusColor = (status: TicketStatus) => {
+  switch (status) {
+    case TicketStatus.OPEN:
+      return "bg-teal-100 text-teal-800";
+    case TicketStatus.IN_PROGRESS:
+      return "bg-blue-100 text-blue-800";
+    case TicketStatus.CLOSED:
+      return "bg-gray-100 text-gray-800";
+    default:
+      return "bg-gray-100 text-gray-800";
+  }
 };
 
-const MessageList = ({
-  messages,
-}: {
-  messages: { sender: string; message: string }[];
-}) => (
-  <ScrollArea className="h-[250px] w-full rounded-md">
-    <div className="flex flex-col gap-1.5">
-      {messages.map((item, index) => (
-        <MessageItem key={index} sender={item.sender} message={item.message} />
-      ))}
-    </div>
-  </ScrollArea>
-);
-
-export default function TicketModal({ onClose, ticket }: TicketModalProps) {
+export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
-  const [ticketTitle, setTicketTitle] = useState(ticket?.ticket_title ?? "");
-  const [ticketDescription, setTicketDescription] = useState(
-    ticket?.description ?? ""
-  );
+  const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const isNewTicket = !ticket?.ticket_title;
+  const currentTicket = useAppSelector(
+    (state: RootState) => state.ticket.currentTicket
+  );
+
+  const ticket = currentTicket?.ticket || null;
   const isClosedTicket = ticket?.ticket_status === TicketStatus.CLOSED;
 
   useEffect(() => {
-    if (!isNewTicket && ticket.id) {
-      dispatch(
-        getTicketById({
-          dnsPrefix: "admin", // You'll need to get this from your app configuration
-          ticketId: ticket.id,
-        })
-      );
-    }
-  }, [dispatch, isNewTicket, ticket.id]);
-
-  const handleSubmit = async () => {
-    if (isNewTicket) {
-      if (!ticketTitle.trim()) {
-        return;
-      }
-
-      setIsSubmitting(true);
+    const fetchTicketMessages = async () => {
       try {
         await dispatch(
-          createTicket({
-            dnsPrefix: "admin", // You'll need to get this from your app configuration
-            data: {
-              title: ticketTitle.trim(),
-              description: ticketDescription.trim(),
-            },
+          getTicketById({
+            dnsPrefix: "admin",
+            ticketId,
           })
         ).unwrap();
-        onClose();
       } catch (error) {
-        console.error("Failed to create ticket:", error);
-      } finally {
-        setIsSubmitting(false);
+        console.error("Failed to fetch ticket messages:", error);
       }
-    } else {
-      // Handle existing ticket response submission
-      // This would be implemented separately
+    };
+    if (!ticket) {
+      fetchTicketMessages();
     }
+  }, [ticket]);
+
+  const handleSubmit = async () => {
+    // Handle existing ticket response submission
+    // This would be implemented separately
   };
 
   const handleMarkAsComplete = async () => {
-    if (!isNewTicket && ticket.id) {
-      setIsSubmitting(true);
-      try {
-        await dispatch(
-          updateTicketStatus({
-            dnsPrefix: "admin", // You'll need to get this from your app configuration
-            ticketId: ticket.id,
-            status: TicketStatus.CLOSED,
-          })
-        ).unwrap();
-        onClose();
-      } catch (error) {
-        console.error("Failed to update ticket status:", error);
-      } finally {
-        setIsSubmitting(false);
-      }
+    setIsSubmitting(true);
+    try {
+      await dispatch(
+        updateTicketStatus({
+          dnsPrefix: "admin",
+          ticketId: ticket?.ticket_id?.toString(),
+          status: TicketStatus.CLOSED,
+        })
+      ).unwrap();
+      onClose();
+    } catch (error) {
+      console.error("Failed to update ticket status:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleReopenTicket = async () => {
-    if (!isNewTicket && ticket.id) {
-      setIsSubmitting(true);
-      try {
-        await dispatch(
-          updateTicketStatus({
-            dnsPrefix: "admin", // You'll need to get this from your app configuration
-            ticketId: ticket.id,
-            status: TicketStatus.OPEN,
-          })
-        ).unwrap();
-        onClose();
-      } catch (error) {
-        console.error("Failed to reopen ticket:", error);
-      } finally {
-        setIsSubmitting(false);
-      }
+    setIsSubmitting(true);
+    try {
+      await dispatch(
+        updateTicketStatus({
+          dnsPrefix: "admin",
+          ticketId: ticket?.ticket_id?.toString(),
+          status: TicketStatus.OPEN,
+        })
+      ).unwrap();
+      onClose();
+    } catch (error) {
+      console.error("Failed to reopen ticket:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -183,19 +129,7 @@ export default function TicketModal({ onClose, ticket }: TicketModalProps) {
         <Card className="w-full max-w-2xl bg-white rounded-md overflow-hidden">
           <CardHeader className="flex flex-row items-center justify-between p-3 pb-0">
             <CardTitle className="font-bold text-gray-900 text-base flex items-center gap-2 flex-1">
-              {`${!isNewTicket ? "#" : ""} ${
-                !isNewTicket ? `${ticket?.id} - ` : ""
-              }`}
-              {isNewTicket ? (
-                <Input
-                  value={ticketTitle}
-                  onChange={(e) => setTicketTitle(e.target.value)}
-                  placeholder={t("tickets.modal.enterTitle")}
-                  className="flex-1"
-                />
-              ) : (
-                ticket?.ticket_title ?? "Untitled"
-              )}
+              #{ticket?.ticket_id ?? "NA"} - {ticket?.ticket_title ?? "NA"}
             </CardTitle>
             <Button
               variant="ghost"
@@ -206,38 +140,70 @@ export default function TicketModal({ onClose, ticket }: TicketModalProps) {
               <X className="h-5 w-5" />
             </Button>
           </CardHeader>
-
-          <CardContent className="flex flex-col gap-6 p-4">
-            {!isNewTicket && (
-              <div className="h-[250px] w-full rounded-md">
-                <MessageList messages={messageData} />
+          <CardContent className="p-3">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Badge
+                    className={`${getStatusColor(
+                      ticket?.ticket_status ?? TicketStatus.OPEN
+                    )} font-label-small pointer-events-none`}
+                  >
+                    {t(ticket?.ticket_status ?? "NA")}
+                  </Badge>
+                  <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
+                    {ticket?.created_at
+                      ? new Date(ticket.created_at).toLocaleDateString()
+                      : "NA"}
+                  </span>
+                </div>
+                {ticket?.closed_at && (
+                  <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
+                    Closed at: {new Date(ticket.closed_at).toLocaleDateString()}
+                  </span>
+                )}
               </div>
-            )}
+              <div className="h-[400px] w-full overflow-auto">
+                <div className="space-y-4">
+                  {ticket?.messages?.map((message: TicketMessage) => (
+                    <div
+                      key={message.message_id}
+                      className="bg-gray-50 p-4 rounded-lg"
+                    >
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-semibold capitalize">
+                          {message.sender ?? "NA"}
+                        </span>
+                        <span className="text-sm text-gray-500">
+                          {message.created_at
+                            ? new Date(message.created_at).toLocaleString()
+                            : "NA"}
+                        </span>
+                      </div>
+                      <p className="text-gray-700">{message.message ?? "NA"}</p>
+                      {message.ticket_image && (
+                        <img
+                          src={message.ticket_image}
+                          alt="Ticket attachment"
+                          className="mt-2 max-w-full h-auto rounded"
+                        />
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {!isClosedTicket && (
+                  <Textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder={t("tickets.modal.enterResponse")}
+                    className="h-24 min-h-24 bg-gray-50 rounded-md border border-solid border-gray-300 text-gray-500 mt-4"
+                  />
+                )}
+              </div>
+            </div>
 
-            {!isClosedTicket && !isNewTicket && (
-              <Textarea
-                value={ticketDescription}
-                onChange={(e) => setTicketDescription(e.target.value)}
-                placeholder={
-                  isNewTicket
-                    ? t("tickets.modal.enterDescription")
-                    : t("tickets.modal.writeResponse")
-                }
-                className="h-24 min-h-24 bg-gray-50 rounded-md border border-solid border-gray-300 text-gray-500"
-              />
-            )}
-
-            {isNewTicket && (
-              <Textarea
-                value={ticketDescription}
-                onChange={(e) => setTicketDescription(e.target.value)}
-                placeholder={t("tickets.modal.enterDescription")}
-                className="h-24 min-h-24 bg-gray-50 rounded-md border border-solid border-gray-300 text-gray-500"
-              />
-            )}
-
-            <div className="flex justify-end gap-2">
-              {!isNewTicket && !isClosedTicket && (
+            <div className="flex justify-end gap-2 mt-4">
+              {!isClosedTicket && (
                 <Button
                   variant="outline"
                   className="h-10 border border-solid border-gray-300 text-gray-900"
@@ -247,7 +213,7 @@ export default function TicketModal({ onClose, ticket }: TicketModalProps) {
                   {t("tickets.modal.markAsComplete")}
                 </Button>
               )}
-              {!isNewTicket && isClosedTicket && (
+              {isClosedTicket && (
                 <Button
                   variant="outline"
                   className="h-10 border border-solid border-gray-300 text-gray-900"
@@ -257,17 +223,13 @@ export default function TicketModal({ onClose, ticket }: TicketModalProps) {
                   {t("tickets.modal.reopenTicket")}
                 </Button>
               )}
-              {(!isClosedTicket || isNewTicket) && (
+              {!isClosedTicket && (
                 <Button
                   className="h-10 bg-teal-700 border border-solid border-gray-300 text-white"
                   onClick={handleSubmit}
                   disabled={isSubmitting}
                 >
-                  {isNewTicket
-                    ? isSubmitting
-                      ? t("tickets.modal.creating")
-                      : t("tickets.modal.createTicket")
-                    : t("tickets.modal.sendResponse")}
+                  {t("tickets.modal.sendResponse")}
                 </Button>
               )}
             </div>

@@ -74,14 +74,7 @@ export const getTicketById = createAsyncThunk(
   'tickets/getTicketById',
   async ({ dnsPrefix, ticketId }: { dnsPrefix: string; ticketId: string }) => {
     const response = await ticketService.getTicketById(dnsPrefix, ticketId);
-    return {
-      id: response.ticket_id || response.id,
-      title: response.ticket_title || response.title,
-      status: response.ticket_status || response.status,
-      description: response.ticket_description || response.description,
-      createdAt: new Date(response.created_at || response.createdAt),
-      updatedAt: new Date(response.updated_at || response.updatedAt)
-    };
+    return response;
   }
 );
 

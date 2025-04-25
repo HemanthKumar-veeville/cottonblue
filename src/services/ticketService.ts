@@ -30,7 +30,7 @@ export const ticketService = {
   },
 
   getTicketById: async (dnsPrefix: string, ticketId: string) => {
-    const response = await axiosInstance.get(`/${dnsPrefix}/ticket/${ticketId}`);
+    const response = await axiosInstance.get(`/${dnsPrefix}/ticket/${ticketId}/messages`);
     return response.data;
   }
 };

@@ -373,7 +373,8 @@
       "enterTitle": "Entrer le titre du ticket...",
       "enterDescription": "Entrer la description du ticket...",
       "createTicket": "Créer le ticket",
-      "reopenTicket": "Réouvrir le ticket"
+      "reopenTicket": "Réouvrir le ticket",
+      "enterResponse": "Entrer la réponse..."
     }
   },
   "clientTable": {

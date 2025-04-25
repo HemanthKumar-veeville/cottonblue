@@ -1,5 +1,5 @@
 import { Card, CardContent } from "../../components/ui/card";
-import { ScrollArea } from "../../components/ui/scroll-area";
+import * as ScrollAreaPrimitive from "@radix-ui/react-scroll-area";
 import { CheckCircle, Search, Inbox } from "lucide-react";
 import React, { useState, useMemo, useEffect } from "react";
 import { Input } from "../../components/ui/input";
@@ -26,12 +26,14 @@ export enum TicketStatus {
 }
 
 interface Ticket {
-  id: string;
-  title: string;
-  status: TicketStatus;
+  ticket_id: number;
+  ticket_title: string;
+  ticket_status: TicketStatus;
+  company_name: string;
+  store_name: string | null;
+  created_at: string;
+  closed_at: string | null;
   description?: string;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 interface TicketCardProps {
@@ -83,24 +85,27 @@ const TicketCard: React.FC<TicketCardProps> = ({
           <div className="flex w-full items-center justify-between p-[var(--2-tokens-screen-modes-common-spacing-s)] bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)] hover:bg-gray-50 transition-colors duration-200">
             <div className="flex flex-col items-start gap-1.5 flex-1 mr-4">
               <div className="font-label-medium font-[number:var(--label-medium-font-weight)] text-[color:var(--1-tokens-color-modes-common-neutral-hightest)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] [font-style:var(--label-medium-font-style)] break-words">
-                {ticket?.id ?? "#N/A"} - {ticket?.ticket_title ?? "Untitled"}
+                #{ticket.ticket_id} - {ticket.ticket_title}
               </div>
               <div className="flex items-center gap-2">
                 <Badge
                   className={`${getStatusColor(
-                    ticket?.ticket_status ?? TicketStatus.OPEN
+                    ticket.ticket_status
                   )} font-label-small pointer-events-none`}
                 >
-                  {t(ticket?.ticket_status ?? TicketStatus.OPEN)}
+                  {t(ticket.ticket_status)}
                 </Badge>
                 <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
-                  {new Date(
-                    ticket?.createdAt ?? new Date()
-                  ).toLocaleDateString()}
+                  {new Date(ticket.created_at).toLocaleDateString()}
                 </span>
+                {ticket.company_name && (
+                  <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
+                    {ticket.company_name}
+                  </span>
+                )}
               </div>
             </div>
-            {ticket?.ticket_status === TicketStatus.CLOSED ? (
+            {ticket.ticket_status === TicketStatus.CLOSED ? (
               <motion.div
                 className="relative w-[var(--2-tokens-screen-modes-common-spacing-l)] h-6 bg-white rounded-[35px] shrink-0"
                 initial={{ scale: 0 }}
@@ -162,43 +167,55 @@ const TicketList: React.FC<TicketListProps> = ({
       <h2 className="font-label-medium font-[number:var(--label-medium-font-weight)] text-1-tokens-color-modes-common-neutral-hightest text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] [font-style:var(--label-medium-font-style)]">
         {title}
       </h2>
-      <ScrollArea className="h-[742px] w-full md:h-[600px] sm:h-[400px]">
-        {isLoading ? (
-          <div className="space-y-3">
-            {[...Array(3)].map((_, i) => (
-              <Card key={i} className="w-full">
-                <CardContent className="p-4">
-                  <div className="animate-pulse flex items-center justify-between">
-                    <div className="space-y-2 flex-1">
-                      <div className="h-4 bg-gray-200 rounded w-3/4" />
-                      <div className="h-4 bg-gray-200 rounded w-1/4" />
-                    </div>
-                    <div className="h-6 w-6 bg-gray-200 rounded-full" />
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : tickets.length === 0 ? (
-          <EmptyState
-            title={t("tickets.empty.title")}
-            description={t("tickets.empty.description")}
-          />
-        ) : (
-          <motion.div className="flex flex-col gap-2.5" layout>
-            <AnimatePresence mode="popLayout">
-              {tickets.map((ticket) => (
-                <TicketCard
-                  key={ticket.id}
-                  ticket={ticket}
-                  onClick={onTicketClick}
-                  onCheckboxClick={onCheckboxClick}
+      <div className="h-[742px] w-full md:h-[600px] sm:h-[400px]">
+        <ScrollAreaPrimitive.Root className="h-full w-full overflow-hidden">
+          <ScrollAreaPrimitive.Viewport className="h-full w-full">
+            <div className="p-1">
+              {isLoading ? (
+                <div className="space-y-3">
+                  {[...Array(3)].map((_, i) => (
+                    <Card key={i} className="w-full">
+                      <CardContent className="p-4">
+                        <div className="animate-pulse flex items-center justify-between">
+                          <div className="space-y-2 flex-1">
+                            <div className="h-4 bg-gray-200 rounded w-3/4" />
+                            <div className="h-4 bg-gray-200 rounded w-1/4" />
+                          </div>
+                          <div className="h-6 w-6 bg-gray-200 rounded-full" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : tickets.length === 0 ? (
+                <EmptyState
+                  title={t("tickets.empty.title")}
+                  description={t("tickets.empty.description")}
                 />
-              ))}
-            </AnimatePresence>
-          </motion.div>
-        )}
-      </ScrollArea>
+              ) : (
+                <motion.div className="flex flex-col gap-2.5" layout>
+                  <AnimatePresence mode="popLayout">
+                    {tickets.map((ticket) => (
+                      <TicketCard
+                        key={ticket.ticket_id}
+                        ticket={ticket}
+                        onClick={onTicketClick}
+                        onCheckboxClick={onCheckboxClick}
+                      />
+                    ))}
+                  </AnimatePresence>
+                </motion.div>
+              )}
+            </div>
+          </ScrollAreaPrimitive.Viewport>
+          <ScrollAreaPrimitive.Scrollbar
+            orientation="vertical"
+            className="flex select-none touch-none p-0.5 bg-gray-100 transition-colors duration-150 ease-out hover:bg-gray-200 w-2"
+          >
+            <ScrollAreaPrimitive.Thumb className="flex-1 bg-gray-300 rounded-[10px] relative before:content-[''] before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:w-full before:h-full before:min-w-[44px] before:min-h-[44px]" />
+          </ScrollAreaPrimitive.Scrollbar>
+        </ScrollAreaPrimitive.Root>
+      </div>
     </div>
   );
 };
@@ -233,7 +250,7 @@ export default function Tickets(): JSX.Element {
       try {
         await dispatch(
           fetchTickets({
-            dnsPrefix: "admin", // You'll need to get this from your app configuration
+            dnsPrefix: "admin",
             ticketStatus: statusFilter === "all" ? undefined : statusFilter,
           })
         ).unwrap();
@@ -256,8 +273,6 @@ export default function Tickets(): JSX.Element {
   const handleCheckboxClick = async (ticket: Ticket, e: React.MouseEvent) => {
     e.stopPropagation();
     if (ticket.ticket_status !== TicketStatus.CLOSED) {
-      // Here you would typically call an API to update the ticket status
-      // For now, we'll just refetch the tickets
       try {
         await dispatch(
           fetchTickets({
@@ -273,11 +288,13 @@ export default function Tickets(): JSX.Element {
 
   const handleNewTicket = (): void => {
     const newTicket: Ticket = {
-      id: `#${Math.floor(Math.random() * 1000000)}`,
-      title: "",
-      status: TicketStatus.OPEN,
-      createdAt: new Date(),
-      updatedAt: new Date(),
+      ticket_id: Math.floor(Math.random() * 1000000),
+      ticket_title: "",
+      ticket_status: TicketStatus.OPEN,
+      company_name: "",
+      store_name: null,
+      created_at: new Date().toISOString(),
+      closed_at: null,
     };
     setSelectedTicket(newTicket);
   };
@@ -285,7 +302,7 @@ export default function Tickets(): JSX.Element {
   const filteredTicketsInProgress = useMemo(() => {
     return (
       tickets?.filter(
-        (ticket: any) =>
+        (ticket: Ticket) =>
           ticket?.ticket_status === TicketStatus.OPEN ||
           ticket?.ticket_status === TicketStatus.IN_PROGRESS
       ) ?? []
@@ -295,7 +312,7 @@ export default function Tickets(): JSX.Element {
   const filteredTicketsClosed = useMemo(() => {
     return (
       tickets?.filter(
-        (ticket: any) => ticket?.ticket_status === TicketStatus.CLOSED
+        (ticket: Ticket) => ticket?.ticket_status === TicketStatus.CLOSED
       ) ?? []
     );
   }, [tickets]);
@@ -365,7 +382,10 @@ export default function Tickets(): JSX.Element {
       </div>
 
       {selectedTicket && (
-        <TicketModal onClose={handleCloseModal} ticket={selectedTicket} />
+        <TicketModal
+          onClose={handleCloseModal}
+          ticketId={selectedTicket?.ticket_id?.toString()}
+        />
       )}
     </section>
   );
