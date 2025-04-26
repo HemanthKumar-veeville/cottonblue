@@ -121,6 +121,7 @@ export default function ClientLogin() {
     try {
       await dispatch(login({ email, password, company })).unwrap();
       navigate("/dashboard");
+      window.location.reload(); // Refresh the page
     } catch (error) {
       console.error("Login failed:", error);
     }
