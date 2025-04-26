@@ -5,21 +5,41 @@ import { Separator } from "../../components/ui/separator";
 import { Textarea } from "../../components/ui/textarea";
 import { ArrowLeft, CheckCircle, Send } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import ClientTicketPopup from "../ClientTicketPopup/ClientTicketPopup";
 import { motion, AnimatePresence } from "framer-motion";
-import { useDispatch } from "react-redux";
-import { createTicket } from "../../store/features/ticketSlice";
+import { useDispatch, useSelector } from "react-redux";
+import { createTicket, fetchTickets } from "../../store/features/ticketSlice";
 import { useParams } from "react-router-dom";
-import { AppDispatch } from "../../store/store";
+import { AppDispatch, RootState } from "../../store/store";
 import { getHost } from "../../utils/hostUtils";
+import { TicketStatus } from "../Tickets/Tickets";
+
+interface Ticket {
+  ticket_id: number;
+  ticket_title: string;
+  ticket_status: string;
+  company_name: string;
+  store_name: string | null;
+  created_at: string;
+  closed_at: string | null;
+}
+
 const TicketCard = ({
   ticket,
   isCompleted,
   onClick,
   onCircleClick,
 }: {
-  ticket: any;
+  ticket: {
+    ticket_id: number;
+    ticket_title: string;
+    ticket_status: string;
+    company_name: string;
+    store_name: string | null;
+    created_at: string;
+    closed_at: string | null;
+  };
   isCompleted: boolean;
   onClick: () => void;
   onCircleClick?: () => void;
@@ -41,13 +61,14 @@ const TicketCard = ({
           <div className="flex items-center justify-between p-[var(--2-tokens-screen-modes-common-spacing-s)]">
             <div className="flex flex-col gap-1.5">
               <h5 className="font-label-medium font-[number:var(--label-medium-font-weight)] text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)]">
-                {ticket.id} - {ticket.title}
+                {ticket?.ticket_id} - {ticket?.ticket_title}
               </h5>
               <p className="font-label-smaller font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] tracking-[var(--label-smaller-letter-spacing)] leading-[var(--label-smaller-line-height)]">
-                {t("clientSupport.ticket.location")}: {ticket.location}
+                {t("clientSupport.ticket.location")}:{" "}
+                {ticket?.company_name ?? "N/A"}
               </p>
               <p className="font-label-smaller font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] tracking-[var(--label-smaller-letter-spacing)] leading-[var(--label-smaller-line-height)]">
-                {t("clientSupport.ticket.status")}: {ticket.status}
+                {t("clientSupport.ticket.status")}: {ticket?.ticket_status}
               </p>
             </div>
             {isCompleted ? (
@@ -120,130 +141,39 @@ export default function ClientSupportTicket() {
   const dnsPrefix = getHost();
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
-  const [activeTickets, setActiveTickets] = useState([
-    {
-      id: "#123456a",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Ouvert",
-    },
-    {
-      id: "#123456b",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Ouvert",
-    },
-    {
-      id: "#123456c",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Ouvert",
-    },
-    {
-      id: "#123456d",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Ouvert",
-    },
-    {
-      id: "#123456e",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Ouvert",
-    },
-  ]);
 
-  const [completedTickets, setCompletedTickets] = useState([
-    {
-      id: "#123456a1",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Terminé",
-    },
-    {
-      id: "#123456b1",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Terminé",
-    },
-    {
-      id: "#123456c1",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Terminé",
-    },
-    {
-      id: "#123456d1",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Terminé",
-    },
-    {
-      id: "#123456e1",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Terminé",
-    },
-    {
-      id: "#123456f1",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Terminé",
-    },
-    {
-      id: "#123456g1",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Terminé",
-    },
-    {
-      id: "#123456h1",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Terminé",
-    },
-    {
-      id: "#123456i1",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Terminé",
-    },
-    {
-      id: "#123456j1",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Terminé",
-    },
-    {
-      id: "#123456k1",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Terminé",
-    },
-    {
-      id: "#123456l1",
-      title: "Problème de connexion",
-      location: "Chronodrive - Lille",
-      status: "Terminé",
-    },
-  ]);
+  // Get tickets from Redux store
+  const { tickets, status, error } = useSelector(
+    (state: RootState) => state.ticket
+  );
+
+  const ticketList = tickets as unknown as Ticket[];
+  // Filter tickets based on status
+  const activeTickets =
+    ticketList?.filter((ticket: Ticket) => ticket?.ticket_status === "open") ??
+    [];
+  const completedTickets =
+    ticketList?.filter((ticket: Ticket) => ticket?.ticket_status !== "open") ??
+    [];
 
   const [formData, setFormData] = useState({
     title: "",
     description: "",
   });
 
+  // Fetch tickets on component mount
+  useEffect(() => {
+    if (dnsPrefix) {
+      dispatch(fetchTickets({ dnsPrefix }));
+    }
+  }, [dispatch, dnsPrefix]);
+
   const handleTicketClick = (ticket: any) => {
     setSelectedTicket(ticket);
   };
 
   const handleTicketComplete = (ticket: any) => {
-    setActiveTickets((prev) => prev.filter((t) => t.id !== ticket.id));
-    const updatedTicket = {
-      ...ticket,
-      status: "Terminé",
-    };
-    setCompletedTickets((prev) => [updatedTicket, ...prev]);
+    // Implementation of handleTicketComplete function
   };
 
   const handleInputChange = (
@@ -278,6 +208,9 @@ export default function ClientSupportTicket() {
         title: "",
         description: "",
       });
+
+      // Fetch tickets again after successful submission
+      dispatch(fetchTickets({ dnsPrefix }));
     } catch (error) {
       console.error("Failed to create ticket:", error);
       // You might want to add proper error handling here
@@ -353,16 +286,21 @@ export default function ClientSupportTicket() {
                   onClick={() => setActiveTab("active")}
                   className="flex-1"
                 >
-                  {t("clientSupport.activeTickets")}
+                  {t("clientSupport.activeTickets")} (
+                  {activeTickets?.length ?? 0})
                 </Button>
                 <Button
                   variant={activeTab === "completed" ? "default" : "outline"}
                   onClick={() => setActiveTab("completed")}
                   className="flex-1"
                 >
-                  {t("clientSupport.completedTickets")}
+                  {t("clientSupport.completedTickets")} (
+                  {completedTickets?.length ?? 0})
                 </Button>
               </div>
+
+              {status === "loading" && <div>Loading tickets...</div>}
+              {error && <div>Error: {error}</div>}
 
               <AnimatePresence mode="wait">
                 {activeTab === "active" ? (
@@ -388,7 +326,12 @@ export default function ClientSupportTicket() {
       </main>
       {selectedTicket && (
         <ClientTicketPopup
-          ticket={selectedTicket}
+          ticket={{
+            id: selectedTicket.ticket_id.toString(),
+            title: selectedTicket.ticket_title,
+            location: selectedTicket.company_name,
+            status: selectedTicket.ticket_status,
+          }}
           onClose={() => setSelectedTicket(null)}
         />
       )}
