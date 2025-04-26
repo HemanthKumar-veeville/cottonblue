@@ -8,7 +8,11 @@ import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import ClientTicketPopup from "../ClientTicketPopup/ClientTicketPopup";
 import { motion, AnimatePresence } from "framer-motion";
-
+import { useDispatch } from "react-redux";
+import { createTicket } from "../../store/features/ticketSlice";
+import { useParams } from "react-router-dom";
+import { AppDispatch } from "../../store/store";
+import { getHost } from "../../utils/hostUtils";
 const TicketCard = ({
   ticket,
   isCompleted,
@@ -112,6 +116,8 @@ const TicketList = ({
 
 export default function ClientSupportTicket() {
   const { t } = useTranslation();
+  const dispatch = useDispatch<AppDispatch>();
+  const dnsPrefix = getHost();
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
   const [activeTickets, setActiveTickets] = useState([
@@ -222,6 +228,11 @@ export default function ClientSupportTicket() {
     },
   ]);
 
+  const [formData, setFormData] = useState({
+    title: "",
+    description: "",
+  });
+
   const handleTicketClick = (ticket: any) => {
     setSelectedTicket(ticket);
   };
@@ -233,6 +244,44 @@ export default function ClientSupportTicket() {
       status: "Terminé",
     };
     setCompletedTickets((prev) => [updatedTicket, ...prev]);
+  };
+
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const { id, value } = e.target;
+    setFormData((prev) => ({
+      ...prev,
+      [id === "title" ? "title" : "description"]: value,
+    }));
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.title || !formData.description) {
+      // You might want to add proper validation feedback here
+      return;
+    }
+
+    try {
+      await dispatch(
+        createTicket({
+          dnsPrefix: dnsPrefix || "",
+          data: {
+            title: formData.title,
+            description: formData.description,
+          },
+        })
+      );
+
+      // Clear form after successful submission
+      setFormData({
+        title: "",
+        description: "",
+      });
+    } catch (error) {
+      console.error("Failed to create ticket:", error);
+      // You might want to add proper error handling here
+    }
   };
 
   return (
@@ -258,6 +307,8 @@ export default function ClientSupportTicket() {
                 <Input
                   className="pt-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] pr-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] pb-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-input-border-radius)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)]"
                   id="title"
+                  value={formData.title}
+                  onChange={handleInputChange}
                 />
                 <label
                   htmlFor="title"
@@ -271,6 +322,8 @@ export default function ClientSupportTicket() {
                 <Textarea
                   className="h-full pt-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] pr-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] pb-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-input-border-radius)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)]"
                   id="message"
+                  value={formData.description}
+                  onChange={handleInputChange}
                 />
                 <label
                   htmlFor="message"
@@ -280,7 +333,10 @@ export default function ClientSupportTicket() {
                 </label>
               </div>
 
-              <Button className="w-[352px] flex items-center justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] bg-[#00b85b] text-white rounded-[var(--2-tokens-screen-modes-button-border-radius)] border border-solid border-[#1a8563]">
+              <Button
+                className="w-[352px] flex items-center justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] bg-[#00b85b] text-white rounded-[var(--2-tokens-screen-modes-button-border-radius)] border border-solid border-[#1a8563]"
+                onClick={handleSubmit}
+              >
                 <Send className="w-4 h-4" />
                 <span className="font-label-medium font-[number:var(--label-medium-font-weight)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] [font-style:var(--label-medium-font-style)]">
                   {t("clientSupport.ticket.submit")}
