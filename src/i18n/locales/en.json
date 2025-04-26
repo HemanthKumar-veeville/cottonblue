@@ -297,6 +297,10 @@
     "title": "Open a support ticket",
     "activeTickets": "Active tickets",
     "completedTickets": "Completed tickets",
+    "noActiveTickets": "No Active Tickets",
+    "noActiveTicketsDesc": "You don't have any active tickets at the moment. Create a new ticket if you need assistance.",
+    "noCompletedTickets": "No Completed Tickets",
+    "noCompletedTicketsDesc": "You don't have any completed tickets yet.",
     "form": {
       "title": "Request title",
       "message": "Message"
@@ -304,13 +308,16 @@
     "ticket": {
       "location": "Location",
       "status": "Status",
-      "submit": "Submit ticket"
+      "submit": "Submit ticket",
+      "submitting": "Submitting..."
     },
     "popup": {
       "writeResponse": "Write a response...",
       "sendResponse": "Send response",
       "support": "Support - CottonBlue :",
-      "you": "You :"
+      "you": "You :",
+      "noMessages": "No Messages Yet",
+      "startConversation": "Start the conversation by sending a message."
     }
   },
   "clientLogin": {

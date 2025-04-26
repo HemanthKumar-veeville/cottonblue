@@ -3,7 +3,7 @@ import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { Separator } from "../../components/ui/separator";
 import { Textarea } from "../../components/ui/textarea";
-import { ArrowLeft, CheckCircle, Send } from "lucide-react";
+import { ArrowLeft, CheckCircle, Send, Inbox } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import ClientTicketPopup from "../ClientTicketPopup/ClientTicketPopup";
@@ -18,6 +18,8 @@ import { useParams } from "react-router-dom";
 import { AppDispatch, RootState } from "../../store/store";
 import { getHost } from "../../utils/hostUtils";
 import { TicketStatus } from "../Tickets/Tickets";
+import { Skeleton } from "../../components/Skeleton";
+import EmptyState from "../../components/EmptyState";
 
 interface Ticket {
   ticket_id: number;
@@ -29,11 +31,25 @@ interface Ticket {
   closed_at: string | null;
 }
 
+const TicketFormSkeleton = () => (
+  <div className="flex-1 animate-pulse">
+    <div className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-l)]">
+      <div className="relative">
+        <div className="h-[40px] bg-gray-200 rounded-[var(--2-tokens-screen-modes-input-border-radius)]" />
+      </div>
+      <div className="relative h-[317px]">
+        <div className="h-full bg-gray-200 rounded-[var(--2-tokens-screen-modes-input-border-radius)]" />
+      </div>
+      <div className="w-[352px] h-[40px] bg-gray-200 rounded-[var(--2-tokens-screen-modes-button-border-radius)]" />
+    </div>
+  </div>
+);
+
 const TicketCard = ({
   ticket,
   isCompleted,
   onClick,
-  onCircleClick,
+  isUpdating,
 }: {
   ticket: {
     ticket_id: number;
@@ -46,7 +62,7 @@ const TicketCard = ({
   };
   isCompleted: boolean;
   onClick: () => void;
-  onCircleClick?: () => void;
+  isUpdating?: boolean;
 }) => {
   const { t } = useTranslation();
   return (
@@ -86,12 +102,13 @@ const TicketCard = ({
               </motion.div>
             ) : (
               <motion.div
-                className="relative w-[var(--2-tokens-screen-modes-common-spacing-l)] h-6 rounded-[35px] border-2 border-dashed border-1-tokens-color-modes-common-success-medium cursor-pointer hover:border-green-700"
+                className={`relative w-[var(--2-tokens-screen-modes-common-spacing-l)] h-6 rounded-[35px] border-1-tokens-color-modes-common-success-medium cursor-pointer hover:border-green-700 ${
+                  isUpdating ? "animate-pulse" : ""
+                }`}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation();
-                  onCircleClick?.();
                 }}
               />
             )}
@@ -106,12 +123,12 @@ const TicketList = ({
   tickets,
   isCompleted,
   onTicketClick,
-  onCircleClick,
+  updatingTicketId,
 }: {
   tickets: any;
   isCompleted: boolean;
   onTicketClick: (ticket: any) => void;
-  onCircleClick?: (ticket: any) => void;
+  updatingTicketId?: number;
 }) => {
   const { t } = useTranslation();
   return (
@@ -125,15 +142,31 @@ const TicketList = ({
       }}
     >
       <AnimatePresence mode="popLayout">
-        {tickets.map((ticket: any, index: number) => (
-          <TicketCard
-            key={`${isCompleted ? "completed" : "active"}-${index}`}
-            ticket={ticket}
-            isCompleted={isCompleted}
-            onClick={() => onTicketClick(ticket)}
-            onCircleClick={() => onCircleClick?.(ticket)}
+        {tickets.length === 0 ? (
+          <EmptyState
+            icon={Inbox}
+            title={t(
+              isCompleted
+                ? "clientSupport.noCompletedTickets"
+                : "clientSupport.noActiveTickets"
+            )}
+            description={t(
+              isCompleted
+                ? "clientSupport.noCompletedTicketsDesc"
+                : "clientSupport.noActiveTicketsDesc"
+            )}
           />
-        ))}
+        ) : (
+          tickets.map((ticket: any, index: number) => (
+            <TicketCard
+              key={`${isCompleted ? "completed" : "active"}-${index}`}
+              ticket={ticket}
+              isCompleted={isCompleted}
+              onClick={() => onTicketClick(ticket)}
+              isUpdating={updatingTicketId === ticket.ticket_id}
+            />
+          ))
+        )}
       </AnimatePresence>
     </motion.div>
   );
@@ -145,6 +178,10 @@ export default function ClientSupportTicket() {
   const dnsPrefix = getHost();
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
   const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [updatingTicketId, setUpdatingTicketId] = useState<
+    number | undefined
+  >();
 
   // Get tickets from Redux store
   const { tickets, status, error } = useSelector(
@@ -154,11 +191,13 @@ export default function ClientSupportTicket() {
   const ticketList = tickets as unknown as Ticket[];
   // Filter tickets based on status
   const activeTickets =
-    ticketList?.filter((ticket: Ticket) => ticket?.ticket_status === "open") ??
-    [];
+    ticketList?.filter(
+      (ticket: Ticket) => ticket?.ticket_status !== "closed"
+    ) ?? [];
   const completedTickets =
-    ticketList?.filter((ticket: Ticket) => ticket?.ticket_status !== "open") ??
-    [];
+    ticketList?.filter(
+      (ticket: Ticket) => ticket?.ticket_status === "closed"
+    ) ?? [];
 
   const [formData, setFormData] = useState({
     title: "",
@@ -174,22 +213,6 @@ export default function ClientSupportTicket() {
 
   const handleTicketClick = (ticket: any) => {
     setSelectedTicket(ticket);
-  };
-
-  const handleTicketComplete = async (ticket: any) => {
-    try {
-      await dispatch(
-        updateTicketStatus({
-          dnsPrefix: dnsPrefix || "",
-          ticketId: ticket.ticket_id.toString(),
-          status: "closed",
-        })
-      );
-      // Refresh tickets after status update
-      dispatch(fetchTickets({ dnsPrefix }));
-    } catch (error) {
-      console.error("Failed to complete ticket:", error);
-    }
   };
 
   const handleInputChange = (
@@ -209,6 +232,7 @@ export default function ClientSupportTicket() {
     }
 
     try {
+      setIsSubmitting(true);
       await dispatch(
         createTicket({
           dnsPrefix: dnsPrefix || "",
@@ -230,6 +254,8 @@ export default function ClientSupportTicket() {
     } catch (error) {
       console.error("Failed to create ticket:", error);
       // You might want to add proper error handling here
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -250,104 +276,122 @@ export default function ClientSupportTicket() {
         </header>
 
         <div className="flex w-full gap-4">
-          <div className="flex-1">
-            <div className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-l)]">
-              <div className="relative">
-                <Input
-                  className="pt-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] pr-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] pb-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-input-border-radius)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)]"
-                  id="title"
-                  value={formData.title}
-                  onChange={handleInputChange}
-                />
-                <label
-                  htmlFor="title"
-                  className="absolute top-[-9px] left-4 px-1 bg-white text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] font-label-smaller font-[number:var(--label-smaller-font-weight)] tracking-[var(--label-smaller-letter-spacing)] leading-[var(--label-smaller-line-height)] [font-style:var(--label-smaller-font-style)]"
-                >
-                  {t("clientSupport.form.title")}
-                </label>
+          {status === "loading" ? (
+            <>
+              <TicketFormSkeleton />
+              <div className="flex-1">
+                <Skeleton variant="tickets" />
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex-1">
+                <div className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-l)]">
+                  <div className="relative">
+                    <Input
+                      className="pt-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] pr-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] pb-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-input-border-radius)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)]"
+                      id="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      disabled={isSubmitting}
+                    />
+                    <label
+                      htmlFor="title"
+                      className="absolute top-[-9px] left-4 px-1 bg-white text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] font-label-smaller font-[number:var(--label-smaller-font-weight)] tracking-[var(--label-smaller-letter-spacing)] leading-[var(--label-smaller-line-height)] [font-style:var(--label-smaller-font-style)]"
+                    >
+                      {t("clientSupport.form.title")}
+                    </label>
+                  </div>
+
+                  <div className="relative h-[317px]">
+                    <Textarea
+                      className="h-full pt-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] pr-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] pb-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-input-border-radius)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)]"
+                      id="message"
+                      value={formData.description}
+                      onChange={handleInputChange}
+                      disabled={isSubmitting}
+                    />
+                    <label
+                      htmlFor="message"
+                      className="absolute top-[-9px] left-4 px-1 bg-white text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] font-label-smaller font-[number:var(--label-smaller-font-weight)] tracking-[var(--label-smaller-letter-spacing)] leading-[var(--label-smaller-line-height)] [font-style:var(--label-smaller-font-style)]"
+                    >
+                      {t("clientSupport.form.message")}
+                    </label>
+                  </div>
+
+                  <Button
+                    className={`w-[352px] flex items-center justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] bg-[#00b85b] text-white rounded-[var(--2-tokens-screen-modes-button-border-radius)] border border-solid border-[#1a8563] ${
+                      isSubmitting ? "opacity-70 cursor-not-allowed" : ""
+                    }`}
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                  >
+                    <Send
+                      className={`w-4 h-4 ${
+                        isSubmitting ? "animate-pulse" : ""
+                      }`}
+                    />
+                    <span className="font-label-medium font-[number:var(--label-medium-font-weight)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] [font-style:var(--label-medium-font-style)]">
+                      {isSubmitting
+                        ? t("clientSupport.ticket.submitting")
+                        : t("clientSupport.ticket.submit")}
+                    </span>
+                  </Button>
+                </div>
               </div>
 
-              <div className="relative h-[317px]">
-                <Textarea
-                  className="h-full pt-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] pr-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] pb-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-input-border-radius)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)]"
-                  id="message"
-                  value={formData.description}
-                  onChange={handleInputChange}
-                />
-                <label
-                  htmlFor="message"
-                  className="absolute top-[-9px] left-4 px-1 bg-white text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] font-label-smaller font-[number:var(--label-smaller-font-weight)] tracking-[var(--label-smaller-letter-spacing)] leading-[var(--label-smaller-line-height)] [font-style:var(--label-smaller-font-style)]"
-                >
-                  {t("clientSupport.form.message")}
-                </label>
+              <div className="flex-1 flex flex-col gap-5 p-2.5 pt-0 h-[calc(100vh-200px)] min-h-[500px]">
+                <div className="flex flex-col h-full bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-input-border-radius)] border border-[color:var(--1-tokens-color-modes-input-primary-default-border)] p-4">
+                  <div className="flex gap-4 mb-4">
+                    <Button
+                      variant={activeTab === "active" ? "default" : "outline"}
+                      onClick={() => setActiveTab("active")}
+                      className="flex-1"
+                    >
+                      {t("clientSupport.activeTickets")} (
+                      {activeTickets?.length ?? 0})
+                    </Button>
+                    <Button
+                      variant={
+                        activeTab === "completed" ? "default" : "outline"
+                      }
+                      onClick={() => setActiveTab("completed")}
+                      className="flex-1"
+                    >
+                      {t("clientSupport.completedTickets")} (
+                      {completedTickets?.length ?? 0})
+                    </Button>
+                  </div>
+
+                  {error && <div>Error: {error}</div>}
+
+                  <AnimatePresence mode="wait">
+                    {activeTab === "active" ? (
+                      <TicketList
+                        key="active"
+                        tickets={activeTickets}
+                        isCompleted={false}
+                        onTicketClick={handleTicketClick}
+                        updatingTicketId={updatingTicketId}
+                      />
+                    ) : (
+                      <TicketList
+                        key="completed"
+                        tickets={completedTickets}
+                        isCompleted={true}
+                        onTicketClick={handleTicketClick}
+                      />
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
-
-              <Button
-                className="w-[352px] flex items-center justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] bg-[#00b85b] text-white rounded-[var(--2-tokens-screen-modes-button-border-radius)] border border-solid border-[#1a8563]"
-                onClick={handleSubmit}
-              >
-                <Send className="w-4 h-4" />
-                <span className="font-label-medium font-[number:var(--label-medium-font-weight)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] [font-style:var(--label-medium-font-style)]">
-                  {t("clientSupport.ticket.submit")}
-                </span>
-              </Button>
-            </div>
-          </div>
-
-          <div className="flex-1 flex flex-col gap-5 p-2.5 pt-0 h-[calc(100vh-200px)] min-h-[500px]">
-            <div className="flex flex-col h-full bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-input-border-radius)] border border-[color:var(--1-tokens-color-modes-input-primary-default-border)] p-4">
-              <div className="flex gap-4 mb-4">
-                <Button
-                  variant={activeTab === "active" ? "default" : "outline"}
-                  onClick={() => setActiveTab("active")}
-                  className="flex-1"
-                >
-                  {t("clientSupport.activeTickets")} (
-                  {activeTickets?.length ?? 0})
-                </Button>
-                <Button
-                  variant={activeTab === "completed" ? "default" : "outline"}
-                  onClick={() => setActiveTab("completed")}
-                  className="flex-1"
-                >
-                  {t("clientSupport.completedTickets")} (
-                  {completedTickets?.length ?? 0})
-                </Button>
-              </div>
-
-              {status === "loading" && <div>Loading tickets...</div>}
-              {error && <div>Error: {error}</div>}
-
-              <AnimatePresence mode="wait">
-                {activeTab === "active" ? (
-                  <TicketList
-                    key="active"
-                    tickets={activeTickets}
-                    isCompleted={false}
-                    onTicketClick={handleTicketClick}
-                    onCircleClick={handleTicketComplete}
-                  />
-                ) : (
-                  <TicketList
-                    key="completed"
-                    tickets={completedTickets}
-                    isCompleted={true}
-                    onTicketClick={handleTicketClick}
-                  />
-                )}
-              </AnimatePresence>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </main>
       {selectedTicket && (
         <ClientTicketPopup
-          ticket={{
-            id: selectedTicket.ticket_id.toString(),
-            title: selectedTicket.ticket_title,
-            location: selectedTicket.company_name,
-            status: selectedTicket.ticket_status,
-          }}
+          ticketId={selectedTicket.ticket_id}
           onClose={() => setSelectedTicket(null)}
         />
       )}
