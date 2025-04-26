@@ -75,51 +75,45 @@ const TicketCard = ({
 
 const TicketList = ({
   tickets,
-  title,
   isCompleted,
   onTicketClick,
   onCircleClick,
 }: {
   tickets: any;
-  title: string;
   isCompleted: boolean;
   onTicketClick: (ticket: any) => void;
   onCircleClick?: (ticket: any) => void;
 }) => {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col h-[250px] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-input-border-radius)] border border-[color:var(--1-tokens-color-modes-input-primary-default-border)] p-4">
-      <h4 className="text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-medium-font-size)] leading-[var(--label-medium-line-height)] font-label-medium font-[number:var(--label-medium-font-weight)] tracking-[var(--label-medium-letter-spacing)] [font-style:var(--label-medium-font-style)] mb-4">
-        {title}
-      </h4>
-      <motion.div
-        className="flex flex-col gap-2.5 overflow-y-auto pr-2 scrollbar-hide"
-        layout
-        style={{
-          height: "calc(100% - 40px)",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-        }}
-      >
-        <AnimatePresence mode="popLayout">
-          {tickets.map((ticket: any, index: number) => (
-            <TicketCard
-              key={`${isCompleted ? "completed" : "active"}-${index}`}
-              ticket={ticket}
-              isCompleted={isCompleted}
-              onClick={() => onTicketClick(ticket)}
-              onCircleClick={() => onCircleClick?.(ticket)}
-            />
-          ))}
-        </AnimatePresence>
-      </motion.div>
-    </div>
+    <motion.div
+      className="flex flex-col gap-2.5 overflow-y-auto pr-2 scrollbar-hide"
+      layout
+      style={{
+        height: "calc(100% - 40px)",
+        scrollbarWidth: "none",
+        msOverflowStyle: "none",
+      }}
+    >
+      <AnimatePresence mode="popLayout">
+        {tickets.map((ticket: any, index: number) => (
+          <TicketCard
+            key={`${isCompleted ? "completed" : "active"}-${index}`}
+            ticket={ticket}
+            isCompleted={isCompleted}
+            onClick={() => onTicketClick(ticket)}
+            onCircleClick={() => onCircleClick?.(ticket)}
+          />
+        ))}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 
 export default function ClientSupportTicket() {
   const { t } = useTranslation();
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<"active" | "completed">("active");
   const [activeTickets, setActiveTickets] = useState([
     {
       id: "#123456a",
@@ -233,10 +227,7 @@ export default function ClientSupportTicket() {
   };
 
   const handleTicketComplete = (ticket: any) => {
-    // Remove from active tickets
     setActiveTickets((prev) => prev.filter((t) => t.id !== ticket.id));
-
-    // Add to completed tickets with updated status
     const updatedTicket = {
       ...ticket,
       status: "Terminé",
@@ -298,21 +289,44 @@ export default function ClientSupportTicket() {
             </div>
           </div>
 
-          <div className="flex-1 flex flex-col gap-5 p-2.5 h-[calc(100vh-200px)] min-h-[500px]">
-            <TicketList
-              tickets={activeTickets}
-              title={t("clientSupport.activeTickets")}
-              isCompleted={false}
-              onTicketClick={(ticket) => handleTicketClick(ticket)}
-              onCircleClick={(ticket) => handleTicketComplete(ticket)}
-            />
-            <div className="h-[1px] bg-[color:var(--1-tokens-color-modes-input-primary-default-border)]" />
-            <TicketList
-              tickets={completedTickets}
-              title={t("clientSupport.completedTickets")}
-              isCompleted={true}
-              onTicketClick={handleTicketClick}
-            />
+          <div className="flex-1 flex flex-col gap-5 p-2.5 pt-0 h-[calc(100vh-200px)] min-h-[500px]">
+            <div className="flex flex-col h-full bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-input-border-radius)] border border-[color:var(--1-tokens-color-modes-input-primary-default-border)] p-4">
+              <div className="flex gap-4 mb-4">
+                <Button
+                  variant={activeTab === "active" ? "default" : "outline"}
+                  onClick={() => setActiveTab("active")}
+                  className="flex-1"
+                >
+                  {t("clientSupport.activeTickets")}
+                </Button>
+                <Button
+                  variant={activeTab === "completed" ? "default" : "outline"}
+                  onClick={() => setActiveTab("completed")}
+                  className="flex-1"
+                >
+                  {t("clientSupport.completedTickets")}
+                </Button>
+              </div>
+
+              <AnimatePresence mode="wait">
+                {activeTab === "active" ? (
+                  <TicketList
+                    key="active"
+                    tickets={activeTickets}
+                    isCompleted={false}
+                    onTicketClick={handleTicketClick}
+                    onCircleClick={handleTicketComplete}
+                  />
+                ) : (
+                  <TicketList
+                    key="completed"
+                    tickets={completedTickets}
+                    isCompleted={true}
+                    onTicketClick={handleTicketClick}
+                  />
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
       </main>
