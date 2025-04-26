@@ -6,6 +6,10 @@ import { X } from "lucide-react";
 import * as React from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useTranslation } from "react-i18next";
+import { useDispatch } from "react-redux";
+import { replyToTicket } from "../../store/features/ticketSlice";
+import { AppDispatch } from "../../store/store";
+import { getHost } from "../../utils/hostUtils";
 
 const messages = [
   {
@@ -65,6 +69,28 @@ interface PopupTicketProps {
 
 const PopupTicket = ({ ticket, onClose }: PopupTicketProps) => {
   const { t } = useTranslation();
+  const dispatch = useDispatch<AppDispatch>();
+  const dnsPrefix = getHost();
+  const [replyMessage, setReplyMessage] = React.useState("");
+
+  const handleReply = async () => {
+    if (!replyMessage.trim()) return;
+
+    try {
+      await dispatch(
+        replyToTicket({
+          dnsPrefix: dnsPrefix || "",
+          ticketId: ticket.id,
+          data: {
+            message: replyMessage,
+          },
+        })
+      );
+      setReplyMessage(""); // Clear the input after successful reply
+    } catch (error) {
+      console.error("Failed to reply to ticket:", error);
+    }
+  };
 
   return (
     <Dialog open={true} onOpenChange={onClose}>
@@ -102,9 +128,14 @@ const PopupTicket = ({ ticket, onClose }: PopupTicketProps) => {
           <Textarea
             placeholder={t("clientSupport.popup.writeResponse")}
             className="h-[108px] bg-gray-200 rounded-md border border-solid border-gray-300 text-gray-500 font-small text-sm tracking-wide leading-tight"
+            value={replyMessage}
+            onChange={(e) => setReplyMessage(e.target.value)}
           />
           <div className="flex justify-end">
-            <Button className="bg-[#00b85b] border border-solid border-[#1a8563] text-white font-medium text-sm tracking-wide leading-tight">
+            <Button
+              className="bg-[#00b85b] border border-solid border-[#1a8563] text-white font-medium text-sm tracking-wide leading-tight"
+              onClick={handleReply}
+            >
               {t("clientSupport.popup.sendResponse")}
             </Button>
           </div>

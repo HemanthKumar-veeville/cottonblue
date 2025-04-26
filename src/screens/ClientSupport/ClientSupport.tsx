@@ -9,7 +9,11 @@ import { useState, useEffect } from "react";
 import ClientTicketPopup from "../ClientTicketPopup/ClientTicketPopup";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { createTicket, fetchTickets } from "../../store/features/ticketSlice";
+import {
+  createTicket,
+  fetchTickets,
+  updateTicketStatus,
+} from "../../store/features/ticketSlice";
 import { useParams } from "react-router-dom";
 import { AppDispatch, RootState } from "../../store/store";
 import { getHost } from "../../utils/hostUtils";
@@ -172,8 +176,20 @@ export default function ClientSupportTicket() {
     setSelectedTicket(ticket);
   };
 
-  const handleTicketComplete = (ticket: any) => {
-    // Implementation of handleTicketComplete function
+  const handleTicketComplete = async (ticket: any) => {
+    try {
+      await dispatch(
+        updateTicketStatus({
+          dnsPrefix: dnsPrefix || "",
+          ticketId: ticket.ticket_id.toString(),
+          status: "closed",
+        })
+      );
+      // Refresh tickets after status update
+      dispatch(fetchTickets({ dnsPrefix }));
+    } catch (error) {
+      console.error("Failed to complete ticket:", error);
+    }
   };
 
   const handleInputChange = (

@@ -6,6 +6,7 @@ export const isAdminHostname = (): boolean => {
 
 export const getHost = (): string => {
   const hostname = window.location.hostname;
+  console.log({ hostname: hostname.split('.')[0] });
   return hostname === 'localhost' ? 'chronodrive' : hostname;
 };
 
