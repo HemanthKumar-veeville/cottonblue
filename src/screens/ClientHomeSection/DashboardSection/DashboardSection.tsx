@@ -9,6 +9,9 @@ import { useAppDispatch, useAppSelector } from "../../../store/store";
 import { fetchAllProducts } from "../../../store/features/productSlice";
 import { getHost } from "../../../utils/hostUtils";
 import { DashboardCarousel } from "../../../components/DashboardCarousel/DashboardCarousel";
+import { Skeleton } from "../../../components/Skeleton";
+import EmptyState from "../../../components/EmptyState";
+import { Package } from "lucide-react";
 
 interface Product {
   id: number;
@@ -249,6 +252,17 @@ const ProductCard = ({ product }: { product: Product }) => {
 
 const ProductSection = ({ title, products }: ProductSectionProps) => {
   const { t } = useTranslation();
+
+  if (products.length === 0) {
+    return (
+      <EmptyState
+        icon={Package}
+        title={t("productTable.noProducts")}
+        description={t("productTable.emptyMessage")}
+      />
+    );
+  }
+
   return (
     <div className="w-full">
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4 w-full">
@@ -260,11 +274,42 @@ const ProductSection = ({ title, products }: ProductSectionProps) => {
   );
 };
 
+// Product skeleton loader component
+const ProductSkeleton = () => {
+  return (
+    <div className="w-full">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4 w-full">
+        {[...Array(6)].map((_, index) => (
+          <Card key={index} className="w-full h-full shadow-shadow">
+            <CardContent className="p-4 h-full">
+              <div className="flex flex-col h-full">
+                <div className="aspect-[4/3] w-full rounded-2xl bg-gray-200 animate-pulse"></div>
+                <div className="flex flex-col flex-grow gap-2 mt-4">
+                  <div className="flex items-center gap-2">
+                    <div className="h-6 w-16 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                  <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+                <div className="mt-auto pt-4">
+                  <div className="flex items-center gap-2">
+                    <div className="h-6 w-16 bg-gray-200 rounded animate-pulse"></div>
+                    <div className="h-6 w-12 bg-gray-200 rounded animate-pulse"></div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export const DashboardSection = (): JSX.Element => {
   const [activeTab, setActiveTab] = useState("mostOrdered");
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const { products } = useAppSelector((state) => state.product);
+  const { products, loading } = useAppSelector((state) => state.product);
   const productList = products?.products || [];
   const dnsPrefix = getHost();
 
@@ -309,17 +354,23 @@ export const DashboardSection = (): JSX.Element => {
 
           {/* Content */}
           <div className="w-full">
-            {activeTab === "mostOrdered" && (
-              <ProductSection
-                title="dashboard.sections.mostOrdered"
-                products={mostOrderedProducts}
-              />
-            )}
-            {activeTab === "allProducts" && (
-              <ProductSection
-                title="dashboard.sections.allProducts"
-                products={productList}
-              />
+            {loading ? (
+              <ProductSkeleton />
+            ) : (
+              <>
+                {activeTab === "mostOrdered" && (
+                  <ProductSection
+                    title="dashboard.sections.mostOrdered"
+                    products={mostOrderedProducts}
+                  />
+                )}
+                {activeTab === "allProducts" && (
+                  <ProductSection
+                    title="dashboard.sections.allProducts"
+                    products={productList}
+                  />
+                )}
+              </>
             )}
           </div>
         </div>
