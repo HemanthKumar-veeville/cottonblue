@@ -164,7 +164,7 @@
   "dashboard": {
     "sections": {
       "mostOrdered": "Les plus commandés",
-      "storeRange": "Gamme magasins",
+      "allProducts": "Tous les produits",
       "workClothes": "Vêtements de travail"
     },
     "status": {

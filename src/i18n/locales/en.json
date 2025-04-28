@@ -173,7 +173,7 @@
   "dashboard": {
     "sections": {
       "mostOrdered": "Most Ordered",
-      "storeRange": "Store Range",
+      "allProducts": "All Products",
       "workClothes": "Work Clothes"
     },
     "status": {
