@@ -130,6 +130,24 @@ export const createCarousel = createAsyncThunk(
   }
 );
 
+export const deleteCarouselImage = createAsyncThunk(
+  'client/deleteCarouselImage',
+  async ({ 
+    dns_prefix, 
+    image_id 
+  }: { 
+    dns_prefix: string; 
+    image_id: string;
+  }, { rejectWithValue }) => {
+    try {
+      const response = await clientService.deleteCarouselImage(dns_prefix, image_id);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete carousel image');
+    }
+  }
+);
+
 const clientSlice = createSlice({
   name: 'client',
   initialState,
@@ -226,6 +244,20 @@ const clientSlice = createSlice({
         state.success = true;
       })
       .addCase(createCarousel.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.success = false;
+      })
+      .addCase(deleteCarouselImage.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(deleteCarouselImage.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(deleteCarouselImage.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         state.success = false;

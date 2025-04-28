@@ -134,4 +134,14 @@ export const clientService = {
       },
     });
   },
+
+  /**
+   * Delete a specific carousel image by ID
+   * @param dns_prefix DNS prefix of the company
+   * @param image_id ID of the carousel image to delete
+   * @returns Promise with deletion response
+   */
+  deleteCarouselImage: async (dns_prefix: string, image_id: string) => {
+    return axiosInstance.delete(`/${dns_prefix}/carousel/delete/${image_id}`);
+  },
 };

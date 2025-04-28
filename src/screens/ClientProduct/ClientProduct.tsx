@@ -15,9 +15,22 @@ import {
   SelectValue,
 } from "../../components/ui/select";
 import { Separator } from "../../components/ui/separator";
-import { ChevronRight, Minus, Plus, ShoppingCart, ZoomIn } from "lucide-react";
-import React from "react";
+import {
+  ChevronRight,
+  Minus,
+  Plus,
+  ShoppingCart,
+  ZoomIn,
+  PackageX,
+} from "lucide-react";
+import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useParams, useNavigate } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../store/store";
+import { getProductById } from "../../store/features/productSlice";
+import { getHost } from "../../utils/hostUtils";
+import { Skeleton } from "../../components/Skeleton";
+import EmptyState from "../../components/EmptyState";
 
 const productData = {
   title: "Polo homme",
@@ -78,13 +91,98 @@ const relatedProducts = [
   },
 ];
 
+const ProductNotFound = () => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  return (
+    <div className="p-8 bg-white rounded-lg min-h-[400px] flex items-center justify-center">
+      <div className="text-center">
+        <div className="mb-6">
+          <PackageX className="w-16 h-16 mx-auto text-gray-400" />
+        </div>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+          {t("clientProduct.notFound.title", "Product Not Found")}
+        </h2>
+        <p className="text-gray-500 mb-6 max-w-md mx-auto">
+          {t(
+            "clientProduct.notFound.description",
+            "The product you're looking for doesn't exist or has been removed."
+          )}
+        </p>
+        <Button
+          variant="outline"
+          onClick={() => navigate("/products")}
+          className="inline-flex items-center gap-2"
+        >
+          {t("clientProduct.notFound.action", "Back to Products")}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
+const ProductError = ({ error }: { error: string }) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="p-8 bg-white rounded-lg min-h-[400px] flex items-center justify-center">
+      <div className="text-center">
+        <div className="mb-6">
+          <PackageX className="w-16 h-16 mx-auto text-red-400" />
+        </div>
+        <h2 className="text-2xl font-semibold text-gray-900 mb-2">
+          {t("clientProduct.error.title", "Error Loading Product")}
+        </h2>
+        <p className="text-red-500 mb-6 max-w-md mx-auto">{error}</p>
+        <Button
+          variant="outline"
+          onClick={() => window.location.reload()}
+          className="inline-flex items-center gap-2"
+        >
+          {t("common.retry", "Try Again")}
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 const ProductPage = () => {
   const [quantity, setQuantity] = React.useState(1);
   const { t } = useTranslation();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { currentProduct, loading, error } = useAppSelector(
+    (state) => state.product
+  );
+  const dnsPrefix = getHost();
+
+  useEffect(() => {
+    if (id && dnsPrefix) {
+      dispatch(getProductById({ dnsPrefix, productId: id }));
+    }
+  }, [dispatch, id, dnsPrefix]);
 
   const changeQuantity = (amount: number) => {
     setQuantity((prev) => Math.max(1, prev + amount));
   };
+
+  if (loading) {
+    return (
+      <div className="p-8 bg-white rounded-lg">
+        <Skeleton variant="details" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <ProductError error={error} />;
+  }
+
+  if (!currentProduct) {
+    return <ProductNotFound />;
+  }
 
   return (
     <div className="flex flex-col items-start gap-8 p-8 bg-white rounded-lg">
@@ -108,7 +206,7 @@ const ProductPage = () => {
           </BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbLink className="font-normal text-gray-700 text-lg">
-              {productData.title}
+              {currentProduct.name}
             </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
@@ -116,8 +214,16 @@ const ProductPage = () => {
 
       <div className="flex flex-col items-start gap-8 w-full">
         <div className="flex items-start gap-8 w-full">
-          <ProductImages />
-          <ProductInfo quantity={quantity} changeQuantity={changeQuantity} />
+          <ProductImages
+            images={
+              currentProduct.product_image ? [currentProduct.product_image] : []
+            }
+          />
+          <ProductInfo
+            product={currentProduct}
+            quantity={quantity}
+            changeQuantity={changeQuantity}
+          />
         </div>
         <RelatedProducts />
       </div>
@@ -125,24 +231,40 @@ const ProductPage = () => {
   );
 };
 
-const ProductImages = () => (
+const ProductImages = ({ images }: { images: string[] }) => (
   <div className="flex flex-col items-start gap-2">
     <div className="relative">
-      <div className="w-[456px] h-[456px] rounded-lg bg-gray-200" />
+      <div className="w-[456px] h-[456px] rounded-lg bg-gray-200">
+        {images[0] && (
+          <img
+            src={images[0]}
+            alt="Product"
+            className="w-full h-full object-cover rounded-lg"
+          />
+        )}
+      </div>
       <ZoomIn className="absolute w-6 h-6 top-3.5 right-3.5" />
     </div>
     <div className="flex items-center gap-4">
-      {[...Array(3)].map((_, index) => (
-        <div key={index} className="w-24 h-24 rounded-lg bg-gray-200" />
+      {images.map((image, index) => (
+        <div key={index} className="w-24 h-24 rounded-lg bg-gray-200">
+          <img
+            src={image}
+            alt={`Product thumbnail ${index + 1}`}
+            className="w-full h-full object-cover rounded-lg"
+          />
+        </div>
       ))}
     </div>
   </div>
 );
 
 const ProductInfo = ({
+  product,
   quantity,
   changeQuantity,
 }: {
+  product: any;
   quantity: number;
   changeQuantity: (amount: number) => void;
 }) => {
@@ -152,30 +274,21 @@ const ProductInfo = ({
       <div className="font-medium text-gray-800">
         {t("clientProduct.category")}
       </div>
-      <h1 className="font-bold text-2xl text-gray-900">{productData.title}</h1>
-      <ProductPrice />
+      <h1 className="font-bold text-2xl text-gray-900">{product.name}</h1>
+      <ProductPrice price={product.price} />
       <ProductSelectors quantity={quantity} changeQuantity={changeQuantity} />
       <AddToCartButton />
-      <ProductDescription />
+      <ProductDescription description={product.description} />
     </div>
   );
 };
 
-const ProductPrice = () => {
+const ProductPrice = ({ price }: { price: number }) => {
   const { t } = useTranslation();
   return (
     <div className="flex flex-col items-start gap-2">
       <div className="text-2xl text-gray-900">
-        <span className="font-bold">{productData.price}</span>
-        <span className="font-bold"> {t("clientProduct.price.perUnit")} </span>
-        <span className="font-medium">
-          {productData.pricePerUnit.substring(1)}
-        </span>
-      </div>
-      <div className="font-medium text-gray-900">
-        <span>
-          {t("clientProduct.price.vatExcluded")}: {productData.priceTax}
-        </span>
+        <span className="font-bold">{price}€</span>
       </div>
     </div>
   );
@@ -189,6 +302,8 @@ const ProductSelectors = ({
   changeQuantity: (amount: number) => void;
 }) => {
   const { t } = useTranslation();
+  const [selectedSize, setSelectedSize] = React.useState<string>("M");
+
   return (
     <div className="flex items-start gap-8">
       <div className="flex flex-col items-center gap-2">
@@ -219,9 +334,9 @@ const ProductSelectors = ({
         <label className="font-medium text-black">
           {t("clientProduct.selectors.sizes")}
         </label>
-        <Select defaultValue="M">
-          <SelectTrigger className="w-20 font-medium">
-            <SelectValue placeholder={t("clientProduct.selectors.sizes")} />
+        <Select value={selectedSize} onValueChange={setSelectedSize}>
+          <SelectTrigger className="w-20">
+            <SelectValue defaultValue={selectedSize} />
           </SelectTrigger>
           <SelectContent>
             {["S", "M", "L", "XL", "XXL"].map((size) => (
@@ -248,7 +363,7 @@ const AddToCartButton = () => {
   );
 };
 
-const ProductDescription = () => {
+const ProductDescription = ({ description }: { description: string }) => {
   const { t } = useTranslation();
   return (
     <div className="flex flex-col items-start gap-4">
@@ -258,33 +373,11 @@ const ProductDescription = () => {
             {t("clientProduct.description.title")}
           </h2>
         </div>
-        <Separator className="w-full" />
+        <hr className="w-full border-t border-gray-200" />
       </div>
       <div className="flex flex-col items-start gap-6">
         <div className="w-[462px] text-sm leading-6 text-gray-900">
-          <span className="text-gray-800">
-            {t("clientProduct.description.color")}:{" "}
-            {productData.description.color}
-            <br />
-          </span>
-          <span className="font-bold">
-            {t("clientProduct.description.sizes")}
-          </span>
-          <span className="text-gray-800">
-            : {productData.description.sizes}
-            <br />
-          </span>
-          <span className="font-bold">
-            {t("clientProduct.description.composition")}
-          </span>
-          <span className="text-gray-800">
-            : {productData.description.composition}
-            <br />
-            {productData.description.features}
-            <br />
-            <br />
-          </span>
-          <span className="font-bold">{productData.description.packaging}</span>
+          {description}
         </div>
       </div>
     </div>

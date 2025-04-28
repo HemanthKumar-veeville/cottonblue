@@ -5,7 +5,11 @@ import { ImageIcon } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../../store/store";
-import { createCarousel, getCarousel } from "../../store/features/clientSlice";
+import {
+  createCarousel,
+  getCarousel,
+  deleteCarouselImage,
+} from "../../store/features/clientSlice";
 import { toast } from "sonner";
 import { getHost } from "../../utils/hostUtils";
 import { Skeleton } from "../../components/Skeleton";
@@ -224,16 +228,50 @@ export default function Container(): JSX.Element {
     });
   }, []);
 
-  const handleRemoveImage = useCallback((index: number) => {
-    setImages((prev) => {
-      const newImages = [...prev];
-      if (newImages[index]) {
-        URL.revokeObjectURL(newImages[index].preview);
-        newImages.splice(index, 1);
+  const handleRemoveImage = useCallback(
+    (index: number) => {
+      if (!selectedCompany?.dns || !carousel?.image_urls) {
+        toast.error(t("carousel.errors.unableToDelete"));
+        return;
       }
-      return [...newImages];
-    });
-  }, []);
+
+      // Get the image URL and extract the ID
+      const imageUrls = Object.entries(carousel.image_urls);
+      if (index >= imageUrls.length) {
+        return;
+      }
+
+      const [imageId] = imageUrls[index];
+
+      // Dispatch deleteCarouselImage
+      dispatch(
+        deleteCarouselImage({
+          dns_prefix: selectedCompany.dns,
+          image_id: imageId,
+        })
+      )
+        .unwrap()
+        .then(() => {
+          // On success, update local state
+          setImages((prev) => {
+            const newImages = [...prev];
+            if (newImages[index]) {
+              URL.revokeObjectURL(newImages[index].preview);
+              newImages.splice(index, 1);
+            }
+            return [...newImages];
+          });
+          toast.success(t("carousel.messages.deleteSuccess"));
+
+          // Refresh carousel data
+          dispatch(getCarousel(selectedCompany.dns));
+        })
+        .catch(() => {
+          toast.error(t("carousel.messages.deleteError"));
+        });
+    },
+    [dispatch, selectedCompany?.dns, carousel?.image_urls, t]
+  );
 
   const handleSave = async () => {
     if (!selectedCompany?.dns) {
@@ -258,7 +296,7 @@ export default function Container(): JSX.Element {
           },
         })
       ).unwrap();
-
+      await dispatch(getCarousel(selectedCompany.dns));
       toast.success(t("carousel.messages.saveSuccess"));
     } catch (error) {
       toast.error(t("carousel.messages.saveError"));
