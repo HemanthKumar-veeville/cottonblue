@@ -1,0 +1,80 @@
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { getCarousel } from "../../store/features/clientSlice";
+import { getHost } from "../../utils/hostUtils";
+
+export const DashboardCarousel = (): JSX.Element => {
+  const dispatch = useDispatch();
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const carousel = useSelector((state: any) => state.client.carousel);
+  const dnsPrefix = getHost();
+
+  useEffect(() => {
+    dispatch(getCarousel(dnsPrefix) as any);
+  }, [dispatch, dnsPrefix]);
+
+  useEffect(() => {
+    if (!carousel?.is_active || !carousel?.image_urls) return;
+
+    const imageCount = Object.keys(carousel.image_urls).length;
+    if (!imageCount) return;
+
+    if (carousel.auto_play) {
+      const timer = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % imageCount);
+      }, 5000);
+
+      return () => clearInterval(timer);
+    }
+  }, [carousel?.is_active, carousel?.auto_play, carousel?.image_urls]);
+
+  const handleDotClick = (index: number) => {
+    setCurrentSlide(index);
+  };
+
+  // Return empty fragment if carousel is not active or no images
+  if (!carousel?.is_active || !carousel?.image_urls) {
+    return <></>;
+  }
+
+  const imageUrls = Object.values(carousel.image_urls ?? {}) as string[];
+  if (!imageUrls.length) {
+    return <></>;
+  }
+
+  return (
+    <div className="flex flex-col items-center justify-center gap-2.5 w-full mb-8">
+      <div className="flex h-64 items-center justify-center w-full rounded-[var(--2-tokens-screen-modes-button-border-radius)] [background:linear-gradient(0deg,rgba(242,237,227,1)_0%,rgba(242,237,227,1)_100%)] overflow-hidden">
+        <div className="flex w-full h-full items-center justify-center">
+          {imageUrls.map((imageUrl, index) => (
+            <div
+              key={index}
+              className={`flex items-center justify-center transition-all duration-500 ease-in-out ${
+                currentSlide === index ? "block" : "hidden"
+              }`}
+            >
+              <img
+                className="w-[255px] h-auto"
+                alt={`Banner image ${index + 1}`}
+                src={imageUrl}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="inline-flex items-start gap-[var(--2-tokens-screen-modes-common-spacing-m)] relative flex-[0_0_auto]">
+        {imageUrls.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => handleDotClick(index)}
+            className={`w-4 h-4 rounded-lg ${
+              currentSlide === index
+                ? "bg-[#00b85b]"
+                : "border border-solid border-[#00b85b]"
+            }`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};

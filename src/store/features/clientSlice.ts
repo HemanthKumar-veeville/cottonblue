@@ -23,6 +23,11 @@ interface ClientState {
     dns: string;
   } | null;
   companyDetails: any | null;
+  carousel: {
+    images: string[];
+    is_active: boolean;
+    auto_play: boolean;
+  } | null;
 }
 
 const initialState: ClientState = {
@@ -32,6 +37,7 @@ const initialState: ClientState = {
   companies: [],
   selectedCompany: null,
   companyDetails: null,
+  carousel: null,
 };
 
 export const registerClient = createAsyncThunk(
@@ -90,6 +96,40 @@ export const modifyCompany = createAsyncThunk(
   }
 );
 
+export const getCarousel = createAsyncThunk(
+  'client/getCarousel',
+  async (dns_prefix: string, { rejectWithValue }) => {
+    try {
+      const response = await clientService.getCarousel(dns_prefix);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch carousel data');
+    }
+  }
+);
+
+export const createCarousel = createAsyncThunk(
+  'client/createCarousel',
+  async ({ 
+    dns_prefix, 
+    data 
+  }: { 
+    dns_prefix: string; 
+    data: { 
+      carousel_images: File[];
+      is_active: boolean;
+      auto_play: boolean;
+    } 
+  }, { rejectWithValue }) => {
+    try {
+      const response = await clientService.createCarousel(dns_prefix, data);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to create carousel');
+    }
+  }
+);
+
 const clientSlice = createSlice({
   name: 'client',
   initialState,
@@ -98,6 +138,7 @@ const clientSlice = createSlice({
       state.loading = false;
       state.error = null;
       state.success = false;
+      state.carousel = null;
     },
     setSelectedCompany: (state, action) => {
       state.selectedCompany = action.payload;
@@ -160,6 +201,31 @@ const clientSlice = createSlice({
         state.success = true;
       })
       .addCase(modifyCompany.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.success = false;
+      })
+      .addCase(getCarousel.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getCarousel.fulfilled, (state, action) => {
+        state.loading = false;
+        state.carousel = action.payload;
+      })
+      .addCase(getCarousel.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(createCarousel.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createCarousel.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(createCarousel.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         state.success = false;

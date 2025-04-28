@@ -8,6 +8,7 @@ import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../../../store/store";
 import { fetchAllProducts } from "../../../store/features/productSlice";
 import { getHost } from "../../../utils/hostUtils";
+import { DashboardCarousel } from "../../../components/DashboardCarousel/DashboardCarousel";
 
 interface Product {
   id: number;
@@ -260,7 +261,6 @@ const ProductSection = ({ title, products }: ProductSectionProps) => {
 };
 
 export const DashboardSection = (): JSX.Element => {
-  const [currentSlide, setCurrentSlide] = useState(0);
   const [activeTab, setActiveTab] = useState("mostOrdered");
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -280,18 +280,6 @@ export const DashboardSection = (): JSX.Element => {
     "/img/image-1.png",
   ];
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % carouselImages.length);
-    }, 5000);
-
-    return () => clearInterval(timer);
-  }, []);
-
-  const handleDotClick = (index: number) => {
-    setCurrentSlide(index);
-  };
-
   // Sort products by stock to get most ordered items
   const mostOrderedProducts = [...productList]
     .sort((a, b) => (b.stock ?? 0) - (a.stock ?? 0))
@@ -306,40 +294,7 @@ export const DashboardSection = (): JSX.Element => {
     <div className="flex flex-col h-screen w-full">
       <div className="flex-1 overflow-y-auto w-full [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
         <div className="flex flex-col w-full items-start p-[var(--2-tokens-screen-modes-common-spacing-l)]">
-          {/* Carousel section */}
-          <div className="flex flex-col items-center justify-center gap-2.5 w-full mb-8">
-            <div className="flex h-64 items-center justify-center w-full rounded-[var(--2-tokens-screen-modes-button-border-radius)] [background:linear-gradient(0deg,rgba(242,237,227,1)_0%,rgba(242,237,227,1)_100%)] overflow-hidden">
-              <div className="flex w-full h-full items-center justify-center">
-                {carouselImages.map((image, index) => (
-                  <div
-                    key={index}
-                    className={`flex items-center justify-center transition-all duration-500 ease-in-out ${
-                      currentSlide === index ? "block" : "hidden"
-                    }`}
-                  >
-                    <img
-                      className="w-[255px] h-auto"
-                      alt={`Banner image ${index + 1}`}
-                      src={image}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-            <div className="inline-flex items-start gap-[var(--2-tokens-screen-modes-common-spacing-m)] relative flex-[0_0_auto]">
-              {carouselImages.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleDotClick(index)}
-                  className={`w-4 h-4 rounded-lg ${
-                    currentSlide === index
-                      ? "bg-[#00b85b]"
-                      : "border border-solid border-[#00b85b]"
-                  }`}
-                />
-              ))}
-            </div>
-          </div>
+          <DashboardCarousel images={carouselImages} />
 
           {/* Tabs */}
           <div className="flex items-center gap-6 border-b border-gray-200 w-full mb-8">

@@ -16,6 +16,13 @@ export interface ClientRegistrationData {
   Admin_lname?: string; // Optional, defaults to company_name
 }
 
+// Interface for carousel creation data
+export interface CarouselCreationData {
+  carousel_images: File[];
+  is_active: boolean;
+  auto_play: boolean;
+}
+
 export const clientService = {
   /**
    * Register a new client with admin user
@@ -88,6 +95,40 @@ export const clientService = {
     });
 
     return axiosInstance.put(`/${dns_prefix}/client/${company_id}/modify`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  /**
+   * Get carousel data for a company by DNS prefix
+   * @param dns_prefix DNS prefix of the company
+   * @returns Promise with carousel data
+   */
+  getCarousel: async (dns_prefix: string) => {
+    return axiosInstance.get(`/${dns_prefix}/carousel`);
+  },
+
+  /**
+   * Create a new carousel for a company
+   * @param dns_prefix DNS prefix of the company
+   * @param data Carousel creation data including images and settings
+   * @returns Promise with creation response
+   */
+  createCarousel: async (dns_prefix: string, data: CarouselCreationData) => {
+    const formData = new FormData();
+    
+    // Append each carousel image to the FormData
+    data.carousel_images.forEach((image, index) => {
+      formData.append(`carousel_images`, image);
+    });
+    
+    // Add boolean settings
+    formData.append('is_active', String(data.is_active));
+    formData.append('auto_play', String(data.auto_play));
+
+    return axiosInstance.post(`/${dns_prefix}/create/carousel`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
