@@ -212,6 +212,24 @@
         "inStock": "In Stock",
         "outOfStock": "Out of Stock"
       }
+    },
+    "status": {
+      "inStock": "In Stock",
+      "outOfStock": "Out of Stock"
+    },
+    "error": {
+      "notEnoughStock": "Not enough stock available",
+      "title": "Error Loading Product",
+      "notFound": "Product Not Found"
+    },
+    "notAvailable": "Not Available",
+    "stockAvailable": "{{stock}} units available",
+    "details": {
+      "title": "Product Details",
+      "created": "Created",
+      "updated": "Last Updated",
+      "region": "Available Region",
+      "stock": "Stock"
     }
   },
   "cart": {

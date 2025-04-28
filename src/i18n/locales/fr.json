@@ -203,6 +203,24 @@
         "inStock": "En stock",
         "outOfStock": "Épuisé"
       }
+    },
+    "status": {
+      "inStock": "En stock",
+      "outOfStock": "Épuisé"
+    },
+    "error": {
+      "notEnoughStock": "Stock insuffisant",
+      "title": "Erreur de chargement du produit",
+      "notFound": "Produit non trouvé"
+    },
+    "notAvailable": "Non disponible",
+    "stockAvailable": "{{stock}} unités disponibles",
+    "details": {
+      "title": "Détails du produit",
+      "created": "Créé le",
+      "updated": "Dernière mise à jour",
+      "region": "Région disponible",
+      "stock": "Stock"
     }
   },
   "cart": {

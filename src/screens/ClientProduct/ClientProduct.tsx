@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
-import { Separator } from "../../components/ui/separator";
+import { Badge } from "../../components/ui/badge";
 import {
   ChevronRight,
   Minus,
@@ -22,6 +22,10 @@ import {
   ShoppingCart,
   ZoomIn,
   PackageX,
+  Clock,
+  MapPin,
+  Box,
+  Calendar,
 } from "lucide-react";
 import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -30,6 +34,8 @@ import { useAppDispatch, useAppSelector } from "../../store/store";
 import { getProductById } from "../../store/features/productSlice";
 import { getHost } from "../../utils/hostUtils";
 import { Skeleton } from "../../components/Skeleton";
+import { formatDate } from "../../utils/dateUtils";
+import { toast } from "sonner";
 import EmptyState from "../../components/EmptyState";
 
 const productData = {
@@ -157,6 +163,7 @@ const ProductPage = () => {
     (state) => state.product
   );
   const dnsPrefix = getHost();
+  const product = currentProduct?.product;
 
   useEffect(() => {
     if (id && dnsPrefix) {
@@ -165,7 +172,12 @@ const ProductPage = () => {
   }, [dispatch, id, dnsPrefix]);
 
   const changeQuantity = (amount: number) => {
-    setQuantity((prev) => Math.max(1, prev + amount));
+    const newQuantity = quantity + amount;
+    if (newQuantity > 0 && newQuantity <= (product?.stock ?? 0)) {
+      setQuantity(newQuantity);
+    } else if (newQuantity > (product?.stock ?? 0)) {
+      toast.error(t("clientProduct.error.notEnoughStock"));
+    }
   };
 
   if (loading) {
@@ -180,7 +192,7 @@ const ProductPage = () => {
     return <ProductError error={error} />;
   }
 
-  if (!currentProduct) {
+  if (!product) {
     return <ProductNotFound />;
   }
 
@@ -189,7 +201,10 @@ const ProductPage = () => {
       <Breadcrumb className="flex items-center gap-2">
         <BreadcrumbList>
           <BreadcrumbItem>
-            <BreadcrumbLink className="font-normal text-gray-700 text-lg">
+            <BreadcrumbLink
+              onClick={() => navigate("/products")}
+              className="font-normal text-gray-700 text-lg hover:text-primary cursor-pointer"
+            >
               {t("clientProduct.breadcrumb.catalog")}
             </BreadcrumbLink>
           </BreadcrumbItem>
@@ -198,15 +213,7 @@ const ProductPage = () => {
           </BreadcrumbSeparator>
           <BreadcrumbItem>
             <BreadcrumbLink className="font-normal text-gray-700 text-lg">
-              {t("clientProduct.breadcrumb.workwear")}
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator>
-            <ChevronRight className="w-6 h-6" />
-          </BreadcrumbSeparator>
-          <BreadcrumbItem>
-            <BreadcrumbLink className="font-normal text-gray-700 text-lg">
-              {currentProduct.name}
+              {product?.name ?? t("clientProduct.notAvailable")}
             </BreadcrumbLink>
           </BreadcrumbItem>
         </BreadcrumbList>
@@ -215,12 +222,10 @@ const ProductPage = () => {
       <div className="flex flex-col items-start gap-8 w-full">
         <div className="flex items-start gap-8 w-full">
           <ProductImages
-            images={
-              currentProduct.product_image ? [currentProduct.product_image] : []
-            }
+            images={product?.product_image ? [product.product_image] : []}
           />
           <ProductInfo
-            product={currentProduct}
+            product={product}
             quantity={quantity}
             changeQuantity={changeQuantity}
           />
@@ -233,28 +238,25 @@ const ProductPage = () => {
 
 const ProductImages = ({ images }: { images: string[] }) => (
   <div className="flex flex-col items-start gap-2">
-    <div className="relative">
-      <div className="w-[456px] h-[456px] rounded-lg bg-gray-200">
-        {images[0] && (
+    <div className="relative group">
+      <div className="w-[456px] h-[456px] rounded-lg bg-gray-100 overflow-hidden">
+        {images[0] ? (
           <img
             src={images[0]}
             alt="Product"
-            className="w-full h-full object-cover rounded-lg"
+            className="w-full h-full object-contain rounded-lg transition-transform duration-300 group-hover:scale-105"
           />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <ShoppingCart className="w-16 h-16 text-gray-400" />
+          </div>
         )}
       </div>
-      <ZoomIn className="absolute w-6 h-6 top-3.5 right-3.5" />
-    </div>
-    <div className="flex items-center gap-4">
-      {images.map((image, index) => (
-        <div key={index} className="w-24 h-24 rounded-lg bg-gray-200">
-          <img
-            src={image}
-            alt={`Product thumbnail ${index + 1}`}
-            className="w-full h-full object-cover rounded-lg"
-          />
+      {images[0] && (
+        <div className="absolute top-3.5 right-3.5 p-2 bg-white/80 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+          <ZoomIn className="w-5 h-5 text-gray-700" />
         </div>
-      ))}
+      )}
     </div>
   </div>
 );
@@ -269,115 +271,87 @@ const ProductInfo = ({
   changeQuantity: (amount: number) => void;
 }) => {
   const { t } = useTranslation();
-  return (
-    <div className="flex flex-col items-start justify-center gap-8 flex-1">
-      <div className="font-medium text-gray-800">
-        {t("clientProduct.category")}
-      </div>
-      <h1 className="font-bold text-2xl text-gray-900">{product.name}</h1>
-      <ProductPrice price={product.price} />
-      <ProductSelectors quantity={quantity} changeQuantity={changeQuantity} />
-      <AddToCartButton />
-      <ProductDescription description={product.description} />
-    </div>
-  );
-};
+  const stockStatus = product?.stock > 0 ? "inStock" : "outOfStock";
+  const stockStatusColor =
+    stockStatus === "inStock" ? "text-green-600" : "text-red-600";
 
-const ProductPrice = ({ price }: { price: number }) => {
-  const { t } = useTranslation();
   return (
-    <div className="flex flex-col items-start gap-2">
+    <div className="flex flex-col items-start justify-start gap-6 flex-1">
+      <div className="w-full">
+        <Badge variant="outline" className={`mb-4 ${stockStatusColor}`}>
+          {t(`clientProduct.status.${stockStatus}`)}
+        </Badge>
+        <h1 className="font-bold text-2xl text-gray-900 mb-2">
+          {product?.name}
+        </h1>
+        <p className="text-gray-600">{product?.available_region}</p>
+      </div>
+
       <div className="text-2xl text-gray-900">
-        <span className="font-bold">{price}€</span>
+        <span className="font-bold">
+          {product?.price
+            ? `${product.price.toFixed(2)}€`
+            : t("clientProduct.notAvailable")}
+        </span>
       </div>
-    </div>
-  );
-};
 
-const ProductSelectors = ({
-  quantity,
-  changeQuantity,
-}: {
-  quantity: number;
-  changeQuantity: (amount: number) => void;
-}) => {
-  const { t } = useTranslation();
-  const [selectedSize, setSelectedSize] = React.useState<string>("M");
-
-  return (
-    <div className="flex items-start gap-8">
-      <div className="flex flex-col items-center gap-2">
-        <label className="font-medium text-black">
-          {t("clientProduct.selectors.quantity")}
-        </label>
-        <div className="flex items-center justify-center gap-2 p-2 bg-gray-100 border border-gray-300 rounded-lg">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8 p-0.5"
-            onClick={() => changeQuantity(-1)}
-          >
-            <Minus className="w-4 h-4" />
-          </Button>
-          <span className="font-medium text-gray-700">{quantity}</span>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="w-8 h-8 p-0.5"
-            onClick={() => changeQuantity(1)}
-          >
-            <Plus className="w-4 h-4" />
-          </Button>
+      <div className="flex items-start gap-8">
+        <div className="flex flex-col items-center gap-2">
+          <label className="font-medium text-gray-700">
+            {t("clientProduct.selectors.quantity")}
+          </label>
+          <div className="flex items-center justify-center gap-2 p-2 bg-gray-50 border border-gray-200 rounded-lg">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8 p-0.5"
+              onClick={() => changeQuantity(-1)}
+              disabled={quantity <= 1}
+            >
+              <Minus className="w-4 h-4" />
+            </Button>
+            <span className="font-medium text-gray-900 min-w-[2rem] text-center">
+              {quantity}
+            </span>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="w-8 h-8 p-0.5"
+              onClick={() => changeQuantity(1)}
+              disabled={quantity >= (product?.stock ?? 0)}
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          </div>
+          <div className="text-sm text-gray-600 mt-1">
+            {t("clientProduct.stockAvailable", { stock: product?.stock })}
+          </div>
         </div>
       </div>
-      <div className="flex flex-col items-start gap-2">
-        <label className="font-medium text-black">
-          {t("clientProduct.selectors.sizes")}
-        </label>
-        <Select value={selectedSize} onValueChange={setSelectedSize}>
-          <SelectTrigger className="w-20">
-            <SelectValue defaultValue={selectedSize} />
-          </SelectTrigger>
-          <SelectContent>
-            {["S", "M", "L", "XL", "XXL"].map((size) => (
-              <SelectItem key={size} value={size}>
-                {size}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-    </div>
-  );
-};
 
-const AddToCartButton = () => {
-  const { t } = useTranslation();
-  return (
-    <Button className="w-88 gap-2 py-3 px-4 bg-green-600 border-green-700 text-white">
-      <ShoppingCart className="w-4 h-4" />
-      <span className="font-medium">
-        {t("clientProduct.buttons.addToCart")}
-      </span>
-    </Button>
-  );
-};
+      <Button
+        className="w-88 gap-2 py-3 px-4 bg-primary hover:bg-primary/90 text-white"
+        disabled={!product?.stock || product.stock <= 0}
+      >
+        <ShoppingCart className="w-4 h-4" />
+        <span className="font-medium">
+          {t("clientProduct.buttons.addToCart")}
+        </span>
+      </Button>
 
-const ProductDescription = ({ description }: { description: string }) => {
-  const { t } = useTranslation();
-  return (
-    <div className="flex flex-col items-start gap-4">
-      <div className="flex flex-col w-[462px] items-start gap-3">
-        <div className="flex items-start gap-4">
-          <h2 className="font-bold text-base text-gray-900">
-            {t("clientProduct.description.title")}
-          </h2>
+      <div className="flex flex-col items-start gap-4">
+        <div className="flex flex-col w-[462px] items-start gap-3">
+          <div className="flex items-start gap-4">
+            <h2 className="font-bold text-base text-gray-900">
+              {t("clientProduct.description.title")}
+            </h2>
+          </div>
+          <hr className="w-full border-t border-gray-200" />
         </div>
-        <hr className="w-full border-t border-gray-200" />
-      </div>
-      <div className="flex flex-col items-start gap-6">
-        <div className="w-[462px] text-sm leading-6 text-gray-900">
-          {description}
+        <div className="flex flex-col items-start gap-6">
+          <div className="w-[462px] text-sm leading-6 text-gray-900">
+            {product?.description || t("clientProduct.notAvailable")}
+          </div>
         </div>
       </div>
     </div>
@@ -386,27 +360,70 @@ const ProductDescription = ({ description }: { description: string }) => {
 
 const RelatedProducts = () => {
   const { t } = useTranslation();
+
+  const relatedProducts = [
+    {
+      id: 1,
+      name: "Magnet + stylo",
+      price: "64,00€",
+      pricePerUnit: "/200pcs",
+      status: "inStock",
+      statusColor: "text-green-600",
+    },
+    {
+      id: 2,
+      name: "Ballon de plage",
+      price: "64,00€",
+      pricePerUnit: "/200pcs",
+      status: "outOfStock",
+      statusColor: "text-red-600",
+    },
+    {
+      id: 3,
+      name: "Polo homme",
+      price: "64,00€",
+      pricePerUnit: "/200pcs",
+      status: "inStock",
+      statusColor: "text-green-600",
+    },
+    {
+      id: 4,
+      name: "Polo femme",
+      price: "64,00€",
+      pricePerUnit: "/200pcs",
+      status: "inStock",
+      statusColor: "text-green-600",
+    },
+    {
+      id: 5,
+      name: "Veste bodywarmer",
+      price: "64,00€",
+      pricePerUnit: "/200pcs",
+      status: "outOfStock",
+      statusColor: "text-red-600",
+    },
+  ];
+
   return (
     <div className="flex flex-col items-start gap-8 w-full">
       <h2 className="font-bold text-black text-xl">
         {t("clientProduct.relatedProducts.title")}
       </h2>
-      <div className="flex items-start gap-4 w-full">
+      <div className="grid grid-cols-5 gap-4 w-full">
         {relatedProducts.map((product) => (
-          <Card key={product.id} className="flex-1 shadow-md">
+          <Card
+            key={product.id}
+            className="flex-1 shadow-md hover:shadow-lg transition-shadow duration-200"
+          >
             <CardContent className="p-0">
               <div className="flex flex-col items-start gap-4">
                 <div className="w-full h-[134px] rounded-t-lg bg-gray-100" />
               </div>
               <div className="flex flex-col items-start gap-4 p-4">
                 <div className="flex flex-col items-start gap-1">
-                  <div className={`font-medium ${product.statusColor}`}>
-                    {t(
-                      `clientProduct.relatedProducts.status.${
-                        product.status === "En stock" ? "inStock" : "outOfStock"
-                      }`
-                    )}
-                  </div>
+                  <Badge variant="outline" className={product.statusColor}>
+                    {t(`clientProduct.status.${product.status}`)}
+                  </Badge>
                   <div className="font-medium text-gray-900">
                     {product.name}
                   </div>
@@ -414,11 +431,14 @@ const RelatedProducts = () => {
                 <div className="flex items-center justify-between w-full">
                   <div className="text-gray-700 text-lg">
                     <span className="font-medium">{product.price}</span>
-                    <span className="font-medium">{product.pricePerUnit}</span>
+                    <span className="text-sm text-gray-500">
+                      {product.pricePerUnit}
+                    </span>
                   </div>
                   <Button
                     size="icon"
-                    className="inline-flex gap-2 p-2 bg-green-600 border-green-700"
+                    className="inline-flex gap-2 p-2 bg-primary hover:bg-primary/90 text-white"
+                    disabled={product.status === "outOfStock"}
                   >
                     <ShoppingCart className="w-3.5 h-3.5" />
                   </Button>
