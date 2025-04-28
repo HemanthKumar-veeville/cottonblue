@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { clientService, ClientRegistrationData } from '../../services/clientService';
+import { clientService, ClientRegistrationData, CarouselUpdateData } from '../../services/clientService';
 
 export interface CompanyModificationData {
   company_name?: string;
@@ -148,6 +148,24 @@ export const deleteCarouselImage = createAsyncThunk(
   }
 );
 
+export const updateCarousel = createAsyncThunk(
+  'client/updateCarousel',
+  async ({ 
+    dns_prefix, 
+    data 
+  }: { 
+    dns_prefix: string; 
+    data: CarouselUpdateData 
+  }, { rejectWithValue }) => {
+    try {
+      const response = await clientService.updateCarousel(dns_prefix, data);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update carousel');
+    }
+  }
+);
+
 const clientSlice = createSlice({
   name: 'client',
   initialState,
@@ -258,6 +276,20 @@ const clientSlice = createSlice({
         state.success = true;
       })
       .addCase(deleteCarouselImage.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.success = false;
+      })
+      .addCase(updateCarousel.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.success = false;
+      })
+      .addCase(updateCarousel.fulfilled, (state) => {
+        state.loading = false;
+        state.success = true;
+      })
+      .addCase(updateCarousel.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         state.success = false;

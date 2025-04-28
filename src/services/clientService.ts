@@ -23,6 +23,13 @@ export interface CarouselCreationData {
   auto_play: boolean;
 }
 
+// Interface for carousel update data
+export interface CarouselUpdateData {
+  carousel_image?: File;
+  is_active?: boolean;
+  auto_play?: boolean;
+}
+
 export const clientService = {
   /**
    * Register a new client with admin user
@@ -143,5 +150,36 @@ export const clientService = {
    */
   deleteCarouselImage: async (dns_prefix: string, image_id: string) => {
     return axiosInstance.delete(`/${dns_prefix}/carousel/delete/${image_id}`);
+  },
+
+  /**
+   * Update carousel settings or image
+   * @param dns_prefix DNS prefix of the company
+   * @param data Update data containing either image file or boolean settings
+   * @returns Promise with update response
+   */
+  updateCarousel: async (dns_prefix: string, data: CarouselUpdateData) => {
+    // If updating an image
+    if (data.carousel_image) {
+      const formData = new FormData();
+      formData.append('carousel_image', data.carousel_image);
+      
+      return axiosInstance.put(`/${dns_prefix}/carousel/update`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+    }
+    
+    // If updating settings
+    const params = new URLSearchParams();
+    if (typeof data.is_active === 'boolean') {
+      params.append('is_active', String(data.is_active));
+    }
+    if (typeof data.auto_play === 'boolean') {
+      params.append('auto_play', String(data.auto_play));
+    }
+    
+    return axiosInstance.put(`/${dns_prefix}/carousel/update?${params.toString()}`);
   },
 };

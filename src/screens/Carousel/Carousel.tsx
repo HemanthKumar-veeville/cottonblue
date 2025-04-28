@@ -9,6 +9,7 @@ import {
   createCarousel,
   getCarousel,
   deleteCarouselImage,
+  updateCarousel,
 } from "../../store/features/clientSlice";
 import { toast } from "sonner";
 import { getHost } from "../../utils/hostUtils";
@@ -219,14 +220,100 @@ export default function Container(): JSX.Element {
     };
   }, [images]);
 
-  const handleFileSelect = useCallback((file: File, index: number) => {
-    setImages((prev) => {
-      const newImages = [...prev];
-      const preview = URL.createObjectURL(file);
-      newImages[index] = { file, preview };
-      return newImages;
-    });
-  }, []);
+  // Handle immediate settings update
+  const handleSettingChange = useCallback(
+    async (type: "is_active" | "auto_play", value: boolean) => {
+      if (!selectedCompany?.dns) {
+        toast.error(t("carousel.errors.noCompanySelected"));
+        return;
+      }
+
+      try {
+        await dispatch(
+          updateCarousel({
+            dns_prefix: selectedCompany.dns,
+            data: {
+              [type]: value,
+            },
+          })
+        ).unwrap();
+
+        // Refresh carousel data after update
+        await dispatch(getCarousel(selectedCompany.dns));
+        toast.success(t("carousel.messages.updateSuccess"));
+      } catch (error) {
+        toast.error(t("carousel.messages.updateError"));
+        // Revert the state on error
+        if (type === "is_active") setIsActive(!value);
+        if (type === "auto_play") setAutoPlay(!value);
+      }
+    },
+    [dispatch, selectedCompany?.dns, t]
+  );
+
+  // Modified setIsActive handler
+  const handleIsActiveChange = useCallback(
+    (value: boolean) => {
+      setIsActive(value);
+      handleSettingChange("is_active", value);
+    },
+    [handleSettingChange]
+  );
+
+  // Modified setAutoPlay handler
+  const handleAutoPlayChange = useCallback(
+    (value: boolean) => {
+      setAutoPlay(value);
+      handleSettingChange("auto_play", value);
+    },
+    [handleSettingChange]
+  );
+
+  // Modified handleFileSelect
+  const handleFileSelect = useCallback(
+    async (file: File, index: number) => {
+      if (!selectedCompany?.dns) {
+        toast.error(t("carousel.errors.noCompanySelected"));
+        return;
+      }
+
+      try {
+        // First update the preview
+        setImages((prev) => {
+          const newImages = [...prev];
+          const preview = URL.createObjectURL(file);
+          newImages[index] = { file, preview };
+          return newImages;
+        });
+
+        // Then dispatch the update
+        await dispatch(
+          updateCarousel({
+            dns_prefix: selectedCompany.dns,
+            data: {
+              carousel_image: file,
+            },
+          })
+        ).unwrap();
+
+        // Refresh carousel data
+        await dispatch(getCarousel(selectedCompany.dns));
+        toast.success(t("carousel.messages.updateSuccess"));
+      } catch (error) {
+        toast.error(t("carousel.messages.updateError"));
+        // Revert the preview on error
+        setImages((prev) => {
+          const newImages = [...prev];
+          if (newImages[index]?.preview) {
+            URL.revokeObjectURL(newImages[index].preview);
+          }
+          newImages[index] = prev[index];
+          return newImages;
+        });
+      }
+    },
+    [dispatch, selectedCompany?.dns, t]
+  );
 
   const handleRemoveImage = useCallback(
     (index: number) => {
@@ -341,7 +428,7 @@ export default function Container(): JSX.Element {
                     <Switch
                       id="show-carousel"
                       checked={isActive}
-                      onCheckedChange={setIsActive}
+                      onCheckedChange={handleIsActiveChange}
                     />
                     <label
                       htmlFor="show-carousel"
@@ -354,7 +441,7 @@ export default function Container(): JSX.Element {
                     <Switch
                       id="auto-loop"
                       checked={autoPlay}
-                      onCheckedChange={setAutoPlay}
+                      onCheckedChange={handleAutoPlayChange}
                     />
                     <label
                       htmlFor="auto-loop"
@@ -399,15 +486,17 @@ export default function Container(): JSX.Element {
               </CardContent>
             </Card>
 
-            <Button
-              className="h-12 self-end bg-[#07515f] text-[color:var(--1-tokens-color-modes-button-primary-default-text)]"
-              onClick={handleSave}
-              disabled={isSubmitting}
-            >
-              {isSubmitting
-                ? t("carousel.actions.saving")
-                : t("carousel.actions.save")}
-            </Button>
+            {carousel?.detail && (
+              <Button
+                className="h-12 self-end bg-[#07515f] text-[color:var(--1-tokens-color-modes-button-primary-default-text)]"
+                onClick={handleSave}
+                disabled={isSubmitting}
+              >
+                {isSubmitting
+                  ? t("carousel.actions.saving")
+                  : t("carousel.actions.save")}
+              </Button>
+            )}
           </CardContent>
         </Card>
       </div>
