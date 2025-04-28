@@ -12,11 +12,15 @@ import { getHost } from "../../../utils/hostUtils";
 interface Product {
   id: number;
   name: string;
-  price: string;
-  quantity: string;
-  status: string;
-  statusColor: string;
-  image: string;
+  price: number;
+  description: string;
+  product_image: string;
+  stock: number;
+  available_region: string;
+  company_id: number;
+  created_at: string;
+  updated_at: string;
+  is_active: boolean;
 }
 
 interface ProductSectionProps {
@@ -150,9 +154,41 @@ const productData = {
   ],
 };
 
+// Utility functions for handling null values
+const formatPrice = (price: number | null | undefined): string => {
+  if (price == null) return "N/A";
+  return `${price.toFixed(2)}€`;
+};
+
+const formatStock = (stock: number | null | undefined): string => {
+  if (stock == null) return "N/A";
+  return `/${stock}pcs`;
+};
+
+const getStockStatus = (
+  stock: number | null | undefined
+): { status: string; color: string } => {
+  if (stock == null)
+    return {
+      status: "dashboard.status.unknown",
+      color: "text-gray-500",
+    };
+
+  return stock > 0
+    ? {
+        status: "dashboard.status.inStock",
+        color: "text-1-tokens-color-modes-common-success-hight",
+      }
+    : {
+        status: "dashboard.status.outOfStock",
+        color: "text-defaultalert",
+      };
+};
+
 const ProductCard = ({ product }: { product: Product }) => {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const stockStatus = getStockStatus(product.stock);
 
   const handleClick = () => {
     navigate(`/product/${product.id}`);
@@ -160,32 +196,47 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   return (
     <Card
-      className="w-full h-full shadow-shadow cursor-pointer"
+      className="w-full h-full shadow-shadow cursor-pointer hover:shadow-lg transition-shadow duration-200"
       onClick={handleClick}
     >
       <CardContent className="p-4 h-full">
         <div className="flex flex-col h-full">
           <div
-            className="aspect-[4/3] w-full rounded-2xl bg-cover bg-center"
-            style={{ backgroundImage: `url(${product.image})` }}
-          />
-          <div className="flex flex-col flex-grow gap-1 mt-4">
-            <div
-              className={`font-text-small font-[number:var(--text-small-font-weight)] ${product.statusColor} text-[length:var(--text-small-font-size)] tracking-[var(--text-small-letter-spacing)] leading-[var(--text-small-line-height)] whitespace-nowrap [font-style:var(--text-small-font-style)]`}
-            >
-              {t(product.status)}
+            className="aspect-[4/3] w-full rounded-2xl bg-cover bg-center bg-gray-100"
+            style={{
+              backgroundImage: product.product_image
+                ? `url(${product.product_image})`
+                : "none",
+            }}
+          >
+            {!product.product_image && (
+              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                <ShoppingCartIcon size={48} />
+              </div>
+            )}
+          </div>
+          <div className="flex flex-col flex-grow gap-2 mt-4">
+            <div className={`flex items-center gap-2`}>
+              <Badge variant="outline" className={`${stockStatus.color}`}>
+                {t(stockStatus.status)}
+              </Badge>
+              {!product.is_active && (
+                <Badge variant="outline" className="text-gray-500">
+                  {t("dashboard.status.inactive")}
+                </Badge>
+              )}
             </div>
-            <div className="font-normal text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-base tracking-[0] leading-[22.4px]">
-              {product.name}
+            <div className="font-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-base tracking-[0] leading-[22.4px]">
+              {product.name || "N/A"}
             </div>
           </div>
           <div className="mt-auto pt-4">
             <div className="font-normal text-coolgray-100 text-lg tracking-[0] leading-[25.2px]">
               <span className="font-[number:var(--body-l-font-weight)] font-body-l [font-style:var(--body-l-font-style)] tracking-[var(--body-l-letter-spacing)] leading-[var(--body-l-line-height)] text-[length:var(--body-l-font-size)]">
-                {product.price}
+                {formatPrice(product.price)}
               </span>
               <span className="text-[length:var(--body-s-font-size)] leading-[var(--body-s-line-height)] font-body-s [font-style:var(--body-s-font-style)] font-[number:var(--body-s-font-weight)] tracking-[var(--body-s-letter-spacing)]">
-                {product.quantity}
+                {formatStock(product.stock)}
               </span>
             </div>
           </div>
@@ -214,7 +265,9 @@ export const DashboardSection = (): JSX.Element => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { products } = useAppSelector((state) => state.product);
+  const productList = products?.products || [];
   const dnsPrefix = getHost();
+
   useEffect(() => {
     if (dnsPrefix) {
       dispatch(fetchAllProducts(dnsPrefix));
@@ -238,6 +291,11 @@ export const DashboardSection = (): JSX.Element => {
   const handleDotClick = (index: number) => {
     setCurrentSlide(index);
   };
+
+  // Sort products by stock to get most ordered items
+  const mostOrderedProducts = [...productList]
+    .sort((a, b) => (b.stock ?? 0) - (a.stock ?? 0))
+    .slice(0, 6);
 
   const tabs = [
     { id: "mostOrdered", title: "dashboard.sections.mostOrdered" },
@@ -305,13 +363,13 @@ export const DashboardSection = (): JSX.Element => {
             {activeTab === "mostOrdered" && (
               <ProductSection
                 title="dashboard.sections.mostOrdered"
-                products={productData.mostOrdered}
+                products={mostOrderedProducts}
               />
             )}
             {activeTab === "allProducts" && (
               <ProductSection
                 title="dashboard.sections.allProducts"
-                products={productData.allProducts}
+                products={productList}
               />
             )}
           </div>
