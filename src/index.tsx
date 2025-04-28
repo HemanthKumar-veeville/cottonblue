@@ -35,12 +35,12 @@ import ClientSupport from "./screens/ClientSupport/ClientSupport";
 import ClientLogin from "./screens/ClientLogin/ClientLogin";
 import { isAdminHostname } from "./utils/hostUtils";
 import ProductDetails from "./screens/ProductDetails/ProductDetails";
-
+import { getHost } from "./utils/hostUtils";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
   const isAdminDomain = isAdminHostname();
-  console.log({ isAdminDomain, isSuperAdmin, isLoggedIn });
+  const dnsPrefix = getHost();
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -48,9 +48,9 @@ function App() {
     if (isAdminDomain) {
       dispatch(getUser("admin"));
     } else {
-      dispatch(getUser(window.location.hostname.split(".")[0]));
+      dispatch(getUser(dnsPrefix));
     }
-  }, [dispatch, isAdminDomain]);
+  }, [dispatch, isAdminDomain, dnsPrefix]);
 
   return (
     <BrowserRouter>

@@ -7,7 +7,7 @@ import { login, loginPage } from "../../store/features/authSlice";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loader";
-
+import { getHost } from "../../utils/hostUtils";
 const LogoSection = ({ companyLogo }: { companyLogo: string | null }) => {
   const { t } = useTranslation();
   return (
@@ -104,23 +104,18 @@ export default function ClientLogin() {
   );
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const dnsPrefix = getHost();
 
   useEffect(() => {
-    // Get the company name from the hostname
-    const hostname =
-      window.location.hostname === "localhost"
-        ? "chronodrive"
-        : window.location.hostname;
-    const companyName = hostname.split(".")[0];
-    dispatch(loginPage(companyName));
-  }, [dispatch]);
+    dispatch(loginPage(dnsPrefix));
+  }, [dispatch, dnsPrefix]);
 
   const handleSubmit = async () => {
-    if (!company) return;
+    if (!dnsPrefix) return;
 
     try {
-      await dispatch(login({ email, password, company })).unwrap();
-      navigate("/dashboard");
+      await dispatch(login({ email, password, company: dnsPrefix })).unwrap();
+      navigate("/");
       window.location.reload(); // Refresh the page
     } catch (error) {
       console.error("Login failed:", error);
