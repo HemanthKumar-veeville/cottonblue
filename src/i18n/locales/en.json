@@ -434,5 +434,25 @@
     "emptyMessage": "There are no products in your list yet. Add your first product to get started.",
     "noSearchResults": "No products match your search criteria.",
     "clearSearch": "Clear Search"
+  },
+  "carousel": {
+    "title": "Home Carousel",
+    "configuration": {
+      "title": "Carousel Configuration",
+      "showOnHome": "Show carousel on home",
+      "autoLoop": "Auto loop"
+    },
+    "images": {
+      "title": "Add Images",
+      "recommendation": "Recommended image: 1600×600 px (JPEG or PNG, max 2 MB). Important areas should be centered.",
+      "dropImages": "Drop your images here",
+      "orClickToSearch": "Or click to search",
+      "uploadedImage": "Uploaded image",
+      "preview": "Carousel preview"
+    },
+    "actions": {
+      "save": "Save",
+      "saving": "Saving..."
+    }
   }
 }

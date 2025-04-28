@@ -409,5 +409,25 @@
       "previous": "Précédent",
       "next": "Suivant"
     }
+  },
+  "carousel": {
+    "title": "Carrousel d'accueil",
+    "configuration": {
+      "title": "Configuration du carrousel",
+      "showOnHome": "Afficher le carrousel sur l'accueil",
+      "autoLoop": "Boucle automatique"
+    },
+    "images": {
+      "title": "Ajout des images",
+      "recommendation": "Image recommandée : 1600×600 px (JPEG ou PNG, max 2 Mo). Les zones importantes doivent être centrées.",
+      "dropImages": "Déposez vos images ici",
+      "orClickToSearch": "Ou cliquer pour rechercher",
+      "uploadedImage": "Image téléchargée",
+      "preview": "Aperçu du carrousel"
+    },
+    "actions": {
+      "save": "Enregistrer",
+      "saving": "Enregistrement en cours..."
+    }
   }
 }

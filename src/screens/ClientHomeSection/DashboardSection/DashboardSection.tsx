@@ -274,12 +274,6 @@ export const DashboardSection = (): JSX.Element => {
     }
   }, [dispatch, dnsPrefix]);
 
-  const carouselImages = [
-    "/img/image-1.png",
-    "/img/image-1.png",
-    "/img/image-1.png",
-  ];
-
   // Sort products by stock to get most ordered items
   const mostOrderedProducts = [...productList]
     .sort((a, b) => (b.stock ?? 0) - (a.stock ?? 0))
@@ -294,7 +288,7 @@ export const DashboardSection = (): JSX.Element => {
     <div className="flex flex-col h-screen w-full">
       <div className="flex-1 overflow-y-auto w-full [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
         <div className="flex flex-col w-full items-start p-[var(--2-tokens-screen-modes-common-spacing-l)]">
-          <DashboardCarousel images={carouselImages} />
+          <DashboardCarousel />
 
           {/* Tabs */}
           <div className="flex items-center gap-6 border-b border-gray-200 w-full mb-8">
