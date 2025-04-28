@@ -23,6 +23,7 @@ interface CarouselData {
   is_active?: boolean;
   created_at?: string;
   updated_at?: string;
+  detail?: boolean;
 }
 
 interface ImageUploadAreaProps {
@@ -228,6 +229,13 @@ export default function Container(): JSX.Element {
         return;
       }
 
+      if (carousel?.detail) {
+        // If detail exists, just update the local state without API call
+        if (type === "is_active") setIsActive(value);
+        if (type === "auto_play") setAutoPlay(value);
+        return;
+      }
+
       try {
         await dispatch(
           updateCarousel({
@@ -248,7 +256,7 @@ export default function Container(): JSX.Element {
         if (type === "auto_play") setAutoPlay(!value);
       }
     },
-    [dispatch, selectedCompany?.dns, t]
+    [dispatch, selectedCompany?.dns, t, carousel?.detail]
   );
 
   // Modified setIsActive handler
@@ -277,15 +285,20 @@ export default function Container(): JSX.Element {
         return;
       }
 
-      try {
-        // First update the preview
-        setImages((prev) => {
-          const newImages = [...prev];
-          const preview = URL.createObjectURL(file);
-          newImages[index] = { file, preview };
-          return newImages;
-        });
+      // First update the preview
+      setImages((prev) => {
+        const newImages = [...prev];
+        const preview = URL.createObjectURL(file);
+        newImages[index] = { file, preview };
+        return newImages;
+      });
 
+      if (carousel?.detail) {
+        // If detail exists, don't make the API call
+        return;
+      }
+
+      try {
         // Then dispatch the update
         await dispatch(
           updateCarousel({
@@ -312,7 +325,7 @@ export default function Container(): JSX.Element {
         });
       }
     },
-    [dispatch, selectedCompany?.dns, t]
+    [dispatch, selectedCompany?.dns, t, carousel?.detail]
   );
 
   const handleRemoveImage = useCallback(
