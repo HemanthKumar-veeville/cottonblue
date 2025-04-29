@@ -1,4 +1,11 @@
-import { BellIcon, SearchIcon, ShoppingCartIcon, UserIcon } from "lucide-react";
+import {
+  BellIcon,
+  MinusIcon,
+  PlusIcon,
+  SearchIcon,
+  UserIcon,
+} from "lucide-react";
+import { FaCartPlus } from "react-icons/fa";
 import { Badge } from "../../../components/ui/badge";
 import { Card, CardContent } from "../../../components/ui/card";
 import { Input } from "../../../components/ui/input";
@@ -12,6 +19,9 @@ import { DashboardCarousel } from "../../../components/DashboardCarousel/Dashboa
 import { Skeleton } from "../../../components/Skeleton";
 import EmptyState from "../../../components/EmptyState";
 import { Package } from "lucide-react";
+import { Button } from "../../../components/ui/button";
+import { addToCart } from "../../../store/features/cartSlice";
+import { toast } from "react-hot-toast";
 
 interface Product {
   id: number;
@@ -191,11 +201,35 @@ const getStockStatus = (
 
 const ProductCard = ({ product }: { product: Product }) => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { t } = useTranslation();
+  const [isAdding, setIsAdding] = useState(false);
   const stockStatus = getStockStatus(product.stock);
+  const { items } = useAppSelector((state) => state.cart);
+  const cartItem = items.find((item) => item.id === product.id);
+  const quantity = cartItem?.quantity || 0;
 
   const handleClick = () => {
     navigate(`/product/${product.id}`);
+  };
+
+  const handleQuantityChange = (amount: number, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    const newQuantity = quantity + amount;
+
+    if (amount > 0 && newQuantity <= (product.stock ?? 0)) {
+      dispatch(addToCart({ product, quantity: 1 }));
+    } else if (amount < 0 && newQuantity >= 0) {
+      dispatch(addToCart({ product, quantity: -1 }));
+    } else if (newQuantity > (product.stock ?? 0)) {
+      toast.error(t("cart.error.notEnoughStock"));
+    }
+  };
+
+  const handleInitialAdd = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setIsAdding(true);
+    handleQuantityChange(1, e);
   };
 
   return (
@@ -215,19 +249,80 @@ const ProductCard = ({ product }: { product: Product }) => {
           >
             {!product.product_image && (
               <div className="w-full h-full flex items-center justify-center text-gray-400">
-                <ShoppingCartIcon size={48} />
+                <FaCartPlus size={48} />
               </div>
             )}
           </div>
           <div className="flex flex-col flex-grow gap-2 mt-4">
-            <div className={`flex items-center gap-2`}>
-              <Badge variant="outline" className={`${stockStatus.color}`}>
-                {t(stockStatus.status)}
-              </Badge>
-              {!product.is_active && (
-                <Badge variant="outline" className="text-gray-500">
-                  {t("dashboard.status.inactive")}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Badge
+                  variant="outline"
+                  className={`${stockStatus.color} whitespace-nowrap text-xs px-2 py-0.5`}
+                >
+                  {t(stockStatus.status)}
                 </Badge>
+                {!product.is_active && (
+                  <Badge
+                    variant="outline"
+                    className="text-gray-500 whitespace-nowrap text-xs px-2 py-0.5"
+                  >
+                    {t("dashboard.status.inactive")}
+                  </Badge>
+                )}
+              </div>
+              {/* Cart interaction button */}
+              {(product.stock ?? 0) > 0 && (
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center"
+                  role="group"
+                  aria-label={t("product.cartControls")}
+                >
+                  {quantity === 0 ? (
+                    <Button
+                      size="icon"
+                      className="h-7 w-7 rounded-full bg-[#00b85b] hover:bg-[#00b85b]/90 text-white shadow-sm transition-all duration-200 hover:scale-105"
+                      onClick={handleInitialAdd}
+                      aria-label={t("product.addToCart")}
+                      title={t("product.addToCart")}
+                    >
+                      <FaCartPlus className="h-3.5 w-3.5" />
+                    </Button>
+                  ) : (
+                    <div className="flex items-center bg-gray-50 rounded-md shadow-sm border border-gray-100 h-7">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 rounded-full hover:bg-gray-50 transition-colors duration-200"
+                        onClick={(e) => handleQuantityChange(-1, e)}
+                        disabled={quantity <= 0}
+                        aria-label={t("product.decreaseQuantity")}
+                        title={t("product.decreaseQuantity")}
+                      >
+                        <MinusIcon className="h-3 w-3" />
+                      </Button>
+                      <span
+                        className="w-6 text-center text-sm font-medium"
+                        role="status"
+                        aria-label={t("product.quantityInCart", { quantity })}
+                      >
+                        {quantity}
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7 rounded-full hover:bg-gray-50 transition-colors duration-200"
+                        onClick={(e) => handleQuantityChange(1, e)}
+                        disabled={quantity >= (product.stock ?? 0)}
+                        aria-label={t("product.increaseQuantity")}
+                        title={t("product.increaseQuantity")}
+                      >
+                        <PlusIcon className="h-3 w-3" />
+                      </Button>
+                    </div>
+                  )}
+                </div>
               )}
             </div>
             <div className="font-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-base tracking-[0] leading-[22.4px]">
@@ -265,9 +360,11 @@ const ProductSection = ({ title, products }: ProductSectionProps) => {
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4 w-full">
+      <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-4 gap-4 w-full max-w-[1200px] mx-auto">
         {products.map((product) => (
-          <ProductCard key={product.id} product={product} />
+          <div className="w-full max-w-[320px] mx-auto">
+            <ProductCard key={product.id} product={product} />
+          </div>
         ))}
       </div>
     </div>
@@ -278,27 +375,29 @@ const ProductSection = ({ title, products }: ProductSectionProps) => {
 const ProductSkeleton = () => {
   return (
     <div className="w-full">
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 2xl:grid-cols-6 gap-4 w-full">
-        {[...Array(6)].map((_, index) => (
-          <Card key={index} className="w-full h-full shadow-shadow">
-            <CardContent className="p-4 h-full">
-              <div className="flex flex-col h-full">
-                <div className="aspect-[4/3] w-full rounded-2xl bg-gray-200 animate-pulse"></div>
-                <div className="flex flex-col flex-grow gap-2 mt-4">
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-16 bg-gray-200 rounded animate-pulse"></div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-4 gap-4 w-full max-w-[1200px] mx-auto">
+        {[...Array(8)].map((_, index) => (
+          <div className="w-full max-w-[320px] mx-auto">
+            <Card key={index} className="w-full h-full shadow-shadow">
+              <CardContent className="p-4 h-full">
+                <div className="flex flex-col h-full">
+                  <div className="aspect-[4/3] w-full rounded-2xl bg-gray-200 animate-pulse"></div>
+                  <div className="flex flex-col flex-grow gap-2 mt-4">
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-16 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
+                    <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse"></div>
                   </div>
-                  <div className="h-5 w-3/4 bg-gray-200 rounded animate-pulse"></div>
-                </div>
-                <div className="mt-auto pt-4">
-                  <div className="flex items-center gap-2">
-                    <div className="h-6 w-16 bg-gray-200 rounded animate-pulse"></div>
-                    <div className="h-6 w-12 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="mt-auto pt-4">
+                    <div className="flex items-center gap-2">
+                      <div className="h-6 w-16 bg-gray-200 rounded animate-pulse"></div>
+                      <div className="h-6 w-12 bg-gray-200 rounded animate-pulse"></div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
         ))}
       </div>
     </div>
@@ -332,11 +431,11 @@ export const DashboardSection = (): JSX.Element => {
   return (
     <div className="flex flex-col h-screen w-full">
       <div className="flex-1 overflow-y-auto w-full [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-        <div className="flex flex-col w-full items-start p-[var(--2-tokens-screen-modes-common-spacing-l)]">
+        <div className="flex flex-col w-full items-start p-4 lg:p-5">
           <DashboardCarousel />
 
           {/* Tabs */}
-          <div className="flex items-center gap-6 border-b border-gray-200 w-full mb-8">
+          <div className="flex items-center gap-6 border-b border-gray-200 w-full mb-5">
             {tabs.map((tab) => (
               <button
                 key={tab.id}

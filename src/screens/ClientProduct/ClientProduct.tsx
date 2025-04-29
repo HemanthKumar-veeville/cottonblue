@@ -31,7 +31,8 @@ import React, { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/store";
-import { getProductById } from "../../store/features/productSlice";
+import { getProductById, Product } from "../../store/features/productSlice";
+import { addToCart, clearError } from "../../store/features/cartSlice";
 import { getHost } from "../../utils/hostUtils";
 import { Skeleton } from "../../components/Skeleton";
 import { formatDate } from "../../utils/dateUtils";
@@ -154,7 +155,6 @@ const ProductError = ({ error }: { error: string }) => {
 };
 
 const ProductPage = () => {
-  const [quantity, setQuantity] = React.useState(1);
   const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
@@ -162,8 +162,13 @@ const ProductPage = () => {
   const { currentProduct, loading, error } = useAppSelector(
     (state) => state.product
   );
+  const { items } = useAppSelector((state) => state.cart);
   const dnsPrefix = getHost();
   const product = currentProduct?.product;
+
+  // Get initial quantity from cart
+  const cartItem = items.find((item) => item.id === Number(id));
+  const [quantity, setQuantity] = React.useState(cartItem?.quantity || 1);
 
   useEffect(() => {
     if (id && dnsPrefix) {
@@ -171,10 +176,21 @@ const ProductPage = () => {
     }
   }, [dispatch, id, dnsPrefix]);
 
+  // Update local quantity when cart changes
+  useEffect(() => {
+    const updatedCartItem = items.find((item) => item.id === Number(id));
+    if (updatedCartItem) {
+      setQuantity(updatedCartItem.quantity);
+    }
+  }, [items, id]);
+
   const changeQuantity = (amount: number) => {
     const newQuantity = quantity + amount;
     if (newQuantity > 0 && newQuantity <= (product?.stock ?? 0)) {
-      setQuantity(newQuantity);
+      if (product) {
+        dispatch(addToCart({ product, quantity: amount }));
+        setQuantity(newQuantity);
+      }
     } else if (newQuantity > (product?.stock ?? 0)) {
       toast.error(t("clientProduct.error.notEnoughStock"));
     }
@@ -266,7 +282,7 @@ const ProductInfo = ({
   quantity,
   changeQuantity,
 }: {
-  product: any;
+  product: Product;
   quantity: number;
   changeQuantity: (amount: number) => void;
 }) => {
@@ -332,6 +348,7 @@ const ProductInfo = ({
       <Button
         className="w-88 gap-2 py-3 px-4 bg-primary hover:bg-primary/90 text-white"
         disabled={!product?.stock || product.stock <= 0}
+        onClick={() => changeQuantity(1)}
       >
         <ShoppingCart className="w-4 h-4" />
         <span className="font-medium">

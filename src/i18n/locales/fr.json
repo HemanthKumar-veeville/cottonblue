@@ -255,6 +255,17 @@
     },
     "buttons": {
       "validateOrder": "Valider la commande"
+    },
+    "empty": {
+      "title": "Votre panier est vide",
+      "description": "Parcourez nos produits et ajoutez des articles à votre panier pour commencer.",
+      "browseProducts": "Parcourir les produits"
+    },
+    "error": {
+      "notEnoughStock": "Stock insuffisant"
+    },
+    "success": {
+      "orderValidated": "Commande validée avec succès"
     }
   },
   "history": {

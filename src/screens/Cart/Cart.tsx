@@ -11,105 +11,54 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { Textarea } from "../../components/ui/textarea";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, ShoppingCart } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import { useAppDispatch, useAppSelector } from "../../store/store";
+import { updateQuantity, removeFromCart } from "../../store/features/cartSlice";
+import { useState } from "react";
+import { toast } from "sonner";
+import EmptyState from "../../components/EmptyState";
+import { useNavigate } from "react-router-dom";
 
-const products = [
-  {
-    id: 1,
-    name: "Magnet + stylo",
-    ref: "122043",
-    price: "49.99€",
-    quantity: 1,
-    total: "145,30 €",
-    image: "",
-  },
-  {
-    id: 2,
-    name: "Polo homme - L",
-    ref: "122043",
-    price: "14.99€",
-    quantity: 1,
-    total: "89,99 €",
-    image: "",
-  },
-  {
-    id: 3,
-    name: "Polo femme - M",
-    ref: "122043",
-    price: "49.99€",
-    quantity: 1,
-    total: "312,75 €",
-    image: "",
-  },
-  {
-    id: 4,
-    name: "Polo femme - S",
-    ref: "122043",
-    price: "49.99€",
-    quantity: 1,
-    total: "312,75 €",
-    image: "",
-  },
-  {
-    id: 5,
-    name: "Veste bodywarmer",
-    ref: "122043",
-    price: "39.99€",
-    quantity: 1,
-    total: "205,60 €",
-    image: "",
-  },
-  {
-    id: 6,
-    name: "Bonnet",
-    ref: "122043",
-    price: "14.99€",
-    quantity: 1,
-    total: "478,20 €",
-    image: "",
-  },
-  {
-    id: 7,
-    name: "Bonnet",
-    ref: "122043",
-    price: "14.99€",
-    quantity: 1,
-    total: "478,20 €",
-    image: "",
-  },
-];
+interface ShippingAddress {
+  firstName: string;
+  lastName: string;
+  street: string;
+  city: string;
+  country: string;
+  phone: string;
+}
 
-const orderSummary = {
-  totalHT: "1 544,59 €",
-  shippingCost: "38,94€",
-  totalTTC: "1 922,53€",
-};
-
-const shippingAddress = {
-  street: "400 rue de Menin",
-  city: "Marcq en baroeul, 59700",
-  country: "France",
-  phone: "03 28 33 47 80",
-};
-
-const billingAddress = {
-  name: "Thomas Dubois",
-  street: "400 rue de Menin",
-  city: "Marcq en baroeul, 59700",
-  country: "France",
-  phone: "03 28 33 47 80",
-};
+interface BillingAddress {
+  name: string;
+  street: string;
+  city: string;
+  country: string;
+  phone: string;
+}
 
 const ProductRow = ({ product }: { product: any }) => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+
+  const handleQuantityChange = (amount: number) => {
+    const newQuantity = product.quantity + amount;
+    if (newQuantity > 0 && newQuantity <= product.stock) {
+      dispatch(
+        updateQuantity({ productId: product.id, quantity: newQuantity })
+      );
+    } else if (newQuantity > product.stock) {
+      toast.error(t("cart.error.notEnoughStock"));
+    }
+  };
+
   return (
     <TableRow
       key={product.id}
       className="border-b border-primary-neutal-300 hover:bg-transparent"
     >
       <TableCell className="w-11 p-2">
-        <Checkbox />
+        <Checkbox onChange={() => dispatch(removeFromCart(product.id))} />
       </TableCell>
       <TableCell className="w-[203px] p-3">
         <div className="flex items-center gap-3">
@@ -117,7 +66,7 @@ const ProductRow = ({ product }: { product: any }) => {
             <img
               className="w-[30px] h-[29px] object-cover"
               alt={product.name}
-              src={product.image}
+              src={product.product_image}
             />
           </div>
           <span className="font-text-medium text-black">{product.name}</span>
@@ -127,23 +76,33 @@ const ProductRow = ({ product }: { product: any }) => {
         {product.ref}
       </TableCell>
       <TableCell className="w-[145px] text-center text-black text-[15px]">
-        {product.price}
+        {product.price.toFixed(2)}€
       </TableCell>
       <TableCell className="w-[145px] p-2.5">
         <div className="flex items-center justify-center gap-2 bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] rounded-[var(--2-tokens-screen-modes-button-border-radius)] border border-solid border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] p-2">
-          <Button variant="ghost" size="icon" className="h-5 w-5 p-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5 p-0"
+            onClick={() => handleQuantityChange(-1)}
+          >
             <Minus className="h-4 w-4" />
           </Button>
           <span className="font-label-small text-[color:var(--1-tokens-color-modes-button-secondary-default-text)]">
             {product.quantity}
           </span>
-          <Button variant="ghost" size="icon" className="h-5 w-5 p-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-5 w-5 p-0"
+            onClick={() => handleQuantityChange(1)}
+          >
             <Plus className="h-4 w-4" />
           </Button>
         </div>
       </TableCell>
       <TableCell className="w-[145px] text-center text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[15px]">
-        {product.total}
+        {(product.price * product.quantity).toFixed(2)}€
       </TableCell>
     </TableRow>
   );
@@ -152,9 +111,11 @@ const ProductRow = ({ product }: { product: any }) => {
 const AddressSection = ({
   title,
   address,
+  onUpdate,
 }: {
   title: string;
-  address: any;
+  address: ShippingAddress | BillingAddress;
+  onUpdate: (field: string, value: string) => void;
 }) => {
   const { t } = useTranslation();
   return (
@@ -162,56 +123,156 @@ const AddressSection = ({
       <h2 className="font-heading-h5 text-[#1e2324] text-[length:var(--heading-h5-font-size)] tracking-[var(--heading-h5-letter-spacing)] leading-[var(--heading-h5-line-height)]">
         {t(title)}
       </h2>
-      <p className="font-text-small text-[color:var(--1-tokens-color-modes-button-ghost-default-text)]">
-        {address.name && (
-          <>
-            {address.name}
-            <br />
-          </>
+      <div className="flex flex-col gap-4">
+        {"firstName" in address && (
+          <div className="flex gap-2">
+            <Input
+              className="flex-1"
+              placeholder={t("cart.shipping.firstName")}
+              value={address.firstName}
+              onChange={(e) => onUpdate("firstName", e.target.value)}
+            />
+            <Input
+              className="flex-1"
+              placeholder={t("cart.shipping.lastName")}
+              value={address.lastName}
+              onChange={(e) => onUpdate("lastName", e.target.value)}
+            />
+          </div>
         )}
-        {address.street}
-        <br />
-        {address.city}
-        <br />
-        {address.country}
-        <br />
-        {address.phone}
-      </p>
+        <Input
+          placeholder={t("cart.address.street")}
+          value={address.street}
+          onChange={(e) => onUpdate("street", e.target.value)}
+        />
+        <Input
+          placeholder={t("cart.address.city")}
+          value={address.city}
+          onChange={(e) => onUpdate("city", e.target.value)}
+        />
+        <Input
+          placeholder={t("cart.address.country")}
+          value={address.country}
+          onChange={(e) => onUpdate("country", e.target.value)}
+        />
+        <Input
+          placeholder={t("cart.address.phone")}
+          value={address.phone}
+          onChange={(e) => onUpdate("phone", e.target.value)}
+        />
+      </div>
     </div>
   );
 };
 
-const OrderSummary = ({ summary }: { summary: any }) => {
+const OrderSummary = () => {
   const { t } = useTranslation();
-  const summaryTranslations: Record<string, string> = {
-    totalHT: "cart.summary.totalHT",
-    shippingCost: "cart.summary.shippingCost",
-    totalTTC: "cart.summary.totalTTC",
-  };
+  const { items, total } = useAppSelector((state) => state.cart);
+
+  const shippingCost = items.length > 0 ? 38.94 : 0;
+  const totalHT = total;
+  const totalTTC = totalHT + shippingCost;
 
   return (
     <div className="mt-auto">
-      {Object.entries(summary).map(([key, value]) => (
-        <div
-          key={key}
-          className="flex justify-end items-center gap-4 px-2 py-3"
-        >
-          <div className="flex w-[200px] items-center justify-between">
-            <span className="text-black text-base font-normal">
-              {t(summaryTranslations[key])}
-            </span>
-            <span className="font-bold text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] text-base p-2.5">
-              {value}
-            </span>
-          </div>
+      <div className="flex justify-end items-center gap-4 px-2 py-3">
+        <div className="flex w-[200px] items-center justify-between">
+          <span className="text-black text-base font-normal">
+            {t("cart.summary.totalHT")}
+          </span>
+          <span className="font-bold text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] text-base p-2.5">
+            {totalHT.toFixed(2)}€
+          </span>
         </div>
-      ))}
+      </div>
+      <div className="flex justify-end items-center gap-4 px-2 py-3">
+        <div className="flex w-[200px] items-center justify-between">
+          <span className="text-black text-base font-normal">
+            {t("cart.summary.shippingCost")}
+          </span>
+          <span className="font-bold text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] text-base p-2.5">
+            {shippingCost.toFixed(2)}€
+          </span>
+        </div>
+      </div>
+      <div className="flex justify-end items-center gap-4 px-2 py-3">
+        <div className="flex w-[200px] items-center justify-between">
+          <span className="text-black text-base font-normal">
+            {t("cart.summary.totalTTC")}
+          </span>
+          <span className="font-bold text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] text-base p-2.5">
+            {totalTTC.toFixed(2)}€
+          </span>
+        </div>
+      </div>
     </div>
   );
 };
 
 export default function CartContainer(): JSX.Element {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const { items } = useAppSelector((state) => state.cart);
+  const { user } = useAppSelector((state) => state.auth);
+
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
+    firstName: "",
+    lastName: "",
+    street: "",
+    city: "",
+    country: "",
+    phone: "",
+  });
+
+  const [billingAddress, setBillingAddress] = useState<BillingAddress>({
+    name: "",
+    street: "",
+    city: "",
+    country: "",
+    phone: "",
+  });
+
+  const [comments, setComments] = useState("");
+
+  const handleShippingUpdate = (field: string, value: string) => {
+    setShippingAddress((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleBillingUpdate = (field: string, value: string) => {
+    setBillingAddress((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleValidateOrder = () => {
+    // TODO: Implement order validation
+    toast.success(t("cart.success.orderValidated"));
+  };
+
+  if (items.length === 0) {
+    return (
+      <div className="flex flex-col h-full p-6 gap-8">
+        <div className="flex flex-col gap-2.5">
+          <h1 className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)]">
+            {t("cart.title")}
+          </h1>
+        </div>
+        <Card className="flex-1">
+          <CardContent className="flex flex-col items-center justify-center h-full gap-6">
+            <EmptyState
+              icon={ShoppingCart}
+              title={t("cart.empty.title")}
+              description={t("cart.empty.description")}
+            />
+            <Button
+              onClick={() => navigate("/")}
+              className="bg-[#00b85b] border-[#1a8563] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] font-label-medium"
+            >
+              {t("cart.empty.browseProducts")}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-full p-6 gap-8">
@@ -255,7 +316,7 @@ export default function CartContainer(): JSX.Element {
               <div className="flex-1 overflow-y-auto">
                 <Table>
                   <TableBody>
-                    {products.map((product) => (
+                    {items.map((product) => (
                       <ProductRow key={product.id} product={product} />
                     ))}
                   </TableBody>
@@ -263,7 +324,7 @@ export default function CartContainer(): JSX.Element {
               </div>
             </div>
 
-            <OrderSummary summary={orderSummary} />
+            <OrderSummary />
           </CardContent>
         </Card>
 
@@ -271,30 +332,15 @@ export default function CartContainer(): JSX.Element {
           <CardContent className="flex flex-col gap-8 p-6 h-full">
             <div className="flex flex-col gap-4 flex-1">
               <div className="flex flex-col gap-8">
-                <div className="flex flex-col gap-4">
-                  <div className="flex flex-col gap-2">
-                    <h2 className="font-heading-h5 text-[#1e2324] text-[length:var(--heading-h5-font-size)] tracking-[var(--heading-h5-letter-spacing)] leading-[var(--heading-h5-line-height)]">
-                      {t("cart.shipping.title")}
-                    </h2>
-                    <div className="flex gap-2">
-                      <Input
-                        className="flex-1 bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)]"
-                        placeholder={t("cart.shipping.firstName")}
-                      />
-                      <Input
-                        className="flex-1 bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)]"
-                        placeholder={t("cart.shipping.lastName")}
-                      />
-                    </div>
-                  </div>
-                  <AddressSection
-                    title="cart.shipping.title"
-                    address={shippingAddress}
-                  />
-                </div>
+                <AddressSection
+                  title="cart.shipping.title"
+                  address={shippingAddress}
+                  onUpdate={handleShippingUpdate}
+                />
                 <AddressSection
                   title="cart.billing.title"
                   address={billingAddress}
+                  onUpdate={handleBillingUpdate}
                 />
               </div>
 
@@ -304,7 +350,7 @@ export default function CartContainer(): JSX.Element {
                 </h2>
                 <Input
                   className="bg-[color:var(--1-tokens-color-modes-input-primary-disable-background)] border-[color:var(--1-tokens-color-modes-input-primary-disable-border)] text-[color:var(--1-tokens-color-modes-input-primary-disable-placeholder-label)]"
-                  value="pierre.doe@chronodrive.com"
+                  value={user?.email}
                   disabled
                 />
               </div>
@@ -316,11 +362,17 @@ export default function CartContainer(): JSX.Element {
                 <Textarea
                   className="flex-1 bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)]"
                   placeholder={t("cart.comments.placeholder")}
+                  value={comments}
+                  onChange={(e) => setComments(e.target.value)}
                 />
               </div>
             </div>
 
-            <Button className="w-full bg-[#00b85b] border-[#1a8563] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] font-label-medium">
+            <Button
+              className="w-full bg-[#00b85b] border-[#1a8563] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] font-label-medium"
+              onClick={handleValidateOrder}
+              disabled={items.length === 0}
+            >
               {t("cart.buttons.validateOrder")}
             </Button>
           </CardContent>

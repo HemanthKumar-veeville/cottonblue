@@ -3,11 +3,17 @@ import { Badge } from "../ui/badge";
 import { Input } from "../ui/input";
 import { useTranslation } from "react-i18next";
 import { useAppSelector } from "../../store/store";
+import { useNavigate } from "react-router-dom";
 
 export const ClientHeader = () => {
   const { t } = useTranslation();
   const { user } = useAppSelector((state) => state.auth);
+  const { items } = useAppSelector((state) => state.cart);
   const userName = user?.user_name;
+  const navigate = useNavigate();
+
+  // Calculate total items in cart
+  const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);
 
   return (
     <div className="flex w-full items-center justify-end gap-[182px] px-8 py-4 bg-defaultwhite border-b border-1-tokens-color-modes-common-neutral-lower">
@@ -45,7 +51,10 @@ export const ClientHeader = () => {
               9
             </Badge>
           </div>
-          <div className="inline-flex justify-end gap-4 flex-[0_0_auto] items-center relative">
+          <div
+            className="inline-flex justify-end gap-4 flex-[0_0_auto] items-center relative cursor-pointer"
+            onClick={() => navigate("/cart")}
+          >
             <div className="inline-flex h-12 items-center justify-center gap-4 px-2 py-4 relative flex-[0_0_auto]">
               <ShoppingCartIcon className="w-6 h-6 mt-[-4.00px] mb-[-4.00px]" />
               <div className="inline-flex items-center justify-center relative flex-[0_0_auto] mt-[-4.00px] mb-[-4.00px]">
@@ -53,9 +62,11 @@ export const ClientHeader = () => {
                   {t("clientHeader.cart")}
                 </div>
               </div>
-              <Badge className="absolute top-2 left-6 bg-defaultalert rounded-xl">
-                9
-              </Badge>
+              {cartItemCount > 0 && (
+                <Badge className="absolute top-2 left-6 bg-defaultalert rounded-xl">
+                  {cartItemCount}
+                </Badge>
+              )}
             </div>
           </div>
         </div>

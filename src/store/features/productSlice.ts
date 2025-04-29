@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { productService, CreateProductData, UpdateProductData } from '../../services/productService.ts';
 
 // Define types for the product state
@@ -114,6 +114,33 @@ const productSlice = createSlice({
       state.updateSuccess = false;
       state.deleteSuccess = false;
     },
+    decrementStock: (state, action: PayloadAction<{ productId: number; quantity: number }>) => {
+      const { productId, quantity } = action.payload;
+      if (state.products.products) {
+        const product = state.products.products.find(p => p.id === productId);
+        if (product && product.stock >= quantity) {
+          product.stock -= quantity;
+        }
+      }
+    },
+    incrementStock: (state, action: PayloadAction<{ productId: number; quantity: number }>) => {
+      const { productId, quantity } = action.payload;
+      if (state.products.products) {
+        const product = state.products.products.find(p => p.id === productId);
+        if (product) {
+          product.stock += quantity;
+        }
+      }
+    },
+    updateStock: (state, action: PayloadAction<{ productId: number; newStock: number }>) => {
+      const { productId, newStock } = action.payload;
+      if (state.products.products) {
+        const product = state.products.products.find(p => p.id === productId);
+        if (product) {
+          product.stock = newStock;
+        }
+      }
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -197,6 +224,11 @@ const productSlice = createSlice({
   },
 });
 
-export const { resetState } = productSlice.actions;
+export const { 
+  resetState, 
+  decrementStock, 
+  incrementStock, 
+  updateStock 
+} = productSlice.actions;
 export default productSlice.reducer;
 export type { Product, ProductState };

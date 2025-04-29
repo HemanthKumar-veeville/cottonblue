@@ -264,6 +264,17 @@
     },
     "buttons": {
       "validateOrder": "Validate order"
+    },
+    "empty": {
+      "title": "Your cart is empty",
+      "description": "Browse our products and add items to your cart to get started.",
+      "browseProducts": "Browse Products"
+    },
+    "error": {
+      "notEnoughStock": "Not enough stock available"
+    },
+    "success": {
+      "orderValidated": "Order validated successfully"
     }
   },
   "history": {
