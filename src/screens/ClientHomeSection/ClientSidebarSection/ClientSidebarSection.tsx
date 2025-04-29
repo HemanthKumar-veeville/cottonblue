@@ -12,6 +12,7 @@ import { Card, CardContent } from "../../../components/ui/card";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch } from "../../../store/store";
 import { logout } from "../../../store/features/authSlice";
+import { useAppSelector } from "../../../store/store";
 
 const navItems = [
   {
@@ -65,13 +66,9 @@ const budgetCards = [
   },
 ];
 
-const LogoSection = () => (
+const LogoSection = ({ companyLogo }: { companyLogo: string }) => (
   <div className="flex flex-col items-end justify-center w-full">
-    <img
-      className="w-full h-9"
-      alt="Logo vert"
-      src="/img/chronodrive_logo.png"
-    />
+    <img className="w-full h-9" alt="Logo vert" src={companyLogo} />
     <div className="w-fit font-text-small text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]">
       by Cotton Blue
     </div>
@@ -183,10 +180,13 @@ const BottomNavigation = () => {
 };
 
 export const ClientSidebarSection = (): JSX.Element => {
+  const { user } = useAppSelector((state) => state.auth);
+  const companyLogo = user?.company_logo;
+
   return (
     <aside className="flex flex-col w-64 h-screen bg-defaultwhite border-r border-solid border-1-tokens-color-modes-common-neutral-lower">
       <div className="p-8">
-        <LogoSection />
+        <LogoSection companyLogo={companyLogo} />
       </div>
       <div className="flex flex-col flex-1 justify-between">
         <div className="space-y-10 px-4">

@@ -2,9 +2,12 @@ import { BellIcon, SearchIcon, ShoppingCartIcon, UserIcon } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { Input } from "../ui/input";
 import { useTranslation } from "react-i18next";
+import { useAppSelector } from "../../store/store";
 
 export const ClientHeader = () => {
   const { t } = useTranslation();
+  const { user } = useAppSelector((state) => state.auth);
+  const userName = user?.user_name;
 
   return (
     <div className="flex w-full items-center justify-end gap-[182px] px-8 py-4 bg-defaultwhite border-b border-1-tokens-color-modes-common-neutral-lower">
@@ -31,7 +34,7 @@ export const ClientHeader = () => {
               {t("clientHeader.account.title")}
             </div>
             <div className="relative self-stretch font-label-medium font-[number:var(--label-medium-font-weight)] text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] [font-style:var(--label-medium-font-style)]">
-              Marcq-en-Baroeul
+              {userName}
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@ export const isAdminHostname = (): boolean => {
 
 export const getHost = (): string => {
   const hostname = window.location.hostname;
-  return hostname === 'localhost' ? 'chronodrive' : hostname.split('.')[0];
+  return hostname === 'localhost' ? 'veeville' : hostname.split('.')[0];
 };
 
 
