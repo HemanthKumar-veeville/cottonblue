@@ -18,7 +18,7 @@ import { getHost } from "../../../utils/hostUtils";
 import { DashboardCarousel } from "../../../components/DashboardCarousel/DashboardCarousel";
 import { Skeleton } from "../../../components/Skeleton";
 import EmptyState from "../../../components/EmptyState";
-import { Package } from "lucide-react";
+import { Package2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { addToCart } from "../../../store/features/cartSlice";
 import { toast } from "react-hot-toast";
@@ -41,132 +41,6 @@ interface ProductSectionProps {
   title: string;
   products: Product[];
 }
-
-const productData = {
-  mostOrdered: [
-    {
-      id: 1,
-      name: "Magnet + stylo",
-      price: "64,00€",
-      quantity: "/200pcs",
-      status: "dashboard.status.inStock",
-      statusColor: "text-1-tokens-color-modes-common-success-hight",
-      image: "/img/product-image.png",
-    },
-    {
-      id: 2,
-      name: "Ballon de plage",
-      price: "64,00€",
-      quantity: "/200pcs",
-      status: "dashboard.status.outOfStock",
-      statusColor: "text-defaultalert",
-      image: "/img/product-image-1.svg",
-    },
-    {
-      id: 3,
-      name: "Polo homme",
-      price: "64,00€",
-      quantity: "/200pcs",
-      status: "dashboard.status.inStock",
-      statusColor: "text-1-tokens-color-modes-common-success-hight",
-      image: "/img/product-image-2.png",
-    },
-    {
-      id: 4,
-      name: "Polo femme",
-      price: "64,00€",
-      quantity: "/200pcs",
-      status: "dashboard.status.inStock",
-      statusColor: "text-1-tokens-color-modes-common-success-hight",
-      image: "/img/product-image-3.png",
-    },
-    {
-      id: 5,
-      name: "Veste bodywarmer",
-      price: "64,00€",
-      quantity: "/200pcs",
-      status: "dashboard.status.outOfStock",
-      statusColor: "text-defaultalert",
-      image: "/img/product-image-4.png",
-    },
-  ],
-  allProducts: [
-    {
-      id: 1,
-      name: "Magnet + stylo",
-      price: "64,00€",
-      quantity: "/200pcs",
-      status: "dashboard.status.inStock",
-      statusColor: "text-1-tokens-color-modes-common-success-hight",
-      image: "/img/product-image-5.svg",
-    },
-    {
-      id: 2,
-      name: "Polo homme",
-      price: "64,00€",
-      quantity: "/200pcs",
-      status: "dashboard.status.inStock",
-      statusColor: "text-1-tokens-color-modes-common-success-hight",
-      image: "/img/product-image-6.png",
-    },
-    {
-      id: 3,
-      name: "Polo femme",
-      price: "64,00€",
-      quantity: "/200pcs",
-      status: "dashboard.status.inStock",
-      statusColor: "text-1-tokens-color-modes-common-success-hight",
-      image: "/img/product-image-7.png",
-    },
-  ],
-  workClothes: [
-    {
-      id: 1,
-      name: "Polo homme",
-      price: "25,75€",
-      quantity: "/5pcs",
-      status: "dashboard.status.inStock",
-      statusColor: "text-1-tokens-color-modes-common-success-hight",
-      image: "/img/product-image-8.png",
-    },
-    {
-      id: 2,
-      name: "Polo femme",
-      price: "24,25€",
-      quantity: "/5pcs",
-      status: "dashboard.status.inStock",
-      statusColor: "text-1-tokens-color-modes-common-success-hight",
-      image: "/img/product-image-9.png",
-    },
-    {
-      id: 3,
-      name: "Veste bodywarmer",
-      price: "61,00 €",
-      quantity: "/5pcs",
-      status: "dashboard.status.outOfStock",
-      statusColor: "text-defaultalert",
-      image: "/img/product-image-10.png",
-    },
-    {
-      id: 4,
-      name: "Tour de cou",
-      price: "8,65€",
-      quantity: "/5pcs",
-      status: "dashboard.status.outOfStock",
-      statusColor: "text-defaultalert",
-      image: "/img/product-image-11.png",
-    },
-    {
-      id: 5,
-      name: "Bonnet",
-      price: "64,00€",
-      quantity: "/200pcs",
-      status: "dashboard.status.outOfStock",
-      statusColor: "text-defaultalert",
-      image: "/img/product-image-12.png",
-    },
-  ],
-};
 
 // Utility functions for handling null values
 const formatPrice = (price: number | null | undefined): string => {
@@ -249,7 +123,7 @@ const ProductCard = ({ product }: { product: Product }) => {
           >
             {!product.product_image && (
               <div className="w-full h-full flex items-center justify-center text-gray-400">
-                <FaCartPlus size={48} />
+                <Package2 size={48} />
               </div>
             )}
           </div>
@@ -351,7 +225,7 @@ const ProductSection = ({ title, products }: ProductSectionProps) => {
   if (products.length === 0) {
     return (
       <EmptyState
-        icon={Package}
+        icon={Package2}
         title={t("productTable.noProducts")}
         description={t("productTable.emptyMessage")}
       />

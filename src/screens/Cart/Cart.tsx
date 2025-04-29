@@ -220,7 +220,7 @@ export default function CartContainer(): JSX.Element {
   const navigate = useNavigate();
   const { items } = useAppSelector((state) => state.cart);
   const { user } = useAppSelector((state) => state.auth);
-
+  const userEmail = user?.user_email;
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     firstName: "",
     lastName: "",
@@ -356,7 +356,7 @@ export default function CartContainer(): JSX.Element {
                 </h2>
                 <Input
                   className="bg-[color:var(--1-tokens-color-modes-input-primary-disable-background)] border-[color:var(--1-tokens-color-modes-input-primary-disable-border)] text-[color:var(--1-tokens-color-modes-input-primary-disable-placeholder-label)]"
-                  value={user?.email}
+                  value={userEmail}
                   disabled
                 />
               </div>
