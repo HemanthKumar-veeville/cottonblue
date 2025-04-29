@@ -275,6 +275,12 @@
     },
     "success": {
       "orderValidated": "Order validated successfully"
+    },
+    "address": {
+      "street": "Street",
+      "city": "City",
+      "country": "Country",
+      "phone": "Phone"
     }
   },
   "history": {

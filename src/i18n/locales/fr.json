@@ -108,6 +108,15 @@
       "saveDraft": "Enregistrer en brouillon",
       "next": "Suivant",
       "save": "Enregistrer"
+    },
+    "messages": {
+      "loadError": "Échec du chargement du produit",
+      "updateError": "Échec de la mise à jour du produit",
+      "publishError": "Échec de la publication du produit",
+      "draftSaved": "Brouillon enregistré avec succès",
+      "published": "Produit publié avec succès",
+      "updated": "Produit mis à jour avec succès",
+      "noChanges": "Aucune modification détectée à mettre à jour"
     }
   },
   "agencyDetails": {
@@ -266,6 +275,12 @@
     },
     "success": {
       "orderValidated": "Commande validée avec succès"
+    },
+    "address": {
+      "street": "Rue",
+      "city": "Ville",
+      "country": "Pays",
+      "phone": "Téléphone"
     }
   },
   "history": {
@@ -374,9 +389,10 @@
       "placeholder": "Rechercher un ticket..."
     },
     "status": {
-      "all": "Tous les statuts",
+      "all": "Tous",
       "open": "Ouvert",
       "inProgress": "En cours",
+      "completed": "Terminé",
       "closed": "Fermé"
     },
     "lists": {
@@ -434,10 +450,25 @@
       "viewDetails": "Voir détails"
     },
     "noClients": "Aucun client trouvé",
+    "emptyMessage": "Il n'y a pas encore de clients dans votre liste. Ajoutez votre premier client pour commencer.",
+    "noSearchResults": "Aucun client ne correspond à vos critères de recherche.",
+    "clearSearch": "Effacer la recherche",
     "pagination": {
       "previous": "Précédent",
       "next": "Suivant"
     }
+  },
+  "agencyTable": {
+    "noAgencies": "Aucune agence trouvée",
+    "emptyMessage": "Il n'y a pas encore d'agences dans votre liste. Ajoutez votre première agence pour commencer.",
+    "noSearchResults": "Aucune agence ne correspond à vos critères de recherche.",
+    "clearSearch": "Effacer la recherche"
+  },
+  "productTable": {
+    "noProducts": "Aucun produit trouvé",
+    "emptyMessage": "Il n'y a pas encore de produits dans votre liste. Ajoutez votre premier produit pour commencer.",
+    "noSearchResults": "Aucun produit ne correspond à vos critères de recherche.",
+    "clearSearch": "Effacer la recherche"
   },
   "carousel": {
     "title": "Carrousel d'accueil",

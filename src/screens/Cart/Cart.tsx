@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { Textarea } from "../../components/ui/textarea";
-import { Minus, Plus, ShoppingCart } from "lucide-react";
+import { Minus, Package2, Plus, ShoppingCart } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { updateQuantity, removeFromCart } from "../../store/features/cartSlice";
@@ -43,7 +43,9 @@ const ProductRow = ({ product }: { product: any }) => {
 
   const handleQuantityChange = (amount: number) => {
     const newQuantity = product.quantity + amount;
-    if (newQuantity > 0 && newQuantity <= product.stock) {
+    if (newQuantity === 0) {
+      dispatch(removeFromCart(product.id));
+    } else if (newQuantity > 0 && newQuantity <= product.stock) {
       dispatch(
         updateQuantity({ productId: product.id, quantity: newQuantity })
       );
@@ -63,11 +65,15 @@ const ProductRow = ({ product }: { product: any }) => {
       <TableCell className="w-[203px] p-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded overflow-hidden border border-primary-neutal-200 flex items-center justify-center">
-            <img
-              className="w-[30px] h-[29px] object-cover"
-              alt={product.name}
-              src={product.product_image}
-            />
+            {product.product_image ? (
+              <img
+                className="w-[30px] h-[29px] object-cover"
+                alt={product.name}
+                src={product.product_image}
+              />
+            ) : (
+              <Package2 className="w-5 h-5 text-gray-400" />
+            )}
           </div>
           <span className="font-text-medium text-black">{product.name}</span>
         </div>
