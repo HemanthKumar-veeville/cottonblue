@@ -10,13 +10,18 @@ import {
   registerStore,
   modifyStore,
   getStoreDetails,
+  fetchAllStores,
 } from "../../store/features/agencySlice";
 import { useAppDispatch } from "../../store/store";
 import Loader from "../../components/Loader";
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "../../components/Skeleton";
 import { useSelector } from "react-redux";
-import { registerUser } from "../../store/features/userSlice";
+import {
+  registerUser,
+  getUserDetails,
+  modifyUser,
+} from "../../store/features/userSlice";
 import { getHost } from "../../utils/hostUtils";
 
 interface FormData {
@@ -88,7 +93,7 @@ const LabeledSelect = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectedStores = options?.filter((store) => values.includes(store.id));
-
+  console.log({ selectedStores, values, options });
   const toggleStore = (storeId: number) => {
     const newValues = values.includes(storeId)
       ? values.filter((id) => id !== storeId)
@@ -117,7 +122,7 @@ const LabeledSelect = ({
           </div>
         </div>
         {isOpen && (
-          <div className="absolute top-full left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-[300px] overflow-y-auto">
+          <div className="absolute top-full left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-[300px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
             {options?.map((store) => (
               <div
                 key={store.id}
@@ -189,11 +194,12 @@ export default function AddUser() {
   const dispatch = useAppDispatch();
   const { selectedCompany } = useSelector((state: RootState) => state.client);
   const { stores } = useSelector((state: RootState) => state.agency);
+  const { selectedUser } = useSelector((state: RootState) => state.user);
   const storeList = stores?.stores;
-  console.log({ storeList });
+  const user = selectedUser?.user;
   // Check if we're in edit mode
   const isEditMode = location.pathname.includes("/edit");
-
+  console.log({ stores });
   const initialFormData: FormData = {
     firstname: "",
     lastname: "",
@@ -205,12 +211,46 @@ export default function AddUser() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [loading, setLoading] = useState(false);
 
-  // TODO: Add useEffect for fetching user details in edit mode
+  // Fetch user details in edit mode
   useEffect(() => {
-    if (isEditMode && id) {
-      // Fetch user details
+    const fetchUserDetails = async () => {
+      if (isEditMode && id && selectedCompany?.dns) {
+        try {
+          setLoading(true);
+          await dispatch(
+            getUserDetails({
+              dnsPrefix: selectedCompany.dns,
+              userId: id,
+            })
+          ).unwrap();
+        } catch (error: any) {
+          toast.error(error?.message || "Failed to fetch user details");
+        } finally {
+          setLoading(false);
+        }
+      }
+    };
+    const fetchStores = async () => {
+      if (selectedCompany?.dns) {
+        await dispatch(fetchAllStores(selectedCompany.dns)).unwrap();
+      }
+    };
+    fetchStores();
+    fetchUserDetails();
+  }, [isEditMode, id, selectedCompany?.dns, dispatch]);
+
+  // Update form data when selectedUser changes in edit mode
+  useEffect(() => {
+    if (isEditMode && user) {
+      setFormData({
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email,
+        password: "", // Password is not included in user details for security
+        store_ids: user.store_ids,
+      });
     }
-  }, [isEditMode, id]);
+  }, [isEditMode, user]);
 
   const handleSubmit = async () => {
     // Validate required fields
@@ -218,7 +258,7 @@ export default function AddUser() {
       !formData.firstname ||
       !formData.lastname ||
       !formData.email ||
-      !formData.password ||
+      (!isEditMode && !formData.password) || // Only require password for new users
       formData.store_ids.length === 0
     ) {
       toast.error("Please fill in all required fields");
@@ -229,18 +269,38 @@ export default function AddUser() {
       setLoading(true);
       const dnsPrefix = selectedCompany?.dns;
 
-      await dispatch(
-        registerUser({
-          dnsPrefix,
-          data: {
-            firstname: formData.firstname,
-            lastname: formData.lastname,
-            email: formData.email,
-            password: formData.password,
-            store_ids: formData.store_ids,
-          },
-        })
-      ).unwrap();
+      if (!dnsPrefix) {
+        throw new Error("Company DNS prefix is required");
+      }
+
+      if (isEditMode && id) {
+        await dispatch(
+          modifyUser({
+            dnsPrefix,
+            userId: id,
+            data: {
+              firstname: formData.firstname,
+              lastname: formData.lastname,
+              email: formData.email,
+              ...(formData.password && { password: formData.password }), // Only include password if provided
+              store_ids: formData.store_ids,
+            },
+          })
+        ).unwrap();
+      } else {
+        await dispatch(
+          registerUser({
+            dnsPrefix,
+            data: {
+              firstname: formData.firstname,
+              lastname: formData.lastname,
+              email: formData.email,
+              password: formData.password,
+              store_ids: formData.store_ids,
+            },
+          })
+        ).unwrap();
+      }
 
       toast.success(
         isEditMode ? "User updated successfully!" : "User added successfully!"

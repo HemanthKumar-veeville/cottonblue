@@ -38,6 +38,7 @@ import ProductDetails from "./screens/ProductDetails/ProductDetails";
 import { getHost } from "./utils/hostUtils";
 import AddUser from "./screens/AddUser/AddUser";
 import { UserList } from "./screens/UserList";
+import UserDetails from "./screens/UserDetails/UserDetails";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
@@ -110,6 +111,7 @@ function App() {
               <Route path="users" element={<UserList />} />
               <Route path="users/add" element={<AddUser />} />
               <Route path="users/edit/:id" element={<AddUser />} />
+              <Route path="users/:id" element={<UserDetails />} />
               <Route
                 path="customers/:company_name/agencies/:agency_id"
                 element={<AgencyDetails />}

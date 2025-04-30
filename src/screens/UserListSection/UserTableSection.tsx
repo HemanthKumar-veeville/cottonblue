@@ -167,7 +167,7 @@ export const UserTableSection = (): JSX.Element => {
                     <Button
                       variant="link"
                       onClick={() =>
-                        navigate(`/users/${encodeURIComponent(user.email)}`)
+                        navigate(`/users/${encodeURIComponent(user.user_id)}`)
                       }
                       className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
                     >

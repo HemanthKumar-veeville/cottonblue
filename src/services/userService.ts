@@ -15,6 +15,16 @@ export interface FetchUsersParams {
   search?: string;
 }
 
+export interface UserModificationData {
+  firstname?: string;
+  lastname?: string;
+  email?: string;
+  password?: string;
+  store_ids?: number[];
+  role?: string;
+  is_active?: boolean;
+}
+
 export const userService = {
   /**
    * Register a new user
@@ -74,6 +84,59 @@ export const userService = {
       const response = await axiosInstance.get(
         `/${dnsPrefix}/all/users?${queryParams.toString()}`
       );
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  /**
+   * Get user details by ID
+   * @param dnsPrefix DNS prefix of the company
+   * @param userId User ID to fetch details for
+   * @returns Promise with user details response
+   */
+  getUserDetails: async (dnsPrefix: string, userId: string | number) => {
+    try {
+      const response = await axiosInstance.get(`/${dnsPrefix}/user/${userId}/details`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
+
+  /**
+   * Modify existing user data
+   * @param dnsPrefix DNS prefix of the company
+   * @param userId User ID to modify
+   * @param data User modification data (at least one field required)
+   * @returns Promise with modification response
+   */
+  modifyUser: async (dnsPrefix: string, userId: string | number, data: UserModificationData) => {
+    try {
+
+      console.log( data );
+      // Validate that at least one field is provided
+      if (Object.keys(data).length === 0) {
+        throw new Error('At least one field must be provided for modification');
+      }
+     
+      const formData = new FormData();
+      
+      // Only append fields that are provided
+      if (data.firstname) formData.append('firstname', data.firstname);
+      if (data.lastname) formData.append('lastname', data.lastname);
+      if (data.email) formData.append('email', data.email);
+      if (data.password) formData.append('password', data.password);
+      if (data.role) formData.append('role', data.role);
+      if (data.store_ids) formData.append('store_ids', JSON.stringify(data.store_ids));
+      if (typeof data.is_active === 'boolean') formData.append('is_active', data.is_active.toString());
+
+      const response = await axiosInstance.put(`/${dnsPrefix}/user/${userId}/modify`, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
       return response.data;
     } catch (error) {
       throw error;

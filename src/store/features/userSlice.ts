@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { userService, UserRegistrationData, FetchUsersParams } from '../../services/userService';
+import { userService, UserRegistrationData, FetchUsersParams, UserModificationData } from '../../services/userService';
 
 interface UserState {
   currentUser: {
@@ -19,6 +19,12 @@ interface UserState {
     page: number;
     limit: number;
   };
+  selectedUser: {
+    firstname: string;
+    lastname: string;
+    email: string;
+    store_ids: number[];
+  } | null;
   isLoading: boolean;
   error: string | null;
 }
@@ -31,6 +37,7 @@ const initialState: UserState = {
     page: 1,
     limit: 10
   },
+  selectedUser: null,
   isLoading: false,
   error: null,
 };
@@ -61,6 +68,40 @@ export const fetchUsers = createAsyncThunk(
   }
 );
 
+// Async thunk for getting user details
+export const getUserDetails = createAsyncThunk(
+  'user/getUserDetails',
+  async ({ dnsPrefix, userId }: { dnsPrefix: string; userId: string | number }, { rejectWithValue }) => {
+    try {
+      const response = await userService.getUserDetails(dnsPrefix, userId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch user details');
+    }
+  }
+);
+
+// Async thunk for modifying user
+export const modifyUser = createAsyncThunk(
+  'user/modifyUser',
+  async ({ 
+    dnsPrefix, 
+    userId, 
+    data 
+  }: { 
+    dnsPrefix: string; 
+    userId: string | number; 
+    data: UserModificationData 
+  }, { rejectWithValue }) => {
+    try {
+      const response = await userService.modifyUser(dnsPrefix, userId, data);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to modify user');
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -70,6 +111,7 @@ const userSlice = createSlice({
     },
     logout: (state) => {
       state.currentUser = null;
+      state.selectedUser = null;
       state.error = null;
       state.isLoading = false;
     },
@@ -100,6 +142,38 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchUsers.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // Add cases for getUserDetails
+      .addCase(getUserDetails.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(getUserDetails.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.selectedUser = action.payload;
+        state.error = null;
+      })
+      .addCase(getUserDetails.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // Add cases for modifyUser
+      .addCase(modifyUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(modifyUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        // Update the selected user if it exists
+        if (state.selectedUser) {
+          state.selectedUser = action.payload;
+        }
+        
+        state.error = null;
+      })
+      .addCase(modifyUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });
