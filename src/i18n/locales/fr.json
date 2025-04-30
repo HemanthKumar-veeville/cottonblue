@@ -39,6 +39,11 @@
       "list": "Liste des agences",
       "add": "Ajouter une agence"
     },
+    "users": {
+      "title": "Utilisateurs",
+      "list": "Liste des utilisateurs",
+      "add": "Ajouter un utilisateur"
+    },
     "support": {
       "title": "Support",
       "tickets": "Tickets"
@@ -355,6 +360,10 @@
       "startConversation": "Commencez la conversation en envoyant un message."
     }
   },
+  "login": {
+    "submit": "Connexion",
+    "poweredBy": "par Cotton Blue"
+  },
   "clientLogin": {
     "greeting": "Bonjour !",
     "selectStore": "Choisissez votre magasin",
@@ -489,5 +498,29 @@
       "save": "Enregistrer",
       "saving": "Enregistrement en cours..."
     }
+  },
+  "userList": {
+    "title": "Liste des utilisateurs",
+    "search": {
+      "placeholder": "Rechercher un utilisateur"
+    },
+    "actions": {
+      "create": "Créer",
+      "importCsv": "Importer CSV",
+      "exportCsv": "Exporter CSV"
+    },
+    "table": {
+      "name": "Nom",
+      "email": "Email",
+      "role": "Rôle",
+      "stores": "Magasins",
+      "details": "Détails"
+    },
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant"
+    },
+    "noUsers": "Aucun utilisateur trouvé",
+    "emptyMessage": "Il n'y a pas encore d'utilisateurs dans votre liste. Ajoutez votre premier utilisateur pour commencer."
   }
 }

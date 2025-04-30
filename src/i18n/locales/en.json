@@ -39,6 +39,11 @@
       "list": "Stores",
       "add": "Add Store"
     },
+    "users": {
+      "title": "Users",
+      "list": "Users",
+      "add": "Add User"
+    },
     "support": {
       "title": "Support",
       "tickets": "Tickets"
@@ -355,6 +360,10 @@
       "startConversation": "Start the conversation by sending a message."
     }
   },
+  "login": {
+    "submit": "Login",
+    "poweredBy": "by Cotton Blue"
+  },
   "clientLogin": {
     "greeting": "Hello!",
     "selectStore": "Choose your store",
@@ -489,5 +498,29 @@
       "save": "Save",
       "saving": "Saving..."
     }
+  },
+  "userList": {
+    "title": "User List",
+    "search": {
+      "placeholder": "Search a user"
+    },
+    "actions": {
+      "create": "Create",
+      "importCsv": "Import CSV",
+      "exportCsv": "Export CSV"
+    },
+    "table": {
+      "name": "Name",
+      "email": "Email",
+      "role": "Role",
+      "stores": "Stores",
+      "details": "Details"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next"
+    },
+    "noUsers": "No Users Found",
+    "emptyMessage": "There are no users in your list yet. Add your first user to get started."
   }
 }

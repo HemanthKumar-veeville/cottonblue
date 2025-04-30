@@ -207,6 +207,16 @@ export const SuperadminSidebarSection = ({
           label: t("sidebar.agencies.add"),
           path: "/agencies/add",
         },
+        {
+          icon: <UserPlusIcon className="w-4 h-4" />,
+          label: t("sidebar.users.list"),
+          path: "/users",
+        },
+        {
+          icon: <UserPlusIcon className="w-4 h-4" />,
+          label: t("sidebar.users.add"),
+          path: "/users/add",
+        },
       ],
     },
   ];

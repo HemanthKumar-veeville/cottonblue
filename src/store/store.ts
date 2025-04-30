@@ -6,6 +6,7 @@ import agencyReducer from './features/agencySlice';
 import productReducer from './features/productSlice';
 import ticketReducer from './features/ticketSlice';
 import cartReducer from './features/cartSlice';
+import userReducer from './features/userSlice';
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     product: productReducer,
     ticket: ticketReducer,
     cart: cartReducer,
+    user: userReducer,
   },
 });
 
