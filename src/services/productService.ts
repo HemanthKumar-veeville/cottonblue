@@ -105,4 +105,14 @@ export const productService = {
   deleteProduct: async (dnsPrefix: string, productId: string) => {
     return axiosInstance.delete(`/${dnsPrefix}/delete/product/${productId}`);
   },
+
+  /**
+   * Get all products for a specific store
+   * @param dnsPrefix DNS prefix of the company
+   * @param storeId ID of the store to get products from
+   * @returns Promise with store products data
+   */
+  getProductsByStoreId: async (dnsPrefix: string, storeId: string) => {
+    return axiosInstance.get(`/${dnsPrefix}/store/products/${storeId}`);
+  },
 };

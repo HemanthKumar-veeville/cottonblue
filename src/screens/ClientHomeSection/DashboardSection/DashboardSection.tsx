@@ -13,7 +13,10 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../../../store/store";
-import { fetchAllProducts } from "../../../store/features/productSlice";
+import {
+  fetchAllProducts,
+  getProductsByStoreId,
+} from "../../../store/features/productSlice";
 import { getHost } from "../../../utils/hostUtils";
 import { DashboardCarousel } from "../../../components/DashboardCarousel/DashboardCarousel";
 import { Skeleton } from "../../../components/Skeleton";
@@ -285,12 +288,20 @@ export const DashboardSection = (): JSX.Element => {
   const { products, loading } = useAppSelector((state) => state.product);
   const productList = products?.products || [];
   const dnsPrefix = getHost();
+  const user = useAppSelector((state) => state.auth.user);
+  const isStoreUser = user?.store_ids?.length > 0;
 
   useEffect(() => {
     if (dnsPrefix) {
-      dispatch(fetchAllProducts(dnsPrefix));
+      if (isStoreUser) {
+        dispatch(
+          getProductsByStoreId({ dnsPrefix, storeId: user.store_ids[0] })
+        );
+      } else {
+        dispatch(fetchAllProducts(dnsPrefix));
+      }
     }
-  }, [dispatch, dnsPrefix]);
+  }, [dispatch, dnsPrefix, isStoreUser, user?.store_ids]);
 
   // Sort products by stock to get most ordered items
   const mostOrderedProducts = [...productList]

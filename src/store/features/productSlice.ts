@@ -102,6 +102,18 @@ export const deleteProduct = createAsyncThunk(
   }
 );
 
+export const getProductsByStoreId = createAsyncThunk(
+  'product/getProductsByStoreId',
+  async ({ dnsPrefix, storeId }: { dnsPrefix: string; storeId: string }, { rejectWithValue }) => {
+    try {
+      const response = await productService.getProductsByStoreId(dnsPrefix, storeId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch store products');
+    }
+  }
+);
+
 // Create the product slice
 const productSlice = createSlice({
   name: 'product',
@@ -220,6 +232,19 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         state.deleteSuccess = false;
+      })
+      // Get products by store ID cases
+      .addCase(getProductsByStoreId.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getProductsByStoreId.fulfilled, (state, action) => {
+        state.loading = false;
+        state.products = action.payload;
+      })
+      .addCase(getProductsByStoreId.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
