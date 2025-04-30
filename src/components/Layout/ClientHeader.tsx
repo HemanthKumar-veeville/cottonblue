@@ -1,33 +1,118 @@
-import { BellIcon, SearchIcon, ShoppingCartIcon, UserIcon } from "lucide-react";
+import { BellIcon, ShoppingCartIcon, UserIcon } from "lucide-react";
 import { Badge } from "../ui/badge";
-import { Input } from "../ui/input";
 import { useTranslation } from "react-i18next";
-import { useAppSelector } from "../../store/store";
+import { useAppSelector, useAppDispatch } from "../../store/store";
 import { useNavigate } from "react-router-dom";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../ui/select";
+import { useEffect } from "react";
+import {
+  fetchAllStores,
+  setSelectedStore,
+} from "../../store/features/agencySlice";
+import { getHost } from "../../utils/hostUtils";
+
+interface Store {
+  id: string;
+  name: string;
+}
+
+interface UserStore {
+  store_id: string;
+  store_name: string;
+}
 
 export const ClientHeader = () => {
   const { t } = useTranslation();
   const { user } = useAppSelector((state) => state.auth);
   const { items } = useAppSelector((state) => state.cart);
   const userName = user?.user_name;
+  const isAdmin = user?.user_role === "admin";
+  const storeIds = user?.store_details || [];
+  const { stores, selectedStore } = useAppSelector((state) => state.agency);
+  const storeList = stores?.stores;
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const dns = getHost();
+
+  // Get the current store name for display
+  const getCurrentStoreName = () => {
+    if (!selectedStore || selectedStore === "all") return "All Stores";
+
+    if (isAdmin) {
+      return (
+        storeList?.find((store: Store) => store.id === selectedStore)?.name ||
+        "All Stores"
+      );
+    }
+
+    return (
+      storeIds.find((store: UserStore) => store.store_id === selectedStore)
+        ?.store_name || "All Stores"
+    );
+  };
 
   // Calculate total items in cart
   const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);
+
+  useEffect(() => {
+    if (dns && isAdmin) {
+      dispatch(fetchAllStores(dns));
+    }
+  }, [dispatch, dns, isAdmin]);
+
+  // Set initial selected store
+  useEffect(() => {
+    if (!selectedStore) {
+      const initialStore =
+        storeIds.length > 0 ? storeIds[0].store_id : isAdmin ? "all" : null;
+      if (initialStore) {
+        dispatch(setSelectedStore(initialStore));
+      }
+    }
+  }, [dispatch, storeIds, isAdmin, selectedStore]);
+
+  const handleStoreChange = (value: string) => {
+    dispatch(setSelectedStore(value));
+  };
 
   return (
     <div className="flex w-full items-center justify-end gap-[182px] px-8 py-4 bg-defaultwhite border-b border-1-tokens-color-modes-common-neutral-lower">
       <div className="inline-flex items-center gap-4 relative flex-[0_0_auto] ml-[-7.00px]">
         <div className="flex w-[641px] gap-4 items-center relative">
-          <div className="flex w-[400px] items-center justify-between relative bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)] border border-solid border-[color:var(--1-tokens-color-modes-input-primary-default-border)]">
-            <Input
-              className="border-none shadow-none focus-visible:ring-0 font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)]"
-              placeholder={t("clientHeader.search.placeholder")}
-            />
-            <div className="flex w-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)] h-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)] items-center justify-center p-0.5 relative">
-              <SearchIcon className="w-5 h-5" />
-            </div>
-          </div>
+          <Select
+            value={selectedStore || "all"}
+            onValueChange={handleStoreChange}
+          >
+            <SelectTrigger className="w-[400px] border-[color:var(--1-tokens-color-modes-input-primary-default-border)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)]">
+              <SelectValue>{getCurrentStoreName()}</SelectValue>
+            </SelectTrigger>
+            <SelectContent>
+              {isAdmin ? (
+                <>
+                  <SelectItem value="all">All Stores</SelectItem>
+                  {storeList?.map((store) => (
+                    <SelectItem key={store.id} value={store.id}>
+                      {store.name}
+                    </SelectItem>
+                  ))}
+                </>
+              ) : (
+                <>
+                  {storeIds.map((store) => (
+                    <SelectItem key={store.store_id} value={store.store_id}>
+                      {store.store_name}
+                    </SelectItem>
+                  ))}
+                </>
+              )}
+            </SelectContent>
+          </Select>
         </div>
       </div>
       <div className="inline-flex items-center gap-4 relative flex-[0_0_auto]">

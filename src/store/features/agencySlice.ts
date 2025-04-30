@@ -37,6 +37,7 @@ interface AgencyState {
   registerSuccess: boolean;
   modifySuccess: boolean;
   storeDetails: Agency | null;
+  selectedStore: string | null;
 }
 
 // Initial state
@@ -47,6 +48,7 @@ const initialState: AgencyState = {
   registerSuccess: false,
   modifySuccess: false,
   storeDetails: null,
+  selectedStore: null,
 };
 
 // Create async thunks for API calls
@@ -124,6 +126,9 @@ const agencySlice = createSlice({
     clearStoreDetails: (state) => {
       state.storeDetails = null;
     },
+    setSelectedStore: (state, action) => {
+      state.selectedStore = action.payload;
+    },
   },
   extraReducers: (builder) => {
     // Register store
@@ -190,5 +195,5 @@ const agencySlice = createSlice({
   },
 });
 
-export const { resetRegisterSuccess, resetModifySuccess, clearError, clearStoreDetails } = agencySlice.actions;
+export const { resetRegisterSuccess, resetModifySuccess, clearError, clearStoreDetails, setSelectedStore } = agencySlice.actions;
 export default agencySlice.reducer;

@@ -239,8 +239,8 @@ const ProductSection = ({ title, products }: ProductSectionProps) => {
     <div className="w-full">
       <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-4 gap-4 w-full max-w-[1200px] mx-auto">
         {products.map((product) => (
-          <div className="w-full max-w-[320px] mx-auto">
-            <ProductCard key={product.id} product={product} />
+          <div key={product.id} className="w-full max-w-[320px] mx-auto">
+            <ProductCard product={product} />
           </div>
         ))}
       </div>
@@ -254,8 +254,8 @@ const ProductSkeleton = () => {
     <div className="w-full">
       <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-4 gap-4 w-full max-w-[1200px] mx-auto">
         {[...Array(8)].map((_, index) => (
-          <div className="w-full max-w-[320px] mx-auto">
-            <Card key={index} className="w-full h-full shadow-shadow">
+          <div className="w-full max-w-[320px] mx-auto" key={index}>
+            <Card className="w-full h-full shadow-shadow">
               <CardContent className="p-4 h-full">
                 <div className="flex flex-col h-full">
                   <div className="aspect-[4/3] w-full rounded-2xl bg-gray-200 animate-pulse"></div>
@@ -289,19 +289,33 @@ export const DashboardSection = (): JSX.Element => {
   const productList = products?.products || [];
   const dnsPrefix = getHost();
   const user = useAppSelector((state) => state.auth.user);
-  const isStoreUser = user?.store_ids?.length > 0;
-
+  const isStoreUser = user?.store_details?.length > 0;
+  const { selectedStore } = useAppSelector((state) => state.agency);
   useEffect(() => {
     if (dnsPrefix) {
       if (isStoreUser) {
-        dispatch(
-          getProductsByStoreId({ dnsPrefix, storeId: user.store_ids[0] })
-        );
+        if (selectedStore) {
+          dispatch(
+            getProductsByStoreId({
+              dnsPrefix,
+              storeId: selectedStore,
+            })
+          );
+        }
       } else {
-        dispatch(fetchAllProducts(dnsPrefix));
+        if (selectedStore && selectedStore !== "all") {
+          dispatch(
+            getProductsByStoreId({
+              dnsPrefix,
+              storeId: selectedStore,
+            })
+          );
+        } else {
+          dispatch(fetchAllProducts(dnsPrefix));
+        }
       }
     }
-  }, [dispatch, dnsPrefix, isStoreUser, user?.store_ids]);
+  }, [dispatch, dnsPrefix, isStoreUser, selectedStore]);
 
   // Sort products by stock to get most ordered items
   const mostOrderedProducts = [...productList]
