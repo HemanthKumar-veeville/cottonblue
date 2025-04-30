@@ -8,12 +8,30 @@ import {
 import { UserIcon } from "lucide-react";
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch, RootState } from "../../store";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store";
 import { getUserDetails, modifyUser } from "../../store/features/userSlice";
 import { Skeleton } from "../../components/Skeleton";
+import { fetchAllStores } from "../../store/features/agencySlice";
+import { useAppSelector } from "../../store/store";
 
-const UserDetailsCard = ({ user }: { user: any }) => {
+interface Store {
+  id: number;
+  name: string;
+  address: string;
+  city: string;
+  company_id: number;
+  created_at: string;
+  is_active: boolean;
+  latitude: number | null;
+  longitude: number | null;
+  phone_number: string;
+  postal_code: number;
+  region: string;
+  updated_at: string;
+}
+
+const UserDetailsCard = ({ user, stores }: { user: any; stores: Store[] }) => {
   const leftColumnDetails = [
     {
       label: "ID",
@@ -33,14 +51,22 @@ const UserDetailsCard = ({ user }: { user: any }) => {
     },
   ];
 
+  const storeNames =
+    user?.store_ids
+      ?.map((storeId: number) => {
+        const store = stores?.find((s) => s.id === storeId);
+        return store?.name || `Store ${storeId}`;
+      })
+      .join(", ") || "Not Available";
+
   const rightColumnDetails = [
     {
       label: "Role",
       value: user?.role || "Not Available",
     },
     {
-      label: "Store IDs",
-      value: user?.store_ids?.join(", ") || "Not Available",
+      label: "Stores",
+      value: storeNames,
     },
     {
       label: "Status",
@@ -98,8 +124,8 @@ const ActionsBox = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { id } = useParams<{ id: string }>();
-  const { selectedCompany } = useSelector((state: RootState) => state.client);
-  const { selectedUser } = useSelector((state: RootState) => state.user);
+  const { selectedCompany } = useAppSelector((state) => state.client);
+  const { selectedUser } = useAppSelector((state) => state.user);
   const isActive = selectedUser?.user?.is_active;
 
   const handleEdit = () => {
@@ -160,16 +186,19 @@ const ActionsBox = () => {
 
 function UserDetails() {
   const dispatch = useDispatch<AppDispatch>();
-  const { selectedCompany } = useSelector((state: RootState) => state.client);
+  const { selectedCompany } = useAppSelector((state) => state.client);
   const { id } = useParams<{ id: string }>();
-  const { selectedUser, isLoading, error } = useSelector(
-    (state: RootState) => state.user
+  const { selectedUser, isLoading, error } = useAppSelector(
+    (state) => state.user
   );
+  const { stores } = useAppSelector((state) => state.agency);
   const user = selectedUser?.user;
+  const storeList = stores?.stores || [];
 
   useEffect(() => {
     if (id && selectedCompany?.dns) {
       dispatch(getUserDetails({ dnsPrefix: selectedCompany.dns, userId: id }));
+      dispatch(fetchAllStores(selectedCompany.dns));
     }
   }, [dispatch, id, selectedCompany?.dns]);
 
@@ -207,7 +236,7 @@ function UserDetails() {
 
   return (
     <div className="flex flex-col items-start gap-8 p-6">
-      <UserDetailsCard user={user} />
+      <UserDetailsCard user={user} stores={storeList} />
     </div>
   );
 }
