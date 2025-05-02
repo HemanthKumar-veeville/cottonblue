@@ -7,13 +7,6 @@ import {
 } from "../../components/ui/breadcrumb";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../components/ui/select";
 import { Badge } from "../../components/ui/badge";
 import {
   ChevronRight,
@@ -22,10 +15,6 @@ import {
   ShoppingCart,
   ZoomIn,
   PackageX,
-  Clock,
-  MapPin,
-  Box,
-  Calendar,
   Package2,
 } from "lucide-react";
 import React, { useEffect } from "react";
@@ -33,71 +22,10 @@ import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { getProductById, Product } from "../../store/features/productSlice";
-import { addToCart, clearError } from "../../store/features/cartSlice";
+import { addToCart } from "../../store/features/cartSlice";
 import { getHost } from "../../utils/hostUtils";
 import { Skeleton } from "../../components/Skeleton";
-import { formatDate } from "../../utils/dateUtils";
 import { toast } from "sonner";
-import EmptyState from "../../components/EmptyState";
-
-const productData = {
-  title: "Polo homme",
-  category: "VÊTEMENTS DE TRAVAIL",
-  price: "25,75€",
-  pricePerUnit: "/5 pcs",
-  priceTax: "5,15€",
-  description: {
-    color: "rouge pour homme",
-    sizes: "S, M, L, XL et XXL",
-    composition: "65% Polyester + 35% coton - Polo piqué 220 g/m2",
-    features:
-      "Avec encolure à boutons, broderie logo Chronodrive et anneau porte badge sur le devant. Et flocage logo Chronodrive sur l'arrière",
-    packaging: "Carton de 5 pièces",
-  },
-};
-
-const relatedProducts = [
-  {
-    id: 1,
-    name: "Magnet + stylo",
-    price: "64,00€",
-    pricePerUnit: "/200pcs",
-    status: "En stock",
-    statusColor: "text-1-tokens-color-modes-common-success-hight",
-  },
-  {
-    id: 2,
-    name: "Ballon de plage",
-    price: "64,00€",
-    pricePerUnit: "/200pcs",
-    status: "Épuisé",
-    statusColor: "text-defaultalert",
-  },
-  {
-    id: 3,
-    name: "Polo homme",
-    price: "64,00€",
-    pricePerUnit: "/200pcs",
-    status: "En stock",
-    statusColor: "text-1-tokens-color-modes-common-success-hight",
-  },
-  {
-    id: 4,
-    name: "Polo femme",
-    price: "64,00€",
-    pricePerUnit: "/200pcs",
-    status: "En stock",
-    statusColor: "text-1-tokens-color-modes-common-success-hight",
-  },
-  {
-    id: 5,
-    name: "Veste bodywarmer",
-    price: "64,00€",
-    pricePerUnit: "/200pcs",
-    status: "Épuisé",
-    statusColor: "text-defaultalert",
-  },
-];
 
 const ProductNotFound = () => {
   const { t } = useTranslation();
@@ -165,7 +93,7 @@ const ProductPage = () => {
   );
   const { items } = useAppSelector((state) => state.cart);
   const dnsPrefix = getHost();
-  const product = currentProduct?.product;
+  const product = currentProduct || ({} as Product);
 
   // Get initial quantity from cart
   const cartItem = items.find((item) => item.id === Number(id));
@@ -187,12 +115,12 @@ const ProductPage = () => {
 
   const changeQuantity = (amount: number) => {
     const newQuantity = quantity + amount;
-    if (newQuantity > 0 && newQuantity <= (product?.stock ?? 0)) {
+    if (newQuantity > 0 && newQuantity <= (product?.available_stock ?? 0)) {
       if (product) {
         dispatch(addToCart({ product, quantity: amount }));
         setQuantity(newQuantity);
       }
-    } else if (newQuantity > (product?.stock ?? 0)) {
+    } else if (newQuantity > (product?.available_stock ?? 0)) {
       toast.error(t("clientProduct.error.notEnoughStock"));
     }
   };
@@ -288,7 +216,7 @@ const ProductInfo = ({
   changeQuantity: (amount: number) => void;
 }) => {
   const { t } = useTranslation();
-  const stockStatus = product?.stock > 0 ? "inStock" : "outOfStock";
+  const stockStatus = product?.available_stock > 0 ? "inStock" : "outOfStock";
   const stockStatusColor =
     stockStatus === "inStock" ? "text-green-600" : "text-red-600";
 
@@ -309,6 +237,16 @@ const ProductInfo = ({
           {product?.price
             ? `${product.price.toFixed(2)}€`
             : t("clientProduct.notAvailable")}
+        </span>
+      </div>
+      <div className="text-gray-600">
+        <span>
+          {t("clientProduct.availableStock")}: {product?.available_stock}
+        </span>
+      </div>
+      <div className="text-gray-600">
+        <span>
+          {t("clientProduct.totalStock")}: {product?.total_stock}
         </span>
       </div>
 
@@ -335,20 +273,22 @@ const ProductInfo = ({
               size="icon"
               className="w-8 h-8 p-0.5"
               onClick={() => changeQuantity(1)}
-              disabled={quantity >= (product?.stock ?? 0)}
+              disabled={quantity >= (product?.available_stock ?? 0)}
             >
               <Plus className="w-4 h-4" />
             </Button>
           </div>
           <div className="text-sm text-gray-600 mt-1">
-            {t("clientProduct.stockAvailable", { stock: product?.stock })}
+            {t("clientProduct.stockAvailable", {
+              stock: product?.available_stock,
+            })}
           </div>
         </div>
       </div>
 
       <Button
         className="w-88 gap-2 py-3 px-4 bg-primary hover:bg-primary/90 text-white"
-        disabled={!product?.stock || product.stock <= 0}
+        disabled={!product?.available_stock || product.available_stock <= 0}
         onClick={() => changeQuantity(1)}
       >
         <ShoppingCart className="w-4 h-4" />

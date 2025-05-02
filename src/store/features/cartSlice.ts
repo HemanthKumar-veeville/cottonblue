@@ -29,14 +29,14 @@ const cartSlice = createSlice({
 
       if (existingItem) {
         // Check if we have enough stock
-        if (product.stock >= existingItem.quantity + quantity) {
+        if (product.available_stock >= existingItem.quantity + quantity) {
           existingItem.quantity += quantity;
         } else {
           state.error = 'Not enough stock available';
         }
       } else {
         // Check if we have enough stock for new item
-        if (product.stock >= quantity) {
+        if (product.available_stock >= quantity) {
           state.items.push({ ...product, quantity });
         } else {
           state.error = 'Not enough stock available';
@@ -59,7 +59,7 @@ const cartSlice = createSlice({
 
       if (item) {
         // Find the product in the store to check stock
-        if (item.stock >= quantity) {
+        if (item.available_stock >= quantity) {
           item.quantity = quantity;
         } else {
           state.error = 'Not enough stock available';

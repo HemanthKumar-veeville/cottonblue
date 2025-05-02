@@ -6,14 +6,15 @@ interface Product {
   id: number;
   name: string;
   price: number;
-  stock: number;
-  created_at: string;
-  company_id: number;
-  product_image: string;
   description: string;
+  product_image: string | null;
+  total_stock: number;
+  available_stock: number;
   available_region: string;
-  is_active: boolean;
+  company_id: number;
+  created_at: string;
   updated_at: string;
+  is_active: boolean;
 }
 
 interface ProductState {
@@ -130,8 +131,8 @@ const productSlice = createSlice({
       const { productId, quantity } = action.payload;
       if (state.products.products) {
         const product = state.products.products.find(p => p.id === productId);
-        if (product && product.stock >= quantity) {
-          product.stock -= quantity;
+        if (product && product.available_stock >= quantity) {
+          product.available_stock -= quantity;
         }
       }
     },
@@ -140,7 +141,7 @@ const productSlice = createSlice({
       if (state.products.products) {
         const product = state.products.products.find(p => p.id === productId);
         if (product) {
-          product.stock += quantity;
+          product.available_stock += quantity;
         }
       }
     },
@@ -149,7 +150,7 @@ const productSlice = createSlice({
       if (state.products.products) {
         const product = state.products.products.find(p => p.id === productId);
         if (product) {
-          product.stock = newStock;
+          product.available_stock = newStock;
         }
       }
     }

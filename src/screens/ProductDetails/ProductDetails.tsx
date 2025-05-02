@@ -28,15 +28,23 @@ const ProductHeader = () => {
   );
 };
 
-const ProductImage = ({ imageUrl }: { imageUrl: string }) => (
-  <div className="relative w-[524px] rounded-lg bg-gradient-to-b from-gray-800/20 to-gray-800/20">
-    <img
-      src={imageUrl || ""}
-      alt="Product"
-      className="w-full h-full object-cover"
-    />
-  </div>
-);
+const ProductImage = ({ imageUrl }: { imageUrl: string | null }) => {
+  return (
+    <div className="w-[300px] h-[300px] rounded-lg overflow-hidden">
+      {imageUrl ? (
+        <img
+          src={imageUrl}
+          alt="Product"
+          className="w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center bg-gray-100">
+          <Package2Icon className="w-12 h-12 text-gray-400" />
+        </div>
+      )}
+    </div>
+  );
+};
 
 const ProductInfo = ({ product }: { product: any }) => {
   const { t } = useTranslation();
@@ -60,8 +68,12 @@ const ProductInfo = ({ product }: { product: any }) => {
       isPrice: true,
     },
     {
-      label: t("productDetails.info.stock"),
-      value: product.stock?.toString() || "Not Available",
+      label: t("productDetails.info.availableStock"),
+      value: product.available_stock?.toString() || "Not Available",
+    },
+    {
+      label: t("productDetails.info.totalStock"),
+      value: product.total_stock?.toString() || "Not Available",
     },
   ];
 
@@ -156,7 +168,7 @@ export default function ProductDetails() {
   const { currentProduct, loading, error } = useAppSelector(
     (state) => state.product
   );
-  const product = currentProduct?.product || ({} as Product);
+  const product = currentProduct || ({} as Product);
   const { selectedCompany } = useAppSelector((state) => state.client);
 
   useEffect(() => {

@@ -45,11 +45,11 @@ const ProductRow = ({ product }: { product: any }) => {
     const newQuantity = product.quantity + amount;
     if (newQuantity === 0) {
       dispatch(removeFromCart(product.id));
-    } else if (newQuantity > 0 && newQuantity <= product.stock) {
+    } else if (newQuantity > 0 && newQuantity <= product.available_stock) {
       dispatch(
         updateQuantity({ productId: product.id, quantity: newQuantity })
       );
-    } else if (newQuantity > product.stock) {
+    } else if (newQuantity > product.available_stock) {
       toast.error(t("cart.error.notEnoughStock"));
     }
   };

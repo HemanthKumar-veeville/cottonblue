@@ -4,6 +4,7 @@ import {
   PlusIcon,
   SearchIcon,
   UserIcon,
+  ShoppingCart,
 } from "lucide-react";
 import { FaCartPlus } from "react-icons/fa";
 import { Badge } from "../../../components/ui/badge";
@@ -31,8 +32,9 @@ interface Product {
   name: string;
   price: number;
   description: string;
-  product_image: string;
-  stock: number;
+  product_image: string | null;
+  total_stock: number;
+  available_stock: number;
   available_region: string;
   company_id: number;
   created_at: string;
@@ -81,7 +83,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const [isAdding, setIsAdding] = useState(false);
-  const stockStatus = getStockStatus(product.stock);
+  const stockStatus = getStockStatus(product.available_stock);
   const { items } = useAppSelector((state) => state.cart);
   const cartItem = items.find((item) => item.id === product.id);
   const quantity = cartItem?.quantity || 0;
@@ -94,11 +96,11 @@ const ProductCard = ({ product }: { product: Product }) => {
     e?.stopPropagation();
     const newQuantity = quantity + amount;
 
-    if (amount > 0 && newQuantity <= (product.stock ?? 0)) {
+    if (amount > 0 && newQuantity <= (product.available_stock ?? 0)) {
       dispatch(addToCart({ product, quantity: 1 }));
     } else if (amount < 0 && newQuantity >= 0) {
       dispatch(addToCart({ product, quantity: -1 }));
-    } else if (newQuantity > (product.stock ?? 0)) {
+    } else if (newQuantity > (product.available_stock ?? 0)) {
       toast.error(t("cart.error.notEnoughStock"));
     }
   };
@@ -149,7 +151,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                 )}
               </div>
               {/* Cart interaction button */}
-              {(product.stock ?? 0) > 0 && (
+              {(product.available_stock ?? 0) > 0 && (
                 <div
                   onClick={(e) => e.stopPropagation()}
                   className="flex items-center"
@@ -164,7 +166,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                       aria-label={t("product.addToCart")}
                       title={t("product.addToCart")}
                     >
-                      <FaCartPlus className="h-3.5 w-3.5" />
+                      <ShoppingCart className="h-3.5 w-3.5" />
                     </Button>
                   ) : (
                     <div className="flex items-center bg-gray-50 rounded-md shadow-sm border border-gray-100 h-7">
@@ -191,7 +193,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                         size="icon"
                         className="h-7 w-7 rounded-full hover:bg-gray-50 transition-colors duration-200"
                         onClick={(e) => handleQuantityChange(1, e)}
-                        disabled={quantity >= (product.stock ?? 0)}
+                        disabled={quantity >= (product.available_stock ?? 0)}
                         aria-label={t("product.increaseQuantity")}
                         title={t("product.increaseQuantity")}
                       >
@@ -212,7 +214,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                 {formatPrice(product.price)}
               </span>
               <span className="text-[length:var(--body-s-font-size)] leading-[var(--body-s-line-height)] font-body-s [font-style:var(--body-s-font-style)] font-[number:var(--body-s-font-weight)] tracking-[var(--body-s-letter-spacing)]">
-                {formatStock(product.stock)}
+                {formatStock(product.available_stock)}
               </span>
             </div>
           </div>
@@ -319,7 +321,7 @@ export const DashboardSection = (): JSX.Element => {
 
   // Sort products by stock to get most ordered items
   const mostOrderedProducts = [...productList]
-    .sort((a, b) => (b.stock ?? 0) - (a.stock ?? 0))
+    .sort((a, b) => (b.available_stock ?? 0) - (a.available_stock ?? 0))
     .slice(0, 6);
 
   const tabs = [
