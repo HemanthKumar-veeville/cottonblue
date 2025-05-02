@@ -4,6 +4,7 @@ import { cartService } from '../../services/cartService';
 
 interface CartItem extends Product {
   quantity: number;
+  product_id?: number;
 }
 
 interface CartState {
@@ -53,19 +54,23 @@ const cartSlice = createSlice({
   reducers: {
     addToCart: (state, action: PayloadAction<{ product: Product; quantity: number }>) => {
       const { product, quantity } = action.payload;
-      const existingItem = state.items.find(item => item.id === product.id);
+      const existingItem = state.items.find(item => item.product_id === product.id);
 
       if (existingItem) {
         // Check if we have enough stock
         if (product.available_stock >= existingItem.quantity + quantity) {
           existingItem.quantity += quantity;
+          // Remove item if quantity becomes 0
+          if (existingItem.quantity <= 0) {
+            state.items = state.items.filter(item => item.product_id !== product.id);
+          }
         } else {
           state.error = 'Not enough stock available';
         }
-      } else {
+      } else if (quantity > 0) { // Only add new items if quantity is positive
         // Check if we have enough stock for new item
         if (product.available_stock >= quantity) {
-          state.items.push({ ...product, quantity });
+          state.items.push({ ...product, quantity, product_id: product.id });
         } else {
           state.error = 'Not enough stock available';
         }
@@ -76,14 +81,14 @@ const cartSlice = createSlice({
     },
 
     removeFromCart: (state, action: PayloadAction<number>) => {
-      state.items = state.items.filter(item => item.id !== action.payload);
+      state.items = state.items.filter(item => item.product_id !== action.payload);
       // Recalculate total
       state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     },
 
     updateQuantity: (state, action: PayloadAction<{ productId: number; quantity: number }>) => {
       const { productId, quantity } = action.payload;
-      const item = state.items.find(item => item.id === productId);
+      const item = state.items.find(item => item.product_id === productId);
 
       if (item) {
         // Find the product in the store to check stock
@@ -116,7 +121,9 @@ const cartSlice = createSlice({
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.loading = false;
+        // Ensure each item has product_id set
         state.items = action.payload.data.products;
+        state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;
@@ -132,7 +139,11 @@ const cartSlice = createSlice({
       .addCase(addToCartAsync.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload.cart_items) {
-          state.items = action.payload.cart_items;
+          // Ensure each item has product_id set
+          state.items = action.payload.cart_items.map((item: CartItem) => ({
+            ...item,
+            product_id: item.id
+          }));
           state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         }
       })

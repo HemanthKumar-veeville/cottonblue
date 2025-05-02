@@ -33,6 +33,7 @@ import { toast } from "react-hot-toast";
 
 interface Product {
   id: number;
+  product_id?: number;
   name: string;
   price: number;
   description: string;
@@ -87,8 +88,9 @@ const ProductCard = ({ product }: { product: Product }) => {
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
   const stockStatus = getStockStatus(product.available_stock);
-  const { items } = useAppSelector((state) => state.cart);
-  const cartItem = items.find((item) => item.id === product.id);
+  const cart = useAppSelector((state) => state.cart);
+  const items = cart?.items || [];
+  const cartItem = items.find((item) => item.product_id === product.id);
   const quantity = cartItem?.quantity || 0;
   const { selectedStore } = useAppSelector((state) => state.agency);
   const dnsPrefix = getHost();
@@ -106,7 +108,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         try {
           // Dispatch local state update immediately for optimistic UI
           dispatch(addToCart({ product, quantity: 1 }));
-          dispatch(
+          await dispatch(
             addToCartAsync({
               dns_prefix: dnsPrefix,
               store_id: selectedStore,
@@ -125,7 +127,7 @@ const ProductCard = ({ product }: { product: Product }) => {
         try {
           // Dispatch local state update immediately for optimistic UI
           dispatch(addToCart({ product, quantity: -1 }));
-          dispatch(
+          await dispatch(
             addToCartAsync({
               dns_prefix: dnsPrefix,
               store_id: selectedStore,

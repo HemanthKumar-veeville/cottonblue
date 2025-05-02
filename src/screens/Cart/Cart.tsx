@@ -14,11 +14,16 @@ import { Textarea } from "../../components/ui/textarea";
 import { Minus, Package2, Plus, ShoppingCart } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../../store/store";
-import { updateQuantity, removeFromCart } from "../../store/features/cartSlice";
-import { useState } from "react";
+import {
+  updateQuantity,
+  removeFromCart,
+  fetchCart,
+} from "../../store/features/cartSlice";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import EmptyState from "../../components/EmptyState";
 import { useNavigate } from "react-router-dom";
+import { getHost } from "../../utils/hostUtils";
 
 interface ShippingAddress {
   firstName: string;
@@ -44,23 +49,23 @@ const ProductRow = ({ product }: { product: any }) => {
   const handleQuantityChange = (amount: number) => {
     const newQuantity = product.quantity + amount;
     if (newQuantity === 0) {
-      dispatch(removeFromCart(product.id));
-    } else if (newQuantity > 0 && newQuantity <= product.available_stock) {
+      dispatch(removeFromCart(product.product_id));
+    } else if (newQuantity > 0) {
       dispatch(
-        updateQuantity({ productId: product.id, quantity: newQuantity })
+        updateQuantity({ productId: product.product_id, quantity: newQuantity })
       );
-    } else if (newQuantity > product.available_stock) {
-      toast.error(t("cart.error.notEnoughStock"));
     }
   };
 
   return (
     <TableRow
-      key={product.id}
+      key={product.product_id}
       className="border-b border-primary-neutal-300 hover:bg-transparent"
     >
       <TableCell className="w-11 p-2">
-        <Checkbox onChange={() => dispatch(removeFromCart(product.id))} />
+        <Checkbox
+          onChange={() => dispatch(removeFromCart(product.product_id))}
+        />
       </TableCell>
       <TableCell className="w-[203px] p-3">
         <div className="flex items-center gap-3">
@@ -68,21 +73,23 @@ const ProductRow = ({ product }: { product: any }) => {
             {product.product_image ? (
               <img
                 className="w-[30px] h-[29px] object-cover"
-                alt={product.name}
+                alt={product.product_name}
                 src={product.product_image}
               />
             ) : (
               <Package2 className="w-5 h-5 text-gray-400" />
             )}
           </div>
-          <span className="font-text-medium text-black">{product.name}</span>
+          <span className="font-text-medium text-black">
+            {product.product_name}
+          </span>
         </div>
       </TableCell>
       <TableCell className="w-[129px] text-center text-coolgray-100 text-sm">
-        {product.ref}
+        {product.product_id}
       </TableCell>
       <TableCell className="w-[145px] text-center text-black text-[15px]">
-        {product.price.toFixed(2)}€
+        {product.product_price.toFixed(2)}€
       </TableCell>
       <TableCell className="w-[145px] p-2.5">
         <div className="flex items-center justify-center gap-2 bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] rounded-[var(--2-tokens-screen-modes-button-border-radius)] border border-solid border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] p-2">
@@ -108,7 +115,7 @@ const ProductRow = ({ product }: { product: any }) => {
         </div>
       </TableCell>
       <TableCell className="w-[145px] text-center text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[15px]">
-        {(product.price * product.quantity).toFixed(2)}€
+        {(product.product_price * product.quantity).toFixed(2)}€
       </TableCell>
     </TableRow>
   );
@@ -173,10 +180,13 @@ const AddressSection = ({
 
 const OrderSummary = () => {
   const { t } = useTranslation();
-  const { items, total } = useAppSelector((state) => state.cart);
+  const { items } = useAppSelector((state) => state.cart);
 
+  const totalHT = items.reduce(
+    (acc, item) => acc + item.product_price * item.quantity,
+    0
+  );
   const shippingCost = items.length > 0 ? 38.94 : 0;
-  const totalHT = total;
   const totalTTC = totalHT + shippingCost;
 
   return (
@@ -219,8 +229,13 @@ export default function CartContainer(): JSX.Element {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { items } = useAppSelector((state) => state.cart);
+  const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const userEmail = user?.user_email;
+  const dnsPrefix = getHost();
+  const { selectedStore } = useAppSelector((state) => state.agency);
+  const cart = useAppSelector((state) => state.cart);
+  const cartProducts = cart?.items || [];
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     firstName: "",
     lastName: "",
@@ -252,6 +267,13 @@ export default function CartContainer(): JSX.Element {
     // TODO: Implement order validation
     toast.success(t("cart.success.orderValidated"));
   };
+
+  useEffect(() => {
+    if (dnsPrefix && selectedStore && selectedStore !== "all") {
+      // Fetch cart data when component mounts and when store changes
+      dispatch(fetchCart({ dns_prefix: dnsPrefix, store_id: selectedStore }));
+    }
+  }, [dispatch, dnsPrefix, selectedStore]);
 
   if (items.length === 0) {
     return (
@@ -323,7 +345,7 @@ export default function CartContainer(): JSX.Element {
                 <Table>
                   <TableBody>
                     {items.map((product) => (
-                      <ProductRow key={product.id} product={product} />
+                      <ProductRow key={product.product_id} product={product} />
                     ))}
                   </TableBody>
                 </Table>
