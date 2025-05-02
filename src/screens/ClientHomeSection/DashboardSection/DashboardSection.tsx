@@ -24,7 +24,11 @@ import { Skeleton } from "../../../components/Skeleton";
 import EmptyState from "../../../components/EmptyState";
 import { Package2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
-import { addToCart } from "../../../store/features/cartSlice";
+import {
+  addToCart,
+  fetchCart,
+  addToCartAsync,
+} from "../../../store/features/cartSlice";
 import { toast } from "react-hot-toast";
 
 interface Product {
@@ -82,24 +86,59 @@ const ProductCard = ({ product }: { product: Product }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const [isAdding, setIsAdding] = useState(false);
   const stockStatus = getStockStatus(product.available_stock);
   const { items } = useAppSelector((state) => state.cart);
   const cartItem = items.find((item) => item.id === product.id);
   const quantity = cartItem?.quantity || 0;
+  const { selectedStore } = useAppSelector((state) => state.agency);
+  const dnsPrefix = getHost();
 
   const handleClick = () => {
     navigate(`/product/${product.id}`);
   };
 
-  const handleQuantityChange = (amount: number, e?: React.MouseEvent) => {
+  const handleQuantityChange = async (amount: number, e?: React.MouseEvent) => {
     e?.stopPropagation();
     const newQuantity = quantity + amount;
 
     if (amount > 0 && newQuantity <= (product.available_stock ?? 0)) {
-      dispatch(addToCart({ product, quantity: 1 }));
+      if (dnsPrefix && selectedStore) {
+        try {
+          // Dispatch local state update immediately for optimistic UI
+          dispatch(addToCart({ product, quantity: 1 }));
+          dispatch(
+            addToCartAsync({
+              dns_prefix: dnsPrefix,
+              store_id: selectedStore,
+              product_id: product.id.toString(),
+              quantity: 1,
+            })
+          ).unwrap();
+        } catch (error) {
+          // Revert local state by dispatching negative quantity
+          dispatch(addToCart({ product, quantity: -1 }));
+          toast.error(t("cart.error.addFailed"));
+        }
+      }
     } else if (amount < 0 && newQuantity >= 0) {
-      dispatch(addToCart({ product, quantity: -1 }));
+      if (dnsPrefix && selectedStore) {
+        try {
+          // Dispatch local state update immediately for optimistic UI
+          dispatch(addToCart({ product, quantity: -1 }));
+          dispatch(
+            addToCartAsync({
+              dns_prefix: dnsPrefix,
+              store_id: selectedStore,
+              product_id: product.id.toString(),
+              quantity: -1,
+            })
+          ).unwrap();
+        } catch (error) {
+          // Revert local state by dispatching positive quantity
+          dispatch(addToCart({ product, quantity: 1 }));
+          toast.error(t("cart.error.removeFailed"));
+        }
+      }
     } else if (newQuantity > (product.available_stock ?? 0)) {
       toast.error(t("cart.error.notEnoughStock"));
     }
@@ -107,7 +146,6 @@ const ProductCard = ({ product }: { product: Product }) => {
 
   const handleInitialAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
-    setIsAdding(true);
     handleQuantityChange(1, e);
   };
 
@@ -289,10 +327,20 @@ export const DashboardSection = (): JSX.Element => {
   const dispatch = useAppDispatch();
   const { products, loading } = useAppSelector((state) => state.product);
   const productList = products?.products || [];
+  const cart = useAppSelector((state) => state.cart);
+  const cartProducts = cart?.items || [];
   const dnsPrefix = getHost();
   const user = useAppSelector((state) => state.auth.user);
   const isStoreUser = user?.store_details?.length > 0;
   const { selectedStore } = useAppSelector((state) => state.agency);
+
+  useEffect(() => {
+    if (dnsPrefix && selectedStore && selectedStore !== "all") {
+      // Fetch cart data when component mounts and when store changes
+      dispatch(fetchCart({ dns_prefix: dnsPrefix, store_id: selectedStore }));
+    }
+  }, [dispatch, dnsPrefix, selectedStore]);
+
   useEffect(() => {
     if (dnsPrefix) {
       if (isStoreUser) {

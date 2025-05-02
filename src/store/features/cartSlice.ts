@@ -1,5 +1,6 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { Product } from './productSlice';
+import { cartService } from '../../services/cartService';
 
 interface CartItem extends Product {
   quantity: number;
@@ -11,6 +12,33 @@ interface CartState {
   error: string | null;
   total: number;
 }
+
+// Async thunk actions
+export const fetchCart = createAsyncThunk(
+  'cart/fetchCart',
+  async ({ dns_prefix, store_id }: { dns_prefix: string; store_id: string }) => {
+    const response = await cartService.getCart(dns_prefix, store_id);
+    return response;
+  }
+);
+
+export const addToCartAsync = createAsyncThunk(
+  'cart/addToCartAsync',
+  async ({ 
+    dns_prefix, 
+    store_id, 
+    product_id, 
+    quantity 
+  }: { 
+    dns_prefix: string; 
+    store_id: string; 
+    product_id: string; 
+    quantity: number 
+  }) => {
+    const response = await cartService.addToCart(dns_prefix, store_id, product_id, quantity);
+    return response;
+  }
+);
 
 const initialState: CartState = {
   items: [],
@@ -78,6 +106,40 @@ const cartSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+  },
+  extraReducers: (builder) => {
+    // Handle fetchCart
+    builder
+      .addCase(fetchCart.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCart.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload.data.products;
+      })
+      .addCase(fetchCart.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch cart';
+      })
+
+    // Handle addToCartAsync
+    builder
+      .addCase(addToCartAsync.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addToCartAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        if (action.payload.cart_items) {
+          state.items = action.payload.cart_items;
+          state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        }
+      })
+      .addCase(addToCartAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to add item to cart';
+      });
   },
 });
 

@@ -30,8 +30,8 @@ axiosInstance.interceptors.request.use(
 // Response interceptor
 axiosInstance.interceptors.response.use(
   (response) => {
-    // Show success toast only for non-GET requests
-    if (response.config.method !== 'get') {
+    // Show success toast only for non-GET requests and non-addToCart endpoints
+    if (response.config.method !== 'get' && !response.config.url?.includes('add-to-cart')) {
       // Check if there's a custom success message in the response
       const message = response.data?.message || 'Operation successful';
       toast.success(message, {
@@ -50,6 +50,10 @@ axiosInstance.interceptors.response.use(
     let errorMessage = 'Something went wrong';
 
     if (error.response) {
+      // Skip error toast for addToCart endpoint
+      if (error.config.url?.includes('addToCart')) {
+        return Promise.reject(error);
+      }
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
       errorMessage = error.response.data?.message || error.response.data?.error || errorMessage;

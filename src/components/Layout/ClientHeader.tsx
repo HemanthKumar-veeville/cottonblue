@@ -30,7 +30,8 @@ interface UserStore {
 export const ClientHeader = () => {
   const { t } = useTranslation();
   const { user } = useAppSelector((state) => state.auth);
-  const { items } = useAppSelector((state) => state.cart);
+  const cart = useAppSelector((state) => state.cart);
+  const items = cart?.items || [];
   const userName = user?.user_name;
   const isAdmin = user?.user_role === "admin";
   const storeIds = user?.store_details || [];
@@ -42,22 +43,23 @@ export const ClientHeader = () => {
 
   // Get the current store name for display
   const getCurrentStoreName = () => {
-    if (!selectedStore || selectedStore === "all") return "All Stores";
+    if (!selectedStore) return "";
 
     if (isAdmin) {
       return (
         storeList?.find((store: Store) => store.id === selectedStore)?.name ||
-        "All Stores"
+        ""
       );
     }
 
     return (
       storeIds.find((store: UserStore) => store.store_id === selectedStore)
-        ?.store_name || "All Stores"
+        ?.store_name || ""
     );
   };
 
   // Calculate total items in cart
+  console.log({ items, cart });
   const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);
 
   useEffect(() => {
@@ -70,12 +72,16 @@ export const ClientHeader = () => {
   useEffect(() => {
     if (!selectedStore) {
       const initialStore =
-        storeIds.length > 0 ? storeIds[0].store_id : isAdmin ? "all" : null;
+        storeIds.length > 0
+          ? storeIds[0].store_id
+          : isAdmin && storeList?.length > 0
+          ? storeList[0].id
+          : null;
       if (initialStore) {
         dispatch(setSelectedStore(initialStore));
       }
     }
-  }, [dispatch, storeIds, isAdmin, selectedStore]);
+  }, [dispatch, storeIds, isAdmin, selectedStore, storeList]);
 
   const handleStoreChange = (value: string) => {
     dispatch(setSelectedStore(value));
@@ -95,7 +101,6 @@ export const ClientHeader = () => {
             <SelectContent>
               {isAdmin ? (
                 <>
-                  <SelectItem value="all">All Stores</SelectItem>
                   {storeList?.map((store) => (
                     <SelectItem key={store.id} value={store.id}>
                       {store.name}
