@@ -39,6 +39,7 @@ import { getHost } from "./utils/hostUtils";
 import AddUser from "./screens/AddUser/AddUser";
 import { UserList } from "./screens/UserList";
 import UserDetails from "./screens/UserDetails/UserDetails";
+import ClientSettings from "./screens/ClientSettings/ClientSettings";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
@@ -137,7 +138,7 @@ function App() {
             <Route path="history" element={<History />} />
             <Route path="order-details/:id" element={<OrderDetails />} />
             <Route path="support" element={<ClientSupport />} />
-            <Route path="settings" element={<ComingSoon />} />
+            <Route path="settings" element={<ClientSettings />} />
           </Route>
         ) : (
           <Route path="/" element={<ClientLogin />} />
