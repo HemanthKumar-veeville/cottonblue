@@ -2,6 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
+import { StatusIcon } from "../../components/ui/status-icon";
+import { FileText, ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -103,26 +105,6 @@ const paginationItems = [
   { page: 24, active: false },
 ];
 
-const StatusIcon = ({ type }: { type: string }) => {
-  const iconMap: { [key: string]: string } = {
-    success: "/img/frame-5.svg",
-    warning: "/img/group-2.png",
-    danger: "/img/frame-2.svg",
-    default: "/img/group-1.png",
-  };
-  const iconSrc = iconMap[type] || iconMap.default;
-  const sizeClass =
-    type === "warning"
-      ? "w-[18px] h-[18px] top-[3px] left-[3px]"
-      : type === "default"
-      ? "w-[19px] h-[15px] top-[5px] left-0.5"
-      : "w-6 h-6";
-
-  return (
-    <img className={`absolute ${sizeClass}`} alt="Status icon" src={iconSrc} />
-  );
-};
-
 const StatusText = ({ status, type }: { status: string; type: string }) => {
   const textColorClassMap: { [key: string]: string } = {
     success: "text-1-tokens-color-modes-common-success-medium",
@@ -168,18 +150,12 @@ const OrderRow = ({ order, index }: { order: any; index: number }) => (
     </TableCell>
     <TableCell className="w-[145px] p-2.5">
       <div className="flex items-center gap-2">
-        <div className="relative w-6 h-6">
-          <StatusIcon type={order.statusType} />
-        </div>
-        <StatusText status={order.status} type={order.statusType} />
+        <StatusIcon type={order.statusType} />
+        <StatusText status={t(order.status)} type={order.statusType} />
       </div>
     </TableCell>
     <TableCell className="w-[69px] p-2.5 text-center">
-      <img
-        className="inline-block w-4 h-4"
-        alt="Invoice"
-        src={order.invoiceImg}
-      />
+      <FileText className="inline-block w-4 h-4" />
     </TableCell>
     <TableCell className="w-[145px] p-2.5 text-center">
       <Button
@@ -253,9 +229,7 @@ export const OrderDetailsSection = (): JSX.Element => {
               </TableCell>
               <TableCell className="w-[145px] p-2.5">
                 <div className="flex items-center gap-2">
-                  <div className="relative w-6 h-6">
-                    <StatusIcon type={order.statusType} />
-                  </div>
+                  <StatusIcon type={order.statusType} />
                   <StatusText
                     status={t(order.status)}
                     type={order.statusType}
@@ -263,11 +237,7 @@ export const OrderDetailsSection = (): JSX.Element => {
                 </div>
               </TableCell>
               <TableCell className="w-[69px] p-2.5 text-center">
-                <img
-                  className="inline-block w-4 h-4"
-                  alt={t("history.table.invoice")}
-                  src={order.invoiceImg}
-                />
+                <FileText className="inline-block w-4 h-4" />
               </TableCell>
               <TableCell className="w-[145px] p-2.5 text-center">
                 <Button
@@ -288,11 +258,7 @@ export const OrderDetailsSection = (): JSX.Element => {
           variant="outline"
           className="h-[42px] gap-1 pl-2 pr-3 py-2.5 bg-white rounded-lg shadow-1dp-ambient"
         >
-          <img
-            className="w-6 h-6"
-            alt={t("history.pagination.previous")}
-            src="/img/arrow-left-sm.svg"
-          />
+          <ChevronLeft className="w-6 h-6" />
           <span className="font-medium text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
             {t("history.pagination.previous")}
           </span>
@@ -331,11 +297,7 @@ export const OrderDetailsSection = (): JSX.Element => {
           <span className="font-medium text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
             {t("history.pagination.next")}
           </span>
-          <img
-            className="w-6 h-6"
-            alt={t("history.pagination.next")}
-            src="/img/arrow-left-sm-1.svg"
-          />
+          <ChevronRight className="w-6 h-6" />
         </Button>
       </div>
     </div>
