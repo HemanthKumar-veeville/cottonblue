@@ -59,7 +59,7 @@ export const ClientHeader = () => {
   };
 
   // Calculate total items in cart
-  console.log({ items, cart });
+
   const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);
 
   useEffect(() => {

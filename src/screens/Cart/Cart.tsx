@@ -18,13 +18,15 @@ import {
   updateQuantity,
   removeFromCart,
   fetchCart,
+  addToCart,
+  addToCartAsync,
 } from "../../store/features/cartSlice";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import EmptyState from "../../components/EmptyState";
 import { useNavigate } from "react-router-dom";
 import { getHost } from "../../utils/hostUtils";
-
+import { fetchAllProducts } from "../../store/features/productSlice";
 interface ShippingAddress {
   firstName: string;
   lastName: string;
@@ -45,15 +47,58 @@ interface BillingAddress {
 const ProductRow = ({ product }: { product: any }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-
-  const handleQuantityChange = (amount: number) => {
+  const dnsPrefix = getHost();
+  const { selectedStore } = useAppSelector((state) => state.agency);
+  const products = useAppSelector((state) => state.product.products.products);
+  const productDetails =
+    products?.find((p) => p.id === product.product_id) || null;
+  console.log(productDetails);
+  const handleQuantityChange = async (amount: number, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     const newQuantity = product.quantity + amount;
-    if (newQuantity === 0) {
-      dispatch(removeFromCart(product.product_id));
-    } else if (newQuantity > 0) {
-      dispatch(
-        updateQuantity({ productId: product.product_id, quantity: newQuantity })
-      );
+    console.log({ product, amount, newQuantity });
+    if (amount > 0 && newQuantity <= (productDetails?.available_stock ?? 0)) {
+      if (dnsPrefix && selectedStore) {
+        console.log("here");
+        try {
+          // Dispatch local state update immediately for optimistic UI
+          dispatch(addToCart({ product, quantity: 1 }));
+          console.log("here2");
+          await dispatch(
+            addToCartAsync({
+              dns_prefix: dnsPrefix,
+              store_id: selectedStore,
+              product_id: product.id.toString(),
+              quantity: 1,
+            })
+          ).unwrap();
+        } catch (error) {
+          // Revert local state by dispatching negative quantity
+          dispatch(addToCart({ product, quantity: -1 }));
+          toast.error(t("cart.error.addFailed"));
+        }
+      }
+    } else if (amount < 0 && newQuantity >= 0) {
+      if (dnsPrefix && selectedStore) {
+        try {
+          // Dispatch local state update immediately for optimistic UI
+          dispatch(addToCart({ product, quantity: -1 }));
+          await dispatch(
+            addToCartAsync({
+              dns_prefix: dnsPrefix,
+              store_id: selectedStore,
+              product_id: product.id.toString(),
+              quantity: -1,
+            })
+          ).unwrap();
+        } catch (error) {
+          // Revert local state by dispatching positive quantity
+          dispatch(addToCart({ product, quantity: 1 }));
+          toast.error(t("cart.error.removeFailed"));
+        }
+      }
+    } else if (newQuantity > (productDetails?.available_stock ?? 0)) {
+      toast.error(t("cart.error.notEnoughStock"));
     }
   };
 
@@ -97,7 +142,7 @@ const ProductRow = ({ product }: { product: any }) => {
             variant="ghost"
             size="icon"
             className="h-5 w-5 p-0"
-            onClick={() => handleQuantityChange(-1)}
+            onClick={(e) => handleQuantityChange(-1, e)}
           >
             <Minus className="h-4 w-4" />
           </Button>
@@ -108,7 +153,7 @@ const ProductRow = ({ product }: { product: any }) => {
             variant="ghost"
             size="icon"
             className="h-5 w-5 p-0"
-            onClick={() => handleQuantityChange(1)}
+            onClick={(e) => handleQuantityChange(1, e)}
           >
             <Plus className="h-4 w-4" />
           </Button>
@@ -272,6 +317,7 @@ export default function CartContainer(): JSX.Element {
     if (dnsPrefix && selectedStore && selectedStore !== "all") {
       // Fetch cart data when component mounts and when store changes
       dispatch(fetchCart({ dns_prefix: dnsPrefix, store_id: selectedStore }));
+      dispatch(fetchAllProducts(dnsPrefix));
     }
   }, [dispatch, dnsPrefix, selectedStore]);
 

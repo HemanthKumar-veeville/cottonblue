@@ -19,7 +19,7 @@ export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
   async ({ dns_prefix, store_id }: { dns_prefix: string; store_id: string }) => {
     const response = await cartService.getCart(dns_prefix, store_id);
-    return response;
+    return response?.data;
   }
 );
 
@@ -122,7 +122,7 @@ const cartSlice = createSlice({
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.loading = false;
         // Ensure each item has product_id set
-        state.items = action.payload.data.products;
+        state.items = action.payload.products;
         state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       })
       .addCase(fetchCart.rejected, (state, action) => {
