@@ -20,6 +20,7 @@ import {
   fetchCart,
   addToCart,
   addToCartAsync,
+  convertCartToOrder,
 } from "../../store/features/cartSlice";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -273,7 +274,7 @@ const OrderSummary = () => {
 export default function CartContainer(): JSX.Element {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { items } = useAppSelector((state) => state.cart);
+  const { items, loading, cartId } = useAppSelector((state) => state.cart);
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const userEmail = user?.user_email;
@@ -308,9 +309,34 @@ export default function CartContainer(): JSX.Element {
     setBillingAddress((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleValidateOrder = () => {
-    // TODO: Implement order validation
-    toast.success(t("cart.success.orderValidated"));
+  const handleValidateOrder = async () => {
+    console.log("here");
+    try {
+      if (!dnsPrefix || !selectedStore) {
+        toast.error(t("cart.error.missingStoreInfo"));
+        return;
+      }
+
+      // Get the first cart item's cart_id - assuming all items are from same cart
+      if (!cartId) {
+        toast.error(t("cart.error.invalidCart"));
+        return;
+      }
+
+      await dispatch(
+        convertCartToOrder({
+          dns_prefix: dnsPrefix,
+          store_id: selectedStore,
+          cart_id: cartId,
+        })
+      ).unwrap();
+
+      // If successful, show success message and redirect to orders page
+      toast.success(t("cart.success.orderCreated"));
+      navigate("/orders");
+    } catch (error) {
+      toast.error(t("cart.error.orderCreationFailed"));
+    }
   };
 
   useEffect(() => {
@@ -441,14 +467,16 @@ export default function CartContainer(): JSX.Element {
                 />
               </div>
             </div>
-
-            <Button
-              className="w-full bg-[#00b85b] border-[#1a8563] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] font-label-medium"
-              onClick={handleValidateOrder}
-              disabled={items.length === 0}
-            >
-              {t("cart.buttons.validateOrder")}
-            </Button>
+            <div className="flex justify-end" onClick={handleValidateOrder}>
+              <Button
+                className="w-full bg-[#00b85b] border-[#1a8563] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] font-label-medium"
+                disabled={items.length === 0 || loading}
+              >
+                {loading
+                  ? t("cart.buttons.processing")
+                  : t("cart.buttons.validateOrder")}
+              </Button>
+            </div>
           </CardContent>
         </Card>
       </div>

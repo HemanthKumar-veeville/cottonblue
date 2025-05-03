@@ -5,13 +5,28 @@ import { cartService } from '../../services/cartService';
 interface CartItem extends Product {
   quantity: number;
   product_id?: number;
+  cart_id: string;
+}
+
+interface Order {
+  id: string;
+  date: string;
+  price: string;
+  status: {
+    text: string;
+    type: 'success' | 'warning' | 'danger' | 'default';
+  };
+  hasInvoice: boolean;
 }
 
 interface CartState {
   items: CartItem[];
+  cartId: string | null;
   loading: boolean;
   error: string | null;
   total: number;
+  orders: Order[];
+  currentOrderId: string | null;
 }
 
 // Async thunk actions
@@ -41,11 +56,43 @@ export const addToCartAsync = createAsyncThunk(
   }
 );
 
+export const convertCartToOrder = createAsyncThunk(
+  'cart/convertCartToOrder',
+  async ({ 
+    dns_prefix, 
+    store_id, 
+    cart_id 
+  }: { 
+    dns_prefix: string; 
+    store_id: string; 
+    cart_id: string;
+  }) => {
+    const response = await cartService.convertCartToOrder(dns_prefix, store_id, cart_id);
+    return response;
+  }
+);
+
+export const getAllOrders = createAsyncThunk(
+  'cart/getAllOrders',
+  async ({ 
+    dns_prefix, 
+    store_id 
+  }: { 
+    dns_prefix: string; 
+    store_id: string;
+  }) => {
+    const response = await cartService.getAllOrders(dns_prefix, store_id);
+    return response;
+  }
+);
+
 const initialState: CartState = {
   items: [],
   loading: false,
   error: null,
   total: 0,
+  orders: [],
+  currentOrderId: null,
 };
 
 const cartSlice = createSlice({
@@ -123,6 +170,7 @@ const cartSlice = createSlice({
         state.loading = false;
         // Ensure each item has product_id set
         state.items = action.payload.products;
+        state.cartId = action.payload.cart_id;
         state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
       })
       .addCase(fetchCart.rejected, (state, action) => {
@@ -150,6 +198,39 @@ const cartSlice = createSlice({
       .addCase(addToCartAsync.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to add item to cart';
+      });
+
+    // Handle convertCartToOrder
+    builder
+      .addCase(convertCartToOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(convertCartToOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentOrderId = action.payload.order_id;
+        // Clear the cart after successful conversion
+        state.items = [];
+        state.total = 0;
+      })
+      .addCase(convertCartToOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to convert cart to order';
+      })
+
+    // Handle getAllOrders
+    builder
+      .addCase(getAllOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload.orders;
+      })
+      .addCase(getAllOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch orders';
       });
   },
 });

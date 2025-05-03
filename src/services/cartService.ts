@@ -12,6 +12,26 @@ interface GetCartResponse {
   total: number;
 }
 
+interface ConvertCartToOrderResponse {
+  success: boolean;
+  message: string;
+  order_id: string;
+}
+
+interface GetAllOrdersResponse {
+  success: boolean;
+  orders: Array<{
+    id: string;
+    date: string;
+    price: string;
+    status: {
+      text: string;
+      type: 'success' | 'warning' | 'danger' | 'default';
+    };
+    hasInvoice: boolean;
+  }>;
+}
+
 export const cartService = {
   /**
    * Add a product to the cart
@@ -43,5 +63,33 @@ export const cartService = {
     store_id: string
   ): Promise<GetCartResponse> => {
     return axiosInstance.get(`/${dns_prefix}/get-cart/${store_id}`);
+  },
+
+  /**
+   * Convert a cart to an order
+   * @param dns_prefix DNS prefix of the company
+   * @param store_id ID of the store
+   * @param cart_id ID of the cart to convert
+   * @returns Promise with order creation response
+   */
+  convertCartToOrder: async (
+    dns_prefix: string,
+    store_id: string,
+    cart_id: string
+  ): Promise<ConvertCartToOrderResponse> => {
+    return axiosInstance.post(`/${dns_prefix}/convert-cart-to-order/${store_id}/${cart_id}`);
+  },
+
+  /**
+   * Get all orders for a store
+   * @param dns_prefix DNS prefix of the company
+   * @param store_id ID of the store
+   * @returns Promise with list of orders
+   */
+  getAllOrders: async (
+    dns_prefix: string,
+    store_id: string
+  ): Promise<GetAllOrdersResponse> => {
+    return axiosInstance.get(`/${dns_prefix}/all/orders/${store_id}`);
   },
 };
