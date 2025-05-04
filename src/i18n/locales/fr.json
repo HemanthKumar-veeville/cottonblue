@@ -9,7 +9,8 @@
     "previous": "Précédent",
     "save": "Enregistrer",
     "success": "Succès",
-    "error": "Erreur"
+    "error": "Erreur",
+    "notAvailable": "Non disponible"
   },
   "header": {
     "adminManagement": "Gestion des administrateurs",

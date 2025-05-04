@@ -9,7 +9,8 @@
     "previous": "Previous",
     "save": "Save",
     "success": "Success",
-    "error": "Error"
+    "error": "Error",
+    "notAvailable": "Not Available"
   },
   "header": {
     "adminManagement": "Admin Management",

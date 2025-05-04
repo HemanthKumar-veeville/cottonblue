@@ -17,6 +17,12 @@ interface Order {
     type: 'success' | 'warning' | 'danger' | 'default';
   };
   hasInvoice: boolean;
+  items?: Array<{
+    id: string;
+    name: string;
+    quantity: number;
+    price: number;
+  }>;
 }
 
 interface CartState {
@@ -27,6 +33,7 @@ interface CartState {
   total: number;
   orders: Order[];
   currentOrderId: string | null;
+  currentOrder: Order | null;
 }
 
 // Async thunk actions
@@ -82,7 +89,24 @@ export const getAllOrders = createAsyncThunk(
     store_id: string;
   }) => {
     const response = await cartService.getAllOrders(dns_prefix, store_id);
-    return response;
+    return response.data;
+  }
+);
+
+export const getOrder = createAsyncThunk(
+  'cart/getOrder',
+  async ({ 
+    dns_prefix, 
+    store_id, 
+    order_id 
+  }: { 
+    dns_prefix: string; 
+    store_id: string; 
+    order_id: string;
+  }) => {
+    const response = await cartService.getOrder(dns_prefix, store_id, order_id);
+    console.log({ response });
+    return response.data;
   }
 );
 
@@ -93,6 +117,8 @@ const initialState: CartState = {
   total: 0,
   orders: [],
   currentOrderId: null,
+  currentOrder: null,
+  cartId: null,
 };
 
 const cartSlice = createSlice({
@@ -226,11 +252,26 @@ const cartSlice = createSlice({
       })
       .addCase(getAllOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = action.payload.orders;
+        state.orders = action.payload;
       })
       .addCase(getAllOrders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch orders';
+      });
+
+    // Handle getOrder
+    builder
+      .addCase(getOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.currentOrder = action.payload;
+      })
+      .addCase(getOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch order details';
       });
   },
 });

@@ -10,6 +10,8 @@ import {
   PaginationEllipsis,
   PaginationItem,
   PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
 } from "../../components/ui/pagination";
 import {
   Table,
@@ -20,81 +22,8 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { useTranslation } from "react-i18next";
-
-const orders = [
-  {
-    id: "KCJRTAEIJ",
-    date: "15/02/2024",
-    price: "499.90€",
-    status: "history.status.delivered",
-    statusType: "success",
-    invoiceImg: "/img/invoice.svg",
-  },
-  {
-    id: "KCJRTAEIJ",
-    date: "22/03/2025",
-    price: "149.90€",
-    status: "history.status.inDelivery",
-    statusType: "warning",
-    invoiceImg: "/img/invoice-1.svg",
-  },
-  {
-    id: "KCJRTAEIJ",
-    date: "30/04/2024",
-    price: "499.90€",
-    status: "history.status.delivered",
-    statusType: "success",
-    invoiceImg: "/img/invoice-2.svg",
-  },
-  {
-    id: "KCJRTAEIJ",
-    date: "12/05/2025",
-    price: "399.90€",
-    status: "history.status.shipped",
-    statusType: "default",
-    invoiceImg: "/img/invoice-3.svg",
-  },
-  {
-    id: "KCJRTAEIJ",
-    date: "18/06/2024",
-    price: "149.90€",
-    status: "history.status.inDelivery",
-    statusType: "warning",
-    invoiceImg: "/img/invoice-4.svg",
-  },
-  {
-    id: "KCJRTAEIJ",
-    date: "25/07/2025",
-    price: "799.90€",
-    status: "history.status.cancelled",
-    statusType: "danger",
-    invoiceImg: "/img/invoice-5.svg",
-  },
-  {
-    id: "KCJRTAEIJ",
-    date: "09/08/2024",
-    price: "499.90€",
-    status: "history.status.delivered",
-    statusType: "success",
-    invoiceImg: "/img/invoice-6.svg",
-  },
-  {
-    id: "KCJRTAEIJ",
-    date: "14/09/2025",
-    price: "399.90€",
-    status: "history.status.delivered",
-    statusType: "success",
-    invoiceImg: "/img/invoice-7.svg",
-  },
-  {
-    id: "KCJRTAEIJ",
-    date: "30/10/2024",
-    price: "799.90€",
-    status: "history.status.delivered",
-    statusType: "success",
-    invoiceImg: "/img/invoice-8.svg",
-  },
-];
+import { useSelector } from "react-redux";
+import { Skeleton } from "../../components/Skeleton";
 
 const paginationItems = [
   { page: 1, active: true },
@@ -124,181 +53,172 @@ const StatusText = ({ status, type }: { status: string; type: string }) => {
   );
 };
 
-const OrderRow = ({ order, index }: { order: any; index: number }) => (
-  <TableRow key={index} className="border-b border-primary-neutal-300">
-    <TableCell className="w-11 py-3 px-2">
-      <Checkbox className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
-    </TableCell>
-    <TableCell className="w-[129px] p-2.5 text-center">
-      <span
-        className={`font-normal ${
-          index === 0 ? "text-coolgray-100" : "text-[#121619]"
-        } text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]`}
-      >
-        {order.id}
-      </span>
-    </TableCell>
-    <TableCell className="w-[145px] p-2.5 text-center">
-      <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
-        {order.date}
-      </span>
-    </TableCell>
-    <TableCell className="w-[145px] p-2.5 text-center">
-      <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
-        {order.price}
-      </span>
-    </TableCell>
-    <TableCell className="w-[145px] p-2.5">
-      <div className="flex items-center gap-2">
-        <StatusIcon type={order.statusType} />
-        <StatusText status={t(order.status)} type={order.statusType} />
-      </div>
-    </TableCell>
-    <TableCell className="w-[69px] p-2.5 text-center">
-      <FileText className="inline-block w-4 h-4" />
-    </TableCell>
-    <TableCell className="w-[145px] p-2.5 text-center">
-      <Button
-        variant="ghost"
-        className="p-0 underline font-medium text-[color:var(--1-tokens-color-modes-button-ghost-default-text)]"
-      >
-        Détails
-      </Button>
-    </TableCell>
-  </TableRow>
-);
-
-export const OrderDetailsSection = (): JSX.Element => {
+const OrderRow = ({ order, index }: { order: any; index: number }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
+  // Calculate total price for the order
+  const totalPrice = order?.order_items?.reduce((sum: number, item: any) => {
+    return sum + (item?.product_price || 0) * (item?.quantity || 0);
+  }, 0);
+
+  // Format date
+  const formattedDate = order?.created_at
+    ? new Date(order.created_at).toLocaleDateString()
+    : "";
+
   return (
-    <div className="flex flex-col items-center justify-between relative flex-1 self-stretch w-full grow">
-      <Table className="bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)]">
-        <TableHeader className="bg-[#eaf8e7] rounded-md">
-          <TableRow>
-            <TableHead className="w-11 p-2.5">
-              <Checkbox className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
-            </TableHead>
-            {[
-              t("history.table.order"),
-              t("history.table.date"),
-              t("history.table.totalPrice"),
-              t("history.table.status"),
-              t("history.table.invoice"),
-              t("history.table.details"),
-            ].map((header, index) => (
-              <TableHead
-                key={index}
-                className={`w-[${index === 4 ? 69 : 145}px] p-2.5 text-center`}
-              >
-                <span className="font-text-small text-[#1e2324] text-[length:var(--text-small-font-size)] tracking-[var(--text-small-letter-spacing)] leading-[var(--text-small-line-height)]">
-                  {header}
-                </span>
-              </TableHead>
-            ))}
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {orders.map((order, index) => (
-            <TableRow
-              key={index}
-              className="border-b border-primary-neutal-300"
-            >
-              <TableCell className="w-11 py-3 px-2">
+    <TableRow key={index} className="border-b border-primary-neutal-300">
+      <TableCell className="w-11 py-3 px-2">
+        <Checkbox className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
+      </TableCell>
+      <TableCell className="w-[129px] p-2.5 text-center">
+        <span
+          className={`font-normal ${
+            index === 0 ? "text-coolgray-100" : "text-[#121619]"
+          } text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]`}
+        >
+          {order?.order_id}
+        </span>
+      </TableCell>
+      <TableCell className="w-[145px] p-2.5 text-center">
+        <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
+          {formattedDate}
+        </span>
+      </TableCell>
+      <TableCell className="w-[145px] p-2.5 text-center">
+        <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
+          {totalPrice?.toFixed(2)}€
+        </span>
+      </TableCell>
+      <TableCell className="w-[145px] p-2.5">
+        <div className="flex items-center gap-2">
+          <StatusIcon type="success" />
+          <StatusText status={t(order?.order_status)} type="success" />
+        </div>
+      </TableCell>
+      <TableCell className="w-[69px] p-2.5 text-center">
+        <FileText className="inline-block w-4 h-4" />
+      </TableCell>
+      <TableCell className="w-[145px] p-2.5 text-center">
+        <Button
+          variant="ghost"
+          className="p-0 underline font-medium text-[color:var(--1-tokens-color-modes-button-ghost-default-text)]"
+          onClick={() => navigate(`/order-details/${order?.order_id}`)}
+        >
+          {t("history.table.details")}
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+};
+
+export const OrderDetailsSection = (): JSX.Element => {
+  const { t } = useTranslation();
+  const orders = useSelector((state: any) => state.cart.orders);
+  const loading = useSelector((state: any) => state.cart.loading);
+  const error = useSelector((state: any) => state.cart.error);
+
+  const orderList = orders?.orders || [];
+
+  if (loading) {
+    return <Skeleton variant="table" />;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  return (
+    <div className="flex flex-col h-screen">
+      <div className="flex-grow overflow-auto pb-24">
+        <Table className="bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)]">
+          <TableHeader className="bg-[#eaf8e7] rounded-md">
+            <TableRow>
+              <TableHead className="w-11 p-2.5">
                 <Checkbox className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
-              </TableCell>
-              <TableCell className="w-[129px] p-2.5 text-center">
-                <span
-                  className={`font-normal ${
-                    index === 0 ? "text-coolgray-100" : "text-[#121619]"
-                  } text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]`}
+              </TableHead>
+              {[
+                t("history.table.order"),
+                t("history.table.date"),
+                t("history.table.totalPrice"),
+                t("history.table.status"),
+                t("history.table.invoice"),
+                t("history.table.details"),
+              ].map((header, index) => (
+                <TableHead
+                  key={index}
+                  className={`w-[${
+                    index === 4 ? 69 : 145
+                  }px] p-2.5 text-center`}
                 >
-                  {order.id}
-                </span>
-              </TableCell>
-              <TableCell className="w-[145px] p-2.5 text-center">
-                <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
-                  {order.date}
-                </span>
-              </TableCell>
-              <TableCell className="w-[145px] p-2.5 text-center">
-                <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
-                  {order.price}
-                </span>
-              </TableCell>
-              <TableCell className="w-[145px] p-2.5">
-                <div className="flex items-center gap-2">
-                  <StatusIcon type={order.statusType} />
-                  <StatusText
-                    status={t(order.status)}
-                    type={order.statusType}
-                  />
-                </div>
-              </TableCell>
-              <TableCell className="w-[69px] p-2.5 text-center">
-                <FileText className="inline-block w-4 h-4" />
-              </TableCell>
-              <TableCell className="w-[145px] p-2.5 text-center">
-                <Button
-                  variant="ghost"
-                  className="p-0 underline font-medium text-[color:var(--1-tokens-color-modes-button-ghost-default-text)]"
-                  onClick={() => navigate(`/order-details/${order.id}`)}
-                >
-                  {t("history.table.details")}
-                </Button>
-              </TableCell>
+                  <span className="font-text-small text-[#1e2324] text-[length:var(--text-small-font-size)] tracking-[var(--text-small-letter-spacing)] leading-[var(--text-small-line-height)]">
+                    {header}
+                  </span>
+                </TableHead>
+              ))}
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-
-      <div className="flex items-end justify-center gap-[279px] mt-4">
-        <Button
-          variant="outline"
-          className="h-[42px] gap-1 pl-2 pr-3 py-2.5 bg-white rounded-lg shadow-1dp-ambient"
-        >
-          <ChevronLeft className="w-6 h-6" />
-          <span className="font-medium text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
-            {t("history.pagination.previous")}
-          </span>
-        </Button>
-
-        <Pagination>
-          <PaginationContent className="gap-3">
-            {paginationItems.map((item, index) => (
-              <React.Fragment key={index}>
-                {index === 5 && (
-                  <PaginationItem>
-                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center font-bold text-[#023337] text-[15px] border border-solid border-primary-neutal-300 rounded" />
-                  </PaginationItem>
-                )}
-                <PaginationItem>
-                  <PaginationLink
-                    className={`w-9 h-9 flex items-center justify-center font-medium text-[#023337] text-[15px] ${
-                      item.active
-                        ? "bg-[#c1e6ba] font-bold"
-                        : "border border-solid border-primary-neutal-300"
-                    } rounded`}
-                    isActive={item.active}
-                  >
-                    {item.page}
-                  </PaginationLink>
-                </PaginationItem>
-              </React.Fragment>
+          </TableHeader>
+          <TableBody>
+            {orderList?.map((order: any, index: number) => (
+              <OrderRow key={order?.order_id} order={order} index={index} />
             ))}
-          </PaginationContent>
-        </Pagination>
+          </TableBody>
+        </Table>
+      </div>
 
-        <Button
-          variant="outline"
-          className="h-[42px] gap-1 pl-2 pr-3 py-2.5 bg-white rounded-lg shadow-1dp-ambient"
-        >
-          <span className="font-medium text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
-            {t("history.pagination.next")}
-          </span>
-          <ChevronRight className="w-6 h-6" />
-        </Button>
+      <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
+        <div className="px-6 max-w-[calc(100%-2rem)]">
+          <Pagination className="flex items-center justify-between w-full max-w-[1160px] mx-auto">
+            <PaginationPrevious
+              href="#"
+              className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
+            >
+              <img
+                className="w-6 h-6"
+                alt="Arrow left"
+                src="/img/arrow-left-sm.svg"
+              />
+              {t("history.table.previous")}
+            </PaginationPrevious>
+
+            <PaginationContent className="flex items-center gap-3">
+              {paginationItems.map((item, index) => (
+                <React.Fragment key={index}>
+                  <PaginationItem>
+                    <PaginationLink
+                      href="#"
+                      className={`flex items-center justify-center w-9 h-9 rounded ${
+                        item.active
+                          ? "bg-cyan-100 font-bold text-[#1e2324]"
+                          : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                      }`}
+                    >
+                      {item.page}
+                    </PaginationLink>
+                  </PaginationItem>
+                  {index === paginationItems.length - 2 && (
+                    <PaginationItem>
+                      <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    </PaginationItem>
+                  )}
+                </React.Fragment>
+              ))}
+            </PaginationContent>
+
+            <PaginationNext
+              href="#"
+              className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
+            >
+              {t("history.table.next")}
+              <img
+                className="w-6 h-6 rotate-180"
+                alt="Arrow right"
+                src="/img/arrow-left-sm-1.svg"
+              />
+            </PaginationNext>
+          </Pagination>
+        </div>
       </div>
     </div>
   );

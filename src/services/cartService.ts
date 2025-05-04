@@ -32,6 +32,26 @@ interface GetAllOrdersResponse {
   }>;
 }
 
+interface GetOrderResponse {
+  success: boolean;
+  order: {
+    id: string;
+    date: string;
+    price: string;
+    status: {
+      text: string;
+      type: 'success' | 'warning' | 'danger' | 'default';
+    };
+    hasInvoice: boolean;
+    items: Array<{
+      id: string;
+      name: string;
+      quantity: number;
+      price: number;
+    }>;
+  };
+}
+
 export const cartService = {
   /**
    * Add a product to the cart
@@ -91,5 +111,20 @@ export const cartService = {
     store_id: string
   ): Promise<GetAllOrdersResponse> => {
     return axiosInstance.get(`/${dns_prefix}/all/orders/${store_id}`);
+  },
+
+  /**
+   * Get a specific order by ID
+   * @param dns_prefix DNS prefix of the company
+   * @param store_id ID of the store
+   * @param order_id ID of the order to fetch
+   * @returns Promise with order details
+   */
+  getOrder: async (
+    dns_prefix: string,
+    store_id: string,
+    order_id: string
+  ): Promise<GetOrderResponse> => {
+    return axiosInstance.get(`/${dns_prefix}/order/${store_id}/${order_id}`);
   },
 };

@@ -2,50 +2,15 @@ import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Checkbox } from "../../components/ui/checkbox";
-import { ArrowLeft, Download } from "lucide-react";
+import { ArrowLeft, Download, Package2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
-
-const orderDetails = {
-  orderNumber: "KCJ7RLEU",
-  date: "22/03/2025",
-  totalPrice: "148,90€",
-  status: "En livraison",
-  customer: {
-    name: "Marc Leblanc",
-    email: "jean.morel@chronodrive.com",
-    address: "45 Rue des Lilas, 59000 Lille",
-  },
-};
-
-const orderedProducts = [
-  {
-    id: 1,
-    name: "Magnet + pen",
-    image: "",
-    ref: "122043",
-    unitPrice: "49.99€",
-    quantity: 3,
-    total: "149.97€",
-  },
-  {
-    id: 2,
-    name: "Men's polo - L",
-    image: "",
-    ref: "122043",
-    unitPrice: "14.99€",
-    quantity: 10,
-    total: "149.99€",
-  },
-  {
-    id: 3,
-    name: "Women's polo - M",
-    image: "",
-    ref: "122043",
-    unitPrice: "12.99€",
-    quantity: 8,
-    total: "103.92€",
-  },
-];
+import { useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useParams } from "react-router-dom";
+import { getOrder } from "../../store/features/cartSlice";
+import { useAppSelector, AppDispatch } from "../../store/store";
+import { getHost } from "../../utils/hostUtils";
+import { Skeleton } from "../../components/Skeleton";
 
 const OrderHeader = () => {
   const { t } = useTranslation();
@@ -81,8 +46,11 @@ const OrderInfo = ({
   </p>
 );
 
-const OrderDetailsCard = () => {
+const OrderDetailsCard = ({ order }: { order: any }) => {
   const { t } = useTranslation();
+  console.log({ order });
+  if (!order) return null;
+
   return (
     <Card className="w-full">
       <CardContent className="p-6">
@@ -92,23 +60,31 @@ const OrderDetailsCard = () => {
             <div className="space-y-2">
               <OrderInfo
                 label={t("orderDetails.fields.order")}
-                value={orderDetails.orderNumber}
+                value={order?.order_id?.toString() ?? t("common.notAvailable")}
                 isStatus={false}
               />
               <OrderInfo
                 label={t("orderDetails.fields.date")}
-                value={orderDetails.date}
+                value={
+                  order?.created_at
+                    ? new Date(order.created_at).toLocaleDateString()
+                    : t("common.notAvailable")
+                }
                 isStatus={false}
               />
               <OrderInfo
                 label={t("orderDetails.fields.totalPrice")}
-                value={orderDetails.totalPrice}
+                value={
+                  order?.total_price
+                    ? `${order.total_price}€`
+                    : t("common.notAvailable")
+                }
                 isStatus={false}
               />
               <OrderInfo
                 label={t("orderDetails.fields.status")}
-                value={orderDetails.status}
-                isStatus
+                value={order?.order_status ?? t("common.notAvailable")}
+                isStatus={!!order?.order_status}
               />
             </div>
           </div>
@@ -116,17 +92,17 @@ const OrderDetailsCard = () => {
             <div className="space-y-2">
               <OrderInfo
                 label={t("orderDetails.fields.customer")}
-                value={orderDetails.customer.name}
+                value={order?.customer_name ?? t("common.notAvailable")}
                 isStatus={false}
               />
               <OrderInfo
                 label={t("orderDetails.fields.managementEmail")}
-                value={orderDetails.customer.email}
+                value={order?.customer_email ?? t("common.notAvailable")}
                 isStatus={false}
               />
               <OrderInfo
                 label={t("orderDetails.fields.shippingAddress")}
-                value={orderDetails.customer.address}
+                value={order?.shipping_address ?? t("common.notAvailable")}
                 isStatus={false}
               />
             </div>
@@ -175,40 +151,73 @@ const ProductTableHeader = () => {
   );
 };
 
-const ProductRow = ({ product }: { product: any }) => (
-  <div className="flex items-center justify-between px-2 py-3 border-b border-primary-neutal-300">
-    <div className="w-11 flex items-center justify-center">
-      <Checkbox className="h-5 w-5 rounded border-[1.5px]" />
-    </div>
-    <div className="w-[203px] flex items-center gap-3 px-3">
-      <div className="w-10 h-10 rounded overflow-hidden border border-primary-neutal-200 flex items-center justify-center">
-        <img
-          src={product.image}
-          alt={product.name}
-          className="w-[30px] h-[29px] object-cover"
-        />
-      </div>
-      <span className="text-base text-coolgray-100">{product.name}</span>
-    </div>
-    <div className="w-[129px] flex items-center justify-center">
-      <span className="text-sm text-coolgray-100">{product.ref}</span>
-    </div>
-    <div className="w-[145px] flex items-center justify-center">
-      <span className="text-[15px] text-black">{product.unitPrice}</span>
-    </div>
-    <div className="w-[145px] flex items-center justify-center">
-      <Badge variant="secondary" className="w-full flex justify-center">
-        {product.quantity}
-      </Badge>
-    </div>
-    <div className="w-[145px] flex items-center justify-center">
-      <span className="text-[15px]">{product.total}</span>
-    </div>
-  </div>
-);
-
-const ProductTable = () => {
+const ProductRow = ({ product }: { product: any }) => {
   const { t } = useTranslation();
+  return (
+    <div className="flex items-center justify-between px-2 py-3 border-b border-primary-neutal-300">
+      <div className="w-11 flex items-center justify-center">
+        <Checkbox className="h-5 w-5 rounded border-[1.5px]" />
+      </div>
+      <div className="w-[203px] flex items-center gap-3 px-3">
+        <div className="w-10 h-10 rounded overflow-hidden border border-primary-neutal-200 flex items-center justify-center bg-gray-50">
+          {product?.product_image ? (
+            <img
+              src={product.product_image}
+              alt={product?.product_name ?? "Product"}
+              className="w-[30px] h-[29px] object-cover"
+              onError={(e) => {
+                e.currentTarget.style.display = "none";
+                e.currentTarget.parentElement
+                  ?.querySelector(".placeholder-icon")
+                  ?.classList.remove("hidden");
+              }}
+            />
+          ) : null}
+          <div
+            className={`placeholder-icon ${
+              product?.product_image ? "hidden" : ""
+            } text-gray-400`}
+          >
+            <Package2 className="w-5 h-5" />
+          </div>
+        </div>
+        <span className="text-base text-coolgray-100">
+          {product?.product_name ?? t("common.notAvailable")}
+        </span>
+      </div>
+      <div className="w-[129px] flex items-center justify-center">
+        <span className="text-sm text-coolgray-100">
+          {product?.product_id ?? t("common.notAvailable")}
+        </span>
+      </div>
+      <div className="w-[145px] flex items-center justify-center">
+        <span className="text-[15px] text-black">
+          {product?.product_price
+            ? `${product.product_price}€`
+            : t("common.notAvailable")}
+        </span>
+      </div>
+      <div className="w-[145px] flex items-center justify-center">
+        <Badge variant="secondary" className="w-full flex justify-center">
+          {product?.quantity ?? 0}
+        </Badge>
+      </div>
+      <div className="w-[145px] flex items-center justify-center">
+        <span className="text-[15px]">
+          {product?.product_price && product?.quantity
+            ? `${(product.product_price * product.quantity).toFixed(2)}€`
+            : t("common.notAvailable")}
+        </span>
+      </div>
+    </div>
+  );
+};
+
+const ProductTable = ({ order }: { order: any }) => {
+  const { t } = useTranslation();
+
+  if (!order || !order.order_items) return null;
+
   return (
     <Card className="w-full">
       <CardContent className="p-6">
@@ -218,8 +227,8 @@ const ProductTable = () => {
         <div className="w-full">
           <ProductTableHeader />
           <div className="overflow-y-auto">
-            {orderedProducts.map((product) => (
-              <ProductRow key={product.id} product={product} />
+            {order.order_items.map((product: any) => (
+              <ProductRow key={product.product_id} product={product} />
             ))}
           </div>
         </div>
@@ -229,10 +238,43 @@ const ProductTable = () => {
 };
 
 export default function OrderDetails() {
+  const { t } = useTranslation();
+  const dispatch = useDispatch<AppDispatch>();
+  const { id } = useParams();
+  const dns_prefix = getHost();
+  const { selectedStore } = useAppSelector((state) => state.agency);
+  const { currentOrder, loading, error } = useAppSelector(
+    (state) => state.cart
+  );
+
+  useEffect(() => {
+    if (dns_prefix && selectedStore && id) {
+      dispatch(
+        getOrder({
+          dns_prefix,
+          store_id: selectedStore,
+          order_id: id,
+        })
+      );
+    }
+  }, [dispatch, dns_prefix, selectedStore, id]);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-start gap-8 p-6">
+        <Skeleton variant="details" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
   return (
     <div className="flex flex-col items-start gap-2.5 p-2.5">
-      <OrderDetailsCard />
-      <ProductTable />
+      <OrderDetailsCard order={currentOrder} />
+      <ProductTable order={currentOrder} />
     </div>
   );
 }

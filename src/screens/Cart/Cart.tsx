@@ -135,7 +135,7 @@ const ProductRow = ({ product }: { product: any }) => {
         {product.product_id}
       </TableCell>
       <TableCell className="w-[145px] text-center text-black text-[15px]">
-        {product.product_price.toFixed(2)}€
+        {product?.product_price?.toFixed(2)}€
       </TableCell>
       <TableCell className="w-[145px] p-2.5">
         <div className="flex items-center justify-center gap-2 bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] rounded-[var(--2-tokens-screen-modes-button-border-radius)] border border-solid border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] p-2">
@@ -161,7 +161,7 @@ const ProductRow = ({ product }: { product: any }) => {
         </div>
       </TableCell>
       <TableCell className="w-[145px] text-center text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[15px]">
-        {(product.product_price * product.quantity).toFixed(2)}€
+        {(product?.product_price * product?.quantity).toFixed(2)}€
       </TableCell>
     </TableRow>
   );
@@ -229,7 +229,7 @@ const OrderSummary = () => {
   const { items } = useAppSelector((state) => state.cart);
 
   const totalHT = items.reduce(
-    (acc, item) => acc + item.product_price * item.quantity,
+    (acc, item) => acc + item?.product_price * item?.quantity,
     0
   );
   const shippingCost = items.length > 0 ? 38.94 : 0;
@@ -333,7 +333,7 @@ export default function CartContainer(): JSX.Element {
 
       // If successful, show success message and redirect to orders page
       toast.success(t("cart.success.orderCreated"));
-      navigate("/orders");
+      navigate("/history");
     } catch (error) {
       toast.error(t("cart.error.orderCreationFailed"));
     }
