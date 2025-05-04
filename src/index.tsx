@@ -40,6 +40,8 @@ import AddUser from "./screens/AddUser/AddUser";
 import { UserList } from "./screens/UserList";
 import UserDetails from "./screens/UserDetails/UserDetails";
 import ClientSettings from "./screens/ClientSettings/ClientSettings";
+import SuperAdminOrderHistory from "./screens/SuperAdminOrderHistory/SuperAdminOrderHistory";
+import SuperAdminOrderDetails from "./screens/SuperAdminOrderDetails/SuperAdminOrderDetails";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
@@ -86,7 +88,14 @@ function App() {
             <Route path="/" element={<SuperadminLayout />}>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<GlobalDashboard />} />
-              <Route path="order-history" element={<ComingSoon />} />
+              <Route
+                path="order-history"
+                element={<SuperAdminOrderHistory />}
+              />
+              <Route
+                path="order-details/:id"
+                element={<SuperAdminOrderDetails />}
+              />
               <Route path="products" element={<ProductList />} />
               <Route
                 path="products/add"

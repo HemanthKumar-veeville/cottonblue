@@ -183,11 +183,6 @@ export const SuperadminSidebarSection = ({
           path: "/products/add",
         },
         {
-          icon: <PackageIcon className="w-4 h-4" />,
-          label: t("sidebar.products.stock"),
-          path: "/products/stock",
-        },
-        {
           icon: <LayersIcon className="w-4 h-4" />,
           label: t("sidebar.products.carousel"),
           path: "/products/carousel",

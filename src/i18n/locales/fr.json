@@ -311,6 +311,27 @@
       "next": "Suivant"
     }
   },
+  "superAdmin": {
+    "orderHistory": {
+      "title": "Historique des commandes",
+      "downloadSelectedInvoices": "Télécharger les factures sélectionnées",
+      "table": {
+        "order": "Commande",
+        "company": "Entreprise",
+        "store": "Magasin",
+        "date": "Date",
+        "totalPrice": "Prix total",
+        "status": "Statut",
+        "invoice": "Facture",
+        "details": "Détails",
+        "previous": "Précédent",
+        "next": "Suivant"
+      },
+      "search": {
+        "placeholder": "Rechercher une commande"
+      }
+    }
+  },
   "orderDetails": {
     "title": "Détails de la commande",
     "downloadInvoice": "Télécharger la facture",

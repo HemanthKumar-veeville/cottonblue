@@ -309,6 +309,27 @@
     "pagination": {
       "previous": "Previous",
       "next": "Next"
+    },
+    "superAdmin": {
+      "orderHistory": {
+        "title": "Order History",
+        "downloadSelectedInvoices": "Download selected invoices",
+        "table": {
+          "order": "Order",
+          "company": "Company",
+          "store": "Store",
+          "date": "Date",
+          "totalPrice": "Total Price",
+          "status": "Status",
+          "invoice": "Invoice",
+          "details": "Details",
+          "previous": "Previous",
+          "next": "Next"
+        },
+        "search": {
+          "placeholder": "Search an order"
+        }
+      }
     }
   },
   "orderDetails": {
