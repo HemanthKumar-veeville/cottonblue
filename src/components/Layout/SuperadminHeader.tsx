@@ -215,59 +215,6 @@ export const SuperadminHeader = (): JSX.Element => {
                   ))}
                 </div>
               </div>
-              {storeList && storeList.length > 0 && (
-                <div className="relative">
-                  <div
-                    className="flex w-[200px] items-center justify-center gap-3 py-3 px-3 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300 cursor-pointer"
-                    onClick={() => {
-                      const dropdown =
-                        document.getElementById("store-dropdown");
-                      if (dropdown) {
-                        dropdown.classList.toggle("hidden");
-                      }
-                    }}
-                  >
-                    <div className="flex w-6 h-6 items-center justify-center shrink-0">
-                      <img
-                        className="w-5 h-5"
-                        alt="Icon"
-                        src="/img/icon-9.svg"
-                      />
-                    </div>
-                    <div className="flex-1 font-medium text-gray-700 text-base leading-4 tracking-normal truncate">
-                      {selectedStore?.name || "Select Store"}
-                    </div>
-                    <div className="flex w-6 h-6 items-center justify-center shrink-0">
-                      <img
-                        className="w-4 h-4"
-                        alt="Chevron down"
-                        src="/img/icon-13.svg"
-                      />
-                    </div>
-                  </div>
-                  <div
-                    id="store-dropdown"
-                    className="hidden absolute top-full left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50"
-                  >
-                    {storeList?.map((store: { id: string; name: string }) => (
-                      <div
-                        key={store.id}
-                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                        onClick={() => {
-                          handleStoreSelect(store);
-                          const dropdown =
-                            document.getElementById("store-dropdown");
-                          if (dropdown) {
-                            dropdown.classList.add("hidden");
-                          }
-                        }}
-                      >
-                        {store.name}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
             </div>
           )}
         </div>
