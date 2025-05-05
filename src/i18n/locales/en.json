@@ -95,6 +95,7 @@
     "title": "Add a new product",
     "form": {
       "productName": "Product name",
+      "productId": "Product ID",
       "category": "Category",
       "gender": "Gender",
       "size": "Size",

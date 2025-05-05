@@ -130,6 +130,7 @@ export const ProductListSection = (): JSX.Element => {
         onClose={() => setIsImportModalOpen(false)}
         onImport={handleImport}
         templateColumns={[
+          "Product ID",
           "Product Name",
           "Product Description",
           "Product Price",

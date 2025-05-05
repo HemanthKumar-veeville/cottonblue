@@ -64,6 +64,7 @@ const StepIndicator = ({ currentStep, totalSteps }: StepIndicatorProps) => {
 
 interface ProductFormData {
   name: string;
+  productId: string;
   region: string;
   gender: string;
   size: string;
@@ -87,7 +88,7 @@ const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const FORM_FIELDS = {
-  region: { options: ["North", "South"] },
+  region: { options: ["North", "South", "All"] },
   gender: { options: ["Unisexe"] },
   size: { options: ["S, M, L"] },
 };
@@ -100,6 +101,13 @@ const FORM_FIELD_CONFIGS = [
     placeholder: "productSidebar.form.productName",
     label: "productSidebar.form.productName",
     errorKey: "name",
+  },
+  {
+    id: "productId",
+    type: "input",
+    placeholder: "productSidebar.form.productId",
+    label: "productSidebar.form.productId",
+    errorKey: "productId",
   },
   {
     id: "region",
@@ -172,6 +180,7 @@ const useProductForm = () => {
   const { t } = useTranslation();
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
+    productId: "",
     region: "",
     gender: "",
     size: "",
@@ -314,6 +323,7 @@ export const ProductSidebarSection = ({
 
             const initialData = {
               name: name || "",
+              productId: "",
               region: available_region || "",
               gender: "Unisexe",
               size: "S, M, L",
@@ -405,6 +415,10 @@ export const ProductSidebarSection = ({
       throw new Error(t("productSidebar.validation.nameRequired"));
     }
 
+    if (!formData.productId) {
+      throw new Error(t("productSidebar.validation.productIdRequired"));
+    }
+
     if (!formData.description) {
       throw new Error(t("productSidebar.validation.descriptionRequired"));
     }
@@ -439,6 +453,7 @@ export const ProductSidebarSection = ({
           const baseProductData = {
             company_id: selectedCompany!.id,
             product_name: formData.name,
+            product_id: formData.productId,
             product_description: formData.description,
             product_price: formData.soldByCarton
               ? parseFloat(formData.pricePerCarton)
@@ -457,6 +472,9 @@ export const ProductSidebarSection = ({
             // Compare and add only changed fields
             if (formData.name !== originalData.name) {
               updatedFields.product_name = formData.name;
+            }
+            if (formData.productId !== originalData.productId) {
+              updatedFields.product_id = formData.productId;
             }
             if (formData.description !== originalData.description) {
               updatedFields.product_description = formData.description;

@@ -95,6 +95,7 @@
     "title": "Ajouter un nouveau produit",
     "form": {
       "productName": "Nom du produit",
+      "productId": "ID du produit",
       "category": "Catégorie",
       "region": "Région",
       "gender": "Genre",
