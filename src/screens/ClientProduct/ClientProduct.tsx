@@ -22,7 +22,11 @@ import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { getProductById, Product } from "../../store/features/productSlice";
-import { addToCart, addToCartAsync } from "../../store/features/cartSlice";
+import {
+  addToCart,
+  addToCartAsync,
+  fetchCart,
+} from "../../store/features/cartSlice";
 import { getHost } from "../../utils/hostUtils";
 import { Skeleton } from "../../components/Skeleton";
 import { toast } from "sonner";
@@ -91,13 +95,16 @@ const ProductPage = () => {
   const { currentProduct, loading, error } = useAppSelector(
     (state) => state.product
   );
-  const { items } = useAppSelector((state) => state.cart);
+
   const dnsPrefix = getHost();
   const { selectedStore } = useAppSelector((state) => state.agency);
   const product = currentProduct?.product || ({} as Product);
+  console.log({ product });
+  const cart = useAppSelector((state) => state.cart);
+  const items = cart?.items || [];
 
   // Get initial quantity from cart
-  const cartItem = items.find((item) => item.product_id === Number(id));
+  const cartItem = items.find((item) => item.product_id === product.id);
   const [quantity, setQuantity] = useState(cartItem?.quantity || 1);
 
   useEffect(() => {
@@ -105,6 +112,12 @@ const ProductPage = () => {
       dispatch(getProductById({ dnsPrefix, productId: id }));
     }
   }, [dispatch, id, dnsPrefix]);
+
+  useEffect(() => {
+    if (dnsPrefix && selectedStore) {
+      dispatch(fetchCart({ dns_prefix: dnsPrefix, store_id: selectedStore }));
+    }
+  }, [dispatch, dnsPrefix, selectedStore]);
 
   // Update local quantity when cart changes
   useEffect(() => {
