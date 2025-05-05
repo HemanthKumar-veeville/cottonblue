@@ -90,6 +90,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   const stockStatus = getStockStatus(product.available_stock);
   const cart = useAppSelector((state) => state.cart);
   const items = cart?.items || [];
+
   const cartItem = items.find((item) => item.product_id === product.id);
   const quantity = cartItem?.quantity || 0;
   const { selectedStore } = useAppSelector((state) => state.agency);
@@ -106,8 +107,9 @@ const ProductCard = ({ product }: { product: Product }) => {
     if (amount > 0 && newQuantity <= (product.available_stock ?? 0)) {
       if (dnsPrefix && selectedStore) {
         try {
-          // Dispatch local state update immediately for optimistic UI
+          // Optimistic update
           dispatch(addToCart({ product, quantity: 1 }));
+
           await dispatch(
             addToCartAsync({
               dns_prefix: dnsPrefix,
@@ -117,7 +119,7 @@ const ProductCard = ({ product }: { product: Product }) => {
             })
           ).unwrap();
         } catch (error) {
-          // Revert local state by dispatching negative quantity
+          // Revert optimistic update
           dispatch(addToCart({ product, quantity: -1 }));
           toast.error(t("cart.error.addFailed"));
         }
@@ -125,8 +127,9 @@ const ProductCard = ({ product }: { product: Product }) => {
     } else if (amount < 0 && newQuantity >= 0) {
       if (dnsPrefix && selectedStore) {
         try {
-          // Dispatch local state update immediately for optimistic UI
+          // Optimistic update
           dispatch(addToCart({ product, quantity: -1 }));
+
           await dispatch(
             addToCartAsync({
               dns_prefix: dnsPrefix,
@@ -136,7 +139,7 @@ const ProductCard = ({ product }: { product: Product }) => {
             })
           ).unwrap();
         } catch (error) {
-          // Revert local state by dispatching positive quantity
+          // Revert optimistic update
           dispatch(addToCart({ product, quantity: 1 }));
           toast.error(t("cart.error.removeFailed"));
         }

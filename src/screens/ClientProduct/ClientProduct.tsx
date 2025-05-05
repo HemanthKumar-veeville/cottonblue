@@ -17,12 +17,12 @@ import {
   PackageX,
   Package2,
 } from "lucide-react";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { getProductById, Product } from "../../store/features/productSlice";
-import { addToCart } from "../../store/features/cartSlice";
+import { addToCart, addToCartAsync } from "../../store/features/cartSlice";
 import { getHost } from "../../utils/hostUtils";
 import { Skeleton } from "../../components/Skeleton";
 import { toast } from "sonner";
@@ -93,11 +93,12 @@ const ProductPage = () => {
   );
   const { items } = useAppSelector((state) => state.cart);
   const dnsPrefix = getHost();
+  const { selectedStore } = useAppSelector((state) => state.agency);
   const product = currentProduct?.product || ({} as Product);
 
   // Get initial quantity from cart
-  const cartItem = items.find((item) => item.id === Number(id));
-  const [quantity, setQuantity] = React.useState(cartItem?.quantity || 1);
+  const cartItem = items.find((item) => item.product_id === Number(id));
+  const [quantity, setQuantity] = useState(cartItem?.quantity || 1);
 
   useEffect(() => {
     if (id && dnsPrefix) {
@@ -107,21 +108,63 @@ const ProductPage = () => {
 
   // Update local quantity when cart changes
   useEffect(() => {
-    const updatedCartItem = items.find((item) => item.id === Number(id));
+    const updatedCartItem = items.find(
+      (item) => item.product_id === Number(id)
+    );
     if (updatedCartItem) {
       setQuantity(updatedCartItem.quantity);
     }
   }, [items, id]);
 
-  const changeQuantity = (amount: number) => {
+  const handleQuantityChange = async (amount: number) => {
     const newQuantity = quantity + amount;
-    if (newQuantity > 0 && newQuantity <= (product?.available_stock ?? 0)) {
-      if (product) {
-        dispatch(addToCart({ product, quantity: amount }));
-        setQuantity(newQuantity);
+
+    if (amount > 0 && newQuantity <= (product?.available_stock ?? 0)) {
+      if (dnsPrefix && selectedStore) {
+        try {
+          // Optimistic update
+          dispatch(addToCart({ product, quantity: 1 }));
+          setQuantity(newQuantity);
+
+          await dispatch(
+            addToCartAsync({
+              dns_prefix: dnsPrefix,
+              store_id: selectedStore,
+              product_id: product.id.toString(),
+              quantity: 1,
+            })
+          ).unwrap();
+        } catch (error) {
+          // Revert optimistic update
+          dispatch(addToCart({ product, quantity: -1 }));
+          setQuantity(quantity);
+          toast.error(t("cart.error.addFailed"));
+        }
+      }
+    } else if (amount < 0 && newQuantity >= 0) {
+      if (dnsPrefix && selectedStore) {
+        try {
+          // Optimistic update
+          dispatch(addToCart({ product, quantity: -1 }));
+          setQuantity(newQuantity);
+
+          await dispatch(
+            addToCartAsync({
+              dns_prefix: dnsPrefix,
+              store_id: selectedStore,
+              product_id: product.id.toString(),
+              quantity: -1,
+            })
+          ).unwrap();
+        } catch (error) {
+          // Revert optimistic update
+          dispatch(addToCart({ product, quantity: 1 }));
+          setQuantity(quantity);
+          toast.error(t("cart.error.removeFailed"));
+        }
       }
     } else if (newQuantity > (product?.available_stock ?? 0)) {
-      toast.error(t("clientProduct.error.notEnoughStock"));
+      toast.error(t("cart.error.notEnoughStock"));
     }
   };
 
@@ -172,7 +215,7 @@ const ProductPage = () => {
           <ProductInfo
             product={product}
             quantity={quantity}
-            changeQuantity={changeQuantity}
+            changeQuantity={handleQuantityChange}
           />
         </div>
         <RelatedProducts />

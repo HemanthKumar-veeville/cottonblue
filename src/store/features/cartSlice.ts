@@ -2,10 +2,19 @@ import { createSlice, PayloadAction, createAsyncThunk } from '@reduxjs/toolkit';
 import { Product } from './productSlice';
 import { cartService } from '../../services/cartService';
 
-interface CartItem extends Product {
-  quantity: number;
-  product_id?: number;
+// Updated CartItem interface
+export interface CartItem {
+  id: number;
+  product_id: number;
   cart_id: string;
+  quantity: number;
+  name: string;
+  price: number;
+  product_price: number;
+  product_name: string;
+  product_image: string | null;
+  available_stock: number;
+  description: string;
 }
 
 interface Order {
@@ -36,12 +45,26 @@ interface CartState {
   currentOrder: Order | null;
 }
 
-// Async thunk actions
+// Updated response types
+interface GetCartResponse {
+  cart_id: string;
+  products: CartItem[];
+}
+
+interface GetAllOrdersResponse {
+  orders: Order[];
+}
+
+interface GetOrderResponse {
+  order: Order;
+}
+
+// Updated async thunks
 export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
   async ({ dns_prefix, store_id }: { dns_prefix: string; store_id: string }) => {
     const response = await cartService.getCart(dns_prefix, store_id);
-    return response?.data;
+    return response.data as GetCartResponse;
   }
 );
 
@@ -59,7 +82,7 @@ export const addToCartAsync = createAsyncThunk(
     quantity: number 
   }) => {
     const response = await cartService.addToCart(dns_prefix, store_id, product_id, quantity);
-    return response;
+    return response.data;
   }
 );
 
@@ -130,32 +153,40 @@ const cartSlice = createSlice({
       const existingItem = state.items.find(item => item.product_id === product.id);
 
       if (existingItem) {
-        // Check if we have enough stock
         if (product.available_stock >= existingItem.quantity + quantity) {
           existingItem.quantity += quantity;
-          // Remove item if quantity becomes 0
           if (existingItem.quantity <= 0) {
             state.items = state.items.filter(item => item.product_id !== product.id);
           }
         } else {
           state.error = 'Not enough stock available';
         }
-      } else if (quantity > 0) { // Only add new items if quantity is positive
-        // Check if we have enough stock for new item
+      } else if (quantity > 0) {
         if (product.available_stock >= quantity) {
-          state.items.push({ ...product, quantity, product_id: product.id });
+          const newItem: CartItem = {
+            id: product.id,
+            product_id: product.id,
+            cart_id: state.cartId || '',
+            quantity,
+            name: product.name,
+            price: product.price,
+            product_price: product.price,
+            product_name: product.name,
+            product_image: product.product_image,
+            available_stock: product.available_stock,
+            description: product.description
+          };
+          state.items.push(newItem);
         } else {
           state.error = 'Not enough stock available';
         }
       }
 
-      // Recalculate total
       state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     },
 
     removeFromCart: (state, action: PayloadAction<number>) => {
       state.items = state.items.filter(item => item.product_id !== action.payload);
-      // Recalculate total
       state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     },
 
@@ -164,7 +195,6 @@ const cartSlice = createSlice({
       const item = state.items.find(item => item.product_id === productId);
 
       if (item) {
-        // Find the product in the store to check stock
         if (item.available_stock >= quantity) {
           item.quantity = quantity;
         } else {
@@ -172,7 +202,6 @@ const cartSlice = createSlice({
         }
       }
 
-      // Recalculate total
       state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
     },
 
@@ -186,7 +215,6 @@ const cartSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    // Handle fetchCart
     builder
       .addCase(fetchCart.pending, (state) => {
         state.loading = true;
@@ -194,7 +222,6 @@ const cartSlice = createSlice({
       })
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.loading = false;
-        // Ensure each item has product_id set
         state.items = action.payload.products;
         state.cartId = action.payload.cart_id;
         state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
@@ -204,7 +231,6 @@ const cartSlice = createSlice({
         state.error = action.error.message || 'Failed to fetch cart';
       })
 
-    // Handle addToCartAsync
     builder
       .addCase(addToCartAsync.pending, (state) => {
         state.loading = true;
@@ -213,7 +239,6 @@ const cartSlice = createSlice({
       .addCase(addToCartAsync.fulfilled, (state, action) => {
         state.loading = false;
         if (action.payload.cart_items) {
-          // Ensure each item has product_id set
           state.items = action.payload.cart_items.map((item: CartItem) => ({
             ...item,
             product_id: item.id
@@ -226,7 +251,6 @@ const cartSlice = createSlice({
         state.error = action.error.message || 'Failed to add item to cart';
       });
 
-    // Handle convertCartToOrder
     builder
       .addCase(convertCartToOrder.pending, (state) => {
         state.loading = true;
@@ -235,16 +259,14 @@ const cartSlice = createSlice({
       .addCase(convertCartToOrder.fulfilled, (state, action) => {
         state.loading = false;
         state.currentOrderId = action.payload.order_id;
-        // Clear the cart after successful conversion
         state.items = [];
         state.total = 0;
       })
       .addCase(convertCartToOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to convert cart to order';
-      })
+      });
 
-    // Handle getAllOrders
     builder
       .addCase(getAllOrders.pending, (state) => {
         state.loading = true;
@@ -259,7 +281,6 @@ const cartSlice = createSlice({
         state.error = action.error.message || 'Failed to fetch orders';
       });
 
-    // Handle getOrder
     builder
       .addCase(getOrder.pending, (state) => {
         state.loading = true;

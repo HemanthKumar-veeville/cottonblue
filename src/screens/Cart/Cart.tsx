@@ -21,6 +21,7 @@ import {
   addToCart,
   addToCartAsync,
   convertCartToOrder,
+  CartItem,
 } from "../../store/features/cartSlice";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -31,6 +32,7 @@ import {
   fetchAllProducts,
   getProductsByStoreId,
 } from "../../store/features/productSlice";
+
 interface ShippingAddress {
   firstName: string;
   lastName: string;
@@ -48,7 +50,7 @@ interface BillingAddress {
   phone: string;
 }
 
-const ProductRow = ({ product }: { product: any }) => {
+const ProductRow = ({ product }: { product: CartItem }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const dnsPrefix = getHost();
@@ -56,48 +58,48 @@ const ProductRow = ({ product }: { product: any }) => {
   const products = useAppSelector((state) => state.product.products.products);
   const productDetails =
     products?.find((p) => p.id === product.product_id) || null;
-  console.log(productDetails);
+
   const handleQuantityChange = async (amount: number, e?: React.MouseEvent) => {
     e?.stopPropagation();
     const newQuantity = product.quantity + amount;
-    console.log({ product, amount, newQuantity });
+
     if (amount > 0 && newQuantity <= (productDetails?.available_stock ?? 0)) {
       if (dnsPrefix && selectedStore) {
-        console.log("here");
         try {
-          // Dispatch local state update immediately for optimistic UI
-          dispatch(addToCart({ product, quantity: 1 }));
-          console.log("here2");
+          // Optimistic update
+          dispatch(addToCart({ product: productDetails!, quantity: 1 }));
+
           await dispatch(
             addToCartAsync({
               dns_prefix: dnsPrefix,
               store_id: selectedStore,
-              product_id: product.id.toString(),
+              product_id: product.product_id.toString(),
               quantity: 1,
             })
           ).unwrap();
         } catch (error) {
-          // Revert local state by dispatching negative quantity
-          dispatch(addToCart({ product, quantity: -1 }));
+          // Revert optimistic update
+          dispatch(addToCart({ product: productDetails!, quantity: -1 }));
           toast.error(t("cart.error.addFailed"));
         }
       }
     } else if (amount < 0 && newQuantity >= 0) {
       if (dnsPrefix && selectedStore) {
         try {
-          // Dispatch local state update immediately for optimistic UI
-          dispatch(addToCart({ product, quantity: -1 }));
+          // Optimistic update
+          dispatch(addToCart({ product: productDetails!, quantity: -1 }));
+
           await dispatch(
             addToCartAsync({
               dns_prefix: dnsPrefix,
               store_id: selectedStore,
-              product_id: product.id.toString(),
+              product_id: product.product_id.toString(),
               quantity: -1,
             })
           ).unwrap();
         } catch (error) {
-          // Revert local state by dispatching positive quantity
-          dispatch(addToCart({ product, quantity: 1 }));
+          // Revert optimistic update
+          dispatch(addToCart({ product: productDetails!, quantity: 1 }));
           toast.error(t("cart.error.removeFailed"));
         }
       }
@@ -138,7 +140,7 @@ const ProductRow = ({ product }: { product: any }) => {
         {product.product_id}
       </TableCell>
       <TableCell className="w-[145px] text-center text-black text-[15px]">
-        {product?.product_price?.toFixed(2)}€
+        {product.product_price.toFixed(2)}€
       </TableCell>
       <TableCell className="w-[145px] p-2.5">
         <div className="flex items-center justify-center gap-2 bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] rounded-[var(--2-tokens-screen-modes-button-border-radius)] border border-solid border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] p-2">
@@ -164,7 +166,7 @@ const ProductRow = ({ product }: { product: any }) => {
         </div>
       </TableCell>
       <TableCell className="w-[145px] text-center text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[15px]">
-        {(product?.product_price * product?.quantity).toFixed(2)}€
+        {(product.product_price * product.quantity).toFixed(2)}€
       </TableCell>
     </TableRow>
   );
@@ -232,7 +234,7 @@ const OrderSummary = () => {
   const { items } = useAppSelector((state) => state.cart);
 
   const totalHT = items.reduce(
-    (acc, item) => acc + item?.product_price * item?.quantity,
+    (acc, item) => acc + item.product_price * item.quantity,
     0
   );
   const shippingCost = items.length > 0 ? 38.94 : 0;
