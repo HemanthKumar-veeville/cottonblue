@@ -599,7 +599,8 @@
       "storeRegion": "Région du magasin",
       "region": {
         "north": "Nord",
-        "south": "Sud"
+        "south": "Sud",
+        "all": "Toutes"
       },
       "adminPassword": "Mot de passe ADMIN",
       "clientPassword": "Mot de passe CLIENT",

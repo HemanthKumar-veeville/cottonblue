@@ -4,13 +4,15 @@ import { Input } from "../../components/ui/input";
 import { Textarea } from "../../components/ui/textarea";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
-import { toast } from "sonner";
-import { useAppSelector } from "../../store/store";
+import toast from "react-hot-toast";
+
+import { store, useAppSelector } from "../../store/store";
 import {
   registerStore,
   modifyStore,
   getStoreDetails,
 } from "../../store/features/agencySlice";
+import type { Agency } from "../../store/features/agencySlice";
 import { useAppDispatch } from "../../store/store";
 import Loader from "../../components/Loader";
 import { useTranslation } from "react-i18next";
@@ -20,19 +22,9 @@ interface FormData {
   company_id: string;
   store_name: string;
   store_address: string;
-  store_region: "North" | "South";
+  store_region: "North" | "South" | "All";
   city: string;
   postal_code: string;
-  phone_number?: string;
-  latitude?: number;
-  longitude?: number;
-  passwords: {
-    admin: string;
-    client: string;
-  };
-  validation: {
-    email: string;
-  };
   limits: {
     order: {
       enabled: boolean;
@@ -51,6 +43,7 @@ const LabeledInput = ({
   value,
   type = "text",
   disabled = false,
+  required = false,
   onChange,
 }: {
   label: string;
@@ -58,19 +51,25 @@ const LabeledInput = ({
   value: string;
   type?: string;
   disabled?: boolean;
+  required?: boolean;
   onChange?: (value: string) => void;
 }) => (
   <div className="relative w-full pt-2">
     <Input
       id={id}
       type={type}
-      className="w-full font-text-medium text-[16px] leading-[24px] bg-gray-100 rounded-lg border"
+      className={`w-full font-text-medium text-[16px] leading-[24px] bg-gray-100 rounded-lg border ${
+        type === "number"
+          ? "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+          : ""
+      }`}
       value={value}
       disabled={disabled}
+      required={required}
       onChange={(e) => onChange?.(e.target.value)}
     />
     <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
-      {label}
+      {label} {required && <span className="text-red-500">*</span>}
     </span>
   </div>
 );
@@ -80,12 +79,14 @@ const LabeledSelect = ({
   id,
   value,
   options,
+  required = false,
   onChange,
 }: {
   label: string;
   id: string;
   value: string;
   options: { value: string; label: string }[];
+  required?: boolean;
   onChange?: (value: string) => void;
 }) => {
   const [selectedValue, setSelectedValue] = useState(value);
@@ -136,7 +137,7 @@ const LabeledSelect = ({
         </div>
       </div>
       <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
-        {label}
+        {label} {required && <span className="text-red-500">*</span>}
       </span>
     </div>
   );
@@ -188,17 +189,9 @@ export default function AddAgency() {
     store_region: "North",
     city: "",
     postal_code: "",
-    phone_number: "",
-    passwords: {
-      admin: "",
-      client: "",
-    },
-    validation: {
-      email: "",
-    },
     limits: {
       order: {
-        enabled: true,
+        enabled: false,
         value: "",
       },
       budget: {
@@ -223,33 +216,22 @@ export default function AddAgency() {
   useEffect(() => {
     if (isEditMode && store) {
       setFormData({
-        company_id: store?.company_id ?? "",
-        store_name: store?.name ?? "",
-        store_address: store?.address ?? "",
-        store_region:
-          store?.region === "all"
-            ? "North"
-            : (store?.region as "North" | "South") ?? "North",
-        city: store?.city ?? "",
-        postal_code: store?.postal_code ?? "",
-        phone_number: store?.phone_number ?? "",
-        latitude: store?.latitude ? parseFloat(store.latitude) : undefined,
-        longitude: store?.longitude ? parseFloat(store.longitude) : undefined,
-        passwords: {
-          admin: "",
-          client: "",
-        },
-        validation: {
-          email: "",
-        },
+        company_id: store.company_id?.toString() ?? "",
+        store_name: store.name ?? "",
+        store_address: store.address ?? "",
+        store_region: (store.region === "all"
+          ? "All"
+          : store.region ?? "North") as "North" | "South" | "All",
+        city: store.city ?? "",
+        postal_code: store.postal_code ?? "",
         limits: {
           order: {
-            enabled: true,
-            value: "",
+            enabled: !!store.order_limit,
+            value: store.order_limit ? store.order_limit.toString() : "",
           },
           budget: {
-            enabled: false,
-            value: "",
+            enabled: !!store.budget_limit,
+            value: store.budget_limit ? store.budget_limit.toString() : "",
           },
         },
       });
@@ -257,24 +239,48 @@ export default function AddAgency() {
   }, [isEditMode, store]);
 
   const handleSubmit = async () => {
-    // Validate required fields including company ID
+    // Validate all required fields
     if (
+      !formData.store_name ||
       !formData.city ||
       !formData.store_address ||
-      !formData.passwords.admin ||
-      !formData.passwords.client ||
-      !formData.validation.email ||
+      !formData.postal_code ||
       !selectedCompany?.id
     ) {
-      toast.error(t("addAgency.validation.requiredFields"));
+      toast.error("Please fill in all required fields", {
+        duration: 6000,
+        position: "top-right",
+        style: {
+          background: "#EF4444",
+          color: "#fff",
+        },
+      });
       return;
     }
 
     try {
-      const submitData = {
-        ...formData,
+      // Prepare the base data
+      const baseData = {
         company_id: selectedCompany.id,
+        store_name: formData.store_name,
+        store_address: formData.store_address,
+        city: formData.city,
+        postal_code: formData.postal_code,
+        store_region: formData.store_region.toLowerCase(),
       };
+
+      // Add optional fields only if they are enabled and have values
+      const submitData = {
+        ...baseData,
+        order_limit: formData.limits.order.enabled
+          ? parseInt(formData.limits.order.value) || null
+          : null,
+        budget_limit: formData.limits.budget.enabled
+          ? parseInt(formData.limits.budget.value) || null
+          : null,
+      };
+
+      console.log("Submitting data:", submitData);
 
       if (isEditMode && id) {
         await dispatch(
@@ -284,22 +290,44 @@ export default function AddAgency() {
             data: submitData,
           })
         ).unwrap();
-        toast.success(t("addAgency.messages.updateSuccess"));
+        toast.success("Agency updated successfully", {
+          duration: 5000,
+          position: "top-right",
+          style: {
+            background: "#10B981",
+            color: "#fff",
+          },
+        });
       } else {
+        console.log("came here");
         await dispatch(
           registerStore({
             dnsPrefix: selectedCompany.dns || "",
             data: submitData,
           })
         ).unwrap();
-        toast.success(t("addAgency.messages.addSuccess"));
+        toast.success("Agency added successfully", {
+          duration: 5000,
+          position: "top-right",
+          style: {
+            background: "#10B981",
+            color: "#fff",
+          },
+        });
       }
       navigate("/agencies");
     } catch (error) {
+      console.error("Form submission error:", error);
       toast.error(
-        isEditMode
-          ? t("addAgency.messages.updateError")
-          : t("addAgency.messages.addError")
+        isEditMode ? "Failed to update agency" : "Failed to add agency",
+        {
+          duration: 6000,
+          position: "top-right",
+          style: {
+            background: "#EF4444",
+            color: "#fff",
+          },
+        }
       );
     }
   };
@@ -325,11 +353,13 @@ export default function AddAgency() {
                 id="company_id"
                 value={selectedCompany?.id || ""}
                 disabled={true}
+                required={true}
               />
               <LabeledInput
                 label={t("addAgency.fields.storeName")}
                 id="store_name"
                 value={formData.store_name}
+                required={true}
                 onChange={(value) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -344,6 +374,7 @@ export default function AddAgency() {
                 label={t("addAgency.fields.postalCode")}
                 id="postal_code"
                 value={formData.postal_code}
+                required={true}
                 onChange={(value) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -355,6 +386,7 @@ export default function AddAgency() {
                 label={t("addAgency.fields.city")}
                 id="city"
                 value={formData.city}
+                required={true}
                 onChange={(value) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -370,6 +402,7 @@ export default function AddAgency() {
                   label={t("addAgency.fields.address")}
                   id="store_address"
                   value={formData.store_address}
+                  required={true}
                   onChange={(value) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -383,6 +416,7 @@ export default function AddAgency() {
                   label={t("addAgency.fields.storeRegion")}
                   id="store_region"
                   value={formData.store_region}
+                  required={true}
                   options={[
                     {
                       value: "North",
@@ -392,11 +426,12 @@ export default function AddAgency() {
                       value: "South",
                       label: t("addAgency.fields.region.south"),
                     },
+                    { value: "All", label: t("addAgency.fields.region.all") },
                   ]}
                   onChange={(value) =>
                     setFormData((prev) => ({
                       ...prev,
-                      store_region: value as "North" | "South",
+                      store_region: value as "North" | "South" | "All",
                     }))
                   }
                 />
@@ -408,6 +443,7 @@ export default function AddAgency() {
                 className="min-h-[100px] font-text-medium text-[16px] leading-[24px] bg-gray-100 rounded-lg border"
                 placeholder={t("addAgency.placeholders.addressComment")}
                 value={formData.store_address}
+                required={true}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -416,7 +452,8 @@ export default function AddAgency() {
                 }
               />
               <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
-                {t("addAgency.fields.addressComment")}
+                {t("addAgency.fields.addressComment")}{" "}
+                <span className="text-red-500">*</span>
               </span>
             </div>
           </div>
@@ -463,6 +500,7 @@ export default function AddAgency() {
               <LabeledInput
                 label={t("addAgency.limits.orderLimitValue")}
                 id="orderLimitValue"
+                type="text"
                 value={formData.limits.order.value}
                 disabled={!formData.limits.order.enabled}
                 onChange={(value) =>
@@ -478,6 +516,7 @@ export default function AddAgency() {
               <LabeledInput
                 label={t("addAgency.limits.budgetLimitValue")}
                 id="budgetLimitValue"
+                type="text"
                 value={formData.limits.budget.value}
                 disabled={!formData.limits.budget.enabled}
                 onChange={(value) =>
@@ -487,60 +526,6 @@ export default function AddAgency() {
                       ...prev.limits,
                       budget: { ...prev.limits.budget, value },
                     },
-                  }))
-                }
-              />
-            </div>
-          </div>
-          <div className="flex flex-col gap-6">
-            <div className="flex gap-4">
-              <LabeledInput
-                label={t("addAgency.fields.adminPassword")}
-                id="adminPassword"
-                type="password"
-                value={formData.passwords.admin}
-                onChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    passwords: { ...prev.passwords, admin: value },
-                  }))
-                }
-              />
-              <LabeledInput
-                label={t("addAgency.fields.clientPassword")}
-                id="clientPassword"
-                type="password"
-                value={formData.passwords.client}
-                onChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    passwords: { ...prev.passwords, client: value },
-                  }))
-                }
-              />
-            </div>
-
-            <div className="flex gap-4">
-              <LabeledInput
-                label={t("addAgency.fields.validationEmail")}
-                id="validationEmail"
-                type="email"
-                value={formData.validation.email}
-                onChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    validation: { ...prev.validation, email: value },
-                  }))
-                }
-              />
-              <LabeledInput
-                label={t("addAgency.fields.phoneNumber")}
-                id="phone_number"
-                value={formData.phone_number || ""}
-                onChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    phone_number: value,
                   }))
                 }
               />

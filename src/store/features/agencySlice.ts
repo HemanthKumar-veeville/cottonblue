@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { agencyService } from '../../services/agencyService';
 
 // Define the Agency interface
-interface Agency {
+export interface Agency {
   id: number;
   name: string;
   phone_number: string;
@@ -15,6 +15,9 @@ interface Agency {
   company_id: number;
   postal_code: string;
   is_active: boolean;
+  region?: "North" | "South" | "all";
+  order_limit?: number;
+  budget_limit?: number;
 }
 
 // Define the store data interface
@@ -27,6 +30,9 @@ interface StoreData {
   phone_number?: string;
   latitude?: number;
   longitude?: number;
+  region?: string;
+  order_limit?: number | null;
+  budget_limit?: number | null;
 }
 
 // Define the state interface
@@ -58,7 +64,9 @@ export const registerStore = createAsyncThunk(
     try {
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
+        if (value !== null && value !== undefined) {
           formData.append(key, value.toString());
+        }
       });
       const response = await agencyService.registerStore(dnsPrefix, formData);
       return response;

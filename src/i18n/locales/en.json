@@ -578,7 +578,8 @@
       "storeRegion": "Store Region",
       "region": {
         "north": "North",
-        "south": "South"
+        "south": "South",
+        "all": "All"
       },
       "adminPassword": "ADMIN password",
       "clientPassword": "CLIENT password",
