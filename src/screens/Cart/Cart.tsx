@@ -27,7 +27,10 @@ import { toast } from "sonner";
 import EmptyState from "../../components/EmptyState";
 import { useNavigate } from "react-router-dom";
 import { getHost } from "../../utils/hostUtils";
-import { fetchAllProducts } from "../../store/features/productSlice";
+import {
+  fetchAllProducts,
+  getProductsByStoreId,
+} from "../../store/features/productSlice";
 interface ShippingAddress {
   firstName: string;
   lastName: string;
@@ -343,7 +346,7 @@ export default function CartContainer(): JSX.Element {
     if (dnsPrefix && selectedStore && selectedStore !== "all") {
       // Fetch cart data when component mounts and when store changes
       dispatch(fetchCart({ dns_prefix: dnsPrefix, store_id: selectedStore }));
-      dispatch(fetchAllProducts(dnsPrefix));
+      dispatch(getProductsByStoreId({ dnsPrefix, storeId: selectedStore }));
     }
   }, [dispatch, dnsPrefix, selectedStore]);
 
