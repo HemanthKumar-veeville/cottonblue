@@ -180,7 +180,52 @@
     "sections": {
       "mostOrdered": "Most Ordered",
       "allProducts": "All Products",
-      "workClothes": "Work Clothes"
+      "workClothes": "Work Clothes",
+      "salesOverview": {
+        "totalSales": {
+          "title": "Total Sales",
+          "period": "Month of March",
+          "sales": "Sales",
+          "lastPeriod": "Last 7 days (€7,000)"
+        },
+        "totalOrders": {
+          "title": "Total Orders",
+          "period": "Month of March",
+          "orders": "orders",
+          "lastPeriod": "Last 7 days (30)"
+        }
+      },
+      "supportTickets": {
+        "title": "Support Tickets",
+        "seeMore": "See more",
+        "table": {
+          "ticketId": "Ticket ID",
+          "subject": "Subject",
+          "status": "Status",
+          "time": "Time"
+        },
+        "status": {
+          "pending": "Pending",
+          "resolved": "Resolved",
+          "inProgress": "In Progress",
+          "new": "New"
+        }
+      },
+      "bestSales": {
+        "title": "Best Sales",
+        "period": "Year 2025",
+        "sales": "Sales",
+        "revenue": "Revenue Generated"
+      },
+      "topClients": {
+        "title": "Clients of the Month",
+        "period": "Month of March",
+        "rank": {
+          "first": "#1",
+          "second": "#2",
+          "third": "#3"
+        }
+      }
     },
     "status": {
       "inStock": "In Stock",
@@ -314,6 +359,9 @@
       "orderHistory": {
         "title": "Order History",
         "downloadSelectedInvoices": "Download selected invoices",
+        "search": {
+          "placeholder": "Search an order..."
+        },
         "table": {
           "order": "Order",
           "company": "Company",
@@ -326,8 +374,14 @@
           "previous": "Previous",
           "next": "Next"
         },
-        "search": {
-          "placeholder": "Search an order"
+        "status": {
+          "delivered": "Delivered",
+          "inProgress": "In Progress",
+          "shipped": "Shipped",
+          "cancelled": "Cancelled"
+        },
+        "pagination": {
+          "page": "Page {{number}}"
         }
       }
     }

@@ -180,7 +180,52 @@
     "sections": {
       "mostOrdered": "Les plus commandés",
       "allProducts": "Tous les produits",
-      "workClothes": "Vêtements de travail"
+      "workClothes": "Vêtements de travail",
+      "salesOverview": {
+        "totalSales": {
+          "title": "Ventes totales",
+          "period": "Mois de mars",
+          "sales": "Ventes",
+          "lastPeriod": "7 derniers jours (7000 €)"
+        },
+        "totalOrders": {
+          "title": "Commandes totales",
+          "period": "Mois de mars",
+          "orders": "commandes",
+          "lastPeriod": "7 derniers jours (30)"
+        }
+      },
+      "supportTickets": {
+        "title": "Tickets du support",
+        "seeMore": "Voir plus",
+        "table": {
+          "ticketId": "ID Ticket",
+          "subject": "Sujet",
+          "status": "Statut",
+          "time": "Temps"
+        },
+        "status": {
+          "pending": "En attente",
+          "resolved": "Résolu",
+          "inProgress": "En cours",
+          "new": "Nouveau"
+        }
+      },
+      "bestSales": {
+        "title": "Meilleurs ventes",
+        "period": "Année 2025",
+        "sales": "Ventes",
+        "revenue": "Chiffre généré"
+      },
+      "topClients": {
+        "title": "Clients du mois",
+        "period": "Mois de mars",
+        "rank": {
+          "first": "#1",
+          "second": "#2",
+          "third": "#3"
+        }
+      }
     },
     "status": {
       "inStock": "En stock",
@@ -309,6 +354,36 @@
     "pagination": {
       "previous": "Précédent",
       "next": "Suivant"
+    },
+    "superAdmin": {
+      "orderHistory": {
+        "title": "Historique des commandes",
+        "downloadSelectedInvoices": "Télécharger les factures sélectionnées",
+        "search": {
+          "placeholder": "Rechercher une commande..."
+        },
+        "table": {
+          "order": "Commande",
+          "company": "Entreprise",
+          "store": "Magasin",
+          "date": "Date",
+          "totalPrice": "Prix total",
+          "status": "Statut",
+          "invoice": "Facture",
+          "details": "Détails",
+          "previous": "Précédent",
+          "next": "Suivant"
+        },
+        "status": {
+          "delivered": "Livrée",
+          "inProgress": "En cours",
+          "shipped": "Expédié",
+          "cancelled": "Annulée"
+        },
+        "pagination": {
+          "page": "Page {{number}}"
+        }
+      }
     }
   },
   "superAdmin": {

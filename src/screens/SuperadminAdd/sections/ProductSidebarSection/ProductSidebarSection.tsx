@@ -753,21 +753,6 @@ export const ProductSidebarSection = ({
 
                   <div className="flex items-start gap-4 mt-6">
                     <Button
-                      variant="outline"
-                      className={cn(
-                        "gap-4 py-4 px-4 self-stretch bg-gray-200 border-gray-300",
-                        "hover:bg-gray-300 transition-colors duration-200",
-                        "disabled:opacity-50 disabled:cursor-not-allowed",
-                        isSubmitting && "animate-pulse"
-                      )}
-                      onClick={() => handleAction("draft")}
-                      disabled={isSubmitting}
-                    >
-                      <span className="font-label-medium font-bold text-gray-700 text-sm tracking-wide leading-5 whitespace-nowrap">
-                        {t("productSidebar.actions.saveDraft")}
-                      </span>
-                    </Button>
-                    <Button
                       className={cn(
                         "gap-4 py-4 px-4 self-stretch bg-[#07515f] border-gray-300",
                         "hover:bg-[#064a56] transition-colors duration-200",

@@ -85,6 +85,17 @@ const OrderRow = ({ order, index }: { order: any; index: number }) => {
     ? new Date(order.created_at).toLocaleDateString()
     : t("common.notAvailable");
 
+  // Map order status to translation key
+  const getStatusTranslationKey = (status: string) => {
+    const statusMap: { [key: string]: string } = {
+      delivered: "history.superAdmin.orderHistory.status.delivered",
+      in_progress: "history.superAdmin.orderHistory.status.inProgress",
+      shipped: "history.superAdmin.orderHistory.status.shipped",
+      cancelled: "history.superAdmin.orderHistory.status.cancelled",
+    };
+    return statusMap[status] || "common.notAvailable";
+  };
+
   return (
     <TableRow
       key={index}
@@ -117,7 +128,7 @@ const OrderRow = ({ order, index }: { order: any; index: number }) => {
         <div className="flex items-center gap-2">
           <StatusIcon type="success" />
           <StatusText
-            status={t(order?.order_status || "common.notAvailable")}
+            status={t(getStatusTranslationKey(order?.order_status))}
             type="success"
           />
         </div>
@@ -132,7 +143,7 @@ const OrderRow = ({ order, index }: { order: any; index: number }) => {
           disabled={!order?.order_id}
           className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
         >
-          {t("history.table.details")}
+          {t("history.superAdmin.orderHistory.table.details")}
         </Button>
       </TableCell>
     </TableRow>
@@ -216,21 +227,21 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
                   </div>
                 </TableHead>
                 {[
-                  t("history.superAdmin.orderHistory.table.order"),
-                  t("history.superAdmin.orderHistory.table.store"),
-                  t("history.superAdmin.orderHistory.table.date"),
-                  t("history.superAdmin.orderHistory.table.totalPrice"),
-                  t("history.superAdmin.orderHistory.table.status"),
-                  t("history.superAdmin.orderHistory.table.invoice"),
-                  t("history.superAdmin.orderHistory.table.details"),
-                ].map((header, index) => (
+                  "table.order",
+                  "table.store",
+                  "table.date",
+                  "table.totalPrice",
+                  "table.status",
+                  "table.invoice",
+                  "table.details",
+                ].map((key, index) => (
                   <TableHead
                     key={index}
                     className={`${
                       index === 5 ? "w-[69px]" : "w-[145px]"
                     } text-left text-[#1e2324] font-text-small`}
                   >
-                    {header}
+                    {t(`history.superAdmin.orderHistory.${key}`)}
                   </TableHead>
                 ))}
               </TableRow>

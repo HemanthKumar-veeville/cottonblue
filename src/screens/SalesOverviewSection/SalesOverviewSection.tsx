@@ -1,80 +1,85 @@
 import { ArrowDownIcon } from "lucide-react";
 import { Card, CardContent } from "../../components/ui/card";
+import { useTranslation } from "react-i18next";
 
 const salesOverviewData = [
   {
-    title: "Ventes totales",
-    period: "Mois de mars",
+    titleKey: "dashboard.sections.salesOverview.totalSales.title",
+    periodKey: "dashboard.sections.salesOverview.totalSales.period",
     value: "350K €",
-    label: "Ventes",
+    labelKey: "dashboard.sections.salesOverview.totalSales.sales",
     percentage: "10,4 %",
     isPositive: true,
-    lastPeriod: "7 derniers jours (7000 €)",
+    lastPeriodKey: "dashboard.sections.salesOverview.totalSales.lastPeriod",
   },
   {
-    title: "Commandes totales",
-    period: "Mois de mars",
+    titleKey: "dashboard.sections.salesOverview.totalOrders.title",
+    periodKey: "dashboard.sections.salesOverview.totalOrders.period",
     value: "231",
-    label: "commandes",
+    labelKey: "dashboard.sections.salesOverview.totalOrders.orders",
     percentage: "14,4 %",
     isPositive: true,
-    lastPeriod: "7 derniers jours (30)",
+    lastPeriodKey: "dashboard.sections.salesOverview.totalOrders.lastPeriod",
   },
 ];
 
 const SalesCard = ({
-  title,
-  period,
+  titleKey,
+  periodKey,
   value,
-  label,
+  labelKey,
   percentage,
-  lastPeriod,
+  lastPeriodKey,
 }: {
-  title: string;
-  period: string;
+  titleKey: string;
+  periodKey: string;
   value: string;
-  label: string;
+  labelKey: string;
   percentage: string;
-  lastPeriod: string;
-}) => (
-  <Card className="flex-1 shadow-1dp-ambient">
-    <CardContent className="flex flex-col gap-3 p-5">
-      <div className="flex flex-col gap-1">
-        <div className="flex items-center justify-between">
-          <h3 className="font-bold text-lg text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] font-['Montserrat',Helvetica] leading-7">
-            {title}
-          </h3>
+  lastPeriodKey: string;
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <Card className="flex-1 shadow-1dp-ambient">
+      <CardContent className="flex flex-col gap-3 p-5">
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center justify-between">
+            <h3 className="font-bold text-lg text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] font-['Montserrat',Helvetica] leading-7">
+              {t(titleKey)}
+            </h3>
+          </div>
+          <p className="text-primary-neutal-500 text-sm tracking-[-0.28px] font-['Montserrat',Helvetica]">
+            {t(periodKey)}
+          </p>
         </div>
-        <p className="text-primary-neutal-500 text-sm tracking-[-0.28px] font-['Montserrat',Helvetica]">
-          {period}
-        </p>
-      </div>
 
-      <div className="flex items-center gap-4">
-        <span className="font-bold text-[#023337] text-[32px] font-['Montserrat',Helvetica]">
-          {value}
-        </span>
-
-        <div className="flex items-end gap-1">
-          <span className="font-normal text-1-tokens-color-modes-common-neutral-hightest text-base font-['Montserrat',Helvetica]">
-            {label}
+        <div className="flex items-center gap-4">
+          <span className="font-bold text-[#023337] text-[32px] font-['Montserrat',Helvetica]">
+            {value}
           </span>
 
-          <div className="flex items-center">
-            <ArrowDownIcon className="w-4 h-4 text-primary-success-500" />
-            <span className="font-medium text-primary-success-500 text-sm font-['Montserrat',Helvetica]">
-              {percentage}
+          <div className="flex items-end gap-1">
+            <span className="font-normal text-1-tokens-color-modes-common-neutral-hightest text-base font-['Montserrat',Helvetica]">
+              {t(labelKey)}
             </span>
+
+            <div className="flex items-center">
+              <ArrowDownIcon className="w-4 h-4 text-primary-success-500" />
+              <span className="font-medium text-primary-success-500 text-sm font-['Montserrat',Helvetica]">
+                {percentage}
+              </span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <p className="text-primary-neutal-500 text-sm font-['Montserrat',Helvetica]">
-        {lastPeriod}
-      </p>
-    </CardContent>
-  </Card>
-);
+        <p className="text-primary-neutal-500 text-sm font-['Montserrat',Helvetica]">
+          {t(lastPeriodKey)}
+        </p>
+      </CardContent>
+    </Card>
+  );
+};
 
 export const SalesOverviewSection = (): JSX.Element => {
   return (
@@ -82,12 +87,12 @@ export const SalesOverviewSection = (): JSX.Element => {
       {salesOverviewData.map((card, index) => (
         <SalesCard
           key={index}
-          title={card.title}
-          period={card.period}
+          titleKey={card.titleKey}
+          periodKey={card.periodKey}
           value={card.value}
-          label={card.label}
+          labelKey={card.labelKey}
           percentage={card.percentage}
-          lastPeriod={card.lastPeriod}
+          lastPeriodKey={card.lastPeriodKey}
         />
       ))}
     </section>
