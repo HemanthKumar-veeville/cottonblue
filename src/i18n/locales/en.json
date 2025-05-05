@@ -462,7 +462,9 @@
       "sizes": "Available Sizes",
       "soldBy": "Sold by",
       "price": "Price",
-      "stock": "Available Stock"
+      "stock": "Available Stock",
+      "availableStock": "Available Stock",
+      "totalStock": "Total Stock"
     },
     "actions": {
       "modify": "Modify Product",

@@ -483,7 +483,9 @@
       "sizes": "Tailles disponibles",
       "soldBy": "Vendu par",
       "price": "Prix",
-      "stock": "Stock disponible"
+      "stock": "Stock disponible",
+      "availableStock": "Stock disponible",
+      "totalStock": "Stock total"
     },
     "actions": {
       "modify": "Modifier le produit",

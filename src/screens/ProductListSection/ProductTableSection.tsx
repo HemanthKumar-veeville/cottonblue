@@ -181,8 +181,8 @@ export const ProductTableSection = (): JSX.Element => {
                       {product.description ?? "Not available"}
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-smaller text-black">
-                      {product.stock
-                        ? `${product.stock} units`
+                      {product.available_stock
+                        ? `${product.available_stock} units`
                         : "Not available"}
                     </TableCell>
                     <TableCell className="w-[69px] text-left font-text-smaller text-black">

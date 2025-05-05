@@ -168,7 +168,8 @@ export default function ProductDetails() {
   const { currentProduct, loading, error } = useAppSelector(
     (state) => state.product
   );
-  const product = currentProduct || ({} as Product);
+  const product = currentProduct?.product || ({} as Product);
+
   const { selectedCompany } = useAppSelector((state) => state.client);
 
   useEffect(() => {
