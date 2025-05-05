@@ -118,16 +118,6 @@ export const SuperadminSidebarSection = ({
       ],
     },
     {
-      title: t("sidebar.products.title"),
-      items: [
-        {
-          icon: <PackageIcon className="w-4 h-4" />,
-          label: t("sidebar.products.stock"),
-          path: "/products/stock",
-        },
-      ],
-    },
-    {
       title: t("sidebar.customers.title"),
       items: [
         {
