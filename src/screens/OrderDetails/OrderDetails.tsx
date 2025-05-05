@@ -75,8 +75,14 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
               <OrderInfo
                 label={t("orderDetails.fields.totalPrice")}
                 value={
-                  order?.total_price
-                    ? `${order.total_price}€`
+                  order?.order_items
+                    ? `${order?.order_items
+                        ?.reduce(
+                          (acc: number, item: any) =>
+                            acc + item.product_price * item.quantity,
+                          0
+                        )
+                        ?.toFixed(2)}€`
                     : t("common.notAvailable")
                 }
                 isStatus={false}
