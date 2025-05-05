@@ -92,7 +92,7 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
             <div className="space-y-2">
               <OrderInfo
                 label={t("orderDetails.fields.customer")}
-                value={order?.customer_name ?? t("common.notAvailable")}
+                value={order?.store_name ?? t("common.notAvailable")}
                 isStatus={false}
               />
               <OrderInfo
@@ -102,7 +102,7 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
               />
               <OrderInfo
                 label={t("orderDetails.fields.shippingAddress")}
-                value={order?.shipping_address ?? t("common.notAvailable")}
+                value={order?.store_address ?? t("common.notAvailable")}
                 isStatus={false}
               />
             </div>
