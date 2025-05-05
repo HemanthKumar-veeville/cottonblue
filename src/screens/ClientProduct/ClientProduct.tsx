@@ -93,7 +93,7 @@ const ProductPage = () => {
   );
   const { items } = useAppSelector((state) => state.cart);
   const dnsPrefix = getHost();
-  const product = currentProduct || ({} as Product);
+  const product = currentProduct?.product || ({} as Product);
 
   // Get initial quantity from cart
   const cartItem = items.find((item) => item.id === Number(id));

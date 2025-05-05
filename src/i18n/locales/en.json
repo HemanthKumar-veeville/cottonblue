@@ -286,7 +286,9 @@
       "updated": "Last Updated",
       "region": "Available Region",
       "stock": "Stock"
-    }
+    },
+    "availableStock": "Available Stock",
+    "totalStock": "Total Stock"
   },
   "cart": {
     "title": "Cart",

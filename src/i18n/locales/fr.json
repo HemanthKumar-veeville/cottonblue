@@ -286,7 +286,9 @@
       "updated": "Dernière mise à jour",
       "region": "Région disponible",
       "stock": "Stock"
-    }
+    },
+    "availableStock": "Stock disponible",
+    "totalStock": "Stock total"
   },
   "cart": {
     "title": "Panier",
