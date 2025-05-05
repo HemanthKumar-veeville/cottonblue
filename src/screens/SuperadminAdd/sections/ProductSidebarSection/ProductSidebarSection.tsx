@@ -12,7 +12,8 @@ import {
 } from "../../../../components/ui/select";
 import { Textarea } from "../../../../components/ui/textarea";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
+
 import { cn } from "../../../../lib/utils";
 import { ProductImageUploader } from "./ProductImageUploader";
 import AddProduct_step_1 from "../../../../screens/AddProduct/AddProduct_step_1";
@@ -89,8 +90,8 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const FORM_FIELDS = {
   region: { options: ["North", "South", "All"] },
-  gender: { options: ["Unisexe"] },
-  size: { options: ["S, M, L"] },
+  gender: { options: ["Male", "Female", "Unisex"] },
+  size: { options: ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"] },
 };
 
 // Define form field configurations
@@ -101,6 +102,7 @@ const FORM_FIELD_CONFIGS = [
     placeholder: "productSidebar.form.productName",
     label: "productSidebar.form.productName",
     errorKey: "name",
+    isRequired: true,
   },
   {
     id: "productId",
@@ -108,6 +110,7 @@ const FORM_FIELD_CONFIGS = [
     placeholder: "productSidebar.form.productId",
     label: "productSidebar.form.productId",
     errorKey: "productId",
+    isRequired: false,
   },
   {
     id: "region",
@@ -116,6 +119,7 @@ const FORM_FIELD_CONFIGS = [
     label: "productSidebar.form.region",
     errorKey: "region",
     options: FORM_FIELDS.region.options,
+    isRequired: true,
   },
 ];
 
@@ -127,6 +131,7 @@ const GENDER_SIZE_CONFIGS = [
     label: "productSidebar.form.gender",
     errorKey: "gender",
     options: FORM_FIELDS.gender.options,
+    isRequired: true,
   },
   {
     id: "size",
@@ -135,6 +140,7 @@ const GENDER_SIZE_CONFIGS = [
     label: "productSidebar.form.size",
     errorKey: "size",
     options: FORM_FIELDS.size.options,
+    isRequired: true,
   },
 ];
 
@@ -146,6 +152,7 @@ const PRICE_FIELD_CONFIGS = [
     label: "productSidebar.form.price.perCarton",
     errorKey: "pricePerCarton",
     disabled: (formData: ProductFormData) => !formData.soldByCarton,
+    isRequired: false,
   },
   {
     id: "pricePerUnit",
@@ -154,6 +161,7 @@ const PRICE_FIELD_CONFIGS = [
     label: "productSidebar.form.price.perUnit",
     errorKey: "pricePerUnit",
     disabled: (formData: ProductFormData) => !formData.soldByUnit,
+    isRequired: false,
   },
 ];
 
@@ -165,6 +173,7 @@ const ADDITIONAL_FIELD_CONFIGS = [
     label: "productSidebar.form.piecesPerCarton",
     errorKey: "piecesPerCarton",
     disabled: (formData: ProductFormData) => !formData.soldByCarton,
+    isRequired: false,
   },
   {
     id: "reference",
@@ -172,6 +181,7 @@ const ADDITIONAL_FIELD_CONFIGS = [
     placeholder: "productSidebar.form.reference",
     label: "productSidebar.form.reference",
     errorKey: "reference",
+    isRequired: false,
   },
 ];
 
@@ -223,18 +233,20 @@ const FormField = ({
   error,
   children,
   className,
+  isRequired = false,
 }: {
   label?: string;
   error?: string;
   children: React.ReactNode;
   className?: string;
+  isRequired?: boolean;
 }) => (
   <div className={cn("relative w-full", className)}>
     <div className="relative">
       {children}
       {label && (
         <span className="absolute -top-[10px] left-[10px] px-1 bg-white text-sm font-medium text-gray-600">
-          {label}
+          {label} {isRequired && <span className="text-red-500">*</span>}
         </span>
       )}
     </div>
@@ -325,8 +337,8 @@ export const ProductSidebarSection = ({
               name: name || "",
               productId: "",
               region: available_region || "",
-              gender: "Unisexe",
-              size: "S, M, L",
+              gender: "",
+              size: "",
               soldByCarton: true,
               soldByUnit: false,
               pricePerCarton: price?.toString() || "",
@@ -407,40 +419,59 @@ export const ProductSidebarSection = ({
   );
 
   const validateForm = () => {
+    const missingRequiredFields: string[] = [];
+
+    // Validate company (required)
     if (!selectedCompany?.id) {
-      throw new Error(t("productSidebar.validation.noCompany"));
+      throw new Error("Please select a company first");
     }
 
-    if (!formData.name) {
-      throw new Error(t("productSidebar.validation.nameRequired"));
+    // Collect all missing required fields
+    if (!formData.name.trim()) {
+      missingRequiredFields.push("Product Name");
     }
 
-    if (!formData.productId) {
-      throw new Error(t("productSidebar.validation.productIdRequired"));
+    if (!formData.region) {
+      missingRequiredFields.push("Region");
     }
 
-    if (!formData.description) {
-      throw new Error(t("productSidebar.validation.descriptionRequired"));
+    if (!formData.gender) {
+      missingRequiredFields.push("Gender");
+    }
+
+    if (!formData.size) {
+      missingRequiredFields.push("Size");
     }
 
     if (!formData.images[0]) {
-      throw new Error(t("productSidebar.validation.mainImageRequired"));
+      missingRequiredFields.push("Main Image");
     }
 
-    const price = formData.soldByCarton
-      ? parseFloat(formData.pricePerCarton)
-      : parseFloat(formData.pricePerUnit);
-
-    if (isNaN(price) || price <= 0) {
-      throw new Error(t("productSidebar.validation.validPriceRequired"));
+    // If any required fields are missing, throw a single error
+    if (missingRequiredFields.length > 0) {
+      throw new Error("Please fill in all required fields with *");
     }
 
-    const stock = formData.soldByCarton
-      ? parseInt(formData.piecesPerCarton)
-      : 1;
+    // Validate selling method and prices separately as they have different logic
+    if (!formData.soldByCarton && !formData.soldByUnit) {
+      throw new Error(
+        "Please select at least one selling method (Carton or Unit)"
+      );
+    }
 
-    if (isNaN(stock) || stock <= 0) {
-      throw new Error(t("productSidebar.validation.validStockRequired"));
+    // Validate price based on selected selling method
+    if (formData.soldByCarton) {
+      const pricePerCarton = parseFloat(formData.pricePerCarton);
+      if (pricePerCarton <= 0) {
+        throw new Error("Please enter a valid price per carton");
+      }
+    }
+
+    if (formData.soldByUnit) {
+      const pricePerUnit = parseFloat(formData.pricePerUnit);
+      if (pricePerUnit <= 0) {
+        throw new Error("Please enter a valid price per unit");
+      }
     }
   };
 
@@ -449,69 +480,73 @@ export const ProductSidebarSection = ({
       setIsSubmitting(true);
       try {
         if (action === "next") {
-          // Base product data
-          const baseProductData = {
+          // Validate form
+          validateForm();
+
+          // Prepare base product data with required fields
+          const baseProductData: CreateProductData = {
             company_id: selectedCompany!.id,
-            product_name: formData.name,
-            product_id: formData.productId,
-            product_description: formData.description,
-            product_price: formData.soldByCarton
-              ? parseFloat(formData.pricePerCarton)
-              : parseFloat(formData.pricePerUnit),
+            product_name: formData.name.trim(),
+            product_id: formData.productId.trim(),
             available_region: formData.region,
-            total_stock: formData.soldByCarton
-              ? parseInt(formData.piecesPerCarton)
-              : 1,
             product_image: formData.images[0] || formData.imageUrls[0],
           };
+
+          // Add optional fields only if they have values
+          if (formData.description?.trim()) {
+            baseProductData.product_description = formData.description.trim();
+          }
+
+          // Handle price and stock based on selling method
+          if (formData.soldByCarton) {
+            const pricePerCarton = parseFloat(formData.pricePerCarton);
+            if (!isNaN(pricePerCarton) && pricePerCarton > 0) {
+              baseProductData.product_price = pricePerCarton;
+            }
+
+            const piecesPerCarton = parseInt(formData.piecesPerCarton);
+            if (!isNaN(piecesPerCarton) && piecesPerCarton > 0) {
+              baseProductData.total_stock = piecesPerCarton;
+            }
+          } else if (formData.soldByUnit) {
+            const pricePerUnit = parseFloat(formData.pricePerUnit);
+            if (!isNaN(pricePerUnit) && pricePerUnit > 0) {
+              baseProductData.product_price = pricePerUnit;
+              baseProductData.total_stock = 1; // Default for unit sales
+            }
+          }
+
+          // Add reference (SKU) if provided
+          if (formData.reference?.trim()) {
+            baseProductData.reference = formData.reference.trim();
+          }
 
           if (mode === "edit" && id && originalData) {
             // Create an object with only the changed fields
             const updatedFields: Partial<typeof baseProductData> = {};
 
             // Compare and add only changed fields
-            if (formData.name !== originalData.name) {
-              updatedFields.product_name = formData.name;
-            }
-            if (formData.productId !== originalData.productId) {
-              updatedFields.product_id = formData.productId;
-            }
-            if (formData.description !== originalData.description) {
-              updatedFields.product_description = formData.description;
-            }
-            if (
-              (formData.soldByCarton &&
-                formData.pricePerCarton !== originalData.pricePerCarton) ||
-              (!formData.soldByCarton &&
-                formData.pricePerUnit !== originalData.pricePerUnit)
-            ) {
-              updatedFields.product_price = baseProductData.product_price;
-            }
-            if (formData.region !== originalData.region) {
-              updatedFields.available_region = formData.region;
-            }
-            if (
-              (formData.soldByCarton &&
-                formData.piecesPerCarton !== originalData.piecesPerCarton) ||
-              (!formData.soldByCarton &&
-                formData.soldByUnit !== originalData.soldByUnit)
-            ) {
-              updatedFields.total_stock = baseProductData.total_stock;
-            }
-
-            // Check if image has changed
-            const hasNewImage = formData.images[0];
-            if (hasNewImage) {
-              updatedFields.product_image = formData.images[0];
-            }
+            Object.entries(baseProductData).forEach(([key, value]) => {
+              const originalValue =
+                originalData[key as keyof typeof originalData];
+              if (value !== originalValue) {
+                updatedFields[key as keyof typeof baseProductData] = value;
+              }
+            });
 
             // Only proceed if there are actual changes
             if (Object.keys(updatedFields).length === 0) {
-              toast.info(t("productSidebar.messages.noChanges"));
+              toast.error("No changes detected to update", {
+                duration: 6000,
+                position: "top-right",
+                style: {
+                  background: "#EF4444",
+                  color: "#fff",
+                },
+              });
               return;
             }
 
-            // Handle edit mode with only changed fields
             const resultAction = await dispatch(
               updateProduct({
                 dnsPrefix: selectedCompany!.dns,
@@ -521,12 +556,18 @@ export const ProductSidebarSection = ({
             );
 
             if (updateProduct.fulfilled.match(resultAction)) {
-              toast.success(t("productSidebar.messages.updated"));
+              toast.success("Product updated successfully", {
+                duration: 5000,
+                position: "top-right",
+                style: {
+                  background: "#10B981",
+                  color: "#fff",
+                },
+              });
               navigate(`/products/${id}`);
             } else {
               throw new Error(
-                resultAction.error?.message ||
-                  t("productSidebar.messages.updateError")
+                resultAction.error?.message || "Failed to update product"
               );
             }
           } else {
@@ -539,12 +580,18 @@ export const ProductSidebarSection = ({
             );
 
             if (createProduct.fulfilled.match(resultAction)) {
-              toast.success(t("productSidebar.messages.published"));
+              toast.success("Product created successfully", {
+                duration: 5000,
+                position: "top-right",
+                style: {
+                  background: "#10B981",
+                  color: "#fff",
+                },
+              });
               navigate(`/products`);
             } else {
               throw new Error(
-                resultAction.error?.message ||
-                  t("productSidebar.messages.publishError")
+                resultAction.error?.message || "Failed to create product"
               );
             }
           }
@@ -555,11 +602,25 @@ export const ProductSidebarSection = ({
             timestamp: new Date().toISOString(),
             isDraft: true,
           });
-          toast.success(t("productSidebar.messages.draftSaved"));
+          toast.success("Draft saved successfully", {
+            duration: 5000,
+            position: "top-right",
+            style: {
+              background: "#10B981",
+              color: "#fff",
+            },
+          });
         }
       } catch (error: any) {
         console.error("Error:", error);
-        toast.error(error.message || t("productSidebar.messages.error"));
+        toast.error(error.message || "An unexpected error occurred", {
+          duration: 6000,
+          position: "top-right",
+          style: {
+            background: "#EF4444",
+            color: "#fff",
+          },
+        });
       } finally {
         setIsSubmitting(false);
       }
@@ -593,7 +654,11 @@ export const ProductSidebarSection = ({
                   </div>
 
                   {FORM_FIELD_CONFIGS.map((field) => (
-                    <FormField key={field.id} label={t(field.label)}>
+                    <FormField
+                      key={field.id}
+                      label={t(field.label)}
+                      isRequired={field.isRequired}
+                    >
                       {field.type === "input" ? (
                         <Input
                           className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
@@ -634,6 +699,7 @@ export const ProductSidebarSection = ({
                         key={field.id}
                         className="flex-1"
                         label={t(field.label)}
+                        isRequired={field.isRequired}
                       >
                         <SelectField
                           value={
@@ -687,7 +753,11 @@ export const ProductSidebarSection = ({
 
                   <div className="flex items-start gap-2 relative self-stretch w-full">
                     {PRICE_FIELD_CONFIGS.map((field) => (
-                      <FormField key={field.id} label={t(field.label)}>
+                      <FormField
+                        key={field.id}
+                        label={t(field.label)}
+                        isRequired={field.isRequired}
+                      >
                         <Input
                           className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
                           type="number"
@@ -707,7 +777,11 @@ export const ProductSidebarSection = ({
 
                   <div className="flex items-start gap-2 relative self-stretch w-full">
                     {ADDITIONAL_FIELD_CONFIGS.map((field) => (
-                      <FormField key={field.id} label={t(field.label)}>
+                      <FormField
+                        key={field.id}
+                        label={t(field.label)}
+                        isRequired={field.isRequired}
+                      >
                         <Input
                           className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
                           type={field.id === "reference" ? "text" : "number"}
@@ -725,7 +799,10 @@ export const ProductSidebarSection = ({
                     ))}
                   </div>
 
-                  <FormField label={t("productSidebar.form.description")}>
+                  <FormField
+                    label={t("productSidebar.form.description")}
+                    isRequired={false}
+                  >
                     <Textarea
                       className="h-[175px] pt-6 pr-3 pb-2 pl-3 border-gray-300"
                       value={formData.description}
