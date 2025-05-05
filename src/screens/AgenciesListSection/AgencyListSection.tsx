@@ -121,8 +121,6 @@ const csvConfig = {
     "City",
     "Postal Code",
     "Phone Number",
-    "Latitude",
-    "Longitude",
     "Store Region",
   ],
   sheetName: "Agencies",

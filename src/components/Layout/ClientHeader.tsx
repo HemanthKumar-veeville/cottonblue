@@ -1,4 +1,4 @@
-import { BellIcon, ShoppingCartIcon, UserIcon } from "lucide-react";
+import { BellIcon, SearchIcon, ShoppingCartIcon, UserIcon } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { useTranslation } from "react-i18next";
 import { useAppSelector, useAppDispatch } from "../../store/store";
@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import { Input } from "../ui/input";
 import { useEffect } from "react";
 import {
   fetchAllStores,
@@ -88,21 +89,46 @@ export const ClientHeader = () => {
   };
 
   return (
-    <div className="flex w-full items-center justify-end gap-[182px] px-8 py-4 bg-defaultwhite border-b border-1-tokens-color-modes-common-neutral-lower">
-      <div className="inline-flex items-center gap-4 relative flex-[0_0_auto] ml-[-7.00px]">
-        <div className="flex w-[641px] gap-4 items-center relative">
+    <div className="sticky top-0 z-50 flex w-full min-w-[320px] items-center justify-between px-4 md:px-6 lg:px-8 py-3 bg-defaultwhite border-b border-1-tokens-color-modes-common-neutral-lower shadow-sm backdrop-blur-sm bg-white/90">
+      {/* Left section with search and store selector */}
+      <div className="flex items-center gap-4 w-full max-w-[800px]">
+        {/* Search Bar */}
+        <div className="relative w-[60%] min-w-[180px] group">
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder={t("clientHeader.search.placeholder")}
+              className="w-full h-11 pl-11 pr-4 rounded-md border-[color:var(--1-tokens-color-modes-input-primary-default-border)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] hover:border-gray-400 focus:border-gray-400 focus:ring-0 outline-none transition-all duration-200"
+            />
+            <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
+          </div>
+          {/* Search tooltip */}
+          <div className="absolute hidden group-hover:block -bottom-1 left-0 transform translate-y-full px-3 py-2 bg-gray-800 text-white text-xs rounded-md whitespace-nowrap">
+            {t("clientHeader.search.tooltip")}
+          </div>
+        </div>
+
+        {/* Store Selector */}
+        <div className="w-[40%] min-w-[160px]">
           <Select
             value={selectedStore || "all"}
             onValueChange={handleStoreChange}
           >
-            <SelectTrigger className="w-[400px] border-[color:var(--1-tokens-color-modes-input-primary-default-border)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)]">
+            <SelectTrigger className="w-full h-11 px-4 rounded-md border-[color:var(--1-tokens-color-modes-input-primary-default-border)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] hover:border-gray-400 focus:border-gray-400 focus:ring-0 outline-none transition-all duration-200">
               <SelectValue>{getCurrentStoreName()}</SelectValue>
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent
+              className="max-h-[300px] overflow-y-auto rounded-md bg-white shadow-lg border-0 outline-none ring-0 focus:ring-0"
+              style={{ border: "none" }}
+            >
               {isAdmin ? (
                 <>
                   {storeList?.map((store) => (
-                    <SelectItem key={store.id} value={store.id}>
+                    <SelectItem
+                      key={store.id}
+                      value={store.id}
+                      className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors duration-150 focus:bg-transparent active:bg-gray-50 outline-none ring-0 focus:ring-0"
+                    >
                       {store.name}
                     </SelectItem>
                   ))}
@@ -110,7 +136,11 @@ export const ClientHeader = () => {
               ) : (
                 <>
                   {storeIds.map((store) => (
-                    <SelectItem key={store.store_id} value={store.store_id}>
+                    <SelectItem
+                      key={store.store_id}
+                      value={store.store_id}
+                      className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors duration-150 focus:bg-transparent active:bg-gray-50 outline-none ring-0 focus:ring-0"
+                    >
                       {store.store_name}
                     </SelectItem>
                   ))}
@@ -120,44 +150,63 @@ export const ClientHeader = () => {
           </Select>
         </div>
       </div>
-      <div className="inline-flex items-center gap-4 relative flex-[0_0_auto]">
-        <div className="inline-flex justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-larger-gap)] p-[var(--2-tokens-screen-modes-common-spacing-XS)] bg-[color:var(--1-tokens-color-modes-background-secondary)] items-center relative flex-[0_0_auto] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)]">
-          <div className="flex w-[var(--2-tokens-screen-modes-sizes-button-input-nav-larger-line-height)] h-[var(--2-tokens-screen-modes-sizes-button-input-nav-larger-line-height)] items-center justify-center p-0.5 relative">
-            <UserIcon className="w-6 h-6" />
+
+      {/* Right Section - User Profile, Notifications, Cart */}
+      <div className="flex items-center gap-3 md:gap-4 ml-4">
+        {/* User Profile */}
+        <div className="group relative">
+          <div className="inline-flex justify-center items-center p-2.5 md:p-3 bg-[color:var(--1-tokens-color-modes-background-secondary)] rounded-md hover:bg-gray-100 active:bg-gray-200 transition-all duration-200">
+            <div className="flex items-center gap-3">
+              <UserIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+              <div className="inline-flex flex-col items-start justify-center">
+                <div className="text-xs text-gray-500 font-medium">
+                  {t("clientHeader.account.title")}
+                </div>
+                <div className="text-sm font-semibold text-gray-900">
+                  {userName}
+                </div>
+              </div>
+            </div>
           </div>
-          <div className="inline-flex flex-col items-start justify-center relative flex-[0_0_auto]">
-            <div className="relative self-stretch mt-[-1.00px] font-label-small font-[number:var(--label-small-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--label-small-font-size)] tracking-[var(--label-small-letter-spacing)] leading-[var(--label-small-line-height)] [font-style:var(--label-small-font-style)]">
-              {t("clientHeader.account.title")}
-            </div>
-            <div className="relative self-stretch font-label-medium font-[number:var(--label-medium-font-weight)] text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] [font-style:var(--label-medium-font-style)]">
-              {userName}
-            </div>
+          {/* User menu tooltip */}
+          <div className="absolute hidden group-hover:block -bottom-1 right-0 transform translate-y-full px-3 py-2 bg-gray-800 text-white text-xs rounded-md whitespace-nowrap">
+            {t("clientHeader.account.tooltip")}
           </div>
         </div>
-        <div className="inline-flex justify-center gap-2 flex-[0_0_auto] items-center relative">
-          <div className="inline-flex h-12 items-center justify-center gap-4 px-3 py-4 relative flex-[0_0_auto]">
-            <BellIcon className="w-6 h-6 mt-[-4.00px] mb-[-4.00px]" />
-            <Badge className="absolute top-2 left-6 bg-defaultalert rounded-xl">
+
+        {/* Notifications */}
+        <div className="group relative">
+          <div className="relative p-2.5 md:p-3 hover:bg-gray-100 active:bg-gray-200 rounded-md transition-all duration-200">
+            <BellIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+            <Badge className="absolute -top-1 -right-1 min-w-[20px] h-[20px] flex items-center justify-center bg-defaultalert text-white text-xs font-semibold rounded-full">
               9
             </Badge>
           </div>
+          {/* Notifications tooltip */}
+          <div className="absolute hidden group-hover:block -bottom-1 right-0 transform translate-y-full px-3 py-2 bg-gray-800 text-white text-xs rounded-md whitespace-nowrap">
+            {t("clientHeader.notifications.tooltip")}
+          </div>
+        </div>
+
+        {/* Cart */}
+        <div className="group relative">
           <div
-            className="inline-flex justify-end gap-4 flex-[0_0_auto] items-center relative cursor-pointer"
+            className="relative flex items-center gap-2 p-2.5 md:p-3 hover:bg-gray-100 active:bg-gray-200 rounded-md transition-all duration-200 cursor-pointer"
             onClick={() => navigate("/cart")}
           >
-            <div className="inline-flex h-12 items-center justify-center gap-4 px-2 py-4 relative flex-[0_0_auto]">
-              <ShoppingCartIcon className="w-6 h-6 mt-[-4.00px] mb-[-4.00px]" />
-              <div className="inline-flex items-center justify-center relative flex-[0_0_auto] mt-[-4.00px] mb-[-4.00px]">
-                <div className="relative w-fit mt-[-1.00px] font-text-medium font-[number:var(--text-medium-font-weight)] text-1-tokens-color-modes-common-neutral-highter text-[length:var(--text-medium-font-size)] tracking-[var(--text-medium-letter-spacing)] leading-[var(--text-medium-line-height)] whitespace-nowrap [font-style:var(--text-medium-font-style)]">
-                  {t("clientHeader.cart")}
-                </div>
-              </div>
-              {cartItemCount > 0 && (
-                <Badge className="absolute top-2 left-6 bg-defaultalert rounded-xl">
-                  {cartItemCount}
-                </Badge>
-              )}
-            </div>
+            <ShoppingCartIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
+            <span className="inline-block text-sm font-semibold text-gray-900 whitespace-nowrap">
+              {t("clientHeader.cart")}
+            </span>
+            {cartItemCount > 0 && (
+              <Badge className="absolute -top-1 -right-1 min-w-[20px] h-[20px] flex items-center justify-center bg-defaultalert text-white text-xs font-semibold rounded-full">
+                {cartItemCount}
+              </Badge>
+            )}
+          </div>
+          {/* Cart tooltip */}
+          <div className="absolute hidden group-hover:block -bottom-1 right-0 transform translate-y-full px-3 py-2 bg-gray-800 text-white text-xs rounded-md whitespace-nowrap">
+            {t("clientHeader.cart.tooltip")}
           </div>
         </div>
       </div>
