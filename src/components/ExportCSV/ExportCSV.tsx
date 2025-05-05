@@ -11,12 +11,12 @@ interface Product {
   name: string;
   description: string;
   price: number;
-  stock: number;
+  total_stock: number;
   available_region: string;
   created_at: string;
   updated_at: string;
   company_id: number;
-  product_image: string;
+  product_image: string | null;
   is_active: boolean;
 }
 
@@ -28,11 +28,12 @@ interface ExportCSVProps {
 }
 
 const headerDisplayNames = {
+  id: "Product ID",
   name: "Product Name",
   description: "Product Description",
   price: "Product Price",
   available_region: "Available Region",
-  stock: "Total Stock",
+  total_stock: "Total Stock",
 };
 
 const FieldCheckbox = ({
@@ -65,11 +66,12 @@ export const ExportCSV = ({
 }: ExportCSVProps) => {
   const { t } = useTranslation();
   const [selectedFields, setSelectedFields] = useState({
+    id: true,
     name: true,
     description: true,
     price: true,
     available_region: true,
-    stock: true,
+    total_stock: true,
   });
 
   const handleExport = () => {
@@ -77,13 +79,15 @@ export const ExportCSV = ({
       // Filter products data based on selected fields
       const exportData = products.map((product) => {
         const filteredProduct: Record<string, any> = {};
+        if (selectedFields.id) filteredProduct.id = product.id;
         if (selectedFields.name) filteredProduct.name = product.name;
         if (selectedFields.description)
           filteredProduct.description = product.description;
         if (selectedFields.price) filteredProduct.price = product.price;
         if (selectedFields.available_region)
           filteredProduct.available_region = product.available_region;
-        if (selectedFields.stock) filteredProduct.stock = product.stock;
+        if (selectedFields.total_stock)
+          filteredProduct.total_stock = product.total_stock;
         return filteredProduct;
       });
 
