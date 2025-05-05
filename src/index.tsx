@@ -42,6 +42,7 @@ import UserDetails from "./screens/UserDetails/UserDetails";
 import ClientSettings from "./screens/ClientSettings/ClientSettings";
 import SuperAdminOrderHistory from "./screens/SuperAdminOrderHistory/SuperAdminOrderHistory";
 import SuperAdminOrderDetails from "./screens/SuperAdminOrderDetails/SuperAdminOrderDetails";
+import SuperAdminSettings from "./screens/SuperAdminSettings/SuperAdminSettings";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
@@ -127,7 +128,7 @@ function App() {
                 element={<AgencyDetails />}
               />
               <Route path="support/tickets" element={<Tickets />} />
-              <Route path="settings" element={<ComingSoon />} />
+              <Route path="settings" element={<SuperAdminSettings />} />
               <Route path="logout" element={<ComingSoon />} />
               <Route path="analytics" element={<ComingSoon />} />
               <Route path="reports" element={<ComingSoon />} />

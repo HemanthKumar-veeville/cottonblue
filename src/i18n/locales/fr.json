@@ -682,5 +682,32 @@
       "addError": "Échec de l'ajout de l'utilisateur",
       "updateError": "Échec de la mise à jour de l'utilisateur"
     }
+  },
+  "superAdminSettings": {
+    "title": "Paramètres Super Admin",
+    "emailConfig": "Configuration Email",
+    "systemSettings": "Paramètres Système",
+    "smtpHost": "Hôte SMTP",
+    "smtpPort": "Port SMTP",
+    "smtpUsername": "Nom d'utilisateur SMTP",
+    "smtpPassword": "Mot de passe SMTP",
+    "senderEmail": "Email d'expéditeur",
+    "maintenanceMode": "Mode Maintenance",
+    "maintenanceModeDesc": "Mettre le site en mode maintenance",
+    "registration": "Inscription Utilisateur",
+    "registrationDesc": "Autoriser les nouvelles inscriptions",
+    "notifications": "Notifications",
+    "notificationsDesc": "Activer les notifications système",
+    "emailNotif": "Notifications Email",
+    "emailNotifDesc": "Envoyer les notifications par email",
+    "backup": "Sauvegarde Auto",
+    "backupDesc": "Activer les sauvegardes automatiques",
+    "debug": "Mode Debug",
+    "debugDesc": "Activer le mode debug pour le développement",
+    "saveChanges": "Enregistrer les modifications",
+    "messages": {
+      "saveSuccess": "Paramètres enregistrés avec succès !",
+      "saveError": "Échec de l'enregistrement des paramètres"
+    }
   }
 }

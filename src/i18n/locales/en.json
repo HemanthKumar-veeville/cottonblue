@@ -661,5 +661,32 @@
       "addError": "Failed to add user",
       "updateError": "Failed to update user"
     }
+  },
+  "superAdminSettings": {
+    "title": "Super Admin Settings",
+    "emailConfig": "Email Configuration",
+    "systemSettings": "System Settings",
+    "smtpHost": "SMTP Host",
+    "smtpPort": "SMTP Port",
+    "smtpUsername": "SMTP Username",
+    "smtpPassword": "SMTP Password",
+    "senderEmail": "Sender Email",
+    "maintenanceMode": "Maintenance Mode",
+    "maintenanceModeDesc": "Put the site in maintenance mode",
+    "registration": "User Registration",
+    "registrationDesc": "Allow new user registrations",
+    "notifications": "Notifications",
+    "notificationsDesc": "Enable system notifications",
+    "emailNotif": "Email Notifications",
+    "emailNotifDesc": "Send notifications via email",
+    "backup": "Auto Backup",
+    "backupDesc": "Enable automatic system backups",
+    "debug": "Debug Mode",
+    "debugDesc": "Enable debug mode for development",
+    "saveChanges": "Save Changes",
+    "messages": {
+      "saveSuccess": "Settings saved successfully!",
+      "saveError": "Failed to save settings"
+    }
   }
 }
