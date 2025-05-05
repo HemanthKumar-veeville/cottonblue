@@ -584,6 +584,13 @@
     "noSearchResults": "Aucune agence ne correspond à vos critères de recherche.",
     "clearSearch": "Effacer la recherche"
   },
+  "exportModal": {
+    "title": "Exportation des agences",
+    "description": "Exportez les agences en format CSV",
+    "download": "Télécharger le fichier CSV",
+    "cancel": "Annuler",
+    "export": "Exporter"
+  },
   "addAgency": {
     "title": {
       "add": "Ajouter une agence",

@@ -54,9 +54,10 @@ axiosInstance.interceptors.response.use(
       if (error.config.url?.includes('addToCart')) {
         return Promise.reject(error);
       }
+      
       // The request was made and the server responded with a status code
       // that falls out of the range of 2xx
-      errorMessage = error.response.data?.message || error.response.data?.error || errorMessage;
+      errorMessage = error.response.data?.detail || error.response.data?.message || error.response.data?.error || errorMessage;
       
       // Handle specific status codes
       switch (error.response.status) {

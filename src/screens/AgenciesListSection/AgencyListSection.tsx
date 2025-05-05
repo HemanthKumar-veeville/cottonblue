@@ -9,6 +9,7 @@ import {
   CSVModalProps,
 } from "../../components/CSVModals/withCSVModals";
 import { useNavigate } from "react-router-dom";
+import { AgencyExportCSV } from "../../components/ExportCSV/AgencyExportCSV";
 
 interface Agency {
   id: number;
@@ -34,12 +35,12 @@ const AgencyListSectionBase = ({
   onSearch,
   agencies,
   setIsImportModalOpen,
-  setIsExportModalOpen,
 }: AgencyListSectionProps & CSVModalProps): JSX.Element => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,9 +51,19 @@ const AgencyListSectionBase = ({
 
   // Handle add agency button click
   const handleAddAgency = () => {
-    // This would typically open a modal or navigate to a form
     navigate("/agencies/add");
   };
+
+  const templateColumns = [
+    "Store Name",
+    "Store Address",
+    "City",
+    "Postal Code",
+    "Phone Number",
+    "Store Region",
+    "Order Limit",
+    "Budget Limit",
+  ];
 
   return (
     <section className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
@@ -109,6 +120,13 @@ const AgencyListSectionBase = ({
           </Button>
         </div>
       </div>
+
+      <AgencyExportCSV
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        agencies={agencies}
+        sheetName="Agencies"
+      />
     </section>
   );
 };
@@ -122,6 +140,8 @@ const csvConfig = {
     "Postal Code",
     "Phone Number",
     "Store Region",
+    "Order Limit",
+    "Budget Limit",
   ],
   sheetName: "Agencies",
   importEndpoint: "/api/agencies/import",

@@ -563,6 +563,13 @@
     "noSearchResults": "No agencies match your search criteria.",
     "clearSearch": "Clear Search"
   },
+  "exportModal": {
+    "title": "Export Agencies",
+    "export": "Export",
+    "description": "Export agencies in CSV format",
+    "download": "Download CSV file",
+    "cancel": "Cancel"
+  },
   "addAgency": {
     "title": {
       "add": "Add an Agency",
