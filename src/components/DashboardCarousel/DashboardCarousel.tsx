@@ -7,9 +7,9 @@ import { getHost } from "../../utils/hostUtils";
 const CarouselSkeleton = () => {
   return (
     <div className="flex flex-col items-center justify-center gap-2.5 w-full mb-8">
-      <div className="flex h-64 items-center justify-center w-full rounded-[var(--2-tokens-screen-modes-button-border-radius)] [background:linear-gradient(0deg,rgba(242,237,227,1)_0%,rgba(242,237,227,1)_100%)] overflow-hidden">
-        <div className="w-full h-full flex items-center justify-center animate-pulse">
-          <div className="w-[255px] h-[255px] bg-gray-200 rounded-lg"></div>
+      <div className="flex h-[400px] items-center justify-center w-full rounded-[var(--2-tokens-screen-modes-button-border-radius)] [background:linear-gradient(0deg,rgba(242,237,227,1)_0%,rgba(242,237,227,1)_100%)] overflow-hidden">
+        <div className="h-full flex items-center justify-center animate-pulse px-8">
+          <div className="h-full w-[600px] bg-gray-200 rounded-lg"></div>
         </div>
       </div>
       <div className="inline-flex items-start gap-[var(--2-tokens-screen-modes-common-spacing-m)] relative flex-[0_0_auto]">
@@ -71,17 +71,17 @@ export const DashboardCarousel = (): JSX.Element => {
 
   return (
     <div className="flex flex-col items-center justify-center gap-2.5 w-full mb-8">
-      <div className="flex h-64 items-center justify-center w-full rounded-[var(--2-tokens-screen-modes-button-border-radius)] [background:linear-gradient(0deg,rgba(242,237,227,1)_0%,rgba(242,237,227,1)_100%)] overflow-hidden">
-        <div className="flex w-full h-full items-center justify-center">
+      <div className="flex h-[300px] items-center justify-center w-full rounded-[var(--2-tokens-screen-modes-button-border-radius)] [background:linear-gradient(0deg,rgba(242,237,227,1)_0%,rgba(242,237,227,1)_100%)] overflow-hidden">
+        <div className="flex h-full items-center justify-center">
           {imageUrls.map((imageUrl, index) => (
             <div
               key={index}
-              className={`flex items-center justify-center transition-all duration-500 ease-in-out ${
+              className={`flex h-full items-center justify-center transition-all duration-500 ease-in-out ${
                 currentSlide === index ? "block" : "hidden"
               }`}
             >
               <img
-                className="w-[255px] h-auto"
+                className="h-full w-auto object-contain"
                 alt={`Banner image ${index + 1}`}
                 src={imageUrl}
               />
