@@ -14,7 +14,8 @@ import { PlusCircle, Upload, User } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
 import { HexColorPicker } from "react-colorful";
 import { useNavigate, useLocation } from "react-router-dom";
-import { toast } from "sonner";
+import toast from "react-hot-toast";
+
 import { cn } from "../../lib/utils";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -74,12 +75,14 @@ const LabeledInput = ({
   type = "text",
   disabled = false,
   onChange,
+  required = false,
 }: {
   label: string;
   defaultValue: string;
   type?: string;
   disabled?: boolean;
   onChange?: (value: string) => void;
+  required?: boolean;
 }) => (
   <div className="relative w-full pt-2">
     <Input
@@ -88,9 +91,11 @@ const LabeledInput = ({
       defaultValue={defaultValue}
       disabled={disabled}
       onChange={(e) => onChange?.(e.target.value)}
+      required={required}
     />
     <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
       {label}
+      {required && <span className="text-red-500 ml-1">*</span>}
     </span>
   </div>
 );
@@ -129,10 +134,12 @@ const ColorPicker = ({
   color,
   onChange,
   label,
+  required = false,
 }: {
   color: string;
   onChange: (color: string) => void;
   label: string;
+  required?: boolean;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
@@ -158,7 +165,10 @@ const ColorPicker = ({
       className="flex flex-col items-center gap-1.5 relative"
       ref={pickerRef}
     >
-      <p className="text-xs font-label-small text-[#475569]">{label}</p>
+      <p className="text-xs font-label-small text-[#475569]">
+        {label}
+        {required && <span className="text-red-500 ml-1">*</span>}
+      </p>
       <div
         className="w-[50px] h-[50px] rounded-md border cursor-pointer"
         style={{ backgroundColor: color }}
@@ -401,7 +411,15 @@ const ClientForm = () => {
       toast.success(
         isEditMode
           ? t("addClient.messages.clientUpdatedSuccess")
-          : t("addClient.messages.clientAddedSuccess")
+          : t("addClient.messages.clientAddedSuccess"),
+        {
+          duration: 5000,
+          position: "top-right",
+          style: {
+            background: "#10B981", // Green color
+            color: "#fff",
+          },
+        }
       );
       navigate("/customers");
     }
@@ -410,7 +428,14 @@ const ClientForm = () => {
   // Handle error state
   useEffect(() => {
     if (error) {
-      toast.error(error);
+      toast.error(error, {
+        duration: 6000,
+        position: "top-right",
+        style: {
+          background: "#EF4444", // Red color
+          color: "#fff",
+        },
+      });
     }
   }, [error]);
 
@@ -438,15 +463,63 @@ const ClientForm = () => {
 
   const handleNext = async () => {
     // Validate required fields
-    if (
-      !formData.name ||
-      !formData.location.city ||
-      !formData.location.address ||
-      !formData.passwords.admin ||
-      !formData.passwords.client ||
-      !formData.validation.email
-    ) {
-      toast.error(t("addClient.messages.requiredFields"));
+    const requiredFields = [
+      { value: formData.name, name: t("addClient.fields.client") },
+      {
+        value: formData.location.category,
+        name: t("addClient.fields.clientCategory"),
+      },
+      { value: formData.location.city, name: t("addClient.fields.city") },
+      { value: formData.location.address, name: t("addClient.fields.address") },
+      {
+        value: formData.location.postalCode,
+        name: t("addClient.fields.postalCode"),
+      },
+      {
+        value: formData.passwords.admin,
+        name: t("addClient.fields.adminPassword"),
+      },
+      {
+        value: formData.passwords.client,
+        name: t("addClient.fields.clientPassword"),
+      },
+      {
+        value: formData.validation.email,
+        name: t("addClient.fields.validationEmail"),
+      },
+      {
+        value: formData.brandColors.background,
+        name: t("addClient.fields.background"),
+      },
+      { value: formData.brandColors.text, name: t("addClient.fields.text") },
+    ];
+
+    const missingFields = requiredFields?.filter(
+      (field) => !field?.value?.trim()
+    );
+
+    // Check for logo separately since it's not a string value
+    if (!logoFile) {
+      toast.error(t("addClient.messages.requiredFields"), {
+        duration: 6000,
+        position: "top-right",
+        style: {
+          background: "#EF4444",
+          color: "#fff",
+        },
+      });
+      return;
+    }
+
+    if (missingFields.length > 0) {
+      toast.error(t("addClient.messages.requiredFields"), {
+        duration: 6000,
+        position: "top-right",
+        style: {
+          background: "#EF4444",
+          color: "#fff",
+        },
+      });
       return;
     }
 
@@ -462,6 +535,12 @@ const ClientForm = () => {
       dns_prefix: formData.name.toLowerCase().replace(/\s+/g, "-"),
       Admin_email: formData.validation.email,
       Admin_password: formData.passwords.admin,
+      order_limit_enabled: formData.limits.order.enabled,
+      order_limit_value: formData.limits.order.value,
+      order_limit_period: formData.limits.order.period,
+      budget_limit_enabled: formData.limits.budget.enabled,
+      budget_limit_value: formData.limits.budget.value,
+      budget_limit_period: formData.limits.budget.period,
     };
 
     if (isEditMode) {
@@ -498,10 +577,12 @@ const ClientForm = () => {
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
+                  required
                 />
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
                 <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
                   {t("addClient.fields.client")}
+                  <span className="text-red-500 ml-1">*</span>
                 </span>
               </div>
               <p className="text-xs font-text-smaller text-[#475569]">
@@ -520,6 +601,7 @@ const ClientForm = () => {
                 className="hidden"
                 accept="image/*"
                 onChange={handleLogoUpload}
+                required
               />
               <LabeledButton
                 label={t("addClient.fields.brandLogo")}
@@ -528,6 +610,7 @@ const ClientForm = () => {
               />
               <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
                 {t("addClient.fields.brandLogo")}
+                <span className="text-red-500 ml-1">*</span>
               </span>
               {logoPreview && (
                 <div className="mt-2 flex items-center gap-2">
@@ -557,6 +640,7 @@ const ClientForm = () => {
               <div className="border p-6 flex flex-col gap-6">
                 <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
                   {t("addClient.fields.brandColor")}
+                  <span className="text-red-500 ml-1">*</span>
                 </span>
                 <div className="flex items-center justify-between gap-6">
                   <div className="flex items-center gap-6">
@@ -566,11 +650,13 @@ const ClientForm = () => {
                         handleColorChange("background", color)
                       }
                       label={t("addClient.fields.background")}
+                      required
                     />
                     <ColorPicker
                       color={formData.brandColors.text}
                       onChange={(color) => handleColorChange("text", color)}
                       label={t("addClient.fields.text")}
+                      required
                     />
                   </div>
                   <div className="h-12 w-px bg-gray-300 rounded-full" />
@@ -660,6 +746,7 @@ const ClientForm = () => {
                         location: { ...prev.location, category: value },
                       }))
                     }
+                    required
                   >
                     <SelectTrigger
                       className={cn(
@@ -679,6 +766,7 @@ const ClientForm = () => {
                   </Select>
                   <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
                     {t("addClient.fields.clientCategory")}
+                    <span className="text-red-500 ml-1">*</span>
                   </span>
                 </div>
 
@@ -693,6 +781,7 @@ const ClientForm = () => {
                           location: { ...prev.location, postalCode: value },
                         }))
                       }
+                      required
                     />
                     <LabeledInput
                       label={t("addClient.fields.city")}
@@ -703,6 +792,7 @@ const ClientForm = () => {
                           location: { ...prev.location, city: value },
                         }))
                       }
+                      required
                     />
                   </div>
 
@@ -715,6 +805,7 @@ const ClientForm = () => {
                         location: { ...prev.location, address: value },
                       }))
                     }
+                    required
                   />
 
                   <div className="relative w-full">
@@ -900,6 +991,7 @@ const ClientForm = () => {
                         passwords: { ...prev.passwords, admin: value },
                       }))
                     }
+                    required
                   />
                   <LabeledInput
                     label={t("addClient.fields.clientPassword")}
@@ -911,6 +1003,7 @@ const ClientForm = () => {
                         passwords: { ...prev.passwords, client: value },
                       }))
                     }
+                    required
                   />
                 </div>
 
@@ -923,6 +1016,7 @@ const ClientForm = () => {
                       validation: { ...prev.validation, email: value },
                     }))
                   }
+                  required
                 />
               </div>
             </div>

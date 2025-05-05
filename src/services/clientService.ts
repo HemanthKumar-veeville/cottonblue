@@ -39,7 +39,7 @@ export const clientService = {
   registerClient: async (data: ClientRegistrationData) => {
     // Create FormData object to handle file upload
     const formData = new FormData();
-    
+
     // Add all required fields to FormData
     formData.append('company_name', data.company_name);
     formData.append('company_address', data.company_address);
@@ -55,6 +55,12 @@ export const clientService = {
     // Add optional fields with default values if not provided
     formData.append('Admin_fname', data.Admin_fname || 'Admin');
     formData.append('Admin_lname', data.Admin_lname || data.company_name);
+    formData.append('order_limit_enabled', data.order_limit_enabled);
+    formData.append('order_limit_period', data.order_limit_period);
+    formData.append('order_limit_value', data.order_limit_value);
+    formData.append('budget_limit_enabled', data.budget_limit_enabled);
+    formData.append('budget_limit_period', data.budget_limit_period);
+    formData.append('budget_limit_value', data.budget_limit_value);
     
     // Make API request to register client
     return axiosInstance.post(`/${data.dns_prefix}/client/register`, formData, {
