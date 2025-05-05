@@ -326,7 +326,8 @@
       "placeholder": "If you would like to add a comment about your order, please write it here."
     },
     "buttons": {
-      "validateOrder": "Validate order"
+      "validateOrder": "Validate order",
+      "processing": "Processing..."
     },
     "empty": {
       "title": "Your cart is empty",

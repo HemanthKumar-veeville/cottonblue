@@ -326,7 +326,8 @@
       "placeholder": "Si vous souhaitez ajouter un commentaire sur votre commande, veuillez l'écrire ici."
     },
     "buttons": {
-      "validateOrder": "Valider la commande"
+      "validateOrder": "Valider la commande",
+      "processing": "En cours de traitement..."
     },
     "empty": {
       "title": "Votre panier est vide",
