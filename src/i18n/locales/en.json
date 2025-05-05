@@ -10,7 +10,12 @@
     "save": "Save",
     "success": "Success",
     "error": "Error",
-    "notAvailable": "Not Available"
+    "notAvailable": "Not Available",
+    "remove": "Remove",
+    "day": "Day",
+    "week": "Week",
+    "month": "Month",
+    "year": "Year"
   },
   "header": {
     "adminManagement": "Admin Management",
@@ -687,6 +692,47 @@
     "messages": {
       "saveSuccess": "Settings saved successfully!",
       "saveError": "Failed to save settings"
+    }
+  },
+  "addClient": {
+    "title": {
+      "add": "Add a Client",
+      "edit": "Edit Client"
+    },
+    "fields": {
+      "client": "Client",
+      "brandLogo": "Brand logo",
+      "brandColor": "Brand colour",
+      "background": "Background",
+      "text": "Text",
+      "minimumContrast": "Minimum contrast (4.5:1)",
+      "optimalContrast": "Optimal contrast (7:1)",
+      "colorPreview": "Colour preview",
+      "clientLocation": "Client location",
+      "locationDescription": "To create the client, you must provide at least one location.",
+      "clientCategory": "Client Category",
+      "postalCode": "Postal code",
+      "city": "City",
+      "address": "Address",
+      "addressComment": "Address comment",
+      "addressCommentPlaceholder": "Example: Building number 2",
+      "orderLimit": "Order limit",
+      "budgetLimit": "Budget limit",
+      "limit": "Limit",
+      "per": "Per",
+      "adminPassword": "ADMIN password",
+      "clientPassword": "CLIENT password",
+      "validationEmail": "N+1 validation email"
+    },
+    "buttons": {
+      "login": "Login",
+      "addClient": "Add a client"
+    },
+    "messages": {
+      "urlPreview": "The link will be:",
+      "requiredFields": "Please fill in all required fields",
+      "clientAddedSuccess": "Client added successfully!",
+      "clientUpdatedSuccess": "Client updated successfully!"
     }
   }
 }

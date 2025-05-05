@@ -400,12 +400,12 @@ const ClientForm = () => {
     if (success) {
       toast.success(
         isEditMode
-          ? "Client updated successfully!"
-          : "Client added successfully!"
+          ? t("addClient.messages.clientUpdatedSuccess")
+          : t("addClient.messages.clientAddedSuccess")
       );
       navigate("/customers");
     }
-  }, [success, navigate, isEditMode]);
+  }, [success, navigate, isEditMode, t]);
 
   // Handle error state
   useEffect(() => {
@@ -446,7 +446,7 @@ const ClientForm = () => {
       !formData.passwords.client ||
       !formData.validation.email
     ) {
-      toast.error("Please fill in all required fields");
+      toast.error(t("addClient.messages.requiredFields"));
       return;
     }
 
@@ -483,7 +483,7 @@ const ClientForm = () => {
     <div className="flex flex-col min-h-[854px] gap-8 p-6 bg-white rounded-lg overflow-hidden">
       <header className="inline-flex items-center gap-2">
         <h1 className="font-heading-h3 text-[20px] font-bold leading-[28px] text-[#475569]">
-          {isEditMode ? "Edit Client" : "Add a Client"}
+          {isEditMode ? t("addClient.title.edit") : t("addClient.title.add")}
         </h1>
       </header>
 
@@ -501,11 +501,11 @@ const ClientForm = () => {
                 />
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
                 <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
-                  Client
+                  {t("addClient.fields.client")}
                 </span>
               </div>
               <p className="text-xs font-text-smaller text-[#475569]">
-                The link will be:{" "}
+                {t("addClient.messages.urlPreview")}{" "}
                 {formData.url ||
                   `https://${formData.name
                     .toLowerCase()
@@ -522,12 +522,12 @@ const ClientForm = () => {
                 onChange={handleLogoUpload}
               />
               <LabeledButton
-                label="Add a logo"
+                label={t("addClient.fields.brandLogo")}
                 icon={Upload}
                 onClick={() => fileInputRef.current?.click()}
               />
               <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
-                Brand logo
+                {t("addClient.fields.brandLogo")}
               </span>
               {logoPreview && (
                 <div className="mt-2 flex items-center gap-2">
@@ -547,7 +547,7 @@ const ClientForm = () => {
                       }
                     }}
                   >
-                    Remove
+                    {t("common.remove")}
                   </Button>
                 </div>
               )}
@@ -556,7 +556,7 @@ const ClientForm = () => {
             <div className="relative w-full">
               <div className="border p-6 flex flex-col gap-6">
                 <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
-                  Brand colour
+                  {t("addClient.fields.brandColor")}
                 </span>
                 <div className="flex items-center justify-between gap-6">
                   <div className="flex items-center gap-6">
@@ -565,12 +565,12 @@ const ClientForm = () => {
                       onChange={(color) =>
                         handleColorChange("background", color)
                       }
-                      label="Background"
+                      label={t("addClient.fields.background")}
                     />
                     <ColorPicker
                       color={formData.brandColors.text}
                       onChange={(color) => handleColorChange("text", color)}
-                      label="Text"
+                      label={t("addClient.fields.text")}
                     />
                   </div>
                   <div className="h-12 w-px bg-gray-300 rounded-full" />
@@ -583,12 +583,12 @@ const ClientForm = () => {
                       return (
                         <>
                           <ContrastIndicator
-                            label="Minimum contrast (4.5:1)"
+                            label={t("addClient.fields.minimumContrast")}
                             isValid={contrastRatio >= 4.5}
                             ratio={contrastRatio}
                           />
                           <ContrastIndicator
-                            label="Optimal contrast (7:1)"
+                            label={t("addClient.fields.optimalContrast")}
                             isValid={contrastRatio >= 7}
                             ratio={contrastRatio}
                           />
@@ -610,7 +610,7 @@ const ClientForm = () => {
           <div className="h-0.5 bg-gray-300 rounded-full" />
 
           <div className="flex flex-col gap-4">
-            <SectionHeader title="Colour preview" />
+            <SectionHeader title={t("addClient.fields.colorPreview")} />
             <div className="border p-6 flex flex-col gap-4">
               <Button
                 className="w-[352px] border font-text-medium text-[16px] leading-[24px]"
@@ -620,7 +620,7 @@ const ClientForm = () => {
                   borderColor: "transparent",
                 }}
               >
-                Login
+                {t("addClient.buttons.login")}
               </Button>
               <Button
                 variant="secondary"
@@ -632,7 +632,7 @@ const ClientForm = () => {
                 }}
               >
                 <PlusCircle className="w-4 h-4 mr-2" />
-                Ajouter un client
+                {t("addClient.buttons.addClient")}
               </Button>
             </div>
           </div>
@@ -645,10 +645,9 @@ const ClientForm = () => {
             <div className="flex flex-col gap-6">
               <div className="flex flex-col gap-6">
                 <div className="flex flex-col gap-4">
-                  <SectionHeader title="Client location" />
+                  <SectionHeader title={t("addClient.fields.clientLocation")} />
                   <p className="font-text-medium text-[16px] leading-[24px] text-[#475569]">
-                    To create the client, you must provide at least one
-                    location.
+                    {t("addClient.fields.locationDescription")}
                   </p>
                 </div>
 
@@ -668,7 +667,9 @@ const ClientForm = () => {
                         "pt-4 pr-3 pb-2 pl-3 border-gray-300 min-h-[3.25rem]"
                       )}
                     >
-                      <SelectValue placeholder="Select category" />
+                      <SelectValue
+                        placeholder={t("addClient.fields.clientCategory")}
+                      />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="Agency">Agency</SelectItem>
@@ -677,14 +678,14 @@ const ClientForm = () => {
                     </SelectContent>
                   </Select>
                   <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
-                    Client Category
+                    {t("addClient.fields.clientCategory")}
                   </span>
                 </div>
 
                 <div className="flex flex-col gap-6">
                   <div className="flex gap-4">
                     <LabeledInput
-                      label="Postal code"
+                      label={t("addClient.fields.postalCode")}
                       defaultValue={formData.location.postalCode}
                       onChange={(value) =>
                         setFormData((prev) => ({
@@ -694,7 +695,7 @@ const ClientForm = () => {
                       }
                     />
                     <LabeledInput
-                      label="City"
+                      label={t("addClient.fields.city")}
                       defaultValue={formData.location.city}
                       onChange={(value) =>
                         setFormData((prev) => ({
@@ -706,7 +707,7 @@ const ClientForm = () => {
                   </div>
 
                   <LabeledInput
-                    label="Address"
+                    label={t("addClient.fields.address")}
                     defaultValue={formData.location.address}
                     onChange={(value) =>
                       setFormData((prev) => ({
@@ -719,7 +720,9 @@ const ClientForm = () => {
                   <div className="relative w-full">
                     <Textarea
                       className="min-h-[100px] font-text-medium text-[16px] leading-[24px]"
-                      placeholder="Example: Building number 2"
+                      placeholder={t(
+                        "addClient.fields.addressCommentPlaceholder"
+                      )}
                       defaultValue={formData.location.addressComment}
                       onChange={(e) =>
                         setFormData((prev) => ({
@@ -732,7 +735,7 @@ const ClientForm = () => {
                       }
                     />
                     <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
-                      Address comment
+                      {t("addClient.fields.addressComment")}
                     </span>
                   </div>
                 </div>
@@ -743,7 +746,7 @@ const ClientForm = () => {
               <div className="flex flex-col gap-6">
                 <div className="flex gap-4">
                   <LabeledButton
-                    label="Order limit"
+                    label={t("addClient.fields.orderLimit")}
                     icon={Checkbox}
                     checked={formData.limits.order.enabled}
                     onChange={(checked) =>
@@ -757,7 +760,7 @@ const ClientForm = () => {
                     }
                   />
                   <LabeledButton
-                    label="Budget limit"
+                    label={t("addClient.fields.budgetLimit")}
                     icon={Checkbox}
                     checked={formData.limits.budget.enabled}
                     onChange={(checked) =>
@@ -775,7 +778,7 @@ const ClientForm = () => {
                 <div className="flex gap-4">
                   <div className="flex items-center gap-3 flex-1">
                     <LabeledInput
-                      label="Limit"
+                      label={t("addClient.fields.limit")}
                       defaultValue={formData.limits.order.value}
                       onChange={(value) =>
                         setFormData((prev) => ({
@@ -788,7 +791,7 @@ const ClientForm = () => {
                       }
                     />
                     <span className="text-xs font-text-smaller text-[#475569]">
-                      Per
+                      {t("addClient.fields.per")}
                     </span>
                     <div className="relative flex-1">
                       <Select
@@ -812,10 +815,16 @@ const ClientForm = () => {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Day">Day</SelectItem>
-                          <SelectItem value="Week">Week</SelectItem>
-                          <SelectItem value="Month">Month</SelectItem>
-                          <SelectItem value="Year">Year</SelectItem>
+                          <SelectItem value="Day">{t("common.day")}</SelectItem>
+                          <SelectItem value="Week">
+                            {t("common.week")}
+                          </SelectItem>
+                          <SelectItem value="Month">
+                            {t("common.month")}
+                          </SelectItem>
+                          <SelectItem value="Year">
+                            {t("common.year")}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -823,7 +832,7 @@ const ClientForm = () => {
 
                   <div className="flex items-center gap-3 flex-1">
                     <LabeledInput
-                      label="Limit"
+                      label={t("addClient.fields.limit")}
                       defaultValue={formData.limits.budget.value}
                       disabled={!formData.limits.budget.enabled}
                       onChange={(value) =>
@@ -837,7 +846,7 @@ const ClientForm = () => {
                       }
                     />
                     <span className="text-xs font-text-smaller text-[#475569]">
-                      Per
+                      {t("addClient.fields.per")}
                     </span>
                     <div className="relative flex-1">
                       <Select
@@ -862,10 +871,16 @@ const ClientForm = () => {
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="Day">Day</SelectItem>
-                          <SelectItem value="Week">Week</SelectItem>
-                          <SelectItem value="Month">Month</SelectItem>
-                          <SelectItem value="Year">Year</SelectItem>
+                          <SelectItem value="Day">{t("common.day")}</SelectItem>
+                          <SelectItem value="Week">
+                            {t("common.week")}
+                          </SelectItem>
+                          <SelectItem value="Month">
+                            {t("common.month")}
+                          </SelectItem>
+                          <SelectItem value="Year">
+                            {t("common.year")}
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -876,7 +891,7 @@ const ClientForm = () => {
               <div className="flex flex-col gap-6">
                 <div className="flex gap-4">
                   <LabeledInput
-                    label="ADMIN password"
+                    label={t("addClient.fields.adminPassword")}
                     defaultValue={formData.passwords.admin}
                     type="password"
                     onChange={(value) =>
@@ -887,7 +902,7 @@ const ClientForm = () => {
                     }
                   />
                   <LabeledInput
-                    label="CLIENT password"
+                    label={t("addClient.fields.clientPassword")}
                     defaultValue={formData.passwords.client}
                     type="password"
                     onChange={(value) =>
@@ -900,7 +915,7 @@ const ClientForm = () => {
                 </div>
 
                 <LabeledInput
-                  label="N+1 validation email"
+                  label={t("addClient.fields.validationEmail")}
                   defaultValue={formData.validation.email}
                   onChange={(value) =>
                     setFormData((prev) => ({

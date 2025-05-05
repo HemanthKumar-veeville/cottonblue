@@ -10,7 +10,12 @@
     "save": "Enregistrer",
     "success": "Succès",
     "error": "Erreur",
-    "notAvailable": "Non disponible"
+    "notAvailable": "Non disponible",
+    "remove": "Supprimer",
+    "day": "Jour",
+    "week": "Semaine",
+    "month": "Mois",
+    "year": "Année"
   },
   "header": {
     "adminManagement": "Gestion des administrateurs",
@@ -708,6 +713,47 @@
     "messages": {
       "saveSuccess": "Paramètres enregistrés avec succès !",
       "saveError": "Échec de l'enregistrement des paramètres"
+    }
+  },
+  "addClient": {
+    "title": {
+      "add": "Ajouter un client",
+      "edit": "Modifier le client"
+    },
+    "fields": {
+      "client": "Client",
+      "brandLogo": "Logo de la marque",
+      "brandColor": "Couleur de la marque",
+      "background": "Arrière-plan",
+      "text": "Texte",
+      "minimumContrast": "Contraste minimum (4.5:1)",
+      "optimalContrast": "Contraste optimal (7:1)",
+      "colorPreview": "Aperçu des couleurs",
+      "clientLocation": "Localisation du client",
+      "locationDescription": "Pour créer le client, vous devez fournir au moins une localisation.",
+      "clientCategory": "Catégorie du client",
+      "postalCode": "Code postal",
+      "city": "Ville",
+      "address": "Adresse",
+      "addressComment": "Commentaire sur l'adresse",
+      "addressCommentPlaceholder": "Exemple : Numéro de bâtiment 2",
+      "orderLimit": "Limite de commande",
+      "budgetLimit": "Limite de budget",
+      "limit": "Limite",
+      "per": "Par",
+      "adminPassword": "Mot de passe ADMIN",
+      "clientPassword": "Mot de passe CLIENT",
+      "validationEmail": "Email de validation N+1"
+    },
+    "buttons": {
+      "login": "Connexion",
+      "addClient": "Ajouter un client"
+    },
+    "messages": {
+      "urlPreview": "Le lien sera :",
+      "requiredFields": "Veuillez remplir tous les champs obligatoires",
+      "clientAddedSuccess": "Client ajouté avec succès !",
+      "clientUpdatedSuccess": "Client mis à jour avec succès !"
     }
   }
 }
