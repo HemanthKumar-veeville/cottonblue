@@ -93,7 +93,7 @@ export const ClientHeader = () => {
       {/* Left section with search and store selector */}
       <div className="flex items-center gap-4 w-full max-w-[800px]">
         {/* Search Bar */}
-        <div className="relative w-[60%] min-w-[180px] group">
+        <div className="relative w-[60%] min-w-[180px]">
           <div className="relative">
             <Input
               type="text"
@@ -101,10 +101,6 @@ export const ClientHeader = () => {
               className="w-full h-11 pl-11 pr-4 rounded-md border-[color:var(--1-tokens-color-modes-input-primary-default-border)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] hover:border-gray-400 focus:border-gray-400 focus:ring-0 outline-none transition-all duration-200"
             />
             <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
-          </div>
-          {/* Search tooltip */}
-          <div className="absolute hidden group-hover:block -bottom-1 left-0 transform translate-y-full px-3 py-2 bg-gray-800 text-white text-xs rounded-md whitespace-nowrap">
-            {t("clientHeader.search.tooltip")}
           </div>
         </div>
 
@@ -154,7 +150,7 @@ export const ClientHeader = () => {
       {/* Right Section - User Profile, Notifications, Cart */}
       <div className="flex items-center gap-3 md:gap-4 ml-4">
         {/* User Profile */}
-        <div className="group relative">
+        <div className="relative">
           <div className="inline-flex justify-center items-center p-2.5 md:p-3 bg-[color:var(--1-tokens-color-modes-background-secondary)] rounded-md hover:bg-gray-100 active:bg-gray-200 transition-all duration-200">
             <div className="flex items-center gap-3">
               <UserIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
@@ -168,28 +164,20 @@ export const ClientHeader = () => {
               </div>
             </div>
           </div>
-          {/* User menu tooltip */}
-          <div className="absolute hidden group-hover:block -bottom-1 right-0 transform translate-y-full px-3 py-2 bg-gray-800 text-white text-xs rounded-md whitespace-nowrap">
-            {t("clientHeader.account.tooltip")}
-          </div>
         </div>
 
         {/* Notifications */}
-        <div className="group relative">
+        <div className="relative">
           <div className="relative p-2.5 md:p-3 hover:bg-gray-100 active:bg-gray-200 rounded-md transition-all duration-200">
             <BellIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
             <Badge className="absolute -top-1 -right-1 min-w-[20px] h-[20px] flex items-center justify-center bg-defaultalert text-white text-xs font-semibold rounded-full">
               9
             </Badge>
           </div>
-          {/* Notifications tooltip */}
-          <div className="absolute hidden group-hover:block -bottom-1 right-0 transform translate-y-full px-3 py-2 bg-gray-800 text-white text-xs rounded-md whitespace-nowrap">
-            {t("clientHeader.notifications.tooltip")}
-          </div>
         </div>
 
         {/* Cart */}
-        <div className="group relative">
+        <div className="relative">
           <div
             className="relative flex items-center gap-2 p-2.5 md:p-3 hover:bg-gray-100 active:bg-gray-200 rounded-md transition-all duration-200 cursor-pointer"
             onClick={() => navigate("/cart")}
@@ -203,10 +191,6 @@ export const ClientHeader = () => {
                 {cartItemCount}
               </Badge>
             )}
-          </div>
-          {/* Cart tooltip */}
-          <div className="absolute hidden group-hover:block -bottom-1 right-0 transform translate-y-full px-3 py-2 bg-gray-800 text-white text-xs rounded-md whitespace-nowrap">
-            {t("clientHeader.cart.tooltip")}
           </div>
         </div>
       </div>

@@ -174,13 +174,17 @@
   },
   "clientHeader": {
     "search": {
-      "placeholder": "Rechercher un produit"
+      "placeholder": "Rechercher un produit",
+      "tooltip": "Rechercher un produit par nom, référence ou description"
     },
     "account": {
-      "title": "Mon compte"
+      "title": "Mon compte",
+      "tooltip": "Voir mes informations personnelles et modifier mon mot de passe"
     },
     "cart": "Panier",
-    "notifications": "Notifications"
+    "notifications": "Notifications",
+    "tooltip": "Voir mes notifications",
+    "cartTooltip": "Voir mon panier"
   },
   "dashboard": {
     "sections": {

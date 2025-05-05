@@ -159,11 +159,12 @@ const ProductCard = ({ product }: { product: Product }) => {
       <CardContent className="p-4 h-full">
         <div className="flex flex-col h-full">
           <div
-            className="aspect-[4/3] w-full rounded-2xl bg-cover bg-center bg-gray-100"
+            className="aspect-[4/3] w-full rounded-2xl bg-gray-100 bg-no-repeat bg-center flex items-center justify-center overflow-hidden"
             style={{
               backgroundImage: product.product_image
                 ? `url(${product.product_image})`
                 : "none",
+              backgroundSize: "contain",
             }}
           >
             {!product.product_image && (
