@@ -549,6 +549,47 @@
     "noSearchResults": "No agencies match your search criteria.",
     "clearSearch": "Clear Search"
   },
+  "addAgency": {
+    "title": {
+      "add": "Add an Agency",
+      "edit": "Edit Agency"
+    },
+    "fields": {
+      "companyId": "Company ID",
+      "storeName": "Store Name",
+      "postalCode": "Postal code",
+      "city": "City",
+      "address": "Address",
+      "addressComment": "Address comment",
+      "storeRegion": "Store Region",
+      "region": {
+        "north": "North",
+        "south": "South"
+      },
+      "adminPassword": "ADMIN password",
+      "clientPassword": "CLIENT password",
+      "validationEmail": "N+1 validation email",
+      "phoneNumber": "Phone Number"
+    },
+    "limits": {
+      "orderLimit": "Order limit",
+      "budgetLimit": "Budget limit",
+      "orderLimitValue": "Order Limit",
+      "budgetLimitValue": "Budget Limit"
+    },
+    "placeholders": {
+      "addressComment": "Example: Building number 2"
+    },
+    "validation": {
+      "requiredFields": "Please fill in all required fields"
+    },
+    "messages": {
+      "addSuccess": "Agency added successfully!",
+      "updateSuccess": "Agency updated successfully!",
+      "addError": "Failed to add agency",
+      "updateError": "Failed to update agency"
+    }
+  },
   "productTable": {
     "noProducts": "No Products Found",
     "emptyMessage": "There are no products in your list yet. Add your first product to get started.",
@@ -598,5 +639,27 @@
     },
     "noUsers": "No Users Found",
     "emptyMessage": "There are no users in your list yet. Add your first user to get started."
+  },
+  "addUser": {
+    "title": {
+      "add": "Add User",
+      "edit": "Edit User"
+    },
+    "fields": {
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "password": "Password",
+      "stores": "Select Stores"
+    },
+    "validation": {
+      "requiredFields": "Please fill in all required fields"
+    },
+    "messages": {
+      "addSuccess": "User added successfully!",
+      "updateSuccess": "User updated successfully!",
+      "addError": "Failed to add user",
+      "updateError": "Failed to update user"
+    }
   }
 }

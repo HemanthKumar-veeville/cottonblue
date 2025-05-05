@@ -196,7 +196,7 @@ export default function AddUser() {
   const { stores } = useSelector((state: RootState) => state.agency);
   const { selectedUser } = useSelector((state: RootState) => state.user);
   const storeList = stores?.stores;
-  const user = selectedUser?.user;
+  const user = selectedUser;
   // Check if we're in edit mode
   const isEditMode = location.pathname.includes("/edit");
   console.log({ stores });
@@ -303,13 +303,17 @@ export default function AddUser() {
       }
 
       toast.success(
-        isEditMode ? "User updated successfully!" : "User added successfully!"
+        isEditMode
+          ? t("addUser.messages.updateSuccess")
+          : t("addUser.messages.addSuccess")
       );
       navigate("/users");
     } catch (error: any) {
       toast.error(
         error?.message ||
-          (isEditMode ? "Failed to update user" : "Failed to add user")
+          (isEditMode
+            ? t("addUser.messages.updateError")
+            : t("addUser.messages.addError"))
       );
     } finally {
       setLoading(false);
@@ -324,7 +328,7 @@ export default function AddUser() {
     <div className="flex flex-col h-full gap-8 p-6 bg-white rounded-lg overflow-hidden">
       <header className="inline-flex items-center gap-2">
         <h1 className="font-heading-h3 text-[20px] font-bold leading-[28px] text-[#475569]">
-          {isEditMode ? "Edit User" : "Add User"}
+          {isEditMode ? t("addUser.title.edit") : t("addUser.title.add")}
         </h1>
       </header>
 
@@ -332,7 +336,7 @@ export default function AddUser() {
         <div className="flex flex-col gap-6">
           <div className="flex gap-4 mt-2">
             <LabeledInput
-              label="First Name"
+              label={t("addUser.fields.firstName")}
               id="firstname"
               value={formData.firstname}
               onChange={(value) =>
@@ -343,7 +347,7 @@ export default function AddUser() {
               }
             />
             <LabeledInput
-              label="Last Name"
+              label={t("addUser.fields.lastName")}
               id="lastname"
               value={formData.lastname}
               onChange={(value) =>
@@ -357,7 +361,7 @@ export default function AddUser() {
 
           <div className="flex gap-4">
             <LabeledInput
-              label="Email"
+              label={t("addUser.fields.email")}
               id="email"
               type="email"
               value={formData.email}
@@ -369,7 +373,7 @@ export default function AddUser() {
               }
             />
             <LabeledInput
-              label="Password"
+              label={t("addUser.fields.password")}
               id="password"
               type="password"
               value={formData.password}
@@ -385,7 +389,7 @@ export default function AddUser() {
           <div className="flex gap-4">
             <div className="w-1/2">
               <LabeledSelect
-                label="Select Stores"
+                label={t("addUser.fields.stores")}
                 id="store"
                 values={formData.store_ids}
                 options={storeList}

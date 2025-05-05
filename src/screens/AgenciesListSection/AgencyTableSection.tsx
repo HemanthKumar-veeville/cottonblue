@@ -180,10 +180,6 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                   ? t("agencyTable.noSearchResults")
                   : t("agencyTable.emptyMessage")
               }
-              actionLabel={
-                searchTerm ? t("agencyTable.clearSearch") : undefined
-              }
-              onAction={searchTerm ? () => window.location.reload() : undefined}
             />
           ) : (
             <Table>
@@ -202,28 +198,28 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                     </div>
                   </TableHead>
                   <TableHead className="w-[77px] text-left text-[#1e2324] font-text-small">
-                    ID
+                    {t("clientTable.columns.id")}
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
-                    Name
+                    {t("clientTable.columns.name")}
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
-                    Phone
+                    {t("clientTable.columns.phone")}
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
-                    City
+                    {t("clientTable.columns.city")}
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
-                    Address
+                    {t("clientTable.columns.address")}
                   </TableHead>
                   <TableHead className="w-[100px] text-left text-[#1e2324] font-text-small">
-                    Status
+                    {t("clientTable.columns.status")}
                   </TableHead>
                   <TableHead className="w-[120px] text-left text-[#1e2324] font-text-small">
-                    Created At
+                    {t("clientTable.columns.createdAt")}
                   </TableHead>
                   <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
-                    Actions
+                    {t("clientTable.columns.actions")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -270,7 +266,9 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                               : "bg-red-100 text-red-800"
                           }`}
                         >
-                          {agency.is_active ? "Active" : "Inactive"}
+                          {agency.is_active
+                            ? t("clientTable.status.active")
+                            : t("clientTable.status.inactive")}
                         </span>
                       </TableCell>
                       <TableCell className="w-[120px] text-left font-text-smaller text-black">
@@ -282,7 +280,7 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                           className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
                           onClick={() => handleViewDetails(agency.id)}
                         >
-                          View Details
+                          {t("clientTable.actions.viewDetails")}
                         </Button>
                       </TableCell>
                     </TableRow>
@@ -290,7 +288,7 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                 ) : (
                   <TableRow>
                     <TableCell colSpan={9} className="text-center py-4">
-                      No agencies found
+                      {t("agencyTable.noAgencies")}
                     </TableCell>
                   </TableRow>
                 )}
@@ -317,7 +315,7 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                   alt="Arrow left"
                   src="/img/arrow-left-sm.svg"
                 />
-                Previous
+                {t("common.previous")}
               </PaginationPrevious>
 
               <PaginationContent className="flex items-center gap-3">
@@ -370,7 +368,7 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                     handlePageChange(currentPage + 1);
                 }}
               >
-                Next
+                {t("common.next")}
                 <img
                   className="w-6 h-6 rotate-180"
                   alt="Arrow right"

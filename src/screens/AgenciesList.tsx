@@ -6,6 +6,7 @@ import { RootState, useAppSelector } from "../store/store";
 import { AppDispatch } from "../store/store";
 import { fetchAllStores } from "../store/features/agencySlice";
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 interface Agency {
   id: number;
@@ -29,6 +30,7 @@ interface AgenciesResponse {
 }
 
 export const AgenciesList = (): JSX.Element => {
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { stores, loading, error } = useSelector(
     (state: RootState) => state.agency

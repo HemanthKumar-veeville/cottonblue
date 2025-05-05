@@ -9,6 +9,7 @@ import {
   CSVModalProps,
 } from "../../components/CSVModals/withCSVModals";
 import { useNavigate } from "react-router-dom";
+
 interface Agency {
   id: number;
   name: string;
@@ -57,7 +58,7 @@ const AgencyListSectionBase = ({
     <section className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
       <header>
         <h3 className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] font-[number:var(--heading-h3-font-weight)] [font-style:var(--heading-h3-font-style)]">
-          {t("agencyList.title", "Agency List")}
+          {t("sidebar.agencies.list")}
         </h3>
       </header>
 
@@ -65,10 +66,7 @@ const AgencyListSectionBase = ({
         <div className="relative w-[400px]">
           <Input
             className="pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] pr-12 py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)] rounded-[var(--2-tokens-screen-modes-input-border-radius)]"
-            placeholder={t(
-              "agencyList.search.placeholder",
-              "Search agencies..."
-            )}
+            placeholder={t("productList.search.placeholder")}
             value={searchTerm}
             onChange={handleSearchChange}
           />
@@ -84,7 +82,7 @@ const AgencyListSectionBase = ({
           >
             <PlusIcon className="w-6 h-6" />
             <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] [font-style:var(--label-smaller-font-style)]">
-              {t("agencyList.actions.create", "Add Agency")}
+              {t("sidebar.agencies.add")}
             </span>
           </Button>
 
@@ -95,7 +93,7 @@ const AgencyListSectionBase = ({
           >
             <DownloadIcon className="w-6 h-6 text-[color:var(--1-tokens-color-modes-button-secondary-default-icon)]" />
             <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] [font-style:var(--label-smaller-font-style)]">
-              {t("agencyList.actions.importCsv", "Import CSV")}
+              {t("productList.actions.importCsv")}
             </span>
           </Button>
 
@@ -106,7 +104,7 @@ const AgencyListSectionBase = ({
           >
             <UploadIcon className="w-6 h-6 text-[color:var(--1-tokens-color-modes-button-secondary-default-icon)]" />
             <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] [font-style:var(--label-smaller-font-style)]">
-              {t("agencyList.actions.exportCsv", "Export CSV")}
+              {t("productList.actions.exportCsv")}
             </span>
           </Button>
         </div>

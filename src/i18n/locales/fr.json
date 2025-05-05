@@ -570,6 +570,47 @@
     "noSearchResults": "Aucune agence ne correspond à vos critères de recherche.",
     "clearSearch": "Effacer la recherche"
   },
+  "addAgency": {
+    "title": {
+      "add": "Ajouter une agence",
+      "edit": "Modifier l'agence"
+    },
+    "fields": {
+      "companyId": "ID de l'entreprise",
+      "storeName": "Nom du magasin",
+      "postalCode": "Code postal",
+      "city": "Ville",
+      "address": "Adresse",
+      "addressComment": "Commentaire sur l'adresse",
+      "storeRegion": "Région du magasin",
+      "region": {
+        "north": "Nord",
+        "south": "Sud"
+      },
+      "adminPassword": "Mot de passe ADMIN",
+      "clientPassword": "Mot de passe CLIENT",
+      "validationEmail": "Email de validation N+1",
+      "phoneNumber": "Numéro de téléphone"
+    },
+    "limits": {
+      "orderLimit": "Limite de commande",
+      "budgetLimit": "Limite de budget",
+      "orderLimitValue": "Limite de commande",
+      "budgetLimitValue": "Limite de budget"
+    },
+    "placeholders": {
+      "addressComment": "Exemple : Numéro de bâtiment 2"
+    },
+    "validation": {
+      "requiredFields": "Veuillez remplir tous les champs obligatoires"
+    },
+    "messages": {
+      "addSuccess": "Agence ajoutée avec succès !",
+      "updateSuccess": "Agence mise à jour avec succès !",
+      "addError": "Échec de l'ajout de l'agence",
+      "updateError": "Échec de la mise à jour de l'agence"
+    }
+  },
   "productTable": {
     "noProducts": "Aucun produit trouvé",
     "emptyMessage": "Il n'y a pas encore de produits dans votre liste. Ajoutez votre premier produit pour commencer.",
@@ -619,5 +660,27 @@
     },
     "noUsers": "Aucun utilisateur trouvé",
     "emptyMessage": "Il n'y a pas encore d'utilisateurs dans votre liste. Ajoutez votre premier utilisateur pour commencer."
+  },
+  "addUser": {
+    "title": {
+      "add": "Ajouter un utilisateur",
+      "edit": "Modifier l'utilisateur"
+    },
+    "fields": {
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Email",
+      "password": "Mot de passe",
+      "stores": "Sélectionner les magasins"
+    },
+    "validation": {
+      "requiredFields": "Veuillez remplir tous les champs obligatoires"
+    },
+    "messages": {
+      "addSuccess": "Utilisateur ajouté avec succès !",
+      "updateSuccess": "Utilisateur mis à jour avec succès !",
+      "addError": "Échec de l'ajout de l'utilisateur",
+      "updateError": "Échec de la mise à jour de l'utilisateur"
+    }
   }
 }

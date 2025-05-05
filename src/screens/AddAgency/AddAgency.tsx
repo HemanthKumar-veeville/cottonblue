@@ -266,7 +266,7 @@ export default function AddAgency() {
       !formData.validation.email ||
       !selectedCompany?.id
     ) {
-      toast.error("Please fill in all required fields");
+      toast.error(t("addAgency.validation.requiredFields"));
       return;
     }
 
@@ -284,7 +284,7 @@ export default function AddAgency() {
             data: submitData,
           })
         ).unwrap();
-        toast.success("Agency updated successfully!");
+        toast.success(t("addAgency.messages.updateSuccess"));
       } else {
         await dispatch(
           registerStore({
@@ -292,12 +292,14 @@ export default function AddAgency() {
             data: submitData,
           })
         ).unwrap();
-        toast.success("Agency added successfully!");
+        toast.success(t("addAgency.messages.addSuccess"));
       }
       navigate("/agencies");
     } catch (error) {
       toast.error(
-        isEditMode ? "Failed to update agency" : "Failed to add agency"
+        isEditMode
+          ? t("addAgency.messages.updateError")
+          : t("addAgency.messages.addError")
       );
     }
   };
@@ -310,7 +312,7 @@ export default function AddAgency() {
     <div className="flex flex-col min-h-[854px] gap-8 p-6 bg-white rounded-lg overflow-hidden">
       <header className="inline-flex items-center gap-2">
         <h1 className="font-heading-h3 text-[20px] font-bold leading-[28px] text-[#475569]">
-          {isEditMode ? "Edit Agency" : "Add an Agency"}
+          {isEditMode ? t("addAgency.title.edit") : t("addAgency.title.add")}
         </h1>
       </header>
 
@@ -319,13 +321,13 @@ export default function AddAgency() {
           <div className="flex flex-col gap-6">
             <div className="flex gap-4 mt-2">
               <LabeledInput
-                label="Company ID"
+                label={t("addAgency.fields.companyId")}
                 id="company_id"
                 value={selectedCompany?.id || ""}
                 disabled={true}
               />
               <LabeledInput
-                label="Store Name"
+                label={t("addAgency.fields.storeName")}
                 id="store_name"
                 value={formData.store_name}
                 onChange={(value) =>
@@ -339,7 +341,7 @@ export default function AddAgency() {
 
             <div className="flex gap-4">
               <LabeledInput
-                label="Postal code"
+                label={t("addAgency.fields.postalCode")}
                 id="postal_code"
                 value={formData.postal_code}
                 onChange={(value) =>
@@ -350,7 +352,7 @@ export default function AddAgency() {
                 }
               />
               <LabeledInput
-                label="City"
+                label={t("addAgency.fields.city")}
                 id="city"
                 value={formData.city}
                 onChange={(value) =>
@@ -365,7 +367,7 @@ export default function AddAgency() {
             <div className="flex gap-4">
               <div className="flex-1">
                 <LabeledInput
-                  label="Address"
+                  label={t("addAgency.fields.address")}
                   id="store_address"
                   value={formData.store_address}
                   onChange={(value) =>
@@ -378,12 +380,18 @@ export default function AddAgency() {
               </div>
               <div className="flex-1">
                 <LabeledSelect
-                  label="Store Region"
+                  label={t("addAgency.fields.storeRegion")}
                   id="store_region"
                   value={formData.store_region}
                   options={[
-                    { value: "North", label: "North" },
-                    { value: "South", label: "South" },
+                    {
+                      value: "North",
+                      label: t("addAgency.fields.region.north"),
+                    },
+                    {
+                      value: "South",
+                      label: t("addAgency.fields.region.south"),
+                    },
                   ]}
                   onChange={(value) =>
                     setFormData((prev) => ({
@@ -398,7 +406,7 @@ export default function AddAgency() {
             <div className="relative w-full">
               <Textarea
                 className="min-h-[100px] font-text-medium text-[16px] leading-[24px] bg-gray-100 rounded-lg border"
-                placeholder="Example: Building number 2"
+                placeholder={t("addAgency.placeholders.addressComment")}
                 value={formData.store_address}
                 onChange={(e) =>
                   setFormData((prev) => ({
@@ -408,7 +416,7 @@ export default function AddAgency() {
                 }
               />
               <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
-                Address comment
+                {t("addAgency.fields.addressComment")}
               </span>
             </div>
           </div>
@@ -419,7 +427,7 @@ export default function AddAgency() {
             <div className="flex gap-4">
               <div className="flex-1">
                 <CheckboxField
-                  label="Order limit"
+                  label={t("addAgency.limits.orderLimit")}
                   id="orderLimit"
                   checked={formData.limits.order.enabled}
                   onChange={(checked) =>
@@ -435,7 +443,7 @@ export default function AddAgency() {
               </div>
               <div className="flex-1">
                 <CheckboxField
-                  label="Budget limit"
+                  label={t("addAgency.limits.budgetLimit")}
                   id="budgetLimit"
                   checked={formData.limits.budget.enabled}
                   onChange={(checked) =>
@@ -453,7 +461,7 @@ export default function AddAgency() {
 
             <div className="flex gap-4">
               <LabeledInput
-                label="Order Limit"
+                label={t("addAgency.limits.orderLimitValue")}
                 id="orderLimitValue"
                 value={formData.limits.order.value}
                 disabled={!formData.limits.order.enabled}
@@ -468,7 +476,7 @@ export default function AddAgency() {
                 }
               />
               <LabeledInput
-                label="Budget Limit"
+                label={t("addAgency.limits.budgetLimitValue")}
                 id="budgetLimitValue"
                 value={formData.limits.budget.value}
                 disabled={!formData.limits.budget.enabled}
@@ -487,7 +495,7 @@ export default function AddAgency() {
           <div className="flex flex-col gap-6">
             <div className="flex gap-4">
               <LabeledInput
-                label="ADMIN password"
+                label={t("addAgency.fields.adminPassword")}
                 id="adminPassword"
                 type="password"
                 value={formData.passwords.admin}
@@ -499,7 +507,7 @@ export default function AddAgency() {
                 }
               />
               <LabeledInput
-                label="CLIENT password"
+                label={t("addAgency.fields.clientPassword")}
                 id="clientPassword"
                 type="password"
                 value={formData.passwords.client}
@@ -514,7 +522,7 @@ export default function AddAgency() {
 
             <div className="flex gap-4">
               <LabeledInput
-                label="N+1 validation email"
+                label={t("addAgency.fields.validationEmail")}
                 id="validationEmail"
                 type="email"
                 value={formData.validation.email}
@@ -526,7 +534,7 @@ export default function AddAgency() {
                 }
               />
               <LabeledInput
-                label="Phone Number"
+                label={t("addAgency.fields.phoneNumber")}
                 id="phone_number"
                 value={formData.phone_number || ""}
                 onChange={(value) =>

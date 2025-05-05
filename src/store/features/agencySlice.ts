@@ -36,7 +36,7 @@ interface AgencyState {
   error: string | null;
   registerSuccess: boolean;
   modifySuccess: boolean;
-  storeDetails: Agency | null;
+  storeDetails: { store: Agency } | null;
   selectedStore: string | null;
 }
 
