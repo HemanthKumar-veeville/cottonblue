@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
+import { useForm, Controller } from "react-hook-form";
 import { Button } from "../../../../components/ui/button";
 import { Card, CardContent } from "../../../../components/ui/card";
 import { Checkbox } from "../../../../components/ui/checkbox";
@@ -16,7 +17,6 @@ import toast from "react-hot-toast";
 
 import { cn } from "../../../../lib/utils";
 import { ProductImageUploader } from "./ProductImageUploader";
-import AddProduct_step_1 from "../../../../screens/AddProduct/AddProduct_step_1";
 import { useAppDispatch, useAppSelector } from "../../../../store/store";
 import {
   createProduct,
@@ -24,64 +24,7 @@ import {
   updateProduct,
 } from "../../../../store/features/productSlice";
 import { CreateProductData } from "../../../../services/productService";
-import { useNavigate, useParams, useLocation } from "react-router-dom";
-
-// Types
-interface StepIndicatorProps {
-  currentStep: number;
-  totalSteps: number;
-}
-
-const StepIndicator = ({ currentStep, totalSteps }: StepIndicatorProps) => {
-  return (
-    <div className="flex items-center justify-center gap-2 mb-8">
-      {Array.from({ length: totalSteps }, (_, index) => (
-        <div key={index} className="flex items-center">
-          <div
-            className={cn(
-              "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors",
-              index + 1 === currentStep
-                ? "bg-[#07515f] text-white"
-                : index + 1 < currentStep
-                ? "bg-[#e9fffd] text-[#07515f]"
-                : "bg-gray-100 text-gray-400"
-            )}
-          >
-            {index + 1}
-          </div>
-          {index < totalSteps - 1 && (
-            <div
-              className={cn(
-                "w-12 h-0.5 mx-2",
-                index + 1 < currentStep ? "bg-[#07515f]" : "bg-gray-200"
-              )}
-            />
-          )}
-        </div>
-      ))}
-    </div>
-  );
-};
-
-interface ProductFormData {
-  name: string;
-  productId: string;
-  gender: string;
-  size: string;
-  soldByCarton: boolean;
-  soldByUnit: boolean;
-  pack_price: string;
-  pack_of: string;
-  total_packs: string;
-  reference: string;
-  description: string;
-  images: Record<number, File>;
-  imageUrls: Record<number, string>;
-}
-
-interface ProductFormErrors {
-  [key: string]: string;
-}
+import { useNavigate, useParams } from "react-router-dom";
 
 // Constants
 const MAX_IMAGES = 5;
@@ -94,150 +37,29 @@ const FORM_FIELDS = {
   },
 };
 
-// Define form field configurations
-const FORM_FIELD_CONFIGS = [
-  {
-    id: "name",
-    type: "input",
-    placeholder: "productSidebar.form.productName",
-    label: "productSidebar.form.productName",
-    errorKey: "name",
-    isRequired: true,
-  },
-];
+interface FormData {
+  name: string;
+  productId: string;
+  gender: string;
+  size: string;
+  soldByCarton: boolean;
+  soldByUnit: boolean;
+  pack_price: string;
+  pack_of: string;
+  total_packs: string;
+  reference: string;
+  description: string;
+  images: { [key: number]: File | undefined };
+  imageUrls: { [key: number]: string | undefined };
+}
 
-const GENDER_SIZE_CONFIGS = [
-  {
-    id: "gender",
-    type: "select",
-    placeholder: "productSidebar.form.gender",
-    label: "productSidebar.form.gender",
-    errorKey: "gender",
-    options: FORM_FIELDS.gender.options,
-    isRequired: true,
-  },
-  {
-    id: "size",
-    type: "select",
-    placeholder: "productSidebar.form.size",
-    label: "productSidebar.form.size",
-    errorKey: "size",
-    options: FORM_FIELDS.size.options,
-    isRequired: true,
-  },
-];
-
-const PRICE_FIELD_CONFIGS = [
-  {
-    id: "pack_price",
-    type: "input",
-    placeholder: "productSidebar.form.price.packPrice",
-    label: "productSidebar.form.price.packPrice",
-    errorKey: "pack_price",
-    disabled: (formData: ProductFormData) =>
-      !formData.soldByCarton && !formData.soldByUnit,
-    isRequired: true,
-  },
-  {
-    id: "productId",
-    type: "input",
-    placeholder: "productSidebar.form.productId",
-    label: "productSidebar.form.productId",
-    errorKey: "productId",
-    isRequired: false,
-  },
-];
-
-const ADDITIONAL_FIELD_CONFIGS = [
-  {
-    id: "pack_of",
-    type: "input",
-    placeholder: "productSidebar.form.packOf",
-    label: "productSidebar.form.packOf",
-    errorKey: "pack_of",
-    disabled: (formData: ProductFormData) => formData.soldByUnit,
-    isRequired: true,
-  },
-  {
-    id: "total_packs",
-    type: "input",
-    placeholder: "productSidebar.form.totalPacks",
-    label: "productSidebar.form.totalPacks",
-    errorKey: "total_packs",
-    disabled: (formData: ProductFormData) =>
-      !formData.soldByCarton && !formData.soldByUnit,
-    isRequired: true,
-  },
-];
-
-// Custom Hook for Form Logic
-const useProductForm = () => {
-  const { t } = useTranslation();
-  const [formData, setFormData] = useState<ProductFormData>({
-    name: "",
-    productId: "",
-    gender: "",
-    size: "",
-    soldByCarton: true,
-    soldByUnit: false,
-    pack_price: "",
-    pack_of: "1",
-    total_packs: "",
-    reference: "",
-    description: "",
-    images: {},
-    imageUrls: {},
-  });
-  const [originalData, setOriginalData] = useState<ProductFormData | null>(
-    null
-  );
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const handleInputChange = useCallback(
-    (field: keyof ProductFormData, value: string | boolean) => {
-      setFormData((prev) => {
-        // Special handling for soldByCarton and soldByUnit
-        if (field === "soldByCarton" && value === true) {
-          return {
-            ...prev,
-            soldByCarton: true,
-            soldByUnit: false,
-            // Keep existing pack_of value when switching to carton
-            pack_of: prev.pack_of || "1",
-          };
-        }
-        if (field === "soldByUnit" && value === true) {
-          return {
-            ...prev,
-            soldByCarton: false,
-            soldByUnit: true,
-            // Force pack_of to "1" when switching to unit
-            pack_of: "1",
-          };
-        }
-        // Don't allow both to be false - keep the current one enabled
-        if (
-          (field === "soldByCarton" && value === false && !prev.soldByUnit) ||
-          (field === "soldByUnit" && value === false && !prev.soldByCarton)
-        ) {
-          return prev;
-        }
-        return { ...prev, [field]: value };
-      });
-    },
-    []
-  );
-
-  return {
-    formData,
-    setFormData,
-    originalData,
-    setOriginalData,
-    isSubmitting,
-    setIsSubmitting,
-    handleInputChange,
-  };
-};
+// Extend CreateProductData type to include our custom fields
+interface ExtendedCreateProductData
+  extends Omit<CreateProductData, "product_image"> {
+  gender: string;
+  size: string;
+  product_image: File;
+}
 
 // Reusable Components
 const FormField = ({
@@ -266,40 +88,6 @@ const FormField = ({
   </div>
 );
 
-const SelectField = ({
-  value,
-  onChange,
-  options,
-  placeholder,
-  error,
-}: {
-  value: string;
-  onChange: (value: string) => void;
-  options: string[];
-  placeholder: string;
-  error?: string;
-}) => (
-  <Select value={value} onValueChange={onChange}>
-    <SelectTrigger
-      className={cn(
-        "w-full pt-4 pr-3 pb-2 pl-3 border-gray-300 min-h-[3.25rem]",
-        error && "border-red-500"
-      )}
-    >
-      <SelectValue placeholder={placeholder} />
-    </SelectTrigger>
-    <SelectContent>
-      <div className="max-h-[200px]">
-        {options.map((option) => (
-          <SelectItem key={option} value={option}>
-            <span className="cursor-pointer">{option}</span>
-          </SelectItem>
-        ))}
-      </div>
-    </SelectContent>
-  </Select>
-);
-
 interface ProductSidebarSectionProps {
   mode?: "add" | "edit";
 }
@@ -312,18 +100,33 @@ export const ProductSidebarSection = ({
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { selectedCompany } = useAppSelector((state) => state.client);
-  const [currentStep, setCurrentStep] = useState(1);
-  const [showStep1, setShowStep1] = useState(false);
-  const totalSteps = 3;
+
   const {
-    formData,
-    setFormData,
-    originalData,
-    setOriginalData,
-    isSubmitting,
-    setIsSubmitting,
-    handleInputChange,
-  } = useProductForm();
+    control,
+    handleSubmit,
+    setValue,
+    watch,
+    formState: { errors, isSubmitting },
+    reset,
+  } = useForm<FormData>({
+    defaultValues: {
+      name: "",
+      productId: "",
+      gender: "",
+      size: "",
+      soldByCarton: true,
+      soldByUnit: false,
+      pack_price: "0",
+      pack_of: "1",
+      total_packs: "0",
+      reference: "",
+      description: "",
+      images: {},
+      imageUrls: {},
+    },
+  });
+
+  const formData = watch();
 
   // Load product data in edit mode
   useEffect(() => {
@@ -341,7 +144,7 @@ export const ProductSidebarSection = ({
             const { description, name, price, product_image, stock } =
               resultAction.payload?.product;
 
-            const initialData = {
+            reset({
               name: name || "",
               productId: "",
               gender: "",
@@ -355,10 +158,7 @@ export const ProductSidebarSection = ({
               description: description || "",
               images: {},
               imageUrls: { 0: product_image || "" },
-            };
-
-            setFormData(initialData);
-            setOriginalData(initialData);
+            });
           }
         } catch (error) {
           console.error("Error loading product:", error);
@@ -368,15 +168,7 @@ export const ProductSidebarSection = ({
     };
 
     loadProductData();
-  }, [mode, id, selectedCompany, dispatch, setFormData, setOriginalData, t]);
-
-  useEffect(() => {
-    return () => {
-      Object.values(formData.imageUrls).forEach((url) =>
-        URL.revokeObjectURL(url)
-      );
-    };
-  }, [formData.imageUrls]);
+  }, [mode, id, selectedCompany, dispatch, reset, t]);
 
   const handleFileUpload = useCallback(
     (file: File, position: number) => {
@@ -390,255 +182,100 @@ export const ProductSidebarSection = ({
         return;
       }
 
-      if (Object.keys(formData.images).length >= MAX_IMAGES) {
+      const currentImages = watch("images");
+      if (Object.keys(currentImages || {}).length >= MAX_IMAGES) {
         toast.error(t("productSidebar.validation.maxImages"));
         return;
       }
 
       const imageUrl = URL.createObjectURL(file);
-      setFormData((prev) => ({
-        ...prev,
-        images: { ...prev.images, [position]: file },
-        imageUrls: { ...prev.imageUrls, [position]: imageUrl },
-      }));
+      setValue("images", { ...currentImages, [position]: file });
+      setValue("imageUrls", { ...watch("imageUrls"), [position]: imageUrl });
     },
-    [t, formData.images, setFormData]
+    [t, watch, setValue]
   );
 
   const handleRemoveImage = useCallback(
     (position: number) => {
-      setFormData((prev) => {
-        if (prev.imageUrls[position]) {
-          URL.revokeObjectURL(prev.imageUrls[position]);
-        }
-        const newImages = { ...prev.images };
-        const newImageUrls = { ...prev.imageUrls };
-        delete newImages[position];
-        delete newImageUrls[position];
-        return {
-          ...prev,
-          images: newImages,
-          imageUrls: newImageUrls,
-        };
+      const currentImageUrls = watch("imageUrls");
+      if (currentImageUrls?.[position]) {
+        URL.revokeObjectURL(currentImageUrls[position]!);
+      }
+
+      setValue("images", {
+        ...watch("images"),
+        [position]: undefined,
+      });
+      setValue("imageUrls", {
+        ...watch("imageUrls"),
+        [position]: undefined,
       });
     },
-    [setFormData]
+    [watch, setValue]
   );
 
-  const validateForm = () => {
-    const missingRequiredFields: string[] = [];
-
-    // Validate company (required)
-    if (!selectedCompany?.id) {
-      throw new Error("Please select a company first");
-    }
-
-    // Collect all missing required fields
-    if (!formData.name.trim()) {
-      missingRequiredFields.push("Product Name");
-    }
-
-    if (!formData.gender) {
-      missingRequiredFields.push("Gender");
-    }
-
-    if (!formData.size) {
-      missingRequiredFields.push("Size");
-    }
-
-    if (!formData.images[0]) {
-      missingRequiredFields.push("Main Image");
-    }
-
-    // If any required fields are missing, throw a single error
-    if (missingRequiredFields.length > 0) {
-      throw new Error("Please fill in all required fields with *");
-    }
-
-    // Validate selling method and prices separately as they have different logic
-    if (!formData.soldByCarton && !formData.soldByUnit) {
-      throw new Error(
-        "Please select at least one selling method (Carton or Unit)"
-      );
-    }
-
-    // Validate price based on selected selling method
-    if (formData.soldByCarton) {
-      const pricePerCarton = parseFloat(formData.pack_price);
-      if (pricePerCarton <= 0) {
-        throw new Error("Please enter a valid price per carton");
+  const onSubmit = async (data: FormData) => {
+    try {
+      if (!selectedCompany?.id) {
+        throw new Error("Please select a company first");
       }
-    }
 
-    if (formData.soldByUnit) {
-      const pricePerUnit = parseFloat(formData.pack_price);
-      if (pricePerUnit <= 0) {
-        throw new Error("Please enter a valid price per unit");
+      const mainImage = data.images[0];
+      if (!mainImage) {
+        throw new Error("Main image is required");
       }
+
+      const baseProductData: ExtendedCreateProductData = {
+        company_id: selectedCompany.id,
+        product_name: data.name.trim(),
+        product_id: data.productId.trim(),
+        product_image: mainImage,
+        pack_of: parseInt(data.pack_of) || 1,
+        pack_price: parseFloat(data.pack_price) || 0,
+        total_packs: parseInt(data.total_packs) || 0,
+        gender: data.gender,
+        size: data.size,
+      };
+
+      if (data.description?.trim()) {
+        baseProductData.product_description = data.description.trim();
+      }
+
+      if (data.reference?.trim()) {
+        baseProductData.reference = data.reference.trim();
+      }
+
+      if (mode === "edit" && id) {
+        const resultAction = await dispatch(
+          updateProduct({
+            dnsPrefix: selectedCompany.dns,
+            productId: id,
+            data: baseProductData,
+          }) as any
+        );
+
+        if (updateProduct.fulfilled.match(resultAction)) {
+          toast.success("Product updated successfully");
+          navigate(`/products/${id}`);
+        }
+      } else {
+        const resultAction = await dispatch(
+          createProduct({
+            dnsPrefix: selectedCompany.dns,
+            data: baseProductData,
+          }) as any
+        );
+
+        if (createProduct.fulfilled.match(resultAction)) {
+          toast.success("Product created successfully");
+          navigate("/products");
+        }
+      }
+    } catch (error: any) {
+      console.error("Error:", error);
+      toast.error(error.message || "An unexpected error occurred");
     }
   };
-
-  const handleAction = useCallback(
-    async (action: "draft" | "next") => {
-      setIsSubmitting(true);
-      try {
-        if (action === "next") {
-          // Validate form
-          validateForm();
-
-          // Prepare base product data with required fields
-          const baseProductData: CreateProductData = {
-            company_id: selectedCompany!.id,
-            product_name: formData.name.trim(),
-            product_id: formData.productId.trim(),
-            product_image: formData.images[0] || formData.imageUrls[0],
-            pack_of: parseInt(formData.pack_of) || 1,
-            pack_price: parseFloat(formData.pack_price) || 0,
-            total_packs: parseInt(formData.total_packs) || 0,
-            gender: formData.gender,
-            size: formData.size,
-          };
-
-          // Add optional fields only if they have values
-          if (formData.description?.trim()) {
-            baseProductData.product_description = formData.description.trim();
-          }
-
-          // Handle price and stock based on selling method
-          if (formData.soldByCarton) {
-            const packPrice = parseFloat(formData.pack_price);
-            const packOf = parseInt(formData.pack_of);
-
-            if (!isNaN(packPrice) && packPrice > 0) {
-              baseProductData.pack_price = packPrice;
-            }
-
-            if (!isNaN(packOf) && packOf > 0) {
-              baseProductData.pack_of = packOf;
-            }
-          } else if (formData.soldByUnit) {
-            const packPrice = parseFloat(formData.pack_price);
-            if (!isNaN(packPrice) && packPrice > 0) {
-              baseProductData.pack_price = packPrice;
-              baseProductData.pack_of = 1;
-            }
-          }
-
-          // Add reference (SKU) if provided
-          if (formData.reference?.trim()) {
-            baseProductData.reference = formData.reference.trim();
-          }
-
-          if (mode === "edit" && id && originalData) {
-            // Create an object with only the changed fields
-            const updatedFields: Partial<typeof baseProductData> = {};
-
-            // Compare and add only changed fields
-            Object.entries(baseProductData).forEach(([key, value]) => {
-              const originalValue =
-                originalData[key as keyof typeof originalData];
-              if (value !== originalValue) {
-                updatedFields[key as keyof typeof baseProductData] = value;
-              }
-            });
-
-            // Only proceed if there are actual changes
-            if (Object.keys(updatedFields).length === 0) {
-              toast.error("No changes detected to update", {
-                duration: 6000,
-                position: "top-right",
-                style: {
-                  background: "#EF4444",
-                  color: "#fff",
-                },
-              });
-              return;
-            }
-
-            const resultAction = await dispatch(
-              updateProduct({
-                dnsPrefix: selectedCompany!.dns,
-                productId: id,
-                data: updatedFields,
-              }) as any
-            );
-
-            if (updateProduct.fulfilled.match(resultAction)) {
-              toast.success("Product updated successfully", {
-                duration: 5000,
-                position: "top-right",
-                style: {
-                  background: "#10B981",
-                  color: "#fff",
-                },
-              });
-              navigate(`/products/${id}`);
-            } else {
-              throw new Error(
-                resultAction.error?.message || "Failed to update product"
-              );
-            }
-          } else {
-            // Handle add mode
-            const resultAction = await dispatch(
-              createProduct({
-                dnsPrefix: selectedCompany!.dns,
-                data: baseProductData,
-              }) as any
-            );
-
-            if (createProduct.fulfilled.match(resultAction)) {
-              toast.success("Product created successfully", {
-                duration: 5000,
-                position: "top-right",
-                style: {
-                  background: "#10B981",
-                  color: "#fff",
-                },
-              });
-              navigate(`/products`);
-            } else {
-              throw new Error(
-                resultAction.error?.message || "Failed to create product"
-              );
-            }
-          }
-        } else {
-          // Handle draft save
-          console.log("Draft Data:", {
-            ...formData,
-            timestamp: new Date().toISOString(),
-            isDraft: true,
-          });
-          toast.success("Draft saved successfully", {
-            duration: 5000,
-            position: "top-right",
-            style: {
-              background: "#10B981",
-              color: "#fff",
-            },
-          });
-        }
-      } catch (error: any) {
-        console.error("Error:", error);
-        toast.error(error.message || "An unexpected error occurred", {
-          duration: 6000,
-          position: "top-right",
-          style: {
-            background: "#EF4444",
-            color: "#fff",
-          },
-        });
-      } finally {
-        setIsSubmitting(false);
-      }
-    },
-    [t, dispatch, formData, originalData, selectedCompany, mode, id, navigate]
-  );
-
-  // if (showStep1) {
-  //   return <AddProduct_step_1 />;
-  // }
 
   return (
     <div className="flex items-start justify-around gap-24 relative flex-1 self-stretch grow">
@@ -646,214 +283,310 @@ export const ProductSidebarSection = ({
         <div className="h-[calc(100vh-4rem)] w-full overflow-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <Card className="flex flex-col items-start gap-8 p-6 relative flex-1 self-stretch w-full grow rounded-lg overflow-hidden">
             <CardContent className="p-0 w-full">
-              {/* {mode === "add" && (
-                <StepIndicator
-                  currentStep={currentStep}
-                  totalSteps={totalSteps}
-                />
-              )} */}
+              <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+                <div className="flex items-start justify-center gap-6 relative flex-1 self-stretch w-full grow">
+                  <div className="flex flex-col items-start gap-6 relative flex-1 self-stretch grow">
+                    <div className="flex items-center justify-center gap-2 mt-8">
+                      <h3 className="font-heading-h3 font-bold text-gray-700 text-lg tracking-wide leading-6 whitespace-nowrap">
+                        {t("productSidebar.title")}
+                      </h3>
+                    </div>
 
-              <div className="flex items-start justify-center gap-6 relative flex-1 self-stretch w-full grow">
-                <div className="flex flex-col items-start gap-6 relative flex-1 self-stretch grow">
-                  <div className="flex items-center justify-center gap-2 mt-8">
-                    <h3 className="font-heading-h3 font-bold text-gray-700 text-lg tracking-wide leading-6 whitespace-nowrap">
-                      {t("productSidebar.title")}
-                    </h3>
-                  </div>
-
-                  {FORM_FIELD_CONFIGS.map((field) => (
                     <FormField
-                      key={field.id}
-                      label={t(field.label)}
-                      isRequired={field.isRequired}
+                      label={t("productSidebar.form.productName")}
+                      error={errors.name?.message}
+                      isRequired
                     >
-                      <Input
-                        className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
-                        value={formData[field.id as keyof ProductFormData]}
-                        onChange={(e) =>
-                          handleInputChange(
-                            field.id as keyof ProductFormData,
-                            e.target.value
-                          )
-                        }
-                        placeholder=""
+                      <Controller
+                        name="name"
+                        control={control}
+                        rules={{ required: "Product name is required" }}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
+                          />
+                        )}
                       />
                     </FormField>
-                  ))}
 
-                  <div className="flex items-start gap-2 relative self-stretch w-full">
-                    {GENDER_SIZE_CONFIGS.map((field) => (
+                    <div className="flex items-start gap-2 relative self-stretch w-full">
                       <FormField
-                        key={field.id}
                         className="flex-1"
-                        label={t(field.label)}
-                        isRequired={field.isRequired}
+                        label={t("productSidebar.form.gender")}
+                        error={errors.gender?.message}
+                        isRequired
                       >
-                        <SelectField
-                          value={
-                            formData[
-                              field.id as keyof ProductFormData
-                            ] as string
-                          }
-                          onChange={(value) =>
-                            handleInputChange(
-                              field.id as keyof ProductFormData,
-                              value
-                            )
-                          }
-                          options={field.options || []}
-                          placeholder=""
+                        <Controller
+                          name="gender"
+                          control={control}
+                          rules={{ required: "Gender is required" }}
+                          render={({ field }) => (
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger>
+                                <div className="pt-4 pr-3 pb-2 pl-3 border-gray-300 min-h-[3.25rem]">
+                                  <SelectValue placeholder="" />
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent>
+                                {FORM_FIELDS.gender.options.map((option) => (
+                                  <SelectItem key={option} value={option}>
+                                    {option}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
                         />
                       </FormField>
-                    ))}
-                  </div>
 
-                  <div className="flex items-start gap-2 relative self-stretch w-full">
-                    {["carton", "unit"].map((type) => (
-                      <div
-                        key={type}
-                        className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative flex-1 grow bg-gray-100 rounded-lg border border-solid border-gray-300"
+                      <FormField
+                        className="flex-1"
+                        label={t("productSidebar.form.size")}
+                        error={errors.size?.message}
+                        isRequired
                       >
-                        <Checkbox
-                          id={type}
-                          className="w-6 h-6"
-                          checked={
-                            type === "carton"
-                              ? formData.soldByCarton
-                              : formData.soldByUnit
-                          }
-                          onCheckedChange={(checked: boolean) =>
-                            handleInputChange(
-                              type === "carton" ? "soldByCarton" : "soldByUnit",
-                              checked
-                            )
-                          }
+                        <Controller
+                          name="size"
+                          control={control}
+                          rules={{ required: "Size is required" }}
+                          render={({ field }) => (
+                            <Select
+                              value={field.value}
+                              onValueChange={field.onChange}
+                            >
+                              <SelectTrigger>
+                                <div className="pt-4 pr-3 pb-2 pl-3 border-gray-300 min-h-[3.25rem]">
+                                  <SelectValue placeholder="" />
+                                </div>
+                              </SelectTrigger>
+                              <SelectContent>
+                                {FORM_FIELDS.size.options.map((option) => (
+                                  <SelectItem key={option} value={option}>
+                                    {option}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          )}
+                        />
+                      </FormField>
+                    </div>
+
+                    <div className="flex items-start gap-2 relative self-stretch w-full">
+                      <div className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative flex-1 grow bg-gray-100 rounded-lg border border-solid border-gray-300">
+                        <Controller
+                          name="soldByCarton"
+                          control={control}
+                          render={({ field }) => (
+                            <Checkbox
+                              id="carton"
+                              className="w-6 h-6"
+                              checked={field.value}
+                              onCheckedChange={(checked: boolean) => {
+                                field.onChange(checked);
+                                if (checked) {
+                                  setValue("soldByUnit", false);
+                                }
+                              }}
+                            />
+                          )}
                         />
                         <label
-                          htmlFor={type}
+                          htmlFor="carton"
                           className="flex-1 font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5"
                         >
-                          {t(`productSidebar.form.soldBy.${type}`)}
+                          {t("productSidebar.form.soldBy.carton")}
                         </label>
                       </div>
-                    ))}
-                  </div>
 
-                  <div className="flex items-start gap-2 relative self-stretch w-full">
-                    {PRICE_FIELD_CONFIGS.map((field) => (
-                      <FormField
-                        key={field.id}
-                        className="flex-1"
-                        label={t(field.label)}
-                        isRequired={field.isRequired}
-                      >
-                        <Input
-                          className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
-                          type={field.id === "pack_price" ? "number" : "text"}
-                          value={formData[field.id as keyof ProductFormData]}
-                          onChange={(e) =>
-                            handleInputChange(
-                              field.id as keyof ProductFormData,
-                              e.target.value
-                            )
-                          }
-                          placeholder=""
-                          disabled={field.disabled?.(formData)}
-                        />
-                      </FormField>
-                    ))}
-                  </div>
-
-                  <div className="flex items-start gap-2 relative self-stretch w-full">
-                    {ADDITIONAL_FIELD_CONFIGS.map((field) => (
-                      <FormField
-                        key={field.id}
-                        className="flex-1"
-                        label={t(field.label)}
-                        isRequired={field.isRequired}
-                      >
-                        <Input
-                          className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
-                          type="number"
-                          value={formData[field.id as keyof ProductFormData]}
-                          onChange={(e) =>
-                            handleInputChange(
-                              field.id as keyof ProductFormData,
-                              e.target.value
-                            )
-                          }
-                          placeholder=""
-                          disabled={field.disabled?.(formData)}
-                        />
-                      </FormField>
-                    ))}
-                  </div>
-
-                  <FormField
-                    label={t("productSidebar.form.description")}
-                    isRequired={false}
-                  >
-                    <Textarea
-                      className="h-[175px] pt-6 pr-3 pb-2 pl-3 border-gray-300"
-                      value={formData.description}
-                      onChange={(e) =>
-                        handleInputChange("description", e.target.value)
-                      }
-                      placeholder=""
-                    />
-                  </FormField>
-                </div>
-
-                <div className="flex flex-col items-end justify-between relative self-stretch mt-20">
-                  <div className="flex flex-col items-start gap-6">
-                    <div className="flex items-start gap-4">
-                      <div className="flex items-center gap-4">
-                        <ProductImageUploader
-                          position={0}
-                          imageUrl={formData.imageUrls[0]}
-                          onUpload={handleFileUpload}
-                          onRemove={handleRemoveImage}
-                          isMain
-                        />
-                        <div className="flex flex-col h-[250px] items-start justify-center gap-6">
-                          <div className="grid grid-cols-2 gap-6">
-                            {[1, 2, 3, 4].map((position) => (
-                              <ProductImageUploader
-                                key={position}
-                                position={position}
-                                imageUrl={formData.imageUrls[position]}
-                                onUpload={handleFileUpload}
-                                onRemove={handleRemoveImage}
-                                disabled={
-                                  Object.keys(formData.images).length >=
-                                  MAX_IMAGES
+                      <div className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative flex-1 grow bg-gray-100 rounded-lg border border-solid border-gray-300">
+                        <Controller
+                          name="soldByUnit"
+                          control={control}
+                          render={({ field }) => (
+                            <Checkbox
+                              id="unit"
+                              className="w-6 h-6"
+                              checked={field.value}
+                              onCheckedChange={(checked: boolean) => {
+                                field.onChange(checked);
+                                if (checked) {
+                                  setValue("soldByCarton", false);
+                                  setValue("pack_of", "1");
                                 }
-                              />
-                            ))}
+                              }}
+                            />
+                          )}
+                        />
+                        <label
+                          htmlFor="unit"
+                          className="flex-1 font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5"
+                        >
+                          {t("productSidebar.form.soldBy.unit")}
+                        </label>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-2 relative self-stretch w-full">
+                      <FormField
+                        className="flex-1"
+                        label={t("productSidebar.form.price.packPrice")}
+                        error={errors.pack_price?.message}
+                        isRequired
+                      >
+                        <Controller
+                          name="pack_price"
+                          control={control}
+                          rules={{ required: "Price is required" }}
+                          render={({ field }) => (
+                            <Input
+                              {...field}
+                              type="number"
+                              className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
+                              disabled={
+                                !formData.soldByCarton && !formData.soldByUnit
+                              }
+                            />
+                          )}
+                        />
+                      </FormField>
+
+                      <FormField
+                        className="flex-1"
+                        label={t("productSidebar.form.productId")}
+                        error={errors.productId?.message}
+                      >
+                        <Controller
+                          name="productId"
+                          control={control}
+                          render={({ field }) => (
+                            <Input
+                              {...field}
+                              className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
+                            />
+                          )}
+                        />
+                      </FormField>
+                    </div>
+
+                    <div className="flex items-start gap-2 relative self-stretch w-full">
+                      <FormField
+                        className="flex-1"
+                        label={t("productSidebar.form.packOf")}
+                        error={errors.pack_of?.message}
+                        isRequired
+                      >
+                        <Controller
+                          name="pack_of"
+                          control={control}
+                          rules={{ required: "Pack of is required" }}
+                          render={({ field }) => (
+                            <Input
+                              {...field}
+                              type="number"
+                              className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
+                              disabled={formData.soldByUnit}
+                            />
+                          )}
+                        />
+                      </FormField>
+
+                      <FormField
+                        className="flex-1"
+                        label={t("productSidebar.form.totalPacks")}
+                        error={errors.total_packs?.message}
+                        isRequired
+                      >
+                        <Controller
+                          name="total_packs"
+                          control={control}
+                          rules={{ required: "Total packs is required" }}
+                          render={({ field }) => (
+                            <Input
+                              {...field}
+                              type="number"
+                              className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
+                              disabled={
+                                !formData.soldByCarton && !formData.soldByUnit
+                              }
+                            />
+                          )}
+                        />
+                      </FormField>
+                    </div>
+
+                    <FormField
+                      label={t("productSidebar.form.description")}
+                      error={errors.description?.message}
+                    >
+                      <Controller
+                        name="description"
+                        control={control}
+                        render={({ field }) => (
+                          <Textarea
+                            {...field}
+                            className="h-[175px] pt-6 pr-3 pb-2 pl-3 border-gray-300"
+                          />
+                        )}
+                      />
+                    </FormField>
+                  </div>
+
+                  <div className="flex flex-col items-end justify-between relative self-stretch mt-20">
+                    <div className="flex flex-col items-start gap-6">
+                      <div className="flex items-start gap-4">
+                        <div className="flex items-center gap-4">
+                          <ProductImageUploader
+                            position={0}
+                            imageUrl={formData.imageUrls[0]}
+                            onUpload={handleFileUpload}
+                            onRemove={handleRemoveImage}
+                            isMain
+                          />
+                          <div className="flex flex-col h-[250px] items-start justify-center gap-6">
+                            <div className="grid grid-cols-2 gap-6">
+                              {[1, 2, 3, 4].map((position) => (
+                                <ProductImageUploader
+                                  key={position}
+                                  position={position}
+                                  imageUrl={formData.imageUrls[position]}
+                                  onUpload={handleFileUpload}
+                                  onRemove={handleRemoveImage}
+                                  disabled={
+                                    Object.keys(formData.images || {}).length >=
+                                    MAX_IMAGES
+                                  }
+                                />
+                              ))}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  <div className="flex items-start gap-4 mt-6">
-                    <Button
-                      className={cn(
-                        "gap-4 py-4 px-4 self-stretch bg-[#07515f] border-gray-300",
-                        "hover:bg-[#064a56] transition-colors duration-200",
-                        "disabled:opacity-50 disabled:cursor-not-allowed",
-                        isSubmitting && "animate-pulse"
-                      )}
-                      onClick={() => handleAction("next")}
-                      disabled={isSubmitting}
-                    >
-                      <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5 whitespace-nowrap">
-                        {t("productSidebar.actions.save")}
-                      </span>
-                    </Button>
+                    <div className="flex items-start gap-4 mt-6">
+                      <Button
+                        type="submit"
+                        className={cn(
+                          "gap-4 py-4 px-4 self-stretch bg-[#07515f] border-gray-300",
+                          "hover:bg-[#064a56] transition-colors duration-200",
+                          "disabled:opacity-50 disabled:cursor-not-allowed",
+                          isSubmitting && "animate-pulse"
+                        )}
+                        disabled={isSubmitting}
+                      >
+                        <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5 whitespace-nowrap">
+                          {t("productSidebar.actions.save")}
+                        </span>
+                      </Button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </form>
             </CardContent>
           </Card>
         </div>
