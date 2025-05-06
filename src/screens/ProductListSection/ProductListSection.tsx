@@ -134,7 +134,6 @@ export const ProductListSection = (): JSX.Element => {
           "Product Name",
           "Product Description",
           "Product Price",
-          "Available Region",
           "Total Stock",
         ]}
         sheetName="Products"

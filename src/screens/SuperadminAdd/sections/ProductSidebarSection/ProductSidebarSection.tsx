@@ -66,7 +66,6 @@ const StepIndicator = ({ currentStep, totalSteps }: StepIndicatorProps) => {
 interface ProductFormData {
   name: string;
   productId: string;
-  region: string;
   gender: string;
   size: string;
   soldByCarton: boolean;
@@ -89,7 +88,6 @@ const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const FORM_FIELDS = {
-  region: { options: ["North", "South", "All"] },
   gender: { options: ["Male", "Female", "Unisex"] },
   size: {
     options: ["Free Size", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"],
@@ -113,15 +111,6 @@ const FORM_FIELD_CONFIGS = [
     label: "productSidebar.form.productId",
     errorKey: "productId",
     isRequired: false,
-  },
-  {
-    id: "region",
-    type: "select",
-    placeholder: "productSidebar.form.region",
-    label: "productSidebar.form.region",
-    errorKey: "region",
-    options: FORM_FIELDS.region.options,
-    isRequired: true,
   },
 ];
 
@@ -193,7 +182,6 @@ const useProductForm = () => {
   const [formData, setFormData] = useState<ProductFormData>({
     name: "",
     productId: "",
-    region: "",
     gender: "",
     size: "",
     soldByCarton: true,
@@ -326,19 +314,12 @@ export const ProductSidebarSection = ({
           );
 
           if (getProductById.fulfilled.match(resultAction)) {
-            const {
-              available_region,
-              description,
-              name,
-              price,
-              product_image,
-              stock,
-            } = resultAction.payload?.product;
+            const { description, name, price, product_image, stock } =
+              resultAction.payload?.product;
 
             const initialData = {
               name: name || "",
               productId: "",
-              region: available_region || "",
               gender: "",
               size: "",
               soldByCarton: true,
@@ -433,10 +414,6 @@ export const ProductSidebarSection = ({
       missingRequiredFields.push("Product Name");
     }
 
-    if (!formData.region) {
-      missingRequiredFields.push("Region");
-    }
-
     if (!formData.gender) {
       missingRequiredFields.push("Gender");
     }
@@ -490,7 +467,6 @@ export const ProductSidebarSection = ({
             company_id: selectedCompany!.id,
             product_name: formData.name.trim(),
             product_id: formData.productId.trim(),
-            available_region: formData.region,
             product_image: formData.images[0] || formData.imageUrls[0],
           };
 

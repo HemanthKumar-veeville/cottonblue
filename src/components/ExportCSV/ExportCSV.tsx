@@ -32,7 +32,6 @@ const headerDisplayNames = {
   name: "Product Name",
   description: "Product Description",
   price: "Product Price",
-  available_region: "Available Region",
   total_stock: "Total Stock",
 };
 
@@ -70,7 +69,6 @@ export const ExportCSV = ({
     name: true,
     description: true,
     price: true,
-    available_region: true,
     total_stock: true,
   });
 
@@ -84,8 +82,6 @@ export const ExportCSV = ({
         if (selectedFields.description)
           filteredProduct.description = product.description;
         if (selectedFields.price) filteredProduct.price = product.price;
-        if (selectedFields.available_region)
-          filteredProduct.available_region = product.available_region;
         if (selectedFields.total_stock)
           filteredProduct.total_stock = product.total_stock;
         return filteredProduct;
