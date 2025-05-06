@@ -5,9 +5,13 @@ export interface CreateProductData {
   product_image: File;
   product_name: string;
   product_description?: string;
-  product_price: number;
-  available_region: string;
-  total_stock: number;
+  product_price?: number;
+  available_region?: string;
+  pack_of: number;
+  pack_price: number;
+  total_packs: number;
+  product_id?: string;
+  reference?: string;
 }
 
 export interface UpdateProductData {
@@ -15,7 +19,9 @@ export interface UpdateProductData {
   product_description?: string;
   product_price?: number;
   available_region?: string;
-  total_stock?: number;
+  pack_of?: number;
+  pack_price?: number;
+  total_packs?: number;
   product_image?: File;
 }
 

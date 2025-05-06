@@ -70,9 +70,9 @@ interface ProductFormData {
   size: string;
   soldByCarton: boolean;
   soldByUnit: boolean;
-  pricePerCarton: string;
-  pricePerUnit: string;
-  piecesPerCarton: string;
+  pack_price: string;
+  pack_of: string;
+  total_packs: string;
   reference: string;
   description: string;
   images: Record<number, File>;
@@ -104,14 +104,6 @@ const FORM_FIELD_CONFIGS = [
     errorKey: "name",
     isRequired: true,
   },
-  {
-    id: "productId",
-    type: "input",
-    placeholder: "productSidebar.form.productId",
-    label: "productSidebar.form.productId",
-    errorKey: "productId",
-    isRequired: false,
-  },
 ];
 
 const GENDER_SIZE_CONFIGS = [
@@ -137,42 +129,44 @@ const GENDER_SIZE_CONFIGS = [
 
 const PRICE_FIELD_CONFIGS = [
   {
-    id: "pricePerCarton",
+    id: "pack_price",
     type: "input",
-    placeholder: "productSidebar.form.price.perCarton",
-    label: "productSidebar.form.price.perCarton",
-    errorKey: "pricePerCarton",
-    disabled: (formData: ProductFormData) => !formData.soldByCarton,
-    isRequired: false,
+    placeholder: "productSidebar.form.price.packPrice",
+    label: "productSidebar.form.price.packPrice",
+    errorKey: "pack_price",
+    disabled: (formData: ProductFormData) =>
+      !formData.soldByCarton && !formData.soldByUnit,
+    isRequired: true,
   },
   {
-    id: "pricePerUnit",
+    id: "productId",
     type: "input",
-    placeholder: "productSidebar.form.price.perUnit",
-    label: "productSidebar.form.price.perUnit",
-    errorKey: "pricePerUnit",
-    disabled: (formData: ProductFormData) => !formData.soldByUnit,
+    placeholder: "productSidebar.form.productId",
+    label: "productSidebar.form.productId",
+    errorKey: "productId",
     isRequired: false,
   },
 ];
 
 const ADDITIONAL_FIELD_CONFIGS = [
   {
-    id: "piecesPerCarton",
+    id: "pack_of",
     type: "input",
-    placeholder: "productSidebar.form.piecesPerCarton",
-    label: "productSidebar.form.piecesPerCarton",
-    errorKey: "piecesPerCarton",
-    disabled: (formData: ProductFormData) => !formData.soldByCarton,
-    isRequired: false,
+    placeholder: "productSidebar.form.packOf",
+    label: "productSidebar.form.packOf",
+    errorKey: "pack_of",
+    disabled: (formData: ProductFormData) => formData.soldByUnit,
+    isRequired: true,
   },
   {
-    id: "reference",
+    id: "total_packs",
     type: "input",
-    placeholder: "productSidebar.form.reference",
-    label: "productSidebar.form.reference",
-    errorKey: "reference",
-    isRequired: false,
+    placeholder: "productSidebar.form.totalPacks",
+    label: "productSidebar.form.totalPacks",
+    errorKey: "total_packs",
+    disabled: (formData: ProductFormData) =>
+      !formData.soldByCarton && !formData.soldByUnit,
+    isRequired: true,
   },
 ];
 
@@ -186,9 +180,9 @@ const useProductForm = () => {
     size: "",
     soldByCarton: true,
     soldByUnit: false,
-    pricePerCarton: "",
-    pricePerUnit: "",
-    piecesPerCarton: "",
+    pack_price: "",
+    pack_of: "1",
+    total_packs: "",
     reference: "",
     description: "",
     images: {},
@@ -201,7 +195,35 @@ const useProductForm = () => {
 
   const handleInputChange = useCallback(
     (field: keyof ProductFormData, value: string | boolean) => {
-      setFormData((prev) => ({ ...prev, [field]: value }));
+      setFormData((prev) => {
+        // Special handling for soldByCarton and soldByUnit
+        if (field === "soldByCarton" && value === true) {
+          return {
+            ...prev,
+            soldByCarton: true,
+            soldByUnit: false,
+            // Keep existing pack_of value when switching to carton
+            pack_of: prev.pack_of || "1",
+          };
+        }
+        if (field === "soldByUnit" && value === true) {
+          return {
+            ...prev,
+            soldByCarton: false,
+            soldByUnit: true,
+            // Force pack_of to "1" when switching to unit
+            pack_of: "1",
+          };
+        }
+        // Don't allow both to be false - keep the current one enabled
+        if (
+          (field === "soldByCarton" && value === false && !prev.soldByUnit) ||
+          (field === "soldByUnit" && value === false && !prev.soldByCarton)
+        ) {
+          return prev;
+        }
+        return { ...prev, [field]: value };
+      });
     },
     []
   );
@@ -266,12 +288,14 @@ const SelectField = ({
     >
       <SelectValue placeholder={placeholder} />
     </SelectTrigger>
-    <SelectContent className="max-h-[200px]">
-      {options.map((option) => (
-        <SelectItem key={option} value={option} className="cursor-pointer">
-          {option}
-        </SelectItem>
-      ))}
+    <SelectContent>
+      <div className="max-h-[200px]">
+        {options.map((option) => (
+          <SelectItem key={option} value={option}>
+            <span className="cursor-pointer">{option}</span>
+          </SelectItem>
+        ))}
+      </div>
     </SelectContent>
   </Select>
 );
@@ -324,9 +348,9 @@ export const ProductSidebarSection = ({
               size: "",
               soldByCarton: true,
               soldByUnit: false,
-              pricePerCarton: price?.toString() || "",
-              pricePerUnit: "",
-              piecesPerCarton: stock?.toString() || "",
+              pack_price: price?.toString() || "",
+              pack_of: "",
+              total_packs: stock?.toString() || "",
               reference: "",
               description: description || "",
               images: {},
@@ -440,14 +464,14 @@ export const ProductSidebarSection = ({
 
     // Validate price based on selected selling method
     if (formData.soldByCarton) {
-      const pricePerCarton = parseFloat(formData.pricePerCarton);
+      const pricePerCarton = parseFloat(formData.pack_price);
       if (pricePerCarton <= 0) {
         throw new Error("Please enter a valid price per carton");
       }
     }
 
     if (formData.soldByUnit) {
-      const pricePerUnit = parseFloat(formData.pricePerUnit);
+      const pricePerUnit = parseFloat(formData.pack_price);
       if (pricePerUnit <= 0) {
         throw new Error("Please enter a valid price per unit");
       }
@@ -468,6 +492,11 @@ export const ProductSidebarSection = ({
             product_name: formData.name.trim(),
             product_id: formData.productId.trim(),
             product_image: formData.images[0] || formData.imageUrls[0],
+            pack_of: parseInt(formData.pack_of) || 1,
+            pack_price: parseFloat(formData.pack_price) || 0,
+            total_packs: parseInt(formData.total_packs) || 0,
+            gender: formData.gender,
+            size: formData.size,
           };
 
           // Add optional fields only if they have values
@@ -477,20 +506,21 @@ export const ProductSidebarSection = ({
 
           // Handle price and stock based on selling method
           if (formData.soldByCarton) {
-            const pricePerCarton = parseFloat(formData.pricePerCarton);
-            if (!isNaN(pricePerCarton) && pricePerCarton > 0) {
-              baseProductData.product_price = pricePerCarton;
+            const packPrice = parseFloat(formData.pack_price);
+            const packOf = parseInt(formData.pack_of);
+
+            if (!isNaN(packPrice) && packPrice > 0) {
+              baseProductData.pack_price = packPrice;
             }
 
-            const piecesPerCarton = parseInt(formData.piecesPerCarton);
-            if (!isNaN(piecesPerCarton) && piecesPerCarton > 0) {
-              baseProductData.total_stock = piecesPerCarton;
+            if (!isNaN(packOf) && packOf > 0) {
+              baseProductData.pack_of = packOf;
             }
           } else if (formData.soldByUnit) {
-            const pricePerUnit = parseFloat(formData.pricePerUnit);
-            if (!isNaN(pricePerUnit) && pricePerUnit > 0) {
-              baseProductData.product_price = pricePerUnit;
-              baseProductData.total_stock = 1; // Default for unit sales
+            const packPrice = parseFloat(formData.pack_price);
+            if (!isNaN(packPrice) && packPrice > 0) {
+              baseProductData.pack_price = packPrice;
+              baseProductData.pack_of = 1;
             }
           }
 
@@ -637,37 +667,17 @@ export const ProductSidebarSection = ({
                       label={t(field.label)}
                       isRequired={field.isRequired}
                     >
-                      {field.type === "input" ? (
-                        <Input
-                          className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
-                          value={String(
-                            formData[field.id as keyof ProductFormData] || ""
-                          )}
-                          onChange={(e) =>
-                            handleInputChange(
-                              field.id as keyof ProductFormData,
-                              e.target.value
-                            )
-                          }
-                          placeholder=""
-                        />
-                      ) : (
-                        <SelectField
-                          value={
-                            formData[
-                              field.id as keyof ProductFormData
-                            ] as string
-                          }
-                          onChange={(value) =>
-                            handleInputChange(
-                              field.id as keyof ProductFormData,
-                              value
-                            )
-                          }
-                          options={field.options || []}
-                          placeholder=""
-                        />
-                      )}
+                      <Input
+                        className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
+                        value={formData[field.id as keyof ProductFormData]}
+                        onChange={(e) =>
+                          handleInputChange(
+                            field.id as keyof ProductFormData,
+                            e.target.value
+                          )
+                        }
+                        placeholder=""
+                      />
                     </FormField>
                   ))}
 
@@ -733,12 +743,13 @@ export const ProductSidebarSection = ({
                     {PRICE_FIELD_CONFIGS.map((field) => (
                       <FormField
                         key={field.id}
+                        className="flex-1"
                         label={t(field.label)}
                         isRequired={field.isRequired}
                       >
                         <Input
                           className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
-                          type="number"
+                          type={field.id === "pack_price" ? "number" : "text"}
                           value={formData[field.id as keyof ProductFormData]}
                           onChange={(e) =>
                             handleInputChange(
@@ -757,12 +768,13 @@ export const ProductSidebarSection = ({
                     {ADDITIONAL_FIELD_CONFIGS.map((field) => (
                       <FormField
                         key={field.id}
+                        className="flex-1"
                         label={t(field.label)}
                         isRequired={field.isRequired}
                       >
                         <Input
                           className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
-                          type={field.id === "reference" ? "text" : "number"}
+                          type="number"
                           value={formData[field.id as keyof ProductFormData]}
                           onChange={(e) =>
                             handleInputChange(

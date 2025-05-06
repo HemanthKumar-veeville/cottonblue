@@ -95,20 +95,20 @@
     "title": "Ajouter un nouveau produit",
     "form": {
       "productName": "Nom du produit",
-      "productId": "ID du produit",
+      "productId": "Référence SKU",
       "category": "Catégorie",
-      "region": "Région",
       "gender": "Genre",
       "size": "Taille",
+      "region": "Région",
       "soldBy": {
         "carton": "Vendu par carton",
         "unit": "Vendu à l'unité"
       },
       "price": {
-        "perCarton": "Prix par carton",
-        "perUnit": "Prix à l'unité"
+        "packPrice": "Prix par lot"
       },
-      "piecesPerCarton": "Pièces par carton",
+      "packOf": "Unités par lot",
+      "totalPacks": "Nombre de lots disponibles",
       "reference": "Référence (SKU)",
       "description": "Description"
     },

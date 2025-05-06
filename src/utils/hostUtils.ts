@@ -8,6 +8,3 @@ export const getHost = (): string => {
   const hostname = window.location.hostname;
   return hostname === 'localhost' ? 'chronodrive' : hostname.split('.')[0];
 };
-
-
-

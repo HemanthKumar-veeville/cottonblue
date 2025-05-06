@@ -95,7 +95,7 @@
     "title": "Add a new product",
     "form": {
       "productName": "Product name",
-      "productId": "Product ID",
+      "productId": "SKU Reference",
       "category": "Category",
       "gender": "Gender",
       "size": "Size",
@@ -105,10 +105,10 @@
         "unit": "Sold by unit"
       },
       "price": {
-        "perCarton": "Price per carton",
-        "perUnit": "Price per unit"
+        "packPrice": "Price per pack"
       },
-      "piecesPerCarton": "Pieces per carton",
+      "packOf": "Units per pack",
+      "totalPacks": "Total packs available",
       "reference": "Reference (SKU)",
       "description": "Description"
     },
