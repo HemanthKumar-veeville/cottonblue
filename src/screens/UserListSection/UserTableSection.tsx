@@ -92,7 +92,7 @@ export const UserTableSection = (): JSX.Element => {
   return (
     <section className="flex flex-col h-screen">
       <div className="flex-grow overflow-auto pb-24">
-        <div className="w-full max-w-[1160px]">
+        <div className="w-full">
           {loading ? (
             <Skeleton variant="table" />
           ) : error ? (
@@ -186,7 +186,7 @@ export const UserTableSection = (): JSX.Element => {
       {!loading && !error && currentUsers.length > 0 && (
         <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
           <div className="px-6 max-w-[calc(100%-2rem)]">
-            <Pagination className="flex items-center justify-between w-full max-w-[1160px] mx-auto">
+            <Pagination className="flex items-center justify-between w-full mx-auto">
               <PaginationPrevious
                 href="#"
                 className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"

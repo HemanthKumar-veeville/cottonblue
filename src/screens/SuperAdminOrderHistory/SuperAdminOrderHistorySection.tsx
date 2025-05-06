@@ -218,7 +218,7 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
 
       <div className="flex flex-col h-screen">
         <div className="flex-grow overflow-auto pb-24">
-          <Table className="w-full max-w-[1160px]">
+          <Table className="w-full">
             <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
               <TableRow>
                 <TableHead className="w-11">
@@ -256,7 +256,7 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
 
         <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
           <div className="px-6 max-w-[calc(100%-2rem)]">
-            <Pagination className="flex items-center justify-between w-full max-w-[1160px] mx-auto">
+            <Pagination className="flex items-center justify-between w-full mx-auto">
               <PaginationPrevious
                 href="#"
                 className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
