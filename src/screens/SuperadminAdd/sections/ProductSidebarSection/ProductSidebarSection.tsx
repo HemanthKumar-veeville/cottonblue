@@ -91,7 +91,9 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const FORM_FIELDS = {
   region: { options: ["North", "South", "All"] },
   gender: { options: ["Male", "Female", "Unisex"] },
-  size: { options: ["XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"] },
+  size: {
+    options: ["Free Size", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"],
+  },
 };
 
 // Define form field configurations
