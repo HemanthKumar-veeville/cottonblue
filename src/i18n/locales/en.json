@@ -5,6 +5,7 @@
   },
   "common": {
     "loading": "Loading...",
+    "viewAll": "View all",
     "next": "Next",
     "previous": "Previous",
     "save": "Save",
@@ -324,7 +325,17 @@
       "stock": "Stock"
     },
     "availableStock": "Available Stock",
-    "totalStock": "Total Stock"
+    "totalStock": "Total Stock",
+    "suitableFor": "Suitable For",
+    "size": "Size",
+    "availablePacks": "Available Packs",
+    "totalPacks": "Total Packs",
+    "packQuantity": "Pack Quantity",
+    "priceOfPack": "Price per Pack",
+    "companyId": "Company ID",
+    "createdAt": "Created At",
+    "updatedAt": "Updated At",
+    "isActive": "Active Status"
   },
   "cart": {
     "title": "Cart",

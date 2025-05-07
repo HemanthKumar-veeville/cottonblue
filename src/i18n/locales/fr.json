@@ -5,6 +5,7 @@
   },
   "common": {
     "loading": "Chargement...",
+    "viewAll": "Voir tout",
     "next": "Suivant",
     "previous": "Précédent",
     "save": "Enregistrer",
@@ -335,7 +336,17 @@
       "stock": "Stock"
     },
     "availableStock": "Stock disponible",
-    "totalStock": "Stock total"
+    "totalStock": "Stock total",
+    "suitableFor": "Convient à",
+    "size": "Taille",
+    "availablePacks": "Lots disponibles",
+    "totalPacks": "Total des lots",
+    "packQuantity": "Quantité par lot",
+    "priceOfPack": "Prix par lot",
+    "companyId": "ID Entreprise",
+    "createdAt": "Créé le",
+    "updatedAt": "Mis à jour le",
+    "isActive": "Statut actif"
   },
   "cart": {
     "title": "Panier",
