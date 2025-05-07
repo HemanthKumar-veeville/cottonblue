@@ -33,18 +33,20 @@ import { toast } from "react-hot-toast";
 
 interface Product {
   id: number;
-  product_id?: number;
   name: string;
-  price: number;
-  description: string;
+  suitable_for: string;
+  size: string;
+  price_of_pack: number;
+  is_active: boolean;
   product_image: string | null;
-  total_stock: number;
-  available_stock: number;
-  available_region: string;
-  company_id: number;
+  description: string;
+  category: string | null;
+  pack_quantity: number;
+  total_packs: number;
+  available_packs: number;
   created_at: string;
   updated_at: string;
-  is_active: boolean;
+  company_id: number;
 }
 
 interface ProductSectionProps {
@@ -87,14 +89,13 @@ const ProductCard = ({ product }: { product: Product }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { t } = useTranslation();
-  const stockStatus = getStockStatus(product.available_stock);
   const cart = useAppSelector((state) => state.cart);
   const items = cart?.items || [];
+  const { selectedStore } = useAppSelector((state) => state.agency);
+  const dnsPrefix = getHost();
 
   const cartItem = items.find((item) => item.product_id === product.id);
   const quantity = cartItem?.quantity || 0;
-  const { selectedStore } = useAppSelector((state) => state.agency);
-  const dnsPrefix = getHost();
 
   const handleClick = () => {
     navigate(`/product/${product.id}`);
@@ -104,7 +105,7 @@ const ProductCard = ({ product }: { product: Product }) => {
     e?.stopPropagation();
     const newQuantity = quantity + amount;
 
-    if (amount > 0 && newQuantity <= (product.available_stock ?? 0)) {
+    if (amount > 0 && newQuantity <= (product.available_packs ?? 0)) {
       if (dnsPrefix && selectedStore) {
         try {
           // Optimistic update
@@ -144,7 +145,7 @@ const ProductCard = ({ product }: { product: Product }) => {
           toast.error(t("cart.error.removeFailed"));
         }
       }
-    } else if (newQuantity > (product.available_stock ?? 0)) {
+    } else if (newQuantity > (product.available_packs ?? 0)) {
       toast.error(t("cart.error.notEnoughStock"));
     }
   };
@@ -154,48 +155,78 @@ const ProductCard = ({ product }: { product: Product }) => {
     handleQuantityChange(1, e);
   };
 
+  const getStockStatus = (): { status: string; color: string } => {
+    if (product.available_packs == null) {
+      return {
+        status: "dashboard.status.unknown",
+        color: "text-gray-500",
+      };
+    }
+
+    return product.available_packs > 0
+      ? {
+          status: "dashboard.status.inStock",
+          color: "text-1-tokens-color-modes-common-success-hight",
+        }
+      : {
+          status: "dashboard.status.outOfStock",
+          color: "text-defaultalert",
+        };
+  };
+
+  const stockStatus = getStockStatus();
+
   return (
     <Card
-      className="w-full h-full shadow-shadow cursor-pointer hover:shadow-lg transition-shadow duration-200"
+      className="w-full h-full shadow-shadow cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
       onClick={handleClick}
     >
       <CardContent className="p-4 h-full">
         <div className="flex flex-col h-full">
-          <div
-            className="aspect-[4/3] w-full rounded-2xl bg-gray-100 bg-no-repeat bg-center flex items-center justify-center overflow-hidden"
-            style={{
-              backgroundImage: product.product_image
-                ? `url(${product.product_image})`
-                : "none",
-              backgroundSize: "contain",
-            }}
-          >
-            {!product.product_image && (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
-                <Package2 size={48} />
-              </div>
-            )}
+          {/* Image Container with Hover Effect */}
+          <div className="relative group">
+            <div
+              className="aspect-[4/3] w-full rounded-2xl bg-gray-100 bg-no-repeat bg-center flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-[1.02]"
+              style={{
+                backgroundImage: product.product_image
+                  ? `url(${product.product_image})`
+                  : "none",
+                backgroundSize: "contain",
+              }}
+            >
+              {!product.product_image && (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <Package2 size={48} />
+                </div>
+              )}
+            </div>
+            {/* Quick View Overlay */}
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl flex items-center justify-center">
+              <span className="text-white text-sm font-medium">Click to view details</span>
+            </div>
           </div>
+
           <div className="flex flex-col flex-grow gap-2 mt-4">
+            {/* Status Badges */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <Badge
                   variant="outline"
-                  className={`${stockStatus.color} whitespace-nowrap text-xs px-2 py-0.5`}
+                  className={`${stockStatus.color} whitespace-nowrap text-xs px-2 py-0.5 border-0`}
                 >
                   {t(stockStatus.status)}
                 </Badge>
                 {!product.is_active && (
                   <Badge
                     variant="outline"
-                    className="text-gray-500 whitespace-nowrap text-xs px-2 py-0.5"
+                    className="text-gray-500 whitespace-nowrap text-xs px-2 py-0.5 border-0"
                   >
                     {t("dashboard.status.inactive")}
                   </Badge>
                 )}
               </div>
-              {/* Cart interaction button */}
-              {(product.available_stock ?? 0) > 0 && (
+              {/* Cart Controls */}
+              {(product.available_packs ?? 0) > 0 && (
                 <div
                   onClick={(e) => e.stopPropagation()}
                   className="flex items-center"
@@ -217,7 +248,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 rounded-full hover:bg-gray-50 transition-colors duration-200"
+                        className="h-7 w-7 rounded-full hover:bg-gray-100 transition-colors duration-200"
                         onClick={(e) => handleQuantityChange(-1, e)}
                         disabled={quantity <= 0}
                         aria-label={t("product.decreaseQuantity")}
@@ -235,9 +266,9 @@ const ProductCard = ({ product }: { product: Product }) => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 rounded-full hover:bg-gray-50 transition-colors duration-200"
+                        className="h-7 w-7 rounded-full hover:bg-gray-100 transition-colors duration-200"
                         onClick={(e) => handleQuantityChange(1, e)}
-                        disabled={quantity >= (product.available_stock ?? 0)}
+                        disabled={quantity >= (product.available_packs ?? 0)}
                         aria-label={t("product.increaseQuantity")}
                         title={t("product.increaseQuantity")}
                       >
@@ -248,18 +279,30 @@ const ProductCard = ({ product }: { product: Product }) => {
                 </div>
               )}
             </div>
-            <div className="font-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-base tracking-[0] leading-[22.4px]">
+
+            {/* Product Name with Truncation */}
+            <div className="font-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-base tracking-[0] leading-[22.4px] line-clamp-2 min-h-[44px]">
               {product.name || "N/A"}
             </div>
+
+            {/* Available Packs with Icon */}
+            <div className="text-sm text-gray-500 flex items-center gap-1">
+              <Package2 className="h-4 w-4" />
+              <span>Available: {product.available_packs ?? 0} packs</span>
+            </div>
           </div>
-          <div className="mt-auto pt-4">
-            <div className="font-normal text-coolgray-100 text-lg tracking-[0] leading-[25.2px]">
-              <span className="font-[number:var(--body-l-font-weight)] font-body-l [font-style:var(--body-l-font-style)] tracking-[var(--body-l-letter-spacing)] leading-[var(--body-l-line-height)] text-[length:var(--body-l-font-size)]">
-                {formatPrice(product.price)}
-              </span>
-              <span className="text-[length:var(--body-s-font-size)] leading-[var(--body-s-line-height)] font-body-s [font-style:var(--body-s-font-style)] font-[number:var(--body-s-font-weight)] tracking-[var(--body-s-letter-spacing)]">
-                {formatStock(product.available_stock)}
-              </span>
+
+          {/* Price Section */}
+          <div className="mt-auto pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <div className="font-normal text-coolgray-100 text-lg tracking-[0] leading-[25.2px]">
+                <span className="font-[number:var(--body-l-font-weight)] font-body-l [font-style:var(--body-l-font-style)] tracking-[var(--body-l-letter-spacing)] leading-[var(--body-l-line-height)] text-[length:var(--body-l-font-size)]">
+                  {product.price_of_pack ? `${product.price_of_pack.toFixed(2)}€` : "N/A"}
+                </span>
+                <span className="text-[length:var(--body-s-font-size)] leading-[var(--body-s-line-height)] font-body-s [font-style:var(--body-s-font-style)] font-[number:var(--body-s-font-weight)] tracking-[var(--body-s-letter-spacing)] ml-1">
+                  {product.pack_quantity ? `/${product.pack_quantity}pcs` : ""}
+                </span>
+              </div>
             </div>
           </div>
         </div>
@@ -375,7 +418,7 @@ export const DashboardSection = (): JSX.Element => {
 
   // Sort products by stock to get most ordered items
   const mostOrderedProducts = [...productList]
-    .sort((a, b) => (b.available_stock ?? 0) - (a.available_stock ?? 0))
+    .sort((a, b) => (b.available_packs ?? 0) - (a.available_packs ?? 0))
     .slice(0, 6);
 
   const tabs = [
