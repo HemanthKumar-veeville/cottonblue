@@ -34,7 +34,7 @@ const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const FORM_FIELDS = {
-  suitable_for: { options: ["Male", "Female", "Unisex"] },
+  suitable_for: { options: ["General", "Men", "Women", "Kids", "Unisex"] },
   size: {
     options: ["Free", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"],
   },
