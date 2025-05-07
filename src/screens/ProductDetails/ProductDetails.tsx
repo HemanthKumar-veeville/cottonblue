@@ -52,28 +52,34 @@ const ProductInfo = ({ product }: { product: any }) => {
   const productDetails = [
     {
       label: t("productDetails.info.category"),
-      value: product.available_region || "Not Available",
+      value: product?.category ?? "Not Available",
     },
     {
       label: t("productDetails.info.sizes"),
-      value: product.sizes || "Not Available",
+      value: product?.size ?? "Not Available",
     },
     {
-      label: t("productDetails.info.soldBy"),
-      value: product.unit || "Not Available",
+      label: t("productDetails.info.suitableFor"),
+      value: product?.suitable_for ?? "Not Available",
     },
     {
       label: t("productDetails.info.price"),
-      value: product.price ? `${product.price}€` : "Not Available",
+      value: product?.price_of_pack
+        ? `${product.price_of_pack}€`
+        : "Not Available",
       isPrice: true,
     },
     {
       label: t("productDetails.info.availableStock"),
-      value: product.available_stock?.toString() || "Not Available",
+      value: product?.available_packs?.toString() ?? "Not Available",
     },
     {
       label: t("productDetails.info.totalStock"),
-      value: product.total_stock?.toString() || "Not Available",
+      value: product?.total_packs?.toString() ?? "Not Available",
+    },
+    {
+      label: t("productDetails.info.packQuantity"),
+      value: product?.pack_quantity?.toString() ?? "Not Available",
     },
   ];
 
@@ -81,11 +87,11 @@ const ProductInfo = ({ product }: { product: any }) => {
     <div className="flex flex-col items-start gap-4">
       <div className="flex flex-col items-start gap-1">
         <h2 className="font-heading-h2 font-bold text-gray-900 text-xl tracking-wide leading-tight">
-          {product.name || "Not Available"}
+          {product?.name ?? "Not Available"}
         </h2>
         <p className="font-heading-h3 font-bold text-gray-500 text-lg tracking-wide leading-tight">
           {t("productDetails.reference")}
-          {product.id || "Not Available"}
+          {product?.id ?? "Not Available"}
         </p>
       </div>
       {productDetails.map((detail, index) => (
@@ -148,7 +154,11 @@ const ProductActions = () => {
   );
 };
 
-const ProductDescription = ({ description }: { description: string }) => {
+const ProductDescription = ({
+  description,
+}: {
+  description: string | null;
+}) => {
   const { t } = useTranslation();
   return (
     <div className="flex flex-col w-[700px] items-start gap-1">
@@ -156,7 +166,7 @@ const ProductDescription = ({ description }: { description: string }) => {
         {t("productDetails.description.title")}
       </h3>
       <p className="font-medium text-base leading-tight text-gray-900 tracking-wide">
-        {description || "Not Available"}
+        {description ?? "Not Available"}
       </p>
     </div>
   );
@@ -168,7 +178,7 @@ export default function ProductDetails() {
   const { currentProduct, loading, error } = useAppSelector(
     (state) => state.product
   );
-  const product = currentProduct?.product || ({} as Product);
+  const product = currentProduct?.product ?? ({} as Product);
 
   const { selectedCompany } = useAppSelector((state) => state.client);
 

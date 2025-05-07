@@ -120,16 +120,22 @@ export const ProductTableSection = (): JSX.Element => {
                     {t("productList.table.name")}
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
-                    {t("productList.table.category")}
+                    {t("productList.table.suitableFor")}
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
-                    {t("productList.table.description")}
+                    {t("productList.table.size")}
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
-                    {t("productList.table.stock")}
+                    {t("productList.table.packQuantity")}
                   </TableHead>
-                  <TableHead className="w-[69px] text-left text-[#1e2324] font-text-small">
-                    {t("productList.table.price")}
+                  <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                    {t("productList.table.availablePacks")}
+                  </TableHead>
+                  <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                    {t("productList.table.priceOfPack")}
+                  </TableHead>
+                  <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                    {t("productList.table.status")}
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
                     {t("productList.table.details")}
@@ -153,10 +159,10 @@ export const ProductTableSection = (): JSX.Element => {
                         />
                       </div>
                     </TableCell>
-                    <TableCell className="w-[77px] text-left font-text-smaller text-coolgray-100">
+                    <TableCell className="w-[77px] text-left font-text-smaller text-coolgray-100 align-middle">
                       {product.id ?? "Not available"}
                     </TableCell>
-                    <TableCell className="w-[77px]">
+                    <TableCell className="w-[77px] align-middle">
                       <div
                         className="w-[50px] h-[50px] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
                         style={{
@@ -166,29 +172,40 @@ export const ProductTableSection = (): JSX.Element => {
                           backgroundColor: !product.product_image
                             ? "#f0f0f0"
                             : "transparent",
-                          backgroundSize: "cover",
+                          backgroundSize: "contain",
                           backgroundPosition: "center",
+                          backgroundRepeat: "no-repeat",
                         }}
                       />
                     </TableCell>
-                    <TableCell className="w-[145px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
+                    <TableCell className="w-[145px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)] align-middle">
                       {product.name ?? "Not available"}
                     </TableCell>
-                    <TableCell className="w-[145px] text-left font-text-smaller text-black">
-                      {product.available_region ?? "Not available"}
+                    <TableCell className="w-[145px] text-left font-text-smaller text-black align-middle">
+                      {product.suitable_for ?? "Not available"}
                     </TableCell>
-                    <TableCell className="w-[145px] text-left font-text-smaller text-black">
-                      {product.description ?? "Not available"}
+                    <TableCell className="w-[145px] text-left font-text-smaller text-black align-middle">
+                      {product.size ?? "Not available"}
                     </TableCell>
-                    <TableCell className="w-[145px] text-left font-text-smaller text-black">
-                      {product.available_stock
-                        ? `${product.available_stock} units`
+                    <TableCell className="w-[145px] text-left font-text-smaller text-black align-middle">
+                      {product.pack_quantity
+                        ? `${product.pack_quantity}`
                         : "Not available"}
                     </TableCell>
-                    <TableCell className="w-[69px] text-left font-text-smaller text-black">
-                      {product.price ? `${product.price}€` : "Not available"}
+                    <TableCell className="w-[145px] text-left font-text-smaller text-black align-middle">
+                      {product.available_packs
+                        ? `${product.available_packs}`
+                        : "Not available"}
                     </TableCell>
-                    <TableCell className="w-[145px] text-left">
+                    <TableCell className="w-[145px] text-left font-text-smaller text-black align-middle">
+                      {product.price_of_pack
+                        ? `${product.price_of_pack}€`
+                        : "Not available"}
+                    </TableCell>
+                    <TableCell className="w-[145px] text-left font-text-smaller text-black align-middle">
+                      {product.is_active ? "Active" : "Inactive"}
+                    </TableCell>
+                    <TableCell className="w-[145px] text-left align-middle">
                       <Button
                         variant="link"
                         onClick={() => navigate(`/products/${product.id}`)}

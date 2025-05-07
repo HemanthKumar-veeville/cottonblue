@@ -84,7 +84,12 @@
       "details": "Details",
       "stock": "Stock",
       "availableRegion": "Available Region",
-      "description": "Description"
+      "description": "Description",
+      "suitableFor": "Suitable For",
+      "packQuantity": "Pack Quantity",
+      "availablePacks": "Available Packs",
+      "priceOfPack": "Price of Pack",
+      "status": "Status"
     },
     "pagination": {
       "previous": "Previous",
@@ -92,44 +97,33 @@
     }
   },
   "productSidebar": {
-    "title": "Add a new product",
+    "title": "Product Information",
     "form": {
-      "productName": "Product name",
-      "productId": "SKU Reference",
-      "category": "Category",
+      "productName": "Product Name",
+      "productId": "Product ID",
       "suitableFor": "Suitable For",
-      "gender": "Gender",
       "size": "Size",
-      "region": "Region",
-      "soldBy": {
-        "carton": "Sold by carton",
-        "unit": "Sold by unit"
-      },
       "price": {
-        "packPrice": "Price per pack"
+        "packPrice": "Pack Price"
       },
-      "packOf": "Units per pack",
-      "totalPacks": "Total packs available",
-      "reference": "Reference (SKU)",
-      "description": "Description"
+      "packOf": "Pack Of",
+      "totalPacks": "Total Packs",
+      "description": "Description",
+      "soldBy": {
+        "carton": "Sold by Carton",
+        "unit": "Sold by Unit"
+      },
+      "selectPlaceholder": "Select an option"
     },
     "imageUpload": {
       "dropImages": "Drop your images here",
       "orClickToSearch": "Or click to search"
     },
     "actions": {
-      "saveDraft": "Save as draft",
-      "next": "Next",
       "save": "Save"
     },
     "messages": {
-      "loadError": "Failed to load product",
-      "updateError": "Failed to update product",
-      "publishError": "Failed to publish product",
-      "draftSaved": "Draft saved successfully",
-      "published": "Product published successfully",
-      "updated": "Product updated successfully",
-      "noChanges": "No changes detected to update"
+      "loadError": "Error loading product data"
     }
   },
   "agencyDetails": {
@@ -473,7 +467,9 @@
       "price": "Price",
       "stock": "Available Stock",
       "availableStock": "Available Stock",
-      "totalStock": "Total Stock"
+      "totalStock": "Total Stock",
+      "packQuantity": "Pack Quantity",
+      "suitableFor": "Suitable For"
     },
     "actions": {
       "modify": "Modify Product",

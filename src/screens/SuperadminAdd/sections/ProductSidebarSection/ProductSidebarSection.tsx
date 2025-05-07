@@ -23,7 +23,10 @@ import {
   getProductById,
   updateProduct,
 } from "../../../../store/features/productSlice";
-import { CreateProductData } from "../../../../services/productService";
+import {
+  CreateProductData,
+  UpdateProductData,
+} from "../../../../services/productService";
 import { useNavigate, useParams } from "react-router-dom";
 
 // Constants
@@ -33,7 +36,7 @@ const MAX_FILE_SIZE = 5 * 1024 * 1024;
 const FORM_FIELDS = {
   suitable_for: { options: ["Male", "Female", "Unisex"] },
   size: {
-    options: ["Free Size", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"],
+    options: ["Free", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"],
   },
 };
 
@@ -111,7 +114,20 @@ interface ExtendedCreateProductData
   extends Omit<CreateProductData, "product_image"> {
   suitable_for: string;
   size: string;
-  product_image: File;
+  product_image?: File;
+}
+
+interface BaseProductData {
+  company_id: string;
+  product_name: string;
+  product_id: string;
+  pack_of: number;
+  pack_price: number;
+  total_packs: number;
+  suitable_for: string;
+  size: string;
+  product_description?: string;
+  reference?: string;
 }
 
 // Reusable Components
@@ -198,36 +214,40 @@ const FormSelect = ({
   required?: boolean;
   error?: string;
   className?: string;
-}) => (
-  <FormField
-    label={label}
-    error={error}
-    isRequired={required}
-    className={className}
-  >
-    <Controller
-      name={name}
-      control={control}
-      rules={{ required: required ? `${label} is required` : false }}
-      render={({ field }) => (
-        <Select value={field.value} onValueChange={field.onChange}>
-          <SelectTrigger>
-            <div className="pt-4 pr-3 pb-2 pl-3 border-gray-300 min-h-[3.25rem]">
-              <SelectValue placeholder="" />
-            </div>
-          </SelectTrigger>
-          <SelectContent>
-            {options.map((option) => (
-              <SelectItem key={option} value={option}>
-                {option}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      )}
-    />
-  </FormField>
-);
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <FormField
+      label={label}
+      error={error}
+      isRequired={required}
+      className={className}
+    >
+      <Controller
+        name={name}
+        control={control}
+        rules={{ required: required ? `${label} is required` : false }}
+        render={({ field: { onChange, value } }) => (
+          <Select value={value} onValueChange={onChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue
+                placeholder={t("productSidebar.form.selectPlaceholder")}
+              />
+            </SelectTrigger>
+            <SelectContent>
+              {options.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {option}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
+      />
+    </FormField>
+  );
+};
 
 interface ProductSidebarSectionProps {
   mode?: "add" | "edit";
@@ -282,24 +302,32 @@ export const ProductSidebarSection = ({
           );
 
           if (getProductById.fulfilled.match(resultAction)) {
-            const { description, name, price, product_image, stock } =
-              resultAction.payload?.product;
+            const product = resultAction.payload?.product;
+            console.log("Product data received:", product); // Debug log
 
-            reset({
-              name: name || "",
-              productId: "",
-              suitable_for: "",
-              size: "",
-              soldByCarton: true,
-              soldByUnit: false,
-              pack_price: price?.toString() || "",
-              pack_of: "",
-              total_packs: stock?.toString() || "",
-              reference: "",
-              description: description || "",
+            // Determine if product is sold by unit or carton
+            const isSoldByUnit = product.pack_quantity === 1;
+            const isSoldByCarton = !isSoldByUnit;
+
+            // Map the fields with proper fallbacks
+            const formData = {
+              name: product.name || "",
+              productId: product.id?.toString() || "",
+              suitable_for: product.suitable_for || "",
+              size: product.size || "",
+              soldByCarton: isSoldByCarton,
+              soldByUnit: isSoldByUnit,
+              pack_price: product.price_of_pack?.toString() || "0",
+              pack_of: product.pack_quantity?.toString() || "1",
+              total_packs: product.total_packs?.toString() || "0",
+              reference: product.id?.toString() || "",
+              description: product.description || "",
               images: {},
-              imageUrls: { 0: product_image || "" },
-            });
+              imageUrls: { 0: product.product_image || "" },
+            };
+
+            console.log("Mapped form data:", formData); // Debug log
+            reset(formData);
           }
         } catch (error) {
           console.error("Error loading product:", error);
@@ -361,37 +389,38 @@ export const ProductSidebarSection = ({
         throw new Error("Please select a company first");
       }
 
-      const mainImage = data.images[0];
-      if (!mainImage) {
-        throw new Error("Main image is required");
+      // Only check for main image in add mode
+      if (mode === "add") {
+        const mainImage = data.images[0];
+        if (!mainImage) {
+          throw new Error("Main image is required");
+        }
       }
 
-      const baseProductData: ExtendedCreateProductData = {
+      const baseData: BaseProductData = {
         company_id: selectedCompany.id,
         product_name: data.name.trim(),
         product_id: data.productId.trim(),
-        product_image: mainImage,
         pack_of: parseInt(data.pack_of) || 1,
         pack_price: parseFloat(data.pack_price) || 0,
         total_packs: parseInt(data.total_packs) || 0,
         suitable_for: data.suitable_for,
         size: data.size,
+        product_description: data.description?.trim(),
+        reference: data.reference?.trim(),
       };
 
-      if (data.description?.trim()) {
-        baseProductData.product_description = data.description.trim();
-      }
-
-      if (data.reference?.trim()) {
-        baseProductData.reference = data.reference.trim();
-      }
-
       if (mode === "edit" && id) {
+        const updateData: UpdateProductData = {
+          ...baseData,
+          product_image: data.images[0],
+        };
+
         const resultAction = await dispatch(
           updateProduct({
             dnsPrefix: selectedCompany.dns,
             productId: id,
-            data: baseProductData,
+            data: updateData,
           }) as any
         );
 
@@ -400,10 +429,15 @@ export const ProductSidebarSection = ({
           navigate(`/products/${id}`);
         }
       } else {
+        const createData: CreateProductData = {
+          ...baseData,
+          product_image: data.images[0]!, // We know this exists because of the validation above
+        };
+
         const resultAction = await dispatch(
           createProduct({
             dnsPrefix: selectedCompany.dns,
-            data: baseProductData,
+            data: createData,
           }) as any
         );
 

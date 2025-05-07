@@ -84,7 +84,12 @@
       "details": "Détails",
       "stock": "Stock",
       "availableRegion": "Région disponible",
-      "description": "Description"
+      "description": "Description",
+      "suitableFor": "Convient à",
+      "packQuantity": "Quantité par lot",
+      "availablePacks": "Lots disponibles",
+      "priceOfPack": "Prix du lot",
+      "status": "Statut"
     },
     "pagination": {
       "previous": "Précédent",
@@ -494,7 +499,9 @@
       "price": "Prix",
       "stock": "Stock disponible",
       "availableStock": "Stock disponible",
-      "totalStock": "Stock total"
+      "totalStock": "Stock total",
+      "packQuantity": "Quantité par pack",
+      "suitableFor": "Convient à"
     },
     "actions": {
       "modify": "Modifier le produit",

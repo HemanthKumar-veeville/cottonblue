@@ -5,16 +5,19 @@ import { productService, CreateProductData, UpdateProductData } from '../../serv
 interface Product {
   id: number;
   name: string;
-  price: number;
   description: string;
   product_image: string | null;
-  total_stock: number;
-  available_stock: number;
-  available_region: string;
-  company_id: number;
+  category: string | null;
+  pack_quantity: number;
+  total_packs: number;
+  available_packs: number;
   created_at: string;
-  updated_at: string;
+  company_id: number;
+  suitable_for: string;
+  size: string;
+  price_of_pack: number;
   is_active: boolean;
+  updated_at: string;
 }
 
 interface ProductState {
@@ -131,8 +134,8 @@ const productSlice = createSlice({
       const { productId, quantity } = action.payload;
       if (state.products.products) {
         const product = state.products.products.find(p => p.id === productId);
-        if (product && product.available_stock >= quantity) {
-          product.available_stock -= quantity;
+        if (product && product.available_packs >= quantity) {
+          product.available_packs -= quantity;
         }
       }
     },
@@ -141,7 +144,7 @@ const productSlice = createSlice({
       if (state.products.products) {
         const product = state.products.products.find(p => p.id === productId);
         if (product) {
-          product.available_stock += quantity;
+          product.available_packs += quantity;
         }
       }
     },
@@ -150,7 +153,7 @@ const productSlice = createSlice({
       if (state.products.products) {
         const product = state.products.products.find(p => p.id === productId);
         if (product) {
-          product.available_stock = newStock;
+          product.available_packs = newStock;
         }
       }
     }
