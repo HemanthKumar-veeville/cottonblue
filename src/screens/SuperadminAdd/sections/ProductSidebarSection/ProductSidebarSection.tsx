@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "../../../../components/ui/button";
-import { Card, CardContent } from "../../../../components/ui/card";
 import { Checkbox } from "../../../../components/ui/checkbox";
 import { Input } from "../../../../components/ui/input";
 import {
@@ -456,205 +455,203 @@ export const ProductSidebarSection = ({
     <div className="flex items-start justify-around gap-24 relative flex-1 self-stretch grow">
       <header className="flex flex-col items-start relative flex-1 self-stretch grow bg-transparent">
         <div className="h-[calc(100vh-4rem)] w-full overflow-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <Card className="flex flex-col items-start gap-8 p-6 relative flex-1 self-stretch w-full grow rounded-lg overflow-hidden">
-            <CardContent className="p-0 w-full">
-              <form onSubmit={handleSubmit(onSubmit)} className="w-full">
-                <div className="flex items-start justify-center gap-6 relative flex-1 self-stretch w-full grow">
-                  <div className="flex flex-col items-start gap-6 relative flex-1 self-stretch grow">
-                    <div className="flex items-center justify-center gap-2 mt-8">
-                      <h3 className="font-heading-h3 font-bold text-gray-700 text-lg tracking-wide leading-6 whitespace-nowrap">
-                        {t("productSidebar.title")}
-                      </h3>
-                    </div>
+          <div className="flex flex-col items-start gap-8 p-6 relative flex-1 self-stretch w-full grow">
+            <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+              <div className="flex items-start justify-center gap-6 relative flex-1 self-stretch w-full grow">
+                <div className="flex flex-col items-start gap-6 relative flex-1 self-stretch grow">
+                  <div className="flex items-center justify-center gap-2">
+                    <h3 className="font-heading-h3 font-bold text-gray-700 text-lg tracking-wide leading-6 whitespace-nowrap">
+                      {t("productSidebar.title")}
+                    </h3>
+                  </div>
 
-                    {/* Basic Information */}
-                    <div className="flex items-start gap-2 relative self-stretch w-full">
-                      {FORM_CONFIG.basic.map((field) => (
-                        <FormInput
-                          key={field.name}
-                          name={field.name}
-                          control={control}
-                          label={t(field.label)}
-                          type={field.type}
-                          required={field.required}
-                          error={
-                            errors[field.name as keyof typeof errors]?.message
-                          }
-                          className="flex-1"
-                        />
-                      ))}
-                    </div>
+                  {/* Basic Information */}
+                  <div className="flex items-start gap-2 relative self-stretch w-full">
+                    {FORM_CONFIG.basic.map((field) => (
+                      <FormInput
+                        key={field.name}
+                        name={field.name}
+                        control={control}
+                        label={t(field.label)}
+                        type={field.type}
+                        required={field.required}
+                        error={
+                          errors[field.name as keyof typeof errors]?.message
+                        }
+                        className="flex-1"
+                      />
+                    ))}
+                  </div>
 
-                    {/* Attributes */}
-                    <div className="flex items-start gap-2 relative self-stretch w-full">
-                      {FORM_CONFIG.attributes.map((field) => (
-                        <FormSelect
-                          key={field.name}
-                          name={field.name}
-                          control={control}
-                          label={t(field.label)}
-                          options={field.options}
-                          required={field.required}
-                          error={
-                            errors[field.name as keyof typeof errors]?.message
-                          }
-                          className="flex-1"
-                        />
-                      ))}
-                    </div>
+                  {/* Attributes */}
+                  <div className="flex items-start gap-2 relative self-stretch w-full">
+                    {FORM_CONFIG.attributes.map((field) => (
+                      <FormSelect
+                        key={field.name}
+                        name={field.name}
+                        control={control}
+                        label={t(field.label)}
+                        options={field.options}
+                        required={field.required}
+                        error={
+                          errors[field.name as keyof typeof errors]?.message
+                        }
+                        className="flex-1"
+                      />
+                    ))}
+                  </div>
 
-                    {/* Sold By Options */}
-                    <div className="flex items-start gap-2 relative self-stretch w-full">
-                      <div className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative flex-1 grow bg-white rounded-lg border border-solid border-gray-300">
-                        <Controller
-                          name="soldByCarton"
-                          control={control}
-                          render={({ field }) => (
-                            <Checkbox
-                              id="carton"
-                              className="w-6 h-6 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
-                              checked={field.value}
-                              onCheckedChange={(checked: boolean) => {
-                                field.onChange(checked);
-                                if (checked) {
-                                  setValue("soldByUnit", false);
-                                }
-                              }}
-                            />
-                          )}
-                        />
-                        <label
-                          htmlFor="carton"
-                          className="flex-1 font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5"
-                        >
-                          {t("productSidebar.form.soldBy.carton")}
-                        </label>
-                      </div>
-
-                      <div className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative flex-1 grow bg-white rounded-lg border border-solid border-gray-300">
-                        <Controller
-                          name="soldByUnit"
-                          control={control}
-                          render={({ field }) => (
-                            <Checkbox
-                              id="unit"
-                              className="w-6 h-6 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
-                              checked={field.value}
-                              onCheckedChange={(checked: boolean) => {
-                                field.onChange(checked);
-                                if (checked) {
-                                  setValue("soldByCarton", false);
-                                  setValue("pack_of", "1");
-                                }
-                              }}
-                            />
-                          )}
-                        />
-                        <label
-                          htmlFor="unit"
-                          className="flex-1 font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5"
-                        >
-                          {t("productSidebar.form.soldBy.unit")}
-                        </label>
-                      </div>
-                    </div>
-
-                    {/* Pricing Information */}
-                    <div className="flex items-start gap-2 relative self-stretch w-full">
-                      {FORM_CONFIG.pricing.map((field) => (
-                        <FormInput
-                          key={field.name}
-                          name={field.name}
-                          control={control}
-                          label={t(field.label)}
-                          type={field.type}
-                          required={field.required}
-                          error={
-                            errors[field.name as keyof typeof errors]?.message
-                          }
-                          className="flex-1"
-                          disabled={
-                            field.name === "pack_of"
-                              ? formData.soldByUnit
-                              : !formData.soldByCarton && !formData.soldByUnit
-                          }
-                        />
-                      ))}
-                    </div>
-
-                    {/* Description */}
-                    <FormField
-                      label={t("productSidebar.form.description")}
-                      error={errors.description?.message}
-                    >
+                  {/* Sold By Options */}
+                  <div className="flex items-start gap-2 relative self-stretch w-full">
+                    <div className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative flex-1 grow bg-white rounded-lg border border-solid border-gray-300">
                       <Controller
-                        name="description"
+                        name="soldByCarton"
                         control={control}
                         render={({ field }) => (
-                          <Textarea
-                            {...field}
-                            className="h-[175px] pt-6 pr-3 pb-2 pl-3 border-gray-300"
+                          <Checkbox
+                            id="carton"
+                            className="w-6 h-6 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+                            checked={field.value}
+                            onCheckedChange={(checked: boolean) => {
+                              field.onChange(checked);
+                              if (checked) {
+                                setValue("soldByUnit", false);
+                              }
+                            }}
                           />
                         )}
                       />
-                    </FormField>
+                      <label
+                        htmlFor="carton"
+                        className="flex-1 font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5"
+                      >
+                        {t("productSidebar.form.soldBy.carton")}
+                      </label>
+                    </div>
+
+                    <div className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative flex-1 grow bg-white rounded-lg border border-solid border-gray-300">
+                      <Controller
+                        name="soldByUnit"
+                        control={control}
+                        render={({ field }) => (
+                          <Checkbox
+                            id="unit"
+                            className="w-6 h-6 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+                            checked={field.value}
+                            onCheckedChange={(checked: boolean) => {
+                              field.onChange(checked);
+                              if (checked) {
+                                setValue("soldByCarton", false);
+                                setValue("pack_of", "1");
+                              }
+                            }}
+                          />
+                        )}
+                      />
+                      <label
+                        htmlFor="unit"
+                        className="flex-1 font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5"
+                      >
+                        {t("productSidebar.form.soldBy.unit")}
+                      </label>
+                    </div>
                   </div>
 
-                  {/* Image Upload Section */}
-                  <div className="flex flex-col items-end justify-between relative self-stretch mt-20">
-                    <div className="flex flex-col items-start gap-6">
-                      <div className="flex items-start gap-4">
-                        <div className="flex items-center gap-4">
-                          <ProductImageUploader
-                            position={0}
-                            imageUrl={formData.imageUrls[0]}
-                            onUpload={handleFileUpload}
-                            onRemove={handleRemoveImage}
-                            isMain
-                          />
-                          <div className="flex flex-col h-[250px] items-start justify-center gap-6">
-                            <div className="grid grid-cols-2 gap-6">
-                              {[1, 2, 3, 4].map((position) => (
-                                <ProductImageUploader
-                                  key={position}
-                                  position={position}
-                                  imageUrl={formData.imageUrls[position]}
-                                  onUpload={handleFileUpload}
-                                  onRemove={handleRemoveImage}
-                                  disabled={
-                                    Object.keys(formData.images || {}).length >=
-                                    MAX_IMAGES
-                                  }
-                                />
-                              ))}
-                            </div>
+                  {/* Pricing Information */}
+                  <div className="flex items-start gap-2 relative self-stretch w-full">
+                    {FORM_CONFIG.pricing.map((field) => (
+                      <FormInput
+                        key={field.name}
+                        name={field.name}
+                        control={control}
+                        label={t(field.label)}
+                        type={field.type}
+                        required={field.required}
+                        error={
+                          errors[field.name as keyof typeof errors]?.message
+                        }
+                        className="flex-1"
+                        disabled={
+                          field.name === "pack_of"
+                            ? formData.soldByUnit
+                            : !formData.soldByCarton && !formData.soldByUnit
+                        }
+                      />
+                    ))}
+                  </div>
+
+                  {/* Description */}
+                  <FormField
+                    label={t("productSidebar.form.description")}
+                    error={errors.description?.message}
+                  >
+                    <Controller
+                      name="description"
+                      control={control}
+                      render={({ field }) => (
+                        <Textarea
+                          {...field}
+                          className="h-[175px] pt-6 pr-3 pb-2 pl-3 border-gray-300"
+                        />
+                      )}
+                    />
+                  </FormField>
+                </div>
+
+                {/* Image Upload Section */}
+                <div className="flex flex-col items-end justify-between relative self-stretch mt-20">
+                  <div className="flex flex-col items-start gap-6">
+                    <div className="flex items-start gap-4">
+                      <div className="flex items-center gap-4">
+                        <ProductImageUploader
+                          position={0}
+                          imageUrl={formData.imageUrls[0]}
+                          onUpload={handleFileUpload}
+                          onRemove={handleRemoveImage}
+                          isMain
+                        />
+                        <div className="flex flex-col h-[250px] items-start justify-center gap-6">
+                          <div className="grid grid-cols-2 gap-6">
+                            {[1, 2, 3, 4].map((position) => (
+                              <ProductImageUploader
+                                key={position}
+                                position={position}
+                                imageUrl={formData.imageUrls[position]}
+                                onUpload={handleFileUpload}
+                                onRemove={handleRemoveImage}
+                                disabled={
+                                  Object.keys(formData.images || {}).length >=
+                                  MAX_IMAGES
+                                }
+                              />
+                            ))}
                           </div>
                         </div>
                       </div>
                     </div>
+                  </div>
 
-                    {/* Submit Button */}
-                    <div className="flex items-start gap-4 mt-6">
-                      <Button
-                        type="submit"
-                        className={cn(
-                          "gap-4 py-4 px-4 self-stretch bg-[#07515f] border-gray-300",
-                          "hover:bg-[#064a56] transition-colors duration-200",
-                          "disabled:opacity-50 disabled:cursor-not-allowed",
-                          isSubmitting && "animate-pulse"
-                        )}
-                        disabled={isSubmitting}
-                      >
-                        <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5 whitespace-nowrap">
-                          {t("productSidebar.actions.save")}
-                        </span>
-                      </Button>
-                    </div>
+                  {/* Submit Button */}
+                  <div className="flex items-start gap-4 mt-6">
+                    <Button
+                      type="submit"
+                      className={cn(
+                        "gap-4 py-4 px-4 self-stretch bg-[#07515f] border-gray-300",
+                        "hover:bg-[#064a56] transition-colors duration-200",
+                        "disabled:opacity-50 disabled:cursor-not-allowed",
+                        isSubmitting && "animate-pulse"
+                      )}
+                      disabled={isSubmitting}
+                    >
+                      <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5 whitespace-nowrap">
+                        {t("productSidebar.actions.save")}
+                      </span>
+                    </Button>
                   </div>
                 </div>
-              </form>
-            </CardContent>
-          </Card>
+              </div>
+            </form>
+          </div>
         </div>
       </header>
     </div>
