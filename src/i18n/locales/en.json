@@ -100,7 +100,7 @@
     "title": "Product Information",
     "form": {
       "productName": "Product Name",
-      "productId": "Product ID",
+      "productId": "SKU Reference",
       "suitableFor": "Suitable For",
       "size": "Size",
       "price": {

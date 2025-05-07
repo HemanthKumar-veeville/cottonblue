@@ -456,11 +456,15 @@ export const ProductSidebarSection = ({
       <header className="flex flex-col items-start relative flex-1 self-stretch grow bg-transparent">
         <div className="h-[calc(100vh-4rem)] w-full overflow-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="flex flex-col items-start gap-8 p-6 relative flex-1 self-stretch w-full grow">
-            <form onSubmit={handleSubmit(onSubmit)} className="w-full">
+            <form
+              id="product-form"
+              onSubmit={handleSubmit(onSubmit)}
+              className="w-full"
+            >
               <div className="flex items-start justify-center gap-6 relative flex-1 self-stretch w-full grow">
                 <div className="flex flex-col items-start gap-6 relative flex-1 self-stretch grow">
-                  <div className="flex items-center justify-center gap-2">
-                    <h3 className="font-heading-h3 font-bold text-gray-700 text-lg tracking-wide leading-6 whitespace-nowrap">
+                  <div className="flex items-center justify-center gap-2 mb-6">
+                    <h3 className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] font-[number:var(--heading-h3-font-weight)] [font-style:var(--heading-h3-font-style)]">
                       {t("productSidebar.title")}
                     </h3>
                   </div>
@@ -630,30 +634,35 @@ export const ProductSidebarSection = ({
                       </div>
                     </div>
                   </div>
-
-                  {/* Submit Button */}
-                  <div className="flex items-start gap-4 mt-6">
-                    <Button
-                      type="submit"
-                      className={cn(
-                        "gap-4 py-4 px-4 self-stretch bg-[#07515f] border-gray-300",
-                        "hover:bg-[#064a56] transition-colors duration-200",
-                        "disabled:opacity-50 disabled:cursor-not-allowed",
-                        isSubmitting && "animate-pulse"
-                      )}
-                      disabled={isSubmitting}
-                    >
-                      <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5 whitespace-nowrap">
-                        {t("productSidebar.actions.save")}
-                      </span>
-                    </Button>
-                  </div>
                 </div>
               </div>
             </form>
           </div>
         </div>
       </header>
+
+      {/* Fixed Footer */}
+      <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
+        <div className="px-6 max-w-[calc(100%-2rem)]">
+          <div className="flex items-center justify-end w-full mx-auto">
+            <Button
+              type="submit"
+              form="product-form"
+              className={cn(
+                "gap-4 py-4 px-4 self-stretch bg-[#07515f] border-gray-300",
+                "hover:bg-[#064a56] transition-colors duration-200",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+                isSubmitting && "animate-pulse"
+              )}
+              disabled={isSubmitting}
+            >
+              <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5 whitespace-nowrap">
+                {t("productSidebar.actions.save")}
+              </span>
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
