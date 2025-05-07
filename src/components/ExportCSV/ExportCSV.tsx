@@ -1,5 +1,11 @@
 import { Button } from "../ui/button";
-import { Dialog, DialogContent, DialogTitle, DialogFooter } from "../ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "../ui/dialog";
 import { Checkbox } from "../ui/checkbox";
 import { useTranslation } from "react-i18next";
 import * as XLSX from "xlsx";
@@ -25,6 +31,7 @@ interface ExportCSVProps {
   onClose: () => void;
   products: Product[];
   sheetName?: string;
+  templateColumns?: string[];
 }
 
 const headerDisplayNames = {
@@ -62,41 +69,79 @@ export const ExportCSV = ({
   onClose,
   products,
   sheetName = "Products",
+  templateColumns,
 }: ExportCSVProps) => {
   const { t } = useTranslation();
-  const [selectedFields, setSelectedFields] = useState({
-    id: true,
-    name: true,
-    description: true,
-    price: true,
-    total_stock: true,
-  });
+  const [selectedFields, setSelectedFields] = useState<Record<string, boolean>>(
+    () => {
+      const initialFields: Record<string, boolean> = {};
+      if (templateColumns) {
+        templateColumns.forEach((col) => {
+          initialFields[col] = true;
+        });
+      } else {
+        // Default fields if no template columns provided
+        initialFields["Product Name"] = true;
+        initialFields["SKU Reference"] = true;
+        initialFields["Pack of"] = true;
+        initialFields["Pack Price"] = true;
+        initialFields["Total Packs"] = true;
+        initialFields["Suitable For"] = true;
+        initialFields["Size"] = true;
+        initialFields["Product Description"] = true;
+      }
+      return initialFields;
+    }
+  );
 
   const handleExport = () => {
     try {
       // Filter products data based on selected fields
       const exportData = products.map((product) => {
         const filteredProduct: Record<string, any> = {};
-        if (selectedFields.id) filteredProduct.id = product.id;
-        if (selectedFields.name) filteredProduct.name = product.name;
-        if (selectedFields.description)
-          filteredProduct.description = product.description;
-        if (selectedFields.price) filteredProduct.price = product.price;
-        if (selectedFields.total_stock)
-          filteredProduct.total_stock = product.total_stock;
+        Object.entries(selectedFields).forEach(([field, isSelected]) => {
+          if (isSelected) {
+            // Map the display names to actual product fields
+            switch (field) {
+              case "Product Name":
+                filteredProduct[field] = product.name;
+                break;
+              case "SKU Reference":
+                filteredProduct[field] = product.id;
+                break;
+              case "Pack of":
+                filteredProduct[field] = product.total_stock;
+                break;
+              case "Pack Price":
+                filteredProduct[field] = product.price;
+                break;
+              case "Total Packs":
+                filteredProduct[field] = product.total_stock;
+                break;
+              case "Suitable For":
+                filteredProduct[field] = product.available_region;
+                break;
+              case "Size":
+                filteredProduct[field] = "";
+                break;
+              case "Product Description":
+                filteredProduct[field] = product.description;
+                break;
+              default:
+                filteredProduct[field] = "";
+            }
+          }
+        });
         return filteredProduct;
       });
 
       // Create worksheet
       const ws = XLSX.utils.json_to_sheet(exportData);
 
-      // Format headers with proper display names
-      const headers = Object.keys(selectedFields)
-        .filter((field) => selectedFields[field as keyof typeof selectedFields])
-        .map(
-          (field) =>
-            headerDisplayNames[field as keyof typeof headerDisplayNames]
-        );
+      // Format headers with selected field names
+      const headers = Object.keys(selectedFields).filter(
+        (field) => selectedFields[field]
+      );
 
       XLSX.utils.sheet_add_aoa(ws, [headers], { origin: "A1" });
 
@@ -116,15 +161,15 @@ export const ExportCSV = ({
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
-        <DialogTitle>{t("exportCSV.title", "Export Products")}</DialogTitle>
+        <DialogHeader>
+          <DialogTitle>{t("exportCSV.title", "Export Products")}</DialogTitle>
+        </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="flex flex-col gap-3">
             {Object.entries(selectedFields).map(([field, isSelected]) => (
               <FieldCheckbox
                 key={field}
-                label={
-                  headerDisplayNames[field as keyof typeof headerDisplayNames]
-                }
+                label={field}
                 checked={isSelected}
                 onChange={(checked) =>
                   setSelectedFields((prev) => ({ ...prev, [field]: checked }))
@@ -133,7 +178,7 @@ export const ExportCSV = ({
             ))}
           </div>
         </div>
-        <DialogFooter className="flex justify-end gap-3">
+        <DialogFooter>
           <Button variant="outline" onClick={onClose}>
             {t("common.cancel", "Cancel")}
           </Button>

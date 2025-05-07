@@ -98,6 +98,7 @@
       "productId": "Référence SKU",
       "category": "Catégorie",
       "gender": "Genre",
+      "suitableFor": "Adapté pour",
       "size": "Taille",
       "region": "Région",
       "soldBy": {

@@ -31,7 +31,7 @@ const MAX_IMAGES = 5;
 const MAX_FILE_SIZE = 5 * 1024 * 1024;
 
 const FORM_FIELDS = {
-  gender: { options: ["Male", "Female", "Unisex"] },
+  suitable_for: { options: ["Male", "Female", "Unisex"] },
   size: {
     options: ["Free Size", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"],
   },
@@ -54,10 +54,10 @@ const FORM_CONFIG = {
   ],
   attributes: [
     {
-      name: "gender",
-      label: "productSidebar.form.gender",
+      name: "suitable_for",
+      label: "productSidebar.form.suitableFor",
       type: "select",
-      options: FORM_FIELDS.gender.options,
+      options: FORM_FIELDS.suitable_for.options,
       required: true,
     },
     {
@@ -93,7 +93,7 @@ const FORM_CONFIG = {
 interface FormData {
   name: string;
   productId: string;
-  gender: string;
+  suitable_for: string;
   size: string;
   soldByCarton: boolean;
   soldByUnit: boolean;
@@ -109,7 +109,7 @@ interface FormData {
 // Extend CreateProductData type to include our custom fields
 interface ExtendedCreateProductData
   extends Omit<CreateProductData, "product_image"> {
-  gender: string;
+  suitable_for: string;
   size: string;
   product_image: File;
 }
@@ -253,7 +253,7 @@ export const ProductSidebarSection = ({
     defaultValues: {
       name: "",
       productId: "",
-      gender: "",
+      suitable_for: "",
       size: "",
       soldByCarton: true,
       soldByUnit: false,
@@ -288,7 +288,7 @@ export const ProductSidebarSection = ({
             reset({
               name: name || "",
               productId: "",
-              gender: "",
+              suitable_for: "",
               size: "",
               soldByCarton: true,
               soldByUnit: false,
@@ -374,7 +374,7 @@ export const ProductSidebarSection = ({
         pack_of: parseInt(data.pack_of) || 1,
         pack_price: parseFloat(data.pack_price) || 0,
         total_packs: parseInt(data.total_packs) || 0,
-        gender: data.gender,
+        suitable_for: data.suitable_for,
         size: data.size,
       };
 

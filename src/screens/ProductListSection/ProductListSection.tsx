@@ -135,7 +135,7 @@ export const ProductListSection = (): JSX.Element => {
           "Pack of",
           "Pack Price",
           "Total Packs",
-          "Gender",
+          "Suitable For",
           "Size",
           "Product Description",
         ]}
@@ -146,6 +146,16 @@ export const ProductListSection = (): JSX.Element => {
         onClose={() => setIsExportModalOpen(false)}
         products={productList}
         sheetName="Products"
+        templateColumns={[
+          "Product Name",
+          "SKU Reference",
+          "Pack of",
+          "Pack Price",
+          "Total Packs",
+          "Suitable For",
+          "Size",
+          "Product Description",
+        ]}
       />
     </section>
   );

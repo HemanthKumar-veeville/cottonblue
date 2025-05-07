@@ -97,6 +97,7 @@
       "productName": "Product name",
       "productId": "SKU Reference",
       "category": "Category",
+      "suitableFor": "Suitable For",
       "gender": "Gender",
       "size": "Size",
       "region": "Region",
