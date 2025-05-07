@@ -37,6 +37,59 @@ const FORM_FIELDS = {
   },
 };
 
+// Form field configurations
+const FORM_CONFIG = {
+  basic: [
+    {
+      name: "name",
+      label: "productSidebar.form.productName",
+      type: "text",
+      required: true,
+    },
+    {
+      name: "productId",
+      label: "productSidebar.form.productId",
+      type: "text",
+    },
+  ],
+  attributes: [
+    {
+      name: "gender",
+      label: "productSidebar.form.gender",
+      type: "select",
+      options: FORM_FIELDS.gender.options,
+      required: true,
+    },
+    {
+      name: "size",
+      label: "productSidebar.form.size",
+      type: "select",
+      options: FORM_FIELDS.size.options,
+      required: true,
+    },
+  ],
+  pricing: [
+    {
+      name: "pack_price",
+      label: "productSidebar.form.price.packPrice",
+      type: "number",
+      required: true,
+    },
+    {
+      name: "pack_of",
+      label: "productSidebar.form.packOf",
+      type: "number",
+      required: true,
+    },
+    {
+      name: "total_packs",
+      label: "productSidebar.form.totalPacks",
+      type: "number",
+      required: true,
+    },
+  ],
+};
+
 interface FormData {
   name: string;
   productId: string;
@@ -86,6 +139,94 @@ const FormField = ({
     </div>
     {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
   </div>
+);
+
+const FormInput = ({
+  name,
+  control,
+  label,
+  type = "text",
+  required = false,
+  disabled = false,
+  error,
+  className,
+}: {
+  name: string;
+  control: any;
+  label: string;
+  type?: string;
+  required?: boolean;
+  disabled?: boolean;
+  error?: string;
+  className?: string;
+}) => (
+  <FormField
+    label={label}
+    error={error}
+    isRequired={required}
+    className={className}
+  >
+    <Controller
+      name={name}
+      control={control}
+      rules={{ required: required ? `${label} is required` : false }}
+      render={({ field }) => (
+        <Input
+          {...field}
+          type={type}
+          className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
+          disabled={disabled}
+        />
+      )}
+    />
+  </FormField>
+);
+
+const FormSelect = ({
+  name,
+  control,
+  label,
+  options,
+  required = false,
+  error,
+  className,
+}: {
+  name: string;
+  control: any;
+  label: string;
+  options: string[];
+  required?: boolean;
+  error?: string;
+  className?: string;
+}) => (
+  <FormField
+    label={label}
+    error={error}
+    isRequired={required}
+    className={className}
+  >
+    <Controller
+      name={name}
+      control={control}
+      rules={{ required: required ? `${label} is required` : false }}
+      render={({ field }) => (
+        <Select value={field.value} onValueChange={field.onChange}>
+          <SelectTrigger>
+            <div className="pt-4 pr-3 pb-2 pl-3 border-gray-300 min-h-[3.25rem]">
+              <SelectValue placeholder="" />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      )}
+    />
+  </FormField>
 );
 
 interface ProductSidebarSectionProps {
@@ -292,99 +433,52 @@ export const ProductSidebarSection = ({
                       </h3>
                     </div>
 
-                    <FormField
-                      label={t("productSidebar.form.productName")}
-                      error={errors.name?.message}
-                      isRequired
-                    >
-                      <Controller
-                        name="name"
-                        control={control}
-                        rules={{ required: "Product name is required" }}
-                        render={({ field }) => (
-                          <Input
-                            {...field}
-                            className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
-                          />
-                        )}
-                      />
-                    </FormField>
-
+                    {/* Basic Information */}
                     <div className="flex items-start gap-2 relative self-stretch w-full">
-                      <FormField
-                        className="flex-1"
-                        label={t("productSidebar.form.gender")}
-                        error={errors.gender?.message}
-                        isRequired
-                      >
-                        <Controller
-                          name="gender"
+                      {FORM_CONFIG.basic.map((field) => (
+                        <FormInput
+                          key={field.name}
+                          name={field.name}
                           control={control}
-                          rules={{ required: "Gender is required" }}
-                          render={({ field }) => (
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <SelectTrigger>
-                                <div className="pt-4 pr-3 pb-2 pl-3 border-gray-300 min-h-[3.25rem]">
-                                  <SelectValue placeholder="" />
-                                </div>
-                              </SelectTrigger>
-                              <SelectContent>
-                                {FORM_FIELDS.gender.options.map((option) => (
-                                  <SelectItem key={option} value={option}>
-                                    {option}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
+                          label={t(field.label)}
+                          type={field.type}
+                          required={field.required}
+                          error={
+                            errors[field.name as keyof typeof errors]?.message
+                          }
+                          className="flex-1"
                         />
-                      </FormField>
-
-                      <FormField
-                        className="flex-1"
-                        label={t("productSidebar.form.size")}
-                        error={errors.size?.message}
-                        isRequired
-                      >
-                        <Controller
-                          name="size"
-                          control={control}
-                          rules={{ required: "Size is required" }}
-                          render={({ field }) => (
-                            <Select
-                              value={field.value}
-                              onValueChange={field.onChange}
-                            >
-                              <SelectTrigger>
-                                <div className="pt-4 pr-3 pb-2 pl-3 border-gray-300 min-h-[3.25rem]">
-                                  <SelectValue placeholder="" />
-                                </div>
-                              </SelectTrigger>
-                              <SelectContent>
-                                {FORM_FIELDS.size.options.map((option) => (
-                                  <SelectItem key={option} value={option}>
-                                    {option}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        />
-                      </FormField>
+                      ))}
                     </div>
 
+                    {/* Attributes */}
                     <div className="flex items-start gap-2 relative self-stretch w-full">
-                      <div className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative flex-1 grow bg-gray-100 rounded-lg border border-solid border-gray-300">
+                      {FORM_CONFIG.attributes.map((field) => (
+                        <FormSelect
+                          key={field.name}
+                          name={field.name}
+                          control={control}
+                          label={t(field.label)}
+                          options={field.options}
+                          required={field.required}
+                          error={
+                            errors[field.name as keyof typeof errors]?.message
+                          }
+                          className="flex-1"
+                        />
+                      ))}
+                    </div>
+
+                    {/* Sold By Options */}
+                    <div className="flex items-start gap-2 relative self-stretch w-full">
+                      <div className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative flex-1 grow bg-white rounded-lg border border-solid border-gray-300">
                         <Controller
                           name="soldByCarton"
                           control={control}
                           render={({ field }) => (
                             <Checkbox
                               id="carton"
-                              className="w-6 h-6"
+                              className="w-6 h-6 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
                               checked={field.value}
                               onCheckedChange={(checked: boolean) => {
                                 field.onChange(checked);
@@ -403,14 +497,14 @@ export const ProductSidebarSection = ({
                         </label>
                       </div>
 
-                      <div className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative flex-1 grow bg-gray-100 rounded-lg border border-solid border-gray-300">
+                      <div className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative flex-1 grow bg-white rounded-lg border border-solid border-gray-300">
                         <Controller
                           name="soldByUnit"
                           control={control}
                           render={({ field }) => (
                             <Checkbox
                               id="unit"
-                              className="w-6 h-6"
+                              className="w-6 h-6 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
                               checked={field.value}
                               onCheckedChange={(checked: boolean) => {
                                 field.onChange(checked);
@@ -431,94 +525,30 @@ export const ProductSidebarSection = ({
                       </div>
                     </div>
 
+                    {/* Pricing Information */}
                     <div className="flex items-start gap-2 relative self-stretch w-full">
-                      <FormField
-                        className="flex-1"
-                        label={t("productSidebar.form.price.packPrice")}
-                        error={errors.pack_price?.message}
-                        isRequired
-                      >
-                        <Controller
-                          name="pack_price"
+                      {FORM_CONFIG.pricing.map((field) => (
+                        <FormInput
+                          key={field.name}
+                          name={field.name}
                           control={control}
-                          rules={{ required: "Price is required" }}
-                          render={({ field }) => (
-                            <Input
-                              {...field}
-                              type="number"
-                              className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
-                              disabled={
-                                !formData.soldByCarton && !formData.soldByUnit
-                              }
-                            />
-                          )}
+                          label={t(field.label)}
+                          type={field.type}
+                          required={field.required}
+                          error={
+                            errors[field.name as keyof typeof errors]?.message
+                          }
+                          className="flex-1"
+                          disabled={
+                            field.name === "pack_of"
+                              ? formData.soldByUnit
+                              : !formData.soldByCarton && !formData.soldByUnit
+                          }
                         />
-                      </FormField>
-
-                      <FormField
-                        className="flex-1"
-                        label={t("productSidebar.form.productId")}
-                        error={errors.productId?.message}
-                      >
-                        <Controller
-                          name="productId"
-                          control={control}
-                          render={({ field }) => (
-                            <Input
-                              {...field}
-                              className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
-                            />
-                          )}
-                        />
-                      </FormField>
+                      ))}
                     </div>
 
-                    <div className="flex items-start gap-2 relative self-stretch w-full">
-                      <FormField
-                        className="flex-1"
-                        label={t("productSidebar.form.packOf")}
-                        error={errors.pack_of?.message}
-                        isRequired
-                      >
-                        <Controller
-                          name="pack_of"
-                          control={control}
-                          rules={{ required: "Pack of is required" }}
-                          render={({ field }) => (
-                            <Input
-                              {...field}
-                              type="number"
-                              className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
-                              disabled={formData.soldByUnit}
-                            />
-                          )}
-                        />
-                      </FormField>
-
-                      <FormField
-                        className="flex-1"
-                        label={t("productSidebar.form.totalPacks")}
-                        error={errors.total_packs?.message}
-                        isRequired
-                      >
-                        <Controller
-                          name="total_packs"
-                          control={control}
-                          rules={{ required: "Total packs is required" }}
-                          render={({ field }) => (
-                            <Input
-                              {...field}
-                              type="number"
-                              className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
-                              disabled={
-                                !formData.soldByCarton && !formData.soldByUnit
-                              }
-                            />
-                          )}
-                        />
-                      </FormField>
-                    </div>
-
+                    {/* Description */}
                     <FormField
                       label={t("productSidebar.form.description")}
                       error={errors.description?.message}
@@ -536,6 +566,7 @@ export const ProductSidebarSection = ({
                     </FormField>
                   </div>
 
+                  {/* Image Upload Section */}
                   <div className="flex flex-col items-end justify-between relative self-stretch mt-20">
                     <div className="flex flex-col items-start gap-6">
                       <div className="flex items-start gap-4">
@@ -568,6 +599,7 @@ export const ProductSidebarSection = ({
                       </div>
                     </div>
 
+                    {/* Submit Button */}
                     <div className="flex items-start gap-4 mt-6">
                       <Button
                         type="submit"

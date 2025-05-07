@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { Button } from "../../../../components/ui/button";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../../../lib/utils";
@@ -21,10 +21,56 @@ export const ProductImageUploader: React.FC<ProductImageUploaderProps> = ({
   isMain = false,
 }) => {
   const { t } = useTranslation();
+  const [isDragging, setIsDragging] = useState(false);
+
   const containerClass = cn(
     isMain ? "w-[250px] h-[250px]" : "w-[113px] h-[113px]",
-    "flex flex-col items-center justify-center gap-2.5 p-2 relative rounded-lg overflow-hidden border border-dashed border-gray-300 hover:border-blue-500 transition-colors cursor-pointer",
+    "flex flex-col items-center justify-center gap-2.5 p-2 relative rounded-lg overflow-hidden border border-dashed",
+    isDragging
+      ? "border-blue-500 bg-blue-50"
+      : "border-gray-300 hover:border-blue-500",
+    "transition-colors cursor-pointer",
     disabled && "opacity-50 cursor-not-allowed"
+  );
+
+  const handleDragOver = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      if (!disabled && !imageUrl) {
+        setIsDragging(true);
+      }
+    },
+    [disabled, imageUrl]
+  );
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setIsDragging(false);
+
+      if (disabled || imageUrl) return;
+
+      const file = e.dataTransfer.files?.[0];
+      if (file) {
+        onUpload(file, position);
+      }
+    },
+    [disabled, imageUrl, onUpload, position]
+  );
+
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        onUpload(file, position);
+      }
+    },
+    [onUpload, position]
   );
 
   return (
@@ -35,17 +81,18 @@ export const ProductImageUploader: React.FC<ProductImageUploaderProps> = ({
         !imageUrl &&
         document.getElementById(`file-upload-${position}`)?.click()
       }
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
     >
       <input
         id={`file-upload-${position}`}
         type="file"
         className="hidden"
         accept="image/*"
-        onChange={(e) => {
-          const file = e.target.files?.[0];
-          if (file) onUpload(file, position);
-        }}
+        onChange={handleFileChange}
       />
+
       {imageUrl ? (
         <div className="relative w-full h-full group">
           <img
@@ -64,7 +111,7 @@ export const ProductImageUploader: React.FC<ProductImageUploaderProps> = ({
               }}
             >
               <img
-                className="w-3.5 h-3.5"
+                className="w-3.5 h-3.5 brightness-0 invert"
                 alt="Delete"
                 src="/img/icon-16.svg"
               />
