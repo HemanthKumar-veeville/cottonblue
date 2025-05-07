@@ -7,6 +7,7 @@ import productReducer from './features/productSlice';
 import ticketReducer from './features/ticketSlice';
 import cartReducer from './features/cartSlice';
 import userReducer from './features/userSlice';
+import dashboardReducer from './features/dashboardSlice';
 
 export const store = configureStore({
   reducer: {
@@ -17,6 +18,7 @@ export const store = configureStore({
     ticket: ticketReducer,
     cart: cartReducer,
     user: userReducer,
+    dashboard: dashboardReducer,
   },
 });
 

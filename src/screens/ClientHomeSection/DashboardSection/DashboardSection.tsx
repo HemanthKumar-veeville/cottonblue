@@ -236,15 +236,15 @@ const ProductCard = ({ product }: { product: Product }) => {
                   {quantity === 0 ? (
                     <Button
                       size="icon"
-                      className="h-7 w-7 rounded-full bg-[#00b85b] hover:bg-[#00b85b]/90 text-white shadow-sm transition-all duration-200 hover:scale-105"
+                      className="h-7 w-7 rounded bg-[#00b85b] hover:bg-[#00b85b]/90 text-white shadow-sm transition-all duration-200 hover:scale-105"
                       onClick={handleInitialAdd}
                       aria-label={t("product.addToCart")}
                       title={t("product.addToCart")}
                     >
-                      <ShoppingCart className="h-3.5 w-3.5" />
+                      <ShoppingCart className="h-3.5 w-3.5 text-[#475569]" />
                     </Button>
                   ) : (
-                    <div className="flex items-center bg-gray-50 rounded-md shadow-sm border border-gray-100 h-7">
+                    <div className="flex items-center bg-gray-50 rounded shadow-sm border border-gray-100 h-7">
                       <Button
                         variant="ghost"
                         size="icon"
@@ -254,10 +254,10 @@ const ProductCard = ({ product }: { product: Product }) => {
                         aria-label={t("product.decreaseQuantity")}
                         title={t("product.decreaseQuantity")}
                       >
-                        <MinusIcon className="h-3 w-3" />
+                        <MinusIcon className="h-3 w-3 text-[#475569]" />
                       </Button>
                       <span
-                        className="w-6 text-center text-sm font-medium"
+                        className="w-6 text-center text-sm font-medium text-[#475569]"
                         role="status"
                         aria-label={t("product.quantityInCart", { quantity })}
                       >
@@ -272,7 +272,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                         aria-label={t("product.increaseQuantity")}
                         title={t("product.increaseQuantity")}
                       >
-                        <PlusIcon className="h-3 w-3" />
+                        <PlusIcon className="h-3 w-3 text-[#475569]" />
                       </Button>
                     </div>
                   )}

@@ -15,7 +15,21 @@
     "day": "Jour",
     "week": "Semaine",
     "month": "Mois",
-    "year": "Année"
+    "year": "Année",
+    "months": {
+      "january": "Janvier",
+      "february": "Février",
+      "march": "Mars",
+      "april": "Avril",
+      "may": "Mai",
+      "june": "Juin",
+      "july": "Juillet",
+      "august": "Août",
+      "september": "Septembre",
+      "october": "Octobre",
+      "november": "Novembre",
+      "december": "Décembre"
+    }
   },
   "header": {
     "adminManagement": "Gestion des administrateurs",
@@ -85,7 +99,7 @@
       "stock": "Stock",
       "availableRegion": "Région disponible",
       "description": "Description",
-      "suitableFor": "Convient à",
+      "suitableFor": "Convient à",
       "packQuantity": "Quantité par lot",
       "availablePacks": "Lots disponibles",
       "priceOfPack": "Prix du lot",
@@ -103,7 +117,7 @@
       "productId": "Référence SKU",
       "category": "Catégorie",
       "gender": "Genre",
-      "suitableFor": "Convient à",
+      "suitableFor": "Convient à",
       "size": "Taille",
       "region": "Région",
       "soldBy": {
@@ -242,6 +256,28 @@
           "third": "#3"
         }
       }
+    },
+    "timeframes": {
+      "selectTimeframe": "Sélectionner la période",
+      "selectPeriod": "Sélectionner la période",
+      "weekly": "Hebdomadaire",
+      "monthly": "Mensuel",
+      "quarterly": "Trimestriel",
+      "week": "Semaine {{number}} ({{range}})",
+      "quarter": "T{{number}} ({{range}})"
+    },
+    "actions": {
+      "exportKPI": "Exporter les KPI"
+    },
+    "metrics": {
+      "revenue": "Chiffre d'affaires",
+      "totalOrders": "Commandes totales",
+      "averageBasket": "Panier moyen"
+    },
+    "stats": {
+      "activeUsers": "Utilisateurs actifs",
+      "registeredUsers": "Utilisateurs enregistrés",
+      "averageDeliveryTime": "Délai moyen livraison"
     },
     "status": {
       "inStock": "En stock",
