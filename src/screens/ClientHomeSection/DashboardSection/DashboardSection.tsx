@@ -171,7 +171,7 @@ const ProductCard = ({ product }: { product: Product }) => {
             }}
           >
             {!product.product_image && (
-              <div className="w-full h-full flex items-center justify-center text-gray-400">
+              <div className="w-full h-full flex items-center justify-center text-[#475569]">
                 <Package2 size={48} />
               </div>
             )}
@@ -181,14 +181,14 @@ const ProductCard = ({ product }: { product: Product }) => {
               <div className="flex items-center gap-1.5">
                 <Badge
                   variant="outline"
-                  className={`${stockStatus.color} whitespace-nowrap text-xs px-2 py-0.5`}
+                  className={`${stockStatus.color} whitespace-nowrap text-xs px-2 py-0.5 rounded`}
                 >
                   {t(stockStatus.status)}
                 </Badge>
                 {!product.is_active && (
                   <Badge
                     variant="outline"
-                    className="text-gray-500 whitespace-nowrap text-xs px-2 py-0.5"
+                    className="text-[#475569] whitespace-nowrap text-xs px-2 py-0.5 rounded"
                   >
                     {t("dashboard.status.inactive")}
                   </Badge>
@@ -205,28 +205,28 @@ const ProductCard = ({ product }: { product: Product }) => {
                   {quantity === 0 ? (
                     <Button
                       size="icon"
-                      className="h-7 w-7 rounded-full bg-[#00b85b] hover:bg-[#00b85b]/90 text-white shadow-sm transition-all duration-200 hover:scale-105"
+                      className="h-7 w-7 rounded bg-[#00b85b] hover:bg-[#00b85b]/90 text-white shadow-sm transition-all duration-200 hover:scale-105"
                       onClick={handleInitialAdd}
                       aria-label={t("product.addToCart")}
                       title={t("product.addToCart")}
                     >
-                      <ShoppingCart className="h-3.5 w-3.5" />
+                      <ShoppingCart className="h-3.5 w-3.5 text-[#475569]" />
                     </Button>
                   ) : (
-                    <div className="flex items-center bg-gray-50 rounded-md shadow-sm border border-gray-100 h-7">
+                    <div className="flex items-center bg-gray-50 rounded shadow-sm border border-gray-100 h-7">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 rounded-full hover:bg-gray-50 transition-colors duration-200"
+                        className="h-7 w-7 rounded hover:bg-gray-50 transition-colors duration-200"
                         onClick={(e) => handleQuantityChange(-1, e)}
                         disabled={quantity <= 0}
                         aria-label={t("product.decreaseQuantity")}
                         title={t("product.decreaseQuantity")}
                       >
-                        <MinusIcon className="h-3 w-3" />
+                        <MinusIcon className="h-3 w-3 text-[#475569]" />
                       </Button>
                       <span
-                        className="w-6 text-center text-sm font-medium"
+                        className="w-6 text-center text-sm font-medium text-[#475569]"
                         role="status"
                         aria-label={t("product.quantityInCart", { quantity })}
                       >
@@ -235,20 +235,20 @@ const ProductCard = ({ product }: { product: Product }) => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 rounded-full hover:bg-gray-50 transition-colors duration-200"
+                        className="h-7 w-7 rounded hover:bg-gray-50 transition-colors duration-200"
                         onClick={(e) => handleQuantityChange(1, e)}
                         disabled={quantity >= (product.available_stock ?? 0)}
                         aria-label={t("product.increaseQuantity")}
                         title={t("product.increaseQuantity")}
                       >
-                        <PlusIcon className="h-3 w-3" />
+                        <PlusIcon className="h-3 w-3 text-[#475569]" />
                       </Button>
                     </div>
                   )}
                 </div>
               )}
             </div>
-            <div className="font-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-base tracking-[0] leading-[22.4px]">
+            <div className="font-medium text-[#475569] text-base tracking-[0] leading-[22.4px]">
               {product.name || "N/A"}
             </div>
           </div>

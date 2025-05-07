@@ -15,7 +15,21 @@
     "day": "Day",
     "week": "Week",
     "month": "Month",
-    "year": "Year"
+    "year": "Year",
+    "months": {
+      "january": "January",
+      "february": "February",
+      "march": "March",
+      "april": "April",
+      "may": "May",
+      "june": "June",
+      "july": "July",
+      "august": "August",
+      "september": "September",
+      "october": "October",
+      "november": "November",
+      "december": "December"
+    }
   },
   "header": {
     "adminManagement": "Admin Management",
@@ -231,6 +245,28 @@
           "third": "#3"
         }
       }
+    },
+    "timeframes": {
+      "selectTimeframe": "Select timeframe",
+      "selectPeriod": "Select period",
+      "weekly": "Weekly",
+      "monthly": "Monthly",
+      "quarterly": "Quarterly",
+      "week": "Week {{number}} ({{range}})",
+      "quarter": "Q{{number}} ({{range}})"
+    },
+    "actions": {
+      "exportKPI": "Export KPIs"
+    },
+    "metrics": {
+      "revenue": "Revenue",
+      "totalOrders": "Total Orders",
+      "averageBasket": "Average Basket"
+    },
+    "stats": {
+      "activeUsers": "Active Users",
+      "registeredUsers": "Registered Users",
+      "averageDeliveryTime": "Average Delivery Time"
     },
     "status": {
       "inStock": "In Stock",
