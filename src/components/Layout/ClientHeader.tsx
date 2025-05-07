@@ -93,7 +93,7 @@ export const ClientHeader = () => {
       {/* Left section with search and store selector */}
       <div className="flex items-center gap-4 w-full max-w-[800px]">
         {/* Search Bar */}
-        <div className="relative w-[60%] min-w-[180px]">
+        <div className="relative w-[35%] min-w-[140px]">
           <div className="relative">
             <Input
               type="text"
@@ -105,7 +105,7 @@ export const ClientHeader = () => {
         </div>
 
         {/* Store Selector */}
-        <div className="w-[40%] min-w-[160px]">
+        <div className="w-[35%] min-w-[140px]">
           <Select
             value={selectedStore || "all"}
             onValueChange={handleStoreChange}
@@ -155,9 +155,6 @@ export const ClientHeader = () => {
             <div className="flex items-center gap-3">
               <UserIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
               <div className="inline-flex flex-col items-start justify-center">
-                <div className="text-xs text-gray-500 font-medium">
-                  {t("clientHeader.account.title")}
-                </div>
                 <div className="text-sm font-semibold text-gray-900">
                   {userName}
                 </div>

@@ -98,7 +98,7 @@ export const SuperadminSidebarSection = ({
     try {
       if (company) {
         await dispatch(logout(company)).unwrap();
-        navigate("/");
+        window.location.href = "/";
       }
     } catch (error) {
       console.error("Logout failed:", error);

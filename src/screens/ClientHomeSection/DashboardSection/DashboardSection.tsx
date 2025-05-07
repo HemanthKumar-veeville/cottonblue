@@ -66,22 +66,26 @@ const formatStock = (stock: number | null | undefined): string => {
 };
 
 const getStockStatus = (
-  stock: number | null | undefined
-): { status: string; color: string } => {
-  if (stock == null)
+  product: Product
+): { status: string; color: string; borderColor: string } => {
+  if (product.available_packs == null) {
     return {
       status: "dashboard.status.unknown",
-      color: "text-gray-500",
+      color: "text-gray-600",
+      borderColor: "border-gray-300",
     };
+  }
 
-  return stock > 0
+  return product.available_packs > 0
     ? {
         status: "dashboard.status.inStock",
-        color: "text-1-tokens-color-modes-common-success-hight",
+        color: "text-[#00b85b]",
+        borderColor: "border-[#00b85b]",
       }
     : {
         status: "dashboard.status.outOfStock",
-        color: "text-defaultalert",
+        color: "text-red-600",
+        borderColor: "border-red-300",
       };
 };
 
@@ -155,30 +159,11 @@ const ProductCard = ({ product }: { product: Product }) => {
     handleQuantityChange(1, e);
   };
 
-  const getStockStatus = (): { status: string; color: string } => {
-    if (product.available_packs == null) {
-      return {
-        status: "dashboard.status.unknown",
-        color: "text-gray-500",
-      };
-    }
-
-    return product.available_packs > 0
-      ? {
-          status: "dashboard.status.inStock",
-          color: "text-1-tokens-color-modes-common-success-hight",
-        }
-      : {
-          status: "dashboard.status.outOfStock",
-          color: "text-defaultalert",
-        };
-  };
-
-  const stockStatus = getStockStatus();
+  const stockStatus = getStockStatus(product);
 
   return (
     <Card
-      className="w-full h-full shadow-shadow cursor-pointer hover:shadow-lg transition-all duration-300 hover:-translate-y-1"
+      className="w-full h-full bg-white shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 rounded-xl overflow-hidden border border-gray-100"
       onClick={handleClick}
     >
       <CardContent className="p-4 h-full">
@@ -202,24 +187,26 @@ const ProductCard = ({ product }: { product: Product }) => {
             </div>
             {/* Quick View Overlay */}
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl flex items-center justify-center">
-              <span className="text-white text-sm font-medium">Click to view details</span>
+              <span className="text-white text-sm font-medium">
+                Click to view details
+              </span>
             </div>
           </div>
 
           <div className="flex flex-col flex-grow gap-2 mt-4">
             {/* Status Badges */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <Badge
                   variant="outline"
-                  className={`${stockStatus.color} whitespace-nowrap text-xs px-2 py-0.5 border-0`}
+                  className={`${stockStatus.color} whitespace-nowrap text-xs font-medium px-2.5 py-0.5 rounded-md border ${stockStatus.borderColor} bg-white`}
                 >
                   {t(stockStatus.status)}
                 </Badge>
                 {!product.is_active && (
                   <Badge
                     variant="outline"
-                    className="text-gray-500 whitespace-nowrap text-xs px-2 py-0.5 border-0"
+                    className="text-gray-600 whitespace-nowrap text-xs font-medium px-2.5 py-0.5 rounded-md border border-gray-300 bg-white"
                   >
                     {t("dashboard.status.inactive")}
                   </Badge>
@@ -236,28 +223,28 @@ const ProductCard = ({ product }: { product: Product }) => {
                   {quantity === 0 ? (
                     <Button
                       size="icon"
-                      className="h-7 w-7 rounded bg-[#00b85b] hover:bg-[#00b85b]/90 text-white shadow-sm transition-all duration-200 hover:scale-105"
+                      className="h-7 w-7 rounded-md bg-[#00b85b] hover:bg-[#00b85b]/90 text-white shadow-sm transition-all duration-200 hover:scale-105"
                       onClick={handleInitialAdd}
                       aria-label={t("product.addToCart")}
                       title={t("product.addToCart")}
                     >
-                      <ShoppingCart className="h-3.5 w-3.5 text-[#475569]" />
+                      <ShoppingCart className="h-3.5 w-3.5 text-white" />
                     </Button>
                   ) : (
-                    <div className="flex items-center bg-gray-50 rounded shadow-sm border border-gray-100 h-7">
+                    <div className="flex items-center bg-white rounded-md shadow-sm border border-gray-200 h-7 p-0.5">
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                        className="h-6 w-6 rounded-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={(e) => handleQuantityChange(-1, e)}
                         disabled={quantity <= 0}
                         aria-label={t("product.decreaseQuantity")}
                         title={t("product.decreaseQuantity")}
                       >
-                        <MinusIcon className="h-3 w-3 text-[#475569]" />
+                        <MinusIcon className="h-3 w-3 text-[#00b85b]" />
                       </Button>
                       <span
-                        className="w-6 text-center text-sm font-medium text-[#475569]"
+                        className="w-6 text-center text-sm font-medium text-gray-700"
                         role="status"
                         aria-label={t("product.quantityInCart", { quantity })}
                       >
@@ -266,13 +253,13 @@ const ProductCard = ({ product }: { product: Product }) => {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-7 w-7 rounded-full hover:bg-gray-100 transition-colors duration-200"
+                        className="h-6 w-6 rounded-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={(e) => handleQuantityChange(1, e)}
                         disabled={quantity >= (product.available_packs ?? 0)}
                         aria-label={t("product.increaseQuantity")}
                         title={t("product.increaseQuantity")}
                       >
-                        <PlusIcon className="h-3 w-3 text-[#475569]" />
+                        <PlusIcon className="h-3 w-3 text-[#00b85b]" />
                       </Button>
                     </div>
                   )}
@@ -297,7 +284,9 @@ const ProductCard = ({ product }: { product: Product }) => {
             <div className="flex items-center justify-between">
               <div className="font-normal text-coolgray-100 text-lg tracking-[0] leading-[25.2px]">
                 <span className="font-[number:var(--body-l-font-weight)] font-body-l [font-style:var(--body-l-font-style)] tracking-[var(--body-l-letter-spacing)] leading-[var(--body-l-line-height)] text-[length:var(--body-l-font-size)]">
-                  {product.price_of_pack ? `${product.price_of_pack.toFixed(2)}€` : "N/A"}
+                  {product.price_of_pack
+                    ? `${product.price_of_pack.toFixed(2)}€`
+                    : "N/A"}
                 </span>
                 <span className="text-[length:var(--body-s-font-size)] leading-[var(--body-s-line-height)] font-body-s [font-style:var(--body-s-font-style)] font-[number:var(--body-s-font-weight)] tracking-[var(--body-s-letter-spacing)] ml-1">
                   {product.pack_quantity ? `/${product.pack_quantity}pcs` : ""}

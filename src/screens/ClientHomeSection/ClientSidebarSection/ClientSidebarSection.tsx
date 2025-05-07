@@ -146,10 +146,10 @@ const BottomNavigation = () => {
     if (path === "/logout") {
       try {
         await dispatch(logout(window.location.hostname.split(".")[0]));
-        navigate("/");
+        window.location.href = "/";
       } catch (error) {
         console.error("Logout failed:", error);
-        navigate("/");
+        window.location.href = "/";
       }
     } else {
       navigate(path);
