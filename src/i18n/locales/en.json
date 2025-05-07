@@ -337,6 +337,12 @@
     "updatedAt": "Updated At",
     "isActive": "Active Status"
   },
+  "product": {
+    "addToCart": "Add to cart",
+    "decreaseQuantity": "Decrease quantity",
+    "increaseQuantity": "Increase quantity",
+    "quantityInCart": "Quantity in cart: {{quantity}}"
+  },
   "cart": {
     "title": "Cart",
     "table": {

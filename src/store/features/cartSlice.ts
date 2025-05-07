@@ -4,17 +4,11 @@ import { cartService } from '../../services/cartService';
 
 // Updated CartItem interface
 export interface CartItem {
-  id: number;
   product_id: number;
-  cart_id: string;
-  quantity: number;
-  name: string;
-  price: number;
-  product_price: number;
   product_name: string;
   product_image: string | null;
-  available_stock: number;
-  description: string;
+  price_of_pack: number;
+  quantity: number;
 }
 
 interface Order {
@@ -153,7 +147,7 @@ const cartSlice = createSlice({
       const existingItem = state.items.find(item => item.product_id === product.id);
 
       if (existingItem) {
-        if (product.available_stock >= existingItem.quantity + quantity) {
+        if (product.available_packs >= existingItem.quantity + quantity) {
           existingItem.quantity += quantity;
           if (existingItem.quantity <= 0) {
             state.items = state.items.filter(item => item.product_id !== product.id);
@@ -162,19 +156,13 @@ const cartSlice = createSlice({
           state.error = 'Not enough stock available';
         }
       } else if (quantity > 0) {
-        if (product.available_stock >= quantity) {
+        if (product.available_packs >= quantity) {
           const newItem: CartItem = {
-            id: product.id,
             product_id: product.id,
-            cart_id: state.cartId || '',
-            quantity,
-            name: product.name,
-            price: product.price,
-            product_price: product.price,
             product_name: product.name,
             product_image: product.product_image,
-            available_stock: product.available_stock,
-            description: product.description
+            price_of_pack: product.price_of_pack,
+            quantity
           };
           state.items.push(newItem);
         } else {
@@ -182,12 +170,12 @@ const cartSlice = createSlice({
         }
       }
 
-      state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      state.total = state.items.reduce((sum, item) => sum + (item.price_of_pack * item.quantity), 0);
     },
 
     removeFromCart: (state, action: PayloadAction<number>) => {
       state.items = state.items.filter(item => item.product_id !== action.payload);
-      state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      state.total = state.items.reduce((sum, item) => sum + (item.price_of_pack * item.quantity), 0);
     },
 
     updateQuantity: (state, action: PayloadAction<{ productId: number; quantity: number }>) => {
@@ -195,14 +183,10 @@ const cartSlice = createSlice({
       const item = state.items.find(item => item.product_id === productId);
 
       if (item) {
-        if (item.available_stock >= quantity) {
-          item.quantity = quantity;
-        } else {
-          state.error = 'Not enough stock available';
-        }
+        item.quantity = quantity;
       }
 
-      state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+      state.total = state.items.reduce((sum, item) => sum + (item.price_of_pack * item.quantity), 0);
     },
 
     clearCart: (state) => {
@@ -224,7 +208,7 @@ const cartSlice = createSlice({
         state.loading = false;
         state.items = action.payload.products;
         state.cartId = action.payload.cart_id;
-        state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        state.total = state.items.reduce((sum, item) => sum + (item.price_of_pack * item.quantity), 0);
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;
@@ -241,9 +225,9 @@ const cartSlice = createSlice({
         if (action.payload.cart_items) {
           state.items = action.payload.cart_items.map((item: CartItem) => ({
             ...item,
-            product_id: item.id
+            product_id: item.product_id
           }));
-          state.total = state.items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+          state.total = state.items.reduce((sum, item) => sum + (item.price_of_pack * item.quantity), 0);
         }
       })
       .addCase(addToCartAsync.rejected, (state, action) => {

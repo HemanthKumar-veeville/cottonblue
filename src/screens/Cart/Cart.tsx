@@ -63,7 +63,7 @@ const ProductRow = ({ product }: { product: CartItem }) => {
     e?.stopPropagation();
     const newQuantity = product.quantity + amount;
 
-    if (amount > 0 && newQuantity <= (productDetails?.available_stock ?? 0)) {
+    if (amount > 0 && newQuantity <= (productDetails?.available_packs ?? 0)) {
       if (dnsPrefix && selectedStore) {
         try {
           // Optimistic update
@@ -103,7 +103,7 @@ const ProductRow = ({ product }: { product: CartItem }) => {
           toast.error(t("cart.error.removeFailed"));
         }
       }
-    } else if (newQuantity > (productDetails?.available_stock ?? 0)) {
+    } else if (newQuantity > (productDetails?.available_packs ?? 0)) {
       toast.error(t("cart.error.notEnoughStock"));
     }
   };
@@ -140,7 +140,7 @@ const ProductRow = ({ product }: { product: CartItem }) => {
         {product.product_id}
       </TableCell>
       <TableCell className="w-[145px] text-center text-black text-[15px]">
-        {product.product_price.toFixed(2)}€
+        {product.price_of_pack.toFixed(2)}€
       </TableCell>
       <TableCell className="w-[145px] p-2.5">
         <div className="flex items-center justify-center gap-2 bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] rounded-[var(--2-tokens-screen-modes-button-border-radius)] border border-solid border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] p-2">
@@ -166,7 +166,7 @@ const ProductRow = ({ product }: { product: CartItem }) => {
         </div>
       </TableCell>
       <TableCell className="w-[145px] text-center text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[15px]">
-        {(product.product_price * product.quantity).toFixed(2)}€
+        {(product.price_of_pack * product.quantity).toFixed(2)}€
       </TableCell>
     </TableRow>
   );
@@ -234,7 +234,7 @@ const OrderSummary = () => {
   const { items } = useAppSelector((state) => state.cart);
 
   const totalHT = items.reduce(
-    (acc, item) => acc + item.product_price * item.quantity,
+    (acc, item) => acc + item.price_of_pack * item.quantity,
     0
   );
   const shippingCost = items.length > 0 ? 38.94 : 0;
