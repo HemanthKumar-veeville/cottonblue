@@ -167,13 +167,15 @@ const StoreList = ({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.2 }}
-          className="flex items-center p-3 border rounded-md hover:bg-gray-50 transition-all duration-200 bg-white shadow-sm"
+          onClick={() => onToggleStore(store.id.toString())}
+          className="flex items-center p-3 border rounded-md hover:bg-gray-50 transition-all duration-200 bg-white shadow-sm cursor-pointer"
         >
           <div className="flex items-center gap-3 w-full">
             <Checkbox
               checked={store.isSelected}
               onCheckedChange={() => onToggleStore(store.id.toString())}
               className="w-4 h-4 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
             />
             <div className="flex flex-col min-w-0 flex-1">
               <span className="font-label-small font-bold text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-sm tracking-wide leading-5 truncate">
@@ -193,6 +195,7 @@ const StoreList = ({
               variant="ghost"
               size="sm"
               className="flex-shrink-0 ml-2 p-1 hover:bg-gray-100"
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
             >
               <Info className="w-4 h-4 text-gray-400" />
             </Button>
