@@ -121,4 +121,22 @@ export const productService = {
   getProductsByStoreId: async (dnsPrefix: string, storeId: string) => {
     return axiosInstance.get(`/${dnsPrefix}/store/products/${storeId}`);
   },
+
+  /**
+   * Allocate a product to multiple stores
+   * @param dnsPrefix DNS prefix of the company
+   * @param productId ID of the product to allocate
+   * @param storeIds Array of store IDs to allocate the product to
+   * @returns Promise with allocation response
+   */
+  allocateProductToStores: async (dnsPrefix: string, productId: string, storeIds: string[]) => {
+    const formData = new FormData();
+    formData.append('store_ids', JSON.stringify(storeIds));
+
+    return axiosInstance.post(`/${dnsPrefix}/stores/allocation/for/products/${productId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
 };

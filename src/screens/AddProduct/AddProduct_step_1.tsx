@@ -1,68 +1,28 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
-import { Card, CardContent } from "../../components/ui/card";
 import { Checkbox } from "../../components/ui/checkbox";
 import { Input } from "../../components/ui/input";
-import { Check, ChevronLeft, Info, Search, Store, X } from "lucide-react";
+import { ArrowLeft, Info, Search, Store, Loader2, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { cn } from "../../lib/utils";
-import { useNavigate } from "react-router-dom";
-import { createProduct } from "../../store/features/productSlice";
+import { useNavigate, useParams } from "react-router-dom";
+import {
+  createProduct,
+  getProductById,
+  Product,
+} from "../../store/features/productSlice";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { CreateProductData } from "../../services/productService";
+import { fetchAllStores, Agency } from "../../store/features/agencySlice";
+import { motion } from "framer-motion";
+
 // Types
-interface Store {
-  id: string;
-  name: string;
-  location: string;
+interface StoreWithSelection extends Agency {
   isSelected: boolean;
 }
 
-interface ProductDetails {
-  product_name: string;
-  product_description: string;
-  product_price: number;
-  total_stock: number;
-  product_image: File | null;
-}
-
-// Constants
-const storeLocations = [
-  "Marseille",
-  "Nice",
-  "Strasbourg",
-  "Bordeaux",
-  "Grenoble",
-  "Dijon",
-  "Nîmes",
-  "Le Havre",
-  "Limoges",
-  "Besançon",
-  "Nantes",
-  "Lille",
-  "Saint-Étienne",
-  "Tours",
-  "Annecy",
-  "Metz",
-  "La Rochelle",
-  "Mulhouse",
-  "Boulogne-Billancourt",
-  "Nancy",
-  "Lyon",
-  "Toulouse",
-  "Montpellier",
-  "Rennes",
-  "Aix-en-Provence",
-  "Clermont-Ferrand",
-  "Amiens",
-  "Perpignan",
-  "Caen",
-  "Saint-Denis",
-];
-
-// Reusable Components
 const FormField = ({
   label,
   children,
@@ -85,136 +45,83 @@ const FormField = ({
 );
 
 const ProgressIndicator = () => (
-  <div className="flex items-center justify-center w-full mb-8">
+  <div className="flex items-center justify-center w-full mt-8">
     <div className="flex items-center justify-center gap-2">
-      <div className="flex items-center">
-        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-[#07515f] text-white">
-          1
-        </div>
-        <div className="w-12 h-0.5 mx-2 bg-[#07515f]" />
-      </div>
-      <div className="flex items-center">
-        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-[#07515f] text-white">
-          2
-        </div>
-        <div className="w-12 h-0.5 mx-2 bg-gray-200" />
-      </div>
-      <div className="flex items-center">
-        <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium bg-gray-100 text-gray-400">
-          3
-        </div>
-      </div>
+      {[1, 2, 3].map((step, index) => (
+        <React.Fragment key={step}>
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: index * 0.1 }}
+            className="flex items-center"
+          >
+            <div
+              className={cn(
+                "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors duration-200",
+                step <= 2
+                  ? "bg-[#07515f] text-white"
+                  : "bg-gray-100 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]"
+              )}
+            >
+              {step === 1 ? (
+                <Check className="w-4 h-4 stroke-[2.5]" />
+              ) : (
+                <span className="font-label-medium">{step}</span>
+              )}
+            </div>
+            {step < 3 && (
+              <div
+                className={cn(
+                  "w-12 h-0.5 mx-2 transition-colors duration-200",
+                  step === 1 ? "bg-[#07515f]" : "bg-gray-200"
+                )}
+              />
+            )}
+          </motion.div>
+        </React.Fragment>
+      ))}
     </div>
   </div>
-);
-
-const Header = ({ onBack }: { onBack: () => void }) => (
-  <div className="inline-flex items-center gap-2 relative">
-    <Button variant="ghost" size="icon" className="w-6 h-6" onClick={onBack}>
-      <ChevronLeft className="w-5 h-5" />
-    </Button>
-    <h3 className="text-[#475569] font-inter text-xl font-bold leading-7">
-      In which stores?
-    </h3>
-  </div>
-);
-
-const ProductCard = ({ product }: { product: ProductDetails }) => (
-  <Card className="bg-[color:var(--1-tokens-color-modes-background-secondary)] p-0 border-0">
-    <CardContent className="flex items-center p-4">
-      <div
-        className="w-[50px] h-[50px] rounded-lg bg-cover bg-center mr-4"
-        style={{
-          backgroundImage: `url(${
-            product.product_image
-              ? URL.createObjectURL(product.product_image)
-              : ""
-          })`,
-        }}
-      />
-      <div className="flex flex-col items-start gap-1">
-        <h4 className="[font-family:'Inter-Bold',Helvetica] font-bold text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-xl leading-7">
-          {product.product_name}
-        </h4>
-        <p className="font-text-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--text-medium-font-size)] leading-[var(--text-medium-line-height)]">
-          {product.product_description}
-        </p>
-      </div>
-    </CardContent>
-  </Card>
 );
 
 const StoreSelectionControls = ({
-  onSelectAll,
   onSearch,
-  isAllSelected,
+  onSelectAll,
+  allSelected,
 }: {
-  onSelectAll: (checked: boolean) => void;
   onSearch: (query: string) => void;
-  isAllSelected: boolean;
+  onSelectAll: (checked: boolean) => void;
+  allSelected: boolean;
 }) => (
-  <div className="w-full gap-6 flex items-start">
-    <div className="inline-flex gap-6 flex-col items-start">
-      <Button variant="outline" className="flex items-center gap-2 h-auto py-2">
+  <div className="w-3/4">
+    <div className="flex gap-4">
+      <div className="flex-1 relative">
+        <FormField label="Available stores">
+          <div className="relative">
+            <Input
+              placeholder="Search stores..."
+              className="pl-10 pr-4 py-2 h-auto transition-all duration-200 focus:ring-2 focus:ring-[#07515f] focus:border-transparent"
+              onChange={(e) => onSearch(e.target.value)}
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+          </div>
+        </FormField>
+      </div>
+      <div className="flex items-center gap-2 px-2">
         <Checkbox
-          id="all-stores"
-          checked={isAllSelected}
-          onCheckedChange={onSelectAll}
-          className="w-4 h-4"
+          id="selectAll"
+          className="w-4 h-4 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+          checked={allSelected}
+          onCheckedChange={(checked: boolean) => onSelectAll(checked)}
         />
         <label
-          htmlFor="all-stores"
-          className="text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--label-small-font-size)] leading-[var(--label-small-line-height)]"
+          htmlFor="selectAll"
+          className="font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5"
         >
-          All stores
+          Select All Stores
         </label>
-      </Button>
-    </div>
-    <div className="flex-1 relative">
-      <div className="relative">
-        <FormField label="Available stores">
-          <Input
-            placeholder="Search"
-            className="pl-4 pr-10 py-2 h-auto"
-            onChange={(e) => onSearch(e.target.value)}
-          />
-        </FormField>
-        <Search className="absolute right-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[color:var(--1-tokens-color-modes-input-primary-default-icon)]" />
       </div>
     </div>
-  </div>
-);
-
-const StoreBadgesGrid = ({
-  stores,
-  onRemoveStore,
-}: {
-  stores: Store[];
-  onRemoveStore: (storeId: string) => void;
-}) => (
-  <div className="grid grid-cols-3 gap-2">
-    {stores.map((store) => (
-      <Badge
-        key={store.id}
-        variant="outline"
-        className="flex items-center justify-between px-3 py-1 h-auto bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-md"
-      >
-        <div className="flex items-center gap-1.5">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-4 w-4 p-0 ml-1"
-            onClick={() => onRemoveStore(store.id)}
-          >
-            <X className="w-3.5 h-3.5" />
-          </Button>
-          <span className="text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] truncate">
-            Chronodrive - {store.location}
-          </span>
-        </div>
-        <Info className="w-3.5 h-3.5" />
-      </Badge>
-    ))}
   </div>
 );
 
@@ -222,52 +129,74 @@ const StoreList = ({
   stores,
   onToggleStore,
 }: {
-  stores: Store[];
+  stores: StoreWithSelection[];
   onToggleStore: (storeId: string) => void;
 }) => (
-  <div className="mt-4 grid grid-cols-1 gap-2 max-h-[300px] overflow-y-auto">
-    {stores.map((store) => (
-      <div
-        key={store.id}
-        className="flex items-center justify-between p-2 border rounded-md hover:bg-gray-50"
-      >
-        <div className="flex items-center gap-2">
-          <Checkbox
-            checked={store.isSelected}
-            onCheckedChange={() => onToggleStore(store.id)}
-          />
-          <span>{store.name}</span>
-        </div>
-        <Info className="w-4 h-4 text-gray-400" />
-      </div>
-    ))}
+  <div className="h-[340px] overflow-y-auto pr-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {stores.map((store) => (
+        <motion.div
+          key={store.id}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          className="flex items-center p-3 border rounded-md hover:bg-gray-50 transition-all duration-200 bg-white shadow-sm"
+        >
+          <div className="flex items-center gap-3 w-full">
+            <Checkbox
+              checked={store.isSelected}
+              onCheckedChange={() => onToggleStore(store.id.toString())}
+              className="w-4 h-4 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+            />
+            <div className="flex flex-col min-w-0 flex-1">
+              <span className="font-label-small font-bold text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-sm tracking-wide leading-5 truncate">
+                {store.name}
+              </span>
+              <div className="flex items-center gap-1 text-xs text-gray-500">
+                <span className="truncate">{store.city}</span>
+                {store.region && (
+                  <>
+                    <span>•</span>
+                    <span className="truncate">{store.region}</span>
+                  </>
+                )}
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="flex-shrink-0 ml-2 p-1 hover:bg-gray-100"
+            >
+              <Info className="w-4 h-4 text-gray-400" />
+            </Button>
+          </div>
+        </motion.div>
+      ))}
+    </div>
   </div>
 );
 
 const FooterButtons = ({
-  onSaveDraft,
   onPublish,
   isSubmitting,
 }: {
-  onSaveDraft: () => void;
   onPublish: () => void;
   isSubmitting: boolean;
 }) => (
-  <div className="flex items-center justify-end self-stretch w-full gap-4 mt-8">
+  <div className="flex items-center justify-between w-full gap-4 mt-8">
     <Button
-      variant="outline"
-      className="text-[color:var(--1-tokens-color-modes-button-secondary-default-text)]"
-      onClick={onSaveDraft}
-      disabled={isSubmitting}
-    >
-      Save as draft
-    </Button>
-    <Button
-      className="bg-[#07515f] text-[color:var(--1-tokens-color-modes-button-primary-default-text)]"
+      className="bg-[#07515f] text-white hover:bg-[#064a56] transition-colors duration-200 min-w-[150px]"
       onClick={onPublish}
       disabled={isSubmitting}
     >
-      Publish the product
+      {isSubmitting ? (
+        <div className="flex items-center gap-2">
+          <Loader2 className="w-4 h-4 animate-spin" />
+          <span>Publishing...</span>
+        </div>
+      ) : (
+        "Publish product"
+      )}
     </Button>
   </div>
 );
@@ -277,49 +206,54 @@ const ProductDetails = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { selectedCompany } = useAppSelector((state) => state.client);
-
-  const [stores, setStores] = useState<Store[]>(
-    storeLocations.map((location, index) => ({
-      id: `store-${index}`,
-      name: `Chronodrive - ${location}`,
-      location,
-      isSelected: false,
-    }))
+  const { id } = useParams<{ id: string }>();
+  const { currentProduct } = useAppSelector((state) => state.product);
+  const { stores, loading: storesLoading } = useAppSelector(
+    (state) => state.agency
   );
+  const product = currentProduct?.product as Product;
+
   const [searchQuery, setSearchQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [productData, setProductData] = useState<ProductDetails>({
-    product_name: "",
-    product_description: "",
-    product_price: 0,
-    total_stock: 0,
-    product_image: null,
-  });
+  const [storesWithSelection, setStoresWithSelection] = useState<
+    StoreWithSelection[]
+  >([]);
 
-  const handleSelectAll = useCallback((checked: boolean) => {
-    setStores((prev) =>
-      prev.map((store) => ({ ...store, isSelected: checked }))
-    );
-  }, []);
+  useEffect(() => {
+    if (selectedCompany?.dns) {
+      dispatch(fetchAllStores(selectedCompany.dns));
+    }
+  }, [dispatch, selectedCompany?.dns]);
+
+  useEffect(() => {
+    if (stores?.stores) {
+      setStoresWithSelection(
+        stores.stores.map((store: Agency) => ({
+          ...store,
+          isSelected: false,
+        }))
+      );
+    }
+  }, [stores]);
+
+  useEffect(() => {
+    if (id && selectedCompany?.dns) {
+      dispatch(
+        getProductById({ dnsPrefix: selectedCompany.dns, productId: id })
+      );
+    }
+  }, [dispatch, id, selectedCompany?.dns]);
 
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
   }, []);
 
   const handleToggleStore = useCallback((storeId: string) => {
-    setStores((prev) =>
+    setStoresWithSelection((prev) =>
       prev.map((store) =>
-        store.id === storeId
+        store.id.toString() === storeId
           ? { ...store, isSelected: !store.isSelected }
           : store
-      )
-    );
-  }, []);
-
-  const handleRemoveStore = useCallback((storeId: string) => {
-    setStores((prev) =>
-      prev.map((store) =>
-        store.id === storeId ? { ...store, isSelected: false } : store
       )
     );
   }, []);
@@ -328,8 +262,23 @@ const ProductDetails = () => {
     navigate(-1);
   }, [navigate]);
 
+  const handleSelectAll = useCallback((checked: boolean) => {
+    setStoresWithSelection((prev) =>
+      prev.map((store) => ({
+        ...store,
+        isSelected: checked,
+      }))
+    );
+  }, []);
+
+  const allStoresSelected =
+    storesWithSelection.length > 0 &&
+    storesWithSelection.every((store) => store.isSelected);
+
   const validateForm = () => {
-    const selectedStores = stores.filter((store) => store.isSelected);
+    const selectedStores = storesWithSelection.filter(
+      (store) => store.isSelected
+    );
     if (selectedStores.length === 0) {
       throw new Error("Please select at least one store");
     }
@@ -337,80 +286,26 @@ const ProductDetails = () => {
     if (!selectedCompany?.id) {
       throw new Error("No company selected");
     }
-
-    if (!productData.product_name) {
-      throw new Error("Product name is required");
-    }
-
-    if (!productData.product_description) {
-      throw new Error("Product description is required");
-    }
-
-    if (!productData.product_price || productData.product_price <= 0) {
-      throw new Error("Valid product price is required");
-    }
-
-    if (!productData.total_stock || productData.total_stock <= 0) {
-      throw new Error("Valid total stock is required");
-    }
-
-    if (!productData.product_image) {
-      throw new Error("Product image is required");
-    }
   };
-
-  const handleSaveDraft = useCallback(async () => {
-    setIsSubmitting(true);
-    try {
-      // Log form data
-      console.log("Product Data:", {
-        ...productData,
-        selectedStores: stores.filter((store) => store.isSelected),
-      });
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      toast.success(t("productDetails.messages.draftSaved"));
-    } catch (error) {
-      toast.error(t("productDetails.messages.saveError"));
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [t, productData, stores]);
 
   const handlePublish = useCallback(async () => {
     setIsSubmitting(true);
     try {
-      // Validate form
       validateForm();
+      const selectedStores = storesWithSelection.filter(
+        (store) => store.isSelected
+      );
 
-      // Get selected stores
-      const selectedStores = stores.filter((store) => store.isSelected);
-
-      // Log form data before submission
-      console.log("Publishing Product Data:", {
-        ...productData,
-        selectedStores,
-        company_id: selectedCompany?.id,
-      });
-
-      // Ensure product_image is not null (validateForm already checks this)
-      if (!productData.product_image) {
-        throw new Error("Product image is required");
-      }
-
-      // Create the product data
       const createProductData: CreateProductData = {
         company_id: selectedCompany!.id,
-        product_name: productData.product_name,
-        product_description: productData.product_description,
-        product_price: productData.product_price,
-        available_region: selectedStores
-          .map((store) => store.location)
-          .join(","),
-        total_stock: productData.total_stock,
-        product_image: productData.product_image,
+        product_name: product.name,
+        product_description: product.description || "",
+        product_price: product.price_of_pack,
+        available_region: selectedStores.map((store) => store.city).join(","),
+        total_stock: product.total_packs,
+        product_image: product.product_image,
       };
 
-      // Dispatch the create product action
       const resultAction = await dispatch(
         createProduct({
           dnsPrefix: selectedCompany!.dns,
@@ -431,50 +326,135 @@ const ProductDetails = () => {
     } finally {
       setIsSubmitting(false);
     }
-  }, [t, navigate, dispatch, productData, stores, selectedCompany]);
+  }, [t, navigate, dispatch, product, storesWithSelection, selectedCompany]);
 
-  const filteredStores = stores.filter((store) =>
-    store.location.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredStores = storesWithSelection.filter(
+    (store) =>
+      store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      store.city.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const selectedStores = stores.filter((store) => store.isSelected);
-  const isAllSelected = stores.every((store) => store.isSelected);
-
   return (
-    <div className="flex flex-col items-start gap-8 p-6 relative bg-white rounded-lg overflow-hidden">
+    <motion.main
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-col w-full gap-8"
+    >
       <ProgressIndicator />
-      <Header onBack={handleBack} />
-      <div className="flex flex-col w-full justify-between flex-1 items-start">
-        <div className="inline-flex gap-8 flex-col items-start w-full">
-          <ProductCard product={productData} />
-          <div className="flex flex-col gap-8 w-full">
-            <StoreSelectionControls
-              onSelectAll={handleSelectAll}
-              onSearch={handleSearch}
-              isAllSelected={isAllSelected}
-            />
-            <StoreList
-              stores={filteredStores}
-              onToggleStore={handleToggleStore}
-            />
-            {selectedStores.length > 0 && (
-              <div className="mt-4">
-                <h4 className="text-sm font-medium mb-2">Selected Stores</h4>
-                <StoreBadgesGrid
-                  stores={selectedStores}
-                  onRemoveStore={handleRemoveStore}
+
+      <div className="flex items-center justify-between w-full">
+        <div className="inline-flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleBack}
+            className="hover:bg-gray-100 transition-colors duration-200"
+          >
+            <ArrowLeft className="w-5 h-5 text-[#07515f]" />
+          </Button>
+          <h1 className="font-heading-h3 font-bold text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] font-[number:var(--heading-h3-font-weight)] [font-style:var(--heading-h3-font-style)]">
+            {t("addProduct.step1.title")}
+          </h1>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 min-h-[calc(100vh-300px)]">
+        {/* Left Column - Product Image */}
+        <div className="lg:col-span-4 h-full">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+            className="sticky top-6 w-full aspect-square rounded-lg overflow-hidden border border-solid border-gray-200 bg-white flex items-center justify-center group hover:border-[#07515f] transition-all duration-200"
+          >
+            {product?.product_image ? (
+              <div className="w-full h-full flex items-center justify-center p-4 relative">
+                <img
+                  src={product.product_image}
+                  alt={product.name}
+                  className="max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-200 group-hover:scale-105"
                 />
               </div>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <Store className="w-12 h-12 text-gray-400" />
+              </div>
             )}
+          </motion.div>
+        </div>
+
+        {/* Right Column - Product Details and Store Selection */}
+        <div className="lg:col-span-8 h-full">
+          <div className="flex flex-col gap-8 h-full">
+            {/* Store Selection */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: 0.2 }}
+              className="bg-white rounded-lg h-full"
+            >
+              <div className="flex flex-col gap-6">
+                <StoreSelectionControls
+                  onSearch={handleSearch}
+                  onSelectAll={handleSelectAll}
+                  allSelected={allStoresSelected}
+                />
+
+                <div className="relative">
+                  {storesLoading ? (
+                    <div className="flex items-center justify-center p-8 bg-gray-50 rounded-lg">
+                      <div className="flex items-center gap-3">
+                        <Loader2 className="w-6 h-6 text-[#07515f] animate-spin" />
+                        <span className="font-label-small text-gray-600">
+                          Loading stores...
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <StoreList
+                      stores={filteredStores}
+                      onToggleStore={handleToggleStore}
+                    />
+                  )}
+                </div>
+              </div>
+            </motion.div>
           </div>
         </div>
-        <FooterButtons
-          onSaveDraft={handleSaveDraft}
-          onPublish={handlePublish}
-          isSubmitting={isSubmitting}
-        />
       </div>
-    </div>
+
+      {/* Fixed Footer */}
+      <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
+        <div className="px-6 max-w-[calc(100%-2rem)]">
+          <div className="flex items-center justify-end w-full mx-auto">
+            <Button
+              onClick={handlePublish}
+              disabled={isSubmitting}
+              className={cn(
+                "gap-4 py-4 px-4 self-stretch bg-[#07515f] border-gray-300",
+                "hover:bg-[#064a56] transition-colors duration-200",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+                isSubmitting && "animate-pulse"
+              )}
+            >
+              {isSubmitting ? (
+                <div className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5 whitespace-nowrap">
+                    Publishing...
+                  </span>
+                </div>
+              ) : (
+                <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5 whitespace-nowrap">
+                  {t("productDetails.actions.publish")}
+                </span>
+              )}
+            </Button>
+          </div>
+        </div>
+      </div>
+    </motion.main>
   );
 };
 

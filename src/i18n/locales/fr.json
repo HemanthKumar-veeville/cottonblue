@@ -112,7 +112,7 @@
     }
   },
   "productSidebar": {
-    "title": "Ajouter un nouveau produit",
+    "title": "Ajouter un produit",
     "form": {
       "productName": "Nom du produit",
       "productId": "Référence SKU",
@@ -354,6 +354,12 @@
     "increaseQuantity": "Augmenter la quantité",
     "quantityInCart": "Quantité dans le panier : {{quantity}}"
   },
+  "addProduct": {
+    "step1": {
+      "title": "Choisir le magasin",
+      "description": "Sélectionnez le magasin où le produit sera stocké"
+    }
+  },
   "cart": {
     "title": "Panier",
     "table": {
@@ -558,7 +564,8 @@
     },
     "actions": {
       "modify": "Modifier le produit",
-      "delete": "Supprimer"
+      "delete": "Supprimer",
+      "publish": "Publier"
     },
     "description": {
       "title": "Description"

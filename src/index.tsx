@@ -43,6 +43,7 @@ import ClientSettings from "./screens/ClientSettings/ClientSettings";
 import SuperAdminOrderHistory from "./screens/SuperAdminOrderHistory/SuperAdminOrderHistory";
 import SuperAdminOrderDetails from "./screens/SuperAdminOrderDetails/SuperAdminOrderDetails";
 import SuperAdminSettings from "./screens/SuperAdminSettings/SuperAdminSettings";
+import AddProduct_step_1 from "./screens/AddProduct/AddProduct_step_1";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
@@ -101,6 +102,10 @@ function App() {
               <Route
                 path="products/add"
                 element={<ProductSidebarSection mode="add" />}
+              />
+              <Route
+                path="products/allot-store/:id"
+                element={<AddProduct_step_1 />}
               />
               <Route
                 path="products/edit/:id"

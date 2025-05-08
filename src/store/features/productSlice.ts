@@ -30,6 +30,7 @@ interface ProductState {
   createSuccess: boolean;
   updateSuccess: boolean;
   deleteSuccess: boolean;
+  allocationSuccess: boolean;
 }
 
 // Initial state
@@ -43,6 +44,7 @@ const initialState: ProductState = {
   createSuccess: false,
   updateSuccess: false,
   deleteSuccess: false,
+  allocationSuccess: false,
 };
 
 // Create async thunks for API calls
@@ -118,6 +120,26 @@ export const getProductsByStoreId = createAsyncThunk(
   }
 );
 
+export const allocateProductToStores = createAsyncThunk(
+  'product/allocateProductToStores',
+  async ({ 
+    dnsPrefix, 
+    productId, 
+    storeIds 
+  }: { 
+    dnsPrefix: string; 
+    productId: string; 
+    storeIds: string[] 
+  }, { rejectWithValue }) => {
+    try {
+      const response = await productService.allocateProductToStores(dnsPrefix, productId, storeIds);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to allocate product to stores');
+    }
+  }
+);
+
 // Create the product slice
 const productSlice = createSlice({
   name: 'product',
@@ -129,6 +151,7 @@ const productSlice = createSlice({
       state.createSuccess = false;
       state.updateSuccess = false;
       state.deleteSuccess = false;
+      state.allocationSuccess = false;
     },
     decrementStock: (state, action: PayloadAction<{ productId: number; quantity: number }>) => {
       const { productId, quantity } = action.payload;
@@ -249,6 +272,21 @@ const productSlice = createSlice({
       .addCase(getProductsByStoreId.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      // Allocate product to stores cases
+      .addCase(allocateProductToStores.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.allocationSuccess = false;
+      })
+      .addCase(allocateProductToStores.fulfilled, (state) => {
+        state.loading = false;
+        state.allocationSuccess = true;
+      })
+      .addCase(allocateProductToStores.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.allocationSuccess = false;
       });
   },
 });

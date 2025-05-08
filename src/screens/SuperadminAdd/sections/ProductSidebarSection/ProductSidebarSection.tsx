@@ -27,6 +27,7 @@ import {
   UpdateProductData,
 } from "../../../../services/productService";
 import { useNavigate, useParams } from "react-router-dom";
+import { motion } from "framer-motion";
 
 // Constants
 const MAX_IMAGES = 5;
@@ -252,6 +253,42 @@ interface ProductSidebarSectionProps {
   mode?: "add" | "edit";
 }
 
+const ProgressIndicator = () => (
+  <div className="flex items-center justify-center w-full mt-8">
+    <div className="flex items-center justify-center gap-2">
+      {[1, 2, 3].map((step, index) => (
+        <React.Fragment key={step}>
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ delay: index * 0.1 }}
+            className="flex items-center"
+          >
+            <div
+              className={cn(
+                "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors duration-200",
+                step <= 1
+                  ? "bg-[#07515f] text-white"
+                  : "bg-gray-100 text-gray-400"
+              )}
+            >
+              {step}
+            </div>
+            {step < 3 && (
+              <div
+                className={cn(
+                  "w-12 h-0.5 mx-2 transition-colors duration-200",
+                  step === 1 ? "bg-[#07515f]" : "bg-gray-200"
+                )}
+              />
+            )}
+          </motion.div>
+        </React.Fragment>
+      ))}
+    </div>
+  </div>
+);
+
 export const ProductSidebarSection = ({
   mode = "add",
 }: ProductSidebarSectionProps): JSX.Element => {
@@ -438,11 +475,12 @@ export const ProductSidebarSection = ({
             dnsPrefix: selectedCompany.dns,
             data: createData,
           }) as any
-        );
-
-        if (createProduct.fulfilled.match(resultAction)) {
+        ).unwrap();
+        const productId = resultAction?.product_id;
+        console.log({ productId });
+        if (productId) {
           toast.success("Product created successfully");
-          navigate("/products");
+          navigate(`/products/allot-store/${productId}`);
         }
       }
     } catch (error: any) {
@@ -454,6 +492,7 @@ export const ProductSidebarSection = ({
   return (
     <div className="flex items-start justify-around gap-24 relative flex-1 self-stretch grow">
       <header className="flex flex-col items-start relative flex-1 self-stretch grow bg-transparent">
+        <ProgressIndicator />
         <div className="h-[calc(100vh-4rem)] w-full overflow-auto scrollbar-hide [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           <div className="flex flex-col items-start gap-8 p-6 relative flex-1 self-stretch w-full grow">
             <form

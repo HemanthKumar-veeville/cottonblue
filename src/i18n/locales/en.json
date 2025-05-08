@@ -112,7 +112,7 @@
     }
   },
   "productSidebar": {
-    "title": "Product Information",
+    "title": "Add product",
     "form": {
       "productName": "Product Name",
       "productId": "SKU Reference",
@@ -343,6 +343,12 @@
     "increaseQuantity": "Increase quantity",
     "quantityInCart": "Quantity in cart: {{quantity}}"
   },
+  "addProduct": {
+    "step1": {
+      "title": "Allocate the store",
+      "description": "Select the store where the product will be allocated"
+    }
+  },
   "cart": {
     "title": "Cart",
     "table": {
@@ -526,7 +532,8 @@
     },
     "actions": {
       "modify": "Modify Product",
-      "delete": "Delete"
+      "delete": "Delete",
+      "publish": "Publish"
     },
     "description": {
       "title": "Description"
