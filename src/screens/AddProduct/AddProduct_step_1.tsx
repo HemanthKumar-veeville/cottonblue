@@ -1,22 +1,20 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
 import { Input } from "../../components/ui/input";
 import { ArrowLeft, Info, Search, Store, Loader2, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
 import { cn } from "../../lib/utils";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  createProduct,
   getProductById,
   Product,
+  allocateProductToStores,
 } from "../../store/features/productSlice";
 import { useAppDispatch, useAppSelector } from "../../store/store";
-import { CreateProductData } from "../../services/productService";
 import { fetchAllStores, Agency } from "../../store/features/agencySlice";
 import { motion } from "framer-motion";
+import toast from "react-hot-toast";
 
 // Types
 interface StoreWithSelection extends Agency {
@@ -125,6 +123,34 @@ const StoreSelectionControls = ({
   </div>
 );
 
+// Store Selection Skeleton Component
+const StoreSelectionSkeleton = () => (
+  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+    {[...Array(6)].map((_, index) => (
+      <motion.div
+        key={index}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2, delay: index * 0.05 }}
+        className="flex items-center p-3 border rounded-md bg-white shadow-sm"
+      >
+        <div className="flex items-center gap-3 w-full">
+          <div className="w-4 h-4 rounded bg-gray-200 animate-pulse" />
+          <div className="flex flex-col min-w-0 flex-1 gap-2">
+            <div className="h-4 w-3/4 bg-gray-200 rounded animate-pulse" />
+            <div className="flex items-center gap-1">
+              <div className="h-3 w-1/4 bg-gray-200 rounded animate-pulse" />
+              <div className="h-3 w-2 bg-gray-200 rounded animate-pulse" />
+              <div className="h-3 w-1/4 bg-gray-200 rounded animate-pulse" />
+            </div>
+          </div>
+          <div className="w-6 h-6 rounded bg-gray-200 animate-pulse" />
+        </div>
+      </motion.div>
+    ))}
+  </div>
+);
+
 const StoreList = ({
   stores,
   onToggleStore,
@@ -176,38 +202,15 @@ const StoreList = ({
   </div>
 );
 
-const FooterButtons = ({
-  onPublish,
-  isSubmitting,
-}: {
-  onPublish: () => void;
-  isSubmitting: boolean;
-}) => (
-  <div className="flex items-center justify-between w-full gap-4 mt-8">
-    <Button
-      className="bg-[#07515f] text-white hover:bg-[#064a56] transition-colors duration-200 min-w-[150px]"
-      onClick={onPublish}
-      disabled={isSubmitting}
-    >
-      {isSubmitting ? (
-        <div className="flex items-center gap-2">
-          <Loader2 className="w-4 h-4 animate-spin" />
-          <span>Publishing...</span>
-        </div>
-      ) : (
-        "Publish product"
-      )}
-    </Button>
-  </div>
-);
-
 const ProductDetails = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { selectedCompany } = useAppSelector((state) => state.client);
   const { id } = useParams<{ id: string }>();
-  const { currentProduct } = useAppSelector((state) => state.product);
+  const { currentProduct, allocationSuccess } = useAppSelector(
+    (state) => state.product
+  );
   const { stores, loading: storesLoading } = useAppSelector(
     (state) => state.agency
   );
@@ -275,64 +278,48 @@ const ProductDetails = () => {
     storesWithSelection.length > 0 &&
     storesWithSelection.every((store) => store.isSelected);
 
-  const validateForm = () => {
-    const selectedStores = storesWithSelection.filter(
-      (store) => store.isSelected
-    );
-    if (selectedStores.length === 0) {
-      throw new Error("Please select at least one store");
-    }
-
-    if (!selectedCompany?.id) {
-      throw new Error("No company selected");
-    }
-  };
-
-  const handlePublish = useCallback(async () => {
-    setIsSubmitting(true);
-    try {
-      validateForm();
-      const selectedStores = storesWithSelection.filter(
-        (store) => store.isSelected
-      );
-
-      const createProductData: CreateProductData = {
-        company_id: selectedCompany!.id,
-        product_name: product.name,
-        product_description: product.description || "",
-        product_price: product.price_of_pack,
-        available_region: selectedStores.map((store) => store.city).join(","),
-        total_stock: product.total_packs,
-        product_image: product.product_image,
-      };
-
-      const resultAction = await dispatch(
-        createProduct({
-          dnsPrefix: selectedCompany!.dns,
-          data: createProductData,
-        }) as any
-      );
-
-      if (createProduct.fulfilled.match(resultAction)) {
-        toast.success(t("productDetails.messages.published"));
-        navigate("/products");
-      } else {
-        throw new Error(
-          resultAction.error?.message || "Failed to create product"
-        );
-      }
-    } catch (error: any) {
-      toast.error(error.message || t("productDetails.messages.publishError"));
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [t, navigate, dispatch, product, storesWithSelection, selectedCompany]);
-
   const filteredStores = storesWithSelection.filter(
     (store) =>
       store.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       store.city.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handlePublish = async () => {
+    if (!id || !selectedCompany?.dns) {
+      toast.error(t("addProduct.errors.missingInfo"));
+      return;
+    }
+
+    const selectedStoreIds = storesWithSelection
+      .filter((store) => store.isSelected)
+      .map((store) => store.id);
+
+    if (selectedStoreIds.length === 0) {
+      toast.error(t("addProduct.errors.noStoresSelected"));
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      const response = await dispatch(
+        allocateProductToStores({
+          dnsPrefix: selectedCompany.dns,
+          productId: id,
+          storeIds: selectedStoreIds,
+        })
+      ).unwrap();
+      console.log(response);
+      const productId = response?.product_id;
+      toast.success(t("addProduct.success.storesAllocated"));
+      // Navigate to next step
+      navigate(`/products/${productId}`);
+    } catch (error) {
+      toast.error(t("addProduct.errors.allocationFailed"));
+      console.error("Failed to allocate product to stores:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <motion.main
@@ -353,7 +340,7 @@ const ProductDetails = () => {
           >
             <ArrowLeft className="w-5 h-5 text-[#07515f]" />
           </Button>
-          <h1 className="font-heading-h3 font-bold text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] font-[number:var(--heading-h3-font-weight)] [font-style:var(--heading-h3-font-style)]">
+          <h1 className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] font-[number:var(--heading-h3-font-weight)] [font-style:var(--heading-h3-font-style)]">
             {t("addProduct.step1.title")}
           </h1>
         </div>
@@ -403,14 +390,7 @@ const ProductDetails = () => {
 
                 <div className="relative">
                   {storesLoading ? (
-                    <div className="flex items-center justify-center p-8 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-3">
-                        <Loader2 className="w-6 h-6 text-[#07515f] animate-spin" />
-                        <span className="font-label-small text-gray-600">
-                          Loading stores...
-                        </span>
-                      </div>
-                    </div>
+                    <StoreSelectionSkeleton />
                   ) : (
                     <StoreList
                       stores={filteredStores}
