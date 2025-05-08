@@ -139,4 +139,14 @@ export const productService = {
       },
     });
   },
+
+  /**
+   * Get all stores that a product has been allocated to
+   * @param dnsPrefix DNS prefix of the company
+   * @param productId ID of the product to get allocated stores for
+   * @returns Promise with allocated stores data
+   */
+  getAllocatedStoresForProduct: async (dnsPrefix: string, productId: string) => {
+    return axiosInstance.get(`/${dnsPrefix}/allocated-stores/product/${productId}`);
+  },
 };

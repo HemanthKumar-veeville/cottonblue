@@ -113,6 +113,7 @@
   },
   "productSidebar": {
     "title": "Add product",
+    "updateTitle": "Update product",
     "form": {
       "productName": "Product Name",
       "productId": "SKU Reference",

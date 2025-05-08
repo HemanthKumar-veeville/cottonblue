@@ -108,6 +108,10 @@ function App() {
                 element={<AddProduct_step_1 />}
               />
               <Route
+                path="products/allot-store-edit/:id"
+                element={<AddProduct_step_1 />}
+              />
+              <Route
                 path="products/edit/:id"
                 element={<ProductSidebarSection mode="edit" />}
               />

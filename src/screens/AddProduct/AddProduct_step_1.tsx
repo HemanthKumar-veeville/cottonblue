@@ -10,6 +10,7 @@ import {
   getProductById,
   Product,
   allocateProductToStores,
+  getAllocatedStores,
 } from "../../store/features/productSlice";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { fetchAllStores, Agency } from "../../store/features/agencySlice";
@@ -208,14 +209,14 @@ const ProductDetails = () => {
   const dispatch = useAppDispatch();
   const { selectedCompany } = useAppSelector((state) => state.client);
   const { id } = useParams<{ id: string }>();
-  const { currentProduct, allocationSuccess } = useAppSelector(
+  const { currentProduct, allocationSuccess, allocatedStores } = useAppSelector(
     (state) => state.product
   );
   const { stores, loading: storesLoading } = useAppSelector(
     (state) => state.agency
   );
   const product = currentProduct?.product as Product;
-
+  const allocatedStoresList = allocatedStores?.stores || [];
   const [searchQuery, setSearchQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [storesWithSelection, setStoresWithSelection] = useState<
@@ -229,23 +230,28 @@ const ProductDetails = () => {
   }, [dispatch, selectedCompany?.dns]);
 
   useEffect(() => {
-    if (stores?.stores) {
-      setStoresWithSelection(
-        stores.stores.map((store: Agency) => ({
-          ...store,
-          isSelected: false,
-        }))
-      );
-    }
-  }, [stores]);
-
-  useEffect(() => {
     if (id && selectedCompany?.dns) {
       dispatch(
         getProductById({ dnsPrefix: selectedCompany.dns, productId: id })
       );
+      dispatch(
+        getAllocatedStores({ dnsPrefix: selectedCompany.dns, productId: id })
+      );
     }
   }, [dispatch, id, selectedCompany?.dns]);
+
+  useEffect(() => {
+    if (stores?.stores) {
+      setStoresWithSelection(
+        stores.stores.map((store: Agency) => ({
+          ...store,
+          isSelected: allocatedStoresList
+            ?.map((store) => store.store_id)
+            ?.includes(store.id),
+        }))
+      );
+    }
+  }, [stores, allocatedStoresList]);
 
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);

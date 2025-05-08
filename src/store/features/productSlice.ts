@@ -2,6 +2,13 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { productService, CreateProductData, UpdateProductData } from '../../services/productService.ts';
 
 // Define types for the product state
+interface ProductAllocation {
+  productId: string;
+  storeIds: string[];
+  success?: boolean;
+  error?: string;
+}
+
 interface Product {
   id: number;
   name: string;
@@ -31,6 +38,8 @@ interface ProductState {
   updateSuccess: boolean;
   deleteSuccess: boolean;
   allocationSuccess: boolean;
+  allocations: ProductAllocation[];
+  allocatedStores: string[];
 }
 
 // Initial state
@@ -45,6 +54,8 @@ const initialState: ProductState = {
   updateSuccess: false,
   deleteSuccess: false,
   allocationSuccess: false,
+  allocations: [],
+  allocatedStores: [],
 };
 
 // Create async thunks for API calls
@@ -120,6 +131,18 @@ export const getProductsByStoreId = createAsyncThunk(
   }
 );
 
+export const getAllocatedStores = createAsyncThunk(
+  'product/getAllocatedStores',
+  async ({ dnsPrefix, productId }: { dnsPrefix: string; productId: string }, { rejectWithValue }) => {
+    try {
+      const response = await productService.getAllocatedStoresForProduct(dnsPrefix, productId);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch allocated stores');
+    }
+  }
+);
+
 export const allocateProductToStores = createAsyncThunk(
   'product/allocateProductToStores',
   async ({ 
@@ -152,6 +175,7 @@ const productSlice = createSlice({
       state.updateSuccess = false;
       state.deleteSuccess = false;
       state.allocationSuccess = false;
+      state.allocations = [];
     },
     decrementStock: (state, action: PayloadAction<{ productId: number; quantity: number }>) => {
       const { productId, quantity } = action.payload;
@@ -279,14 +303,40 @@ const productSlice = createSlice({
         state.error = null;
         state.allocationSuccess = false;
       })
-      .addCase(allocateProductToStores.fulfilled, (state) => {
+      .addCase(allocateProductToStores.fulfilled, (state, action) => {
         state.loading = false;
         state.allocationSuccess = true;
+        // Add the successful allocation to the allocations array
+        state.allocations.push({
+          productId: action.meta.arg.productId,
+          storeIds: action.meta.arg.storeIds,
+          success: true
+        });
       })
       .addCase(allocateProductToStores.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
         state.allocationSuccess = false;
+        // Add the failed allocation to the allocations array
+        state.allocations.push({
+          productId: action.meta.arg.productId,
+          storeIds: action.meta.arg.storeIds,
+          success: false,
+          error: action.payload as string
+        });
+      })
+      // Get allocated stores cases
+      .addCase(getAllocatedStores.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllocatedStores.fulfilled, (state, action) => {
+        state.loading = false;
+        state.allocatedStores = action.payload;
+      })
+      .addCase(getAllocatedStores.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });
@@ -298,4 +348,4 @@ export const {
   updateStock 
 } = productSlice.actions;
 export default productSlice.reducer;
-export type { Product, ProductState };
+export type { Product, ProductState, ProductAllocation };

@@ -458,11 +458,12 @@ export const ProductSidebarSection = ({
             productId: id,
             data: updateData,
           }) as any
-        );
-
-        if (updateProduct.fulfilled.match(resultAction)) {
+        ).unwrap();
+        const productId = resultAction?.product_id;
+        console.log({ productId, resultAction });
+        if (productId) {
           toast.success("Product updated successfully");
-          navigate(`/products/${id}`);
+          navigate(`/products/allot-store-edit/${productId}`);
         }
       } else {
         const createData: CreateProductData = {
@@ -504,7 +505,9 @@ export const ProductSidebarSection = ({
                 <div className="flex flex-col items-start gap-6 relative flex-1 self-stretch grow">
                   <div className="flex items-center justify-center gap-2 mb-6">
                     <h3 className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] font-[number:var(--heading-h3-font-weight)] [font-style:var(--heading-h3-font-style)]">
-                      {t("productSidebar.title")}
+                      {mode === "edit"
+                        ? t("productSidebar.updateTitle")
+                        : t("productSidebar.title")}
                     </h3>
                   </div>
 
