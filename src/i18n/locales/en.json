@@ -256,7 +256,8 @@
       "monthly": "Monthly",
       "quarterly": "Quarterly",
       "week": "Week {{number}} ({{range}})",
-      "quarter": "Q{{number}} ({{range}})"
+      "quarter": "Q{{number}} ({{range}})",
+      "yearly": "Yearly"
     },
     "actions": {
       "exportKPI": "Export KPIs"

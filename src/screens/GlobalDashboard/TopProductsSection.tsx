@@ -11,9 +11,14 @@ import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { colors, typography } from "../../theme/constants";
 
-type TimeframeOption = "Weekly" | "Monthly" | "Quarterly";
+type TimeframeOption = "Weekly" | "Monthly" | "Quarterly" | "Yearly";
 
-const timeframeOptions: TimeframeOption[] = ["Weekly", "Monthly", "Quarterly"];
+const timeframeOptions: TimeframeOption[] = [
+  "Weekly",
+  "Monthly",
+  "Quarterly",
+  "Yearly",
+];
 
 const getQuarterRange = (quarter: number): string => {
   const quarters = {
@@ -74,6 +79,12 @@ const getTimeframeValues = (timeframe: TimeframeOption): string[] => {
           number: quarterNum,
           range: getQuarterRange(quarterNum),
         });
+      });
+    case "Yearly":
+      const currentYear = new Date().getFullYear();
+      return Array.from({ length: 5 }, (_, i) => {
+        const year = currentYear - i;
+        return year.toString();
       });
     default:
       return [];

@@ -266,7 +266,8 @@
       "monthly": "Mensuel",
       "quarterly": "Trimestriel",
       "week": "Semaine {{number}} ({{range}})",
-      "quarter": "T{{number}} ({{range}})"
+      "quarter": "T{{number}} ({{range}})",
+      "yearly": "Annuel"
     },
     "actions": {
       "exportKPI": "Exporter les KPI"
