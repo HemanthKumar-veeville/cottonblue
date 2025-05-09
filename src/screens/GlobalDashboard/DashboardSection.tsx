@@ -43,14 +43,15 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => (
         <div className="font-semibold text-lg text-[#475569]">
           #{product.id}
         </div>
-        <div className="flex items-center gap-4">
-          <div className="w-20 h-20 rounded-md overflow-hidden border border-[#E2E8F0] relative">
+        <div className="flex items-center">
+          <div className="w-20 h-20 rounded-md overflow-hidden border border-[#E2E8F0] flex items-center justify-center bg-white">
             <img
-              className="absolute inset-0 w-full h-full object-cover"
+              className="max-w-full max-h-full object-contain"
               alt={`${product.name} image`}
               src={product.image}
             />
           </div>
+          <div className="w-px h-16 bg-[#E2E8F0] mx-4"></div>
           <div className="flex flex-col gap-2">
             <div className="font-medium text-[#475569]">{product.name}</div>
             <div className="text-[#64748B] text-sm font-medium">
@@ -128,7 +129,7 @@ const DashboardSection: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <ScrollArea className="h-[28rem]">
+          <ScrollArea className="h-[32rem]">
             <div className="flex flex-col gap-4 p-6 pt-4">
               {topProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
