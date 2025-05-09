@@ -1,3 +1,4 @@
+import { useSelector } from "react-redux";
 import {
   Card,
   CardContent,
@@ -7,6 +8,7 @@ import {
 import { ScrollArea, ScrollBar } from "../../components/ui/scroll-area";
 import { Crown, MessageSquare } from "lucide-react";
 import React from "react";
+import { RootState } from "../../store/store";
 
 const ProductCard = ({ product }) => (
   <div className="flex flex-col bg-gray-50 rounded p-2">
@@ -64,98 +66,9 @@ const TicketCard = ({ ticket }) => (
 );
 
 const DashboardSection = (): JSX.Element => {
-  const topProducts = [
-    {
-      id: 1,
-      name: "Magnet + Stylo",
-      ref: "122043",
-      price: "64,00 €/10pcs",
-      quantity: 47,
-      image:
-        "https://images.unsplash.com/photo-1585336261022-680e295ce3fe?q=80&w=2070&auto=format&fit=crop",
-    },
-    {
-      id: 2,
-      name: "Sweat à capuche",
-      ref: "122043",
-      price: "64,00 €/10pcs",
-      quantity: 83,
-      image:
-        "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=1974&auto=format&fit=crop",
-    },
-    {
-      id: 3,
-      name: "Gilet en coton",
-      ref: "122043",
-      price: "64,00 €/10pcs",
-      quantity: 29,
-      image:
-        "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1972&auto=format&fit=crop",
-    },
-    {
-      id: 4,
-      name: "T-shirt à manches longues",
-      ref: "122043",
-      price: "64,00 €/10pcs",
-      quantity: 56,
-      image:
-        "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=1780&auto=format&fit=crop",
-    },
-    {
-      id: 5,
-      name: "Sweat-shirt vintage",
-      ref: "122043",
-      price: "64,00 €/10pcs",
-      quantity: 91,
-      image:
-        "https://images.unsplash.com/photo-1572495641004-28421ae52e52?q=80&w=1974&auto=format&fit=crop",
-    },
-    {
-      id: 6,
-      name: "Pull en cachemire",
-      ref: "122043",
-      price: "64,00 €/10pcs",
-      quantity: 34,
-      image:
-        "https://images.unsplash.com/photo-1591047139829-d91aecb6caea?q=80&w=1972&auto=format&fit=crop",
-    },
-    {
-      id: 7,
-      name: "Cardigan en tricot",
-      ref: "122043",
-      price: "64,00 €/10pcs",
-      quantity: 72,
-      image:
-        "https://images.unsplash.com/photo-1584670747417-594a9412fba5?q=80&w=1974&auto=format&fit=crop",
-    },
-    {
-      id: 8,
-      name: "Haut en molleton",
-      ref: "122043",
-      price: "64,00 €/10pcs",
-      quantity: 15,
-      image:
-        "https://images.unsplash.com/photo-1578587018452-892bacefd3f2?q=80&w=1974&auto=format&fit=crop",
-    },
-    {
-      id: 9,
-      name: "Sweat léger",
-      ref: "122043",
-      price: "64,00 €/10pcs",
-      quantity: 68,
-      image:
-        "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=1974&auto=format&fit=crop",
-    },
-    {
-      id: 10,
-      name: "Pull à col roulé",
-      ref: "122043",
-      price: "64,00 €/10pcs",
-      quantity: 99,
-      image:
-        "https://images.unsplash.com/photo-1580331451062-99ff652288d7?q=80&w=1974&auto=format&fit=crop",
-    },
-  ];
+  const { summary } = useSelector((state: RootState) => state.dashboard);
+  console.log({ summary });
+  const topProducts = summary?.dashboard_data?.most_sold_products;
 
   const topClients = [
     { id: 1, name: "Chronodrive" },
