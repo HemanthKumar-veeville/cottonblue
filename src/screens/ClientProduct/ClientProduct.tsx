@@ -13,14 +13,10 @@ import {
   Minus,
   Plus,
   ShoppingCart,
-  ZoomIn,
-  PackageX,
   Package2,
   ArrowLeft,
-  Heart,
-  Share2,
-  Info,
   ChevronLeft,
+  Info,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -46,7 +42,7 @@ const ProductNotFound = () => {
     <div className="p-8 bg-white rounded-lg min-h-[400px] flex items-center justify-center">
       <div className="text-center">
         <div className="mb-6">
-          <PackageX className="w-16 h-16 mx-auto text-gray-400" />
+          <Package2 className="w-16 h-16 mx-auto text-gray-400" />
         </div>
         <h2 className="text-2xl font-semibold text-gray-900 mb-2">
           {t("clientProduct.notFound.title", "Product Not Found")}
@@ -76,7 +72,7 @@ const ProductError = ({ error }: { error: string }) => {
     <div className="p-8 bg-white rounded-lg min-h-[400px] flex items-center justify-center">
       <div className="text-center">
         <div className="mb-6">
-          <PackageX className="w-16 h-16 mx-auto text-red-400" />
+          <Package2 className="w-16 h-16 mx-auto text-red-400" />
         </div>
         <h2 className="text-2xl font-semibold text-gray-900 mb-2">
           {t("clientProduct.error.title", "Error Loading Product")}
@@ -211,7 +207,7 @@ const ProductPage = () => {
 
   return (
     <div className="min-h-screen bg-[#F8FAFC]">
-      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           <div className="p-6 sm:p-8 lg:p-12">
             <Breadcrumb className="flex items-center gap-2 w-full mb-8">
@@ -290,69 +286,30 @@ const ProductPage = () => {
 
 const ProductImages = ({ images }: { images: string[] }) => {
   const [selectedImage, setSelectedImage] = useState(0);
-  const [isZoomed, setIsZoomed] = useState(false);
-  const [touchStart, setTouchStart] = useState(0);
-  const [touchEnd, setTouchEnd] = useState(0);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    setTouchEnd(e.targetTouches[0].clientX);
-  };
-
-  const handleTouchEnd = () => {
-    if (touchStart - touchEnd > 75) {
-      // Swipe left
-      setSelectedImage((prev) => (prev < images.length - 1 ? prev + 1 : prev));
-    }
-    if (touchStart - touchEnd < -75) {
-      // Swipe right
-      setSelectedImage((prev) => (prev > 0 ? prev - 1 : prev));
-    }
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "ArrowLeft") {
-      setSelectedImage((prev) => (prev > 0 ? prev - 1 : prev));
-    } else if (e.key === "ArrowRight") {
-      setSelectedImage((prev) => (prev < images.length - 1 ? prev + 1 : prev));
-    }
-  };
 
   return (
     <div className="flex flex-col items-start gap-6 w-full h-full">
       <div
         className={cn(
           "w-full h-full aspect-square overflow-hidden",
-          "relative"
+          "relative bg-gray-50"
         )}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        onKeyDown={handleKeyDown}
-        tabIndex={0}
-        role="region"
-        aria-label="Product image gallery"
       >
         {images[selectedImage] ? (
           <div
             className={cn(
-              "w-full h-full flex items-start justify-start",
-              isZoomed ? "cursor-zoom-out" : "cursor-zoom-in",
-              "relative bg-white"
+              "w-full h-full flex items-center justify-center p-6",
+              "relative"
             )}
-            onClick={() => setIsZoomed(!isZoomed)}
           >
             <img
               src={images[selectedImage]}
               alt={`Product view ${selectedImage + 1}`}
               className={cn(
                 "max-w-full max-h-full w-auto h-auto object-contain",
-                "transition-all duration-300 ease-in-out",
-                isZoomed ? "scale-150" : "group-hover:scale-105"
+                "transition-all duration-300 ease-in-out"
               )}
+              style={{ objectFit: "contain" }}
             />
             {/* Image Navigation Dots */}
             {images.length > 1 && (
@@ -377,50 +334,22 @@ const ProductImages = ({ images }: { images: string[] }) => {
             )}
           </div>
         ) : (
-          <div className="w-full h-full flex items-start justify-start bg-gray-50">
+          <div className="w-full h-full flex items-center justify-center">
             <Package2 className="w-20 h-20 text-gray-300" />
           </div>
         )}
-        {images[selectedImage] && !isZoomed && (
-          <div className="absolute top-4 right-4 flex items-center gap-4">
-            <button
-              className={cn(
-                "text-gray-500 hover:text-[#00b85b]",
-                "transition-all duration-200"
-              )}
-              onClick={() => setIsZoomed(true)}
-              aria-label="Zoom image"
-            >
-              <ZoomIn className="w-6 h-6" />
-            </button>
-            <button
-              className={cn(
-                "text-gray-500 hover:text-[#00b85b]",
-                "transition-all duration-200"
-              )}
-              aria-label="Add to favorites"
-            >
-              <Heart className="w-6 h-6" />
-            </button>
-            <button
-              className={cn(
-                "text-gray-500 hover:text-[#00b85b]",
-                "transition-all duration-200"
-              )}
-              aria-label="Share product"
-            >
-              <Share2 className="w-6 h-6" />
-            </button>
-          </div>
-        )}
         {/* Image Navigation Arrows */}
-        {images.length > 1 && !isZoomed && (
+        {images.length > 1 && (
           <>
             <button
               className={cn(
                 "absolute left-4 top-1/2 -translate-y-1/2",
-                "text-gray-500 hover:text-[#00b85b]",
+                "p-2 rounded-full",
+                "bg-white/90 backdrop-blur-sm shadow-sm",
+                "hover:bg-[#00b85b] hover:text-white",
                 "transition-all duration-200",
+                "text-gray-700",
+                "border border-gray-200",
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
               onClick={(e) => {
@@ -430,13 +359,17 @@ const ProductImages = ({ images }: { images: string[] }) => {
               disabled={selectedImage === 0}
               aria-label="Previous image"
             >
-              <ChevronLeft className="w-8 h-8" />
+              <ChevronLeft className="w-6 h-6" />
             </button>
             <button
               className={cn(
                 "absolute right-4 top-1/2 -translate-y-1/2",
-                "text-gray-500 hover:text-[#00b85b]",
+                "p-2 rounded-full",
+                "bg-white/90 backdrop-blur-sm shadow-sm",
+                "hover:bg-[#00b85b] hover:text-white",
                 "transition-all duration-200",
+                "text-gray-700",
+                "border border-gray-200",
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
               onClick={(e) => {
@@ -448,7 +381,7 @@ const ProductImages = ({ images }: { images: string[] }) => {
               disabled={selectedImage === images.length - 1}
               aria-label="Next image"
             >
-              <ChevronRight className="w-8 h-8" />
+              <ChevronRight className="w-6 h-6" />
             </button>
           </>
         )}
@@ -591,22 +524,23 @@ const ProductInfo = ({
             <label className="sr-only font-label-medium">
               {t("clientProduct.selectors.quantity")}
             </label>
-            <div className="flex items-center justify-center bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
+            <div className="flex items-stretch bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
               <Button
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  "w-10 h-10 rounded-l-lg",
+                  "w-10 h-10",
                   "hover:bg-gray-50 transition-all duration-200",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
-                  "text-[#00b85b] border-r-2 border-gray-200"
+                  "text-[#00b85b] border-r border-gray-200",
+                  "rounded-l-lg rounded-r-none"
                 )}
                 onClick={() => onQuantityChange(-1)}
                 disabled={localQuantity <= 0}
               >
                 <Minus className="w-4 h-4" />
               </Button>
-              <div className="px-3 min-w-[3rem] flex items-center justify-center border-x-2 border-gray-200">
+              <div className="px-3 min-w-[3rem] flex items-center justify-center border-r border-gray-200">
                 <span className="font-semibold text-gray-900 text-lg font-text-bold-large">
                   {localQuantity + cartQuantity}
                 </span>
@@ -615,10 +549,11 @@ const ProductInfo = ({
                 variant="ghost"
                 size="icon"
                 className={cn(
-                  "w-10 h-10 rounded-r-lg",
+                  "w-10 h-10",
                   "hover:bg-gray-50 transition-all duration-200",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
-                  "text-[#00b85b] border-l-2 border-gray-200"
+                  "text-[#00b85b]",
+                  "rounded-r-lg rounded-l-none"
                 )}
                 onClick={() => onQuantityChange(1)}
                 disabled={localQuantity >= (product?.available_packs ?? 0)}
@@ -795,15 +730,16 @@ const RelatedProductCard = ({ product }: { product: Product }) => {
                   role="group"
                   aria-label={t("product.cartControls")}
                 >
-                  <div className="flex items-center bg-white rounded-md shadow-sm border border-gray-200 h-7">
+                  <div className="flex items-stretch bg-white border border-gray-200 rounded-md shadow-sm h-7">
                     <Button
                       variant="ghost"
                       size="icon"
                       className={cn(
-                        "h-7 w-7 rounded-l-md",
+                        "h-7 w-7",
                         "hover:bg-gray-50 transition-colors duration-200",
                         "disabled:opacity-50 disabled:cursor-not-allowed",
-                        "text-[#00b85b] border-r-2 border-gray-200"
+                        "text-[#00b85b] border-r border-gray-200",
+                        "rounded-l-md rounded-r-none"
                       )}
                       onClick={(e) => handleQuantityChange(-1, e)}
                       disabled={localQuantity <= 0}
@@ -812,7 +748,7 @@ const RelatedProductCard = ({ product }: { product: Product }) => {
                     >
                       <Minus className="h-3 w-3" />
                     </Button>
-                    <div className="px-2 min-w-[2rem] flex items-center justify-center border-x-2 border-gray-200">
+                    <div className="px-2 min-w-[2rem] flex items-center justify-center border-r border-gray-200">
                       <span
                         className="text-center text-sm font-medium text-gray-700"
                         role="status"
@@ -827,10 +763,11 @@ const RelatedProductCard = ({ product }: { product: Product }) => {
                       variant="ghost"
                       size="icon"
                       className={cn(
-                        "h-7 w-7 rounded-r-md",
+                        "h-7 w-7",
                         "hover:bg-gray-50 transition-colors duration-200",
                         "disabled:opacity-50 disabled:cursor-not-allowed",
-                        "text-[#00b85b] border-l-2 border-gray-200"
+                        "text-[#00b85b]",
+                        "rounded-r-md rounded-l-none"
                       )}
                       onClick={(e) => handleQuantityChange(1, e)}
                       disabled={localQuantity >= (product.available_packs ?? 0)}
