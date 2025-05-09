@@ -40,15 +40,22 @@ const InputSection = ({
   setEmail,
   password,
   setPassword,
+  onSubmit,
+  isLoading,
 }: {
   email: string;
   setEmail: (value: string) => void;
   password: string;
   setPassword: (value: string) => void;
+  onSubmit: (e: React.FormEvent) => void;
+  isLoading: boolean;
 }) => {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
+    <form
+      onSubmit={onSubmit}
+      className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full"
+    >
       <Input
         type="email"
         value={email}
@@ -64,22 +71,8 @@ const InputSection = ({
         placeholder={t("clientLogin.password")}
         className="flex items-center justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] w-full bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)] border border-solid border-[color:var(--1-tokens-color-modes-input-primary-default-border)] font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)]"
       />
-    </div>
-  );
-};
-
-const ButtonSection = ({
-  isLoading,
-  onSubmit,
-}: {
-  isLoading: boolean;
-  onSubmit: () => void;
-}) => {
-  const { t } = useTranslation();
-  return (
-    <div className="flex flex-col items-end justify-center w-full">
       <Button
-        onClick={onSubmit}
+        type="submit"
         disabled={isLoading}
         className="w-full py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] bg-[#00b85b] rounded-[var(--2-tokens-screen-modes-button-border-radius)] border border-solid border-[#1a8563] font-label-medium text-[color:var(--1-tokens-color-modes-button-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)]"
       >
@@ -92,7 +85,7 @@ const ButtonSection = ({
           t("clientLogin.login")
         )}
       </Button>
-    </div>
+    </form>
   );
 };
 
@@ -110,7 +103,10 @@ export default function ClientLogin() {
     dispatch(loginPage(dnsPrefix));
   }, [dispatch, dnsPrefix]);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
     if (!dnsPrefix) return;
 
     try {
@@ -134,13 +130,14 @@ export default function ClientLogin() {
               setEmail={setEmail}
               password={password}
               setPassword={setPassword}
+              onSubmit={handleSubmit}
+              isLoading={isLoading}
             />
             {error && (
               <div className="text-red-500 text-sm w-full text-center">
                 {error}
               </div>
             )}
-            <ButtonSection isLoading={isLoading} onSubmit={handleSubmit} />
           </div>
         </CardContent>
       </Card>
