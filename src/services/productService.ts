@@ -23,6 +23,7 @@ export interface UpdateProductData {
   pack_price?: number;
   total_packs?: number;
   product_image?: File;
+  is_active?: boolean;
 }
 
 export const productService = {
@@ -90,7 +91,7 @@ export const productService = {
         if (value instanceof File) {
           formData.append(key, value);
         } else if (value !== undefined) {
-          formData.append(key, value.toString());
+          formData.append(key, value);
         }
       });
     }

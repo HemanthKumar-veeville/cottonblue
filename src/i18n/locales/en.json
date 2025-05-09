@@ -535,7 +535,9 @@
     "actions": {
       "modify": "Modify Product",
       "delete": "Delete",
-      "publish": "Publish"
+      "publish": "Publish",
+      "activate": "Activate Product",
+      "deactivate": "Deactivate Product"
     },
     "description": {
       "title": "Description"
