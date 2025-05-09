@@ -32,6 +32,7 @@ import { getHost } from "../../utils/hostUtils";
 import { Skeleton } from "../../components/Skeleton";
 import { toast } from "sonner";
 import { getProductsByStoreId } from "../../store/features/productSlice";
+
 const ProductNotFound = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -88,6 +89,29 @@ const ProductError = ({ error }: { error: string }) => {
   );
 };
 
+// Move getStockStatus outside components
+const getStockStatus = (product: Product) => {
+  if (product.available_packs == null) {
+    return {
+      status: "dashboard.status.unknown",
+      color: "text-gray-600",
+      borderColor: "border-gray-300",
+    };
+  }
+
+  return product.available_packs > 0
+    ? {
+        status: "dashboard.status.inStock",
+        color: "text-[#00b85b]",
+        borderColor: "border-[#00b85b]",
+      }
+    : {
+        status: "dashboard.status.outOfStock",
+        color: "text-red-600",
+        borderColor: "border-red-300",
+      };
+};
+
 const ProductPage = () => {
   const { t } = useTranslation();
   const { id } = useParams();
@@ -96,18 +120,18 @@ const ProductPage = () => {
   const { currentProduct, loading, error, products } = useAppSelector(
     (state) => state.product
   );
-  console.log({ products });
   const dnsPrefix = getHost();
   const { selectedStore } = useAppSelector((state) => state.agency);
   const product = currentProduct?.product || ({} as Product);
   const otherProducts = products?.products || [];
-  console.log({ otherProducts });
   const cart = useAppSelector((state) => state.cart);
   const items = cart?.items || [];
 
   // Get initial quantity from cart
   const cartItem = items.find((item) => item.product_id === product.id);
-  const [quantity, setQuantity] = useState(cartItem?.quantity || 1);
+  const cartQuantity = cartItem?.quantity || 0;
+  // Add local quantity state for pending changes
+  const [localQuantity, setLocalQuantity] = useState(0);
 
   useEffect(() => {
     if (id && dnsPrefix && selectedStore) {
@@ -122,65 +146,45 @@ const ProductPage = () => {
     }
   }, [dispatch, dnsPrefix, selectedStore]);
 
-  // Update local quantity when cart changes
-  useEffect(() => {
-    const updatedCartItem = items.find(
-      (item) => item.product_id === Number(id)
-    );
-    if (updatedCartItem) {
-      setQuantity(updatedCartItem.quantity);
-    }
-  }, [items, id]);
-
-  const handleQuantityChange = async (amount: number) => {
-    const newQuantity = quantity + amount;
+  // Handle local quantity changes
+  const handleQuantityChange = (amount: number) => {
+    const newQuantity = localQuantity + amount;
 
     if (amount > 0 && newQuantity <= (product?.available_packs ?? 0)) {
-      if (dnsPrefix && selectedStore) {
-        try {
-          // Optimistic update
-          dispatch(addToCart({ product, quantity: 1 }));
-          setQuantity(newQuantity);
-
-          await dispatch(
-            addToCartAsync({
-              dns_prefix: dnsPrefix,
-              store_id: selectedStore,
-              product_id: product.id.toString(),
-              quantity: 1,
-            })
-          ).unwrap();
-        } catch (error) {
-          // Revert optimistic update
-          dispatch(addToCart({ product, quantity: -1 }));
-          setQuantity(quantity);
-          toast.error(t("cart.error.addFailed"));
-        }
-      }
+      setLocalQuantity(newQuantity);
     } else if (amount < 0 && newQuantity >= 0) {
-      if (dnsPrefix && selectedStore) {
-        try {
-          // Optimistic update
-          dispatch(addToCart({ product, quantity: -1 }));
-          setQuantity(newQuantity);
-
-          await dispatch(
-            addToCartAsync({
-              dns_prefix: dnsPrefix,
-              store_id: selectedStore,
-              product_id: product.id.toString(),
-              quantity: -1,
-            })
-          ).unwrap();
-        } catch (error) {
-          // Revert optimistic update
-          dispatch(addToCart({ product, quantity: 1 }));
-          setQuantity(quantity);
-          toast.error(t("cart.error.removeFailed"));
-        }
-      }
+      setLocalQuantity(newQuantity);
     } else if (newQuantity > (product?.available_packs ?? 0)) {
       toast.error(t("cart.error.notEnoughStock"));
+    }
+  };
+
+  // New handler for adding to cart
+  const handleAddToCart = async () => {
+    if (localQuantity === 0) {
+      return;
+    }
+
+    if (dnsPrefix && selectedStore) {
+      try {
+        await dispatch(
+          addToCartAsync({
+            dns_prefix: dnsPrefix,
+            store_id: selectedStore,
+            product_id: product.id.toString(),
+            quantity: localQuantity,
+          })
+        ).unwrap();
+
+        await dispatch(
+          fetchCart({ dns_prefix: dnsPrefix, store_id: selectedStore })
+        );
+
+        // Reset local quantity after successful add to cart
+        setLocalQuantity(0);
+      } catch (error) {
+        toast.error(t("cart.error.addFailed"));
+      }
     }
   };
 
@@ -233,8 +237,10 @@ const ProductPage = () => {
               />
               <ProductInfo
                 product={product}
-                quantity={quantity}
-                changeQuantity={handleQuantityChange}
+                quantity={cartQuantity}
+                localQuantity={localQuantity}
+                onQuantityChange={handleQuantityChange}
+                onAddToCart={handleAddToCart}
               />
             </div>
           </div>
@@ -277,12 +283,16 @@ const ProductImages = ({ images }: { images: string[] }) => (
 
 const ProductInfo = ({
   product,
-  quantity,
-  changeQuantity,
+  quantity: cartQuantity,
+  localQuantity,
+  onQuantityChange,
+  onAddToCart,
 }: {
   product: Product;
   quantity: number;
-  changeQuantity: (amount: number) => void;
+  localQuantity: number;
+  onQuantityChange: (amount: number) => void;
+  onAddToCart: () => void;
 }) => {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -329,14 +339,14 @@ const ProductInfo = ({
       <div className="w-full">
         <div className="flex items-center gap-3 mb-6">
           <Badge
-            variant="outline"
+            variant="active"
             className={`${stockStatusColor} border-0 px-3 py-1.5 font-medium`}
           >
             {t(`clientProduct.status.${stockStatus}`)}
           </Badge>
           {!product.is_active && (
             <Badge
-              variant="outline"
+              variant="inactive"
               className="bg-gray-50 text-gray-600 border-0 px-3 py-1.5 font-medium"
             >
               {t("dashboard.status.inactive")}
@@ -385,20 +395,20 @@ const ProductInfo = ({
               variant="ghost"
               size="icon"
               className="w-9 h-9 p-0.5 hover:bg-gray-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={() => changeQuantity(-1)}
-              disabled={quantity <= 1}
+              onClick={() => onQuantityChange(-1)}
+              disabled={localQuantity <= 0}
             >
               <Minus className="w-4 h-4" />
             </Button>
             <span className="font-semibold text-gray-900 min-w-[2.5rem] text-center text-lg">
-              {quantity}
+              {localQuantity + cartQuantity}
             </span>
             <Button
               variant="ghost"
               size="icon"
               className="w-9 h-9 p-0.5 hover:bg-gray-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={() => changeQuantity(1)}
-              disabled={quantity >= (product?.available_packs ?? 0)}
+              onClick={() => onQuantityChange(1)}
+              disabled={localQuantity >= (product?.available_packs ?? 0)}
             >
               <Plus className="w-4 h-4" />
             </Button>
@@ -412,12 +422,21 @@ const ProductInfo = ({
       </div>
 
       <Button
-        className="w-full gap-3 py-4 px-6 bg-[#07515f] hover:bg-[#064a56] text-white text-base font-medium rounded-lg shadow-sm transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5"
-        disabled={!product?.available_packs || product.available_packs <= 0}
-        onClick={() => changeQuantity(1)}
+        className="w-full gap-3 py-4 px-6 bg-[#07515f] hover:bg-[#064a56] text-white text-base font-medium rounded-lg shadow-sm transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5 relative"
+        disabled={
+          !product?.available_packs ||
+          product.available_packs <= 0 ||
+          localQuantity === 0
+        }
+        onClick={onAddToCart}
       >
         <ShoppingCart className="w-5 h-5" />
         <span>{t("clientProduct.buttons.addToCart")}</span>
+        {localQuantity > 0 && (
+          <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-in fade-in duration-200">
+            {localQuantity}
+          </div>
+        )}
       </Button>
 
       <div className="flex flex-col items-start gap-6 w-full">
@@ -457,7 +476,7 @@ const ProductInfo = ({
   );
 };
 
-const RelatedProducts = ({ otherProducts }: { otherProducts: Product[] }) => {
+const RelatedProductCard = ({ product }: { product: Product }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const cart = useAppSelector((state) => state.cart);
@@ -465,90 +484,202 @@ const RelatedProducts = ({ otherProducts }: { otherProducts: Product[] }) => {
   const { selectedStore } = useAppSelector((state) => state.agency);
   const dnsPrefix = getHost();
   const navigate = useNavigate();
+  const cartItem = items.find((item) => item.product_id === product.id);
+  const cartQuantity = cartItem?.quantity || 0;
+  const [localQuantity, setLocalQuantity] = useState(0);
 
-  const relatedProducts = otherProducts?.slice(0, 4);
-
-  const getStockStatus = (product: any) => {
-    if (product.available_packs == null) {
-      return {
-        status: "dashboard.status.unknown",
-        color: "text-gray-600",
-        borderColor: "border-gray-300",
-      };
-    }
-
-    return product.available_packs > 0
-      ? {
-          status: "dashboard.status.inStock",
-          color: "text-[#00b85b]",
-          borderColor: "border-[#00b85b]",
-        }
-      : {
-          status: "dashboard.status.outOfStock",
-          color: "text-red-600",
-          borderColor: "border-red-300",
-        };
-  };
-
-  const handleQuantityChange = async (
-    product: Product,
-    amount: number,
-    e?: React.MouseEvent
-  ) => {
+  const handleQuantityChange = (amount: number, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    const cartItem = items.find((item) => item.product_id === product.id);
-    const quantity = cartItem?.quantity || 0;
-    const newQuantity = quantity + amount;
+    const newQuantity = localQuantity + amount;
 
     if (amount > 0 && newQuantity <= (product.available_packs ?? 0)) {
-      if (dnsPrefix && selectedStore) {
-        try {
-          // Optimistic update
-          dispatch(addToCart({ product, quantity: 1 }));
-
-          await dispatch(
-            addToCartAsync({
-              dns_prefix: dnsPrefix,
-              store_id: selectedStore,
-              product_id: product.id.toString(),
-              quantity: 1,
-            })
-          ).unwrap();
-        } catch (error) {
-          // Revert optimistic update
-          dispatch(addToCart({ product, quantity: -1 }));
-          toast.error(t("cart.error.addFailed"));
-        }
-      }
+      setLocalQuantity(newQuantity);
     } else if (amount < 0 && newQuantity >= 0) {
-      if (dnsPrefix && selectedStore) {
-        try {
-          // Optimistic update
-          dispatch(addToCart({ product, quantity: -1 }));
-
-          await dispatch(
-            addToCartAsync({
-              dns_prefix: dnsPrefix,
-              store_id: selectedStore,
-              product_id: product.id.toString(),
-              quantity: -1,
-            })
-          ).unwrap();
-        } catch (error) {
-          // Revert optimistic update
-          dispatch(addToCart({ product, quantity: 1 }));
-          toast.error(t("cart.error.removeFailed"));
-        }
-      }
+      setLocalQuantity(newQuantity);
     } else if (newQuantity > (product.available_packs ?? 0)) {
       toast.error(t("cart.error.notEnoughStock"));
     }
   };
 
-  const handleInitialAdd = (product: Product, e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    handleQuantityChange(product, 1, e);
+
+    if (localQuantity === 0) {
+      return;
+    }
+
+    if (dnsPrefix && selectedStore) {
+      try {
+        await dispatch(
+          addToCartAsync({
+            dns_prefix: dnsPrefix,
+            store_id: selectedStore,
+            product_id: product.id.toString(),
+            quantity: localQuantity,
+          })
+        ).unwrap();
+
+        await dispatch(
+          fetchCart({ dns_prefix: dnsPrefix, store_id: selectedStore })
+        );
+
+        setLocalQuantity(0);
+      } catch (error) {
+        toast.error(t("cart.error.addFailed"));
+      }
+    }
   };
+
+  const stockStatus = getStockStatus(product);
+
+  return (
+    <Card
+      className="w-full h-full bg-white shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 rounded-xl overflow-hidden border border-gray-100"
+      onClick={() => navigate(`/product/${product.id}`)}
+    >
+      <CardContent className="p-4 h-full">
+        <div className="flex flex-col h-full">
+          {/* Image Container with Hover Effect */}
+          <div className="relative group">
+            <div
+              className="aspect-[4/3] w-full rounded-2xl bg-gray-100 bg-no-repeat bg-center flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-[1.02]"
+              style={{
+                backgroundImage: product.product_image
+                  ? `url(${product.product_image})`
+                  : "none",
+                backgroundSize: "contain",
+              }}
+            >
+              {!product.product_image && (
+                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                  <Package2 size={48} />
+                </div>
+              )}
+            </div>
+            {/* Quick View Overlay */}
+            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl flex items-center justify-center">
+              <span className="text-white text-sm font-medium">
+                Click to view details
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col flex-grow gap-2 mt-4">
+            {/* Status Badges */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Badge
+                  variant="active"
+                  className={`${stockStatus.color} whitespace-nowrap text-xs font-medium px-2.5 py-0.5 rounded-md border ${stockStatus.borderColor} bg-white`}
+                >
+                  {t(stockStatus.status)}
+                </Badge>
+                {!product.is_active && (
+                  <Badge
+                    variant="inactive"
+                    className="text-gray-600 whitespace-nowrap text-xs font-medium px-2.5 py-0.5 rounded-md border border-gray-300 bg-white"
+                  >
+                    {t("dashboard.status.inactive")}
+                  </Badge>
+                )}
+              </div>
+              {/* Cart Controls */}
+              {(product.available_packs ?? 0) > 0 && (
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  className="flex items-center"
+                  role="group"
+                  aria-label={t("product.cartControls")}
+                >
+                  <div className="flex items-center bg-white rounded-md shadow-sm border border-gray-200 h-7 p-0.5">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 rounded-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={(e) => handleQuantityChange(-1, e)}
+                      disabled={localQuantity <= 0}
+                      aria-label={t("product.decreaseQuantity")}
+                      title={t("product.decreaseQuantity")}
+                    >
+                      <Minus className="h-3 w-3 text-[#00b85b]" />
+                    </Button>
+                    <span
+                      className="w-6 text-center text-sm font-medium text-gray-700"
+                      role="status"
+                      aria-label={t("product.quantityInCart", {
+                        quantity: localQuantity + cartQuantity,
+                      })}
+                    >
+                      {localQuantity + cartQuantity}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 rounded-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      onClick={(e) => handleQuantityChange(1, e)}
+                      disabled={localQuantity >= (product.available_packs ?? 0)}
+                      aria-label={t("product.increaseQuantity")}
+                      title={t("product.increaseQuantity")}
+                    >
+                      <Plus className="h-3 w-3 text-[#00b85b]" />
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Product Name with Truncation */}
+            <div className="font-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-base tracking-[0] leading-[22.4px] line-clamp-2 min-h-[44px]">
+              {product.name || "N/A"}
+            </div>
+
+            {/* Available Packs with Icon */}
+            <div className="text-sm text-gray-500 flex items-center gap-1">
+              <Package2 className="h-4 w-4" />
+              <span>Available: {product.available_packs ?? 0} packs</span>
+            </div>
+          </div>
+
+          {/* Price Section */}
+          <div className="mt-auto pt-4 border-t border-gray-100">
+            <div className="flex items-center justify-between">
+              <div className="font-normal text-coolgray-100 text-lg tracking-[0] leading-[25.2px]">
+                <span className="font-[number:var(--body-l-font-weight)] font-body-l [font-style:var(--body-l-font-style)] tracking-[var(--body-l-letter-spacing)] leading-[var(--body-l-line-height)] text-[length:var(--body-l-font-size)]">
+                  {product.price_of_pack
+                    ? `${product.price_of_pack.toFixed(2)}€`
+                    : "N/A"}
+                </span>
+                <span className="text-[length:var(--body-s-font-size)] leading-[var(--body-s-line-height)] font-body-s [font-style:var(--body-s-font-style)] font-[number:var(--body-s-font-weight)] tracking-[var(--body-s-letter-spacing)] ml-1">
+                  {product.pack_quantity ? `/${product.pack_quantity}pcs` : ""}
+                </span>
+              </div>
+              <Button
+                size="icon"
+                className="h-8 w-8 rounded-r-md bg-[#00b85b] hover:bg-[#00b85b]/90 text-white transition-all duration-200 relative"
+                onClick={handleAddToCart}
+                disabled={localQuantity === 0}
+                aria-label={t("product.addToCart")}
+                title={t("product.addToCart")}
+              >
+                <ShoppingCart className="h-4 w-4 text-white" />
+                {localQuantity > 0 && (
+                  <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-in fade-in duration-200">
+                    {localQuantity}
+                  </div>
+                )}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const RelatedProducts = ({ otherProducts }: { otherProducts: Product[] }) => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const relatedProducts = otherProducts?.slice(0, 4);
 
   return (
     <div className="w-full">
@@ -568,161 +699,11 @@ const RelatedProducts = ({ otherProducts }: { otherProducts: Product[] }) => {
         </div>
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full max-w-[1200px] mx-auto">
-        {relatedProducts.map((product) => {
-          const stockStatus = getStockStatus(product);
-          const cartItem = items.find((item) => item.product_id === product.id);
-          const quantity = cartItem?.quantity || 0;
-
-          return (
-            <Card
-              key={product.id}
-              className="w-full h-full bg-white shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 rounded-xl overflow-hidden border border-gray-100"
-            >
-              <CardContent className="p-4 h-full">
-                <div className="flex flex-col h-full">
-                  {/* Image Container with Hover Effect */}
-                  <div className="relative group">
-                    <div
-                      className="aspect-[4/3] w-full rounded-2xl bg-gray-100 bg-no-repeat bg-center flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-[1.02]"
-                      style={{
-                        backgroundImage: product.product_image
-                          ? `url(${product.product_image})`
-                          : "none",
-                        backgroundSize: "contain",
-                      }}
-                    >
-                      {!product.product_image && (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <Package2 size={48} />
-                        </div>
-                      )}
-                    </div>
-                    {/* Quick View Overlay */}
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl flex items-center justify-center">
-                      <span className="text-white text-sm font-medium">
-                        Click to view details
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col flex-grow gap-2 mt-4">
-                    {/* Status Badges */}
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Badge
-                          variant="outline"
-                          className={`${stockStatus.color} whitespace-nowrap text-xs font-medium px-2.5 py-0.5 rounded-md border ${stockStatus.borderColor} bg-white`}
-                        >
-                          {t(stockStatus.status)}
-                        </Badge>
-                        {!product.is_active && (
-                          <Badge
-                            variant="outline"
-                            className="text-gray-600 whitespace-nowrap text-xs font-medium px-2.5 py-0.5 rounded-md border border-gray-300 bg-white"
-                          >
-                            {t("dashboard.status.inactive")}
-                          </Badge>
-                        )}
-                      </div>
-                      {/* Cart Controls */}
-                      {(product.available_packs ?? 0) > 0 && (
-                        <div
-                          onClick={(e) => e.stopPropagation()}
-                          className="flex items-center"
-                          role="group"
-                          aria-label={t("product.cartControls")}
-                        >
-                          {quantity === 0 ? (
-                            <Button
-                              size="icon"
-                              className="h-7 w-7 rounded-md bg-[#00b85b] hover:bg-[#00b85b]/90 text-white shadow-sm transition-all duration-200 hover:scale-105"
-                              onClick={(e) => handleInitialAdd(product, e)}
-                              aria-label={t("product.addToCart")}
-                              title={t("product.addToCart")}
-                            >
-                              <ShoppingCart className="h-3.5 w-3.5 text-white" />
-                            </Button>
-                          ) : (
-                            <div className="flex items-center bg-white rounded-md shadow-sm border border-gray-200 h-7 p-0.5">
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6 rounded-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                onClick={(e) =>
-                                  handleQuantityChange(product, -1, e)
-                                }
-                                disabled={quantity <= 0}
-                                aria-label={t("product.decreaseQuantity")}
-                                title={t("product.decreaseQuantity")}
-                              >
-                                <Minus className="h-3 w-3 text-[#00b85b]" />
-                              </Button>
-                              <span
-                                className="w-6 text-center text-sm font-medium text-gray-700"
-                                role="status"
-                                aria-label={t("product.quantityInCart", {
-                                  quantity,
-                                })}
-                              >
-                                {quantity}
-                              </span>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-6 w-6 rounded-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                onClick={(e) =>
-                                  handleQuantityChange(product, 1, e)
-                                }
-                                disabled={
-                                  quantity >= (product.available_packs ?? 0)
-                                }
-                                aria-label={t("product.increaseQuantity")}
-                                title={t("product.increaseQuantity")}
-                              >
-                                <Plus className="h-3 w-3 text-[#00b85b]" />
-                              </Button>
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Product Name with Truncation */}
-                    <div className="font-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-base tracking-[0] leading-[22.4px] line-clamp-2 min-h-[44px]">
-                      {product.name || "N/A"}
-                    </div>
-
-                    {/* Available Packs with Icon */}
-                    <div className="text-sm text-gray-500 flex items-center gap-1">
-                      <Package2 className="h-4 w-4" />
-                      <span>
-                        Available: {product.available_packs ?? 0} packs
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Price Section */}
-                  <div className="mt-auto pt-4 border-t border-gray-100">
-                    <div className="flex items-center justify-between">
-                      <div className="font-normal text-coolgray-100 text-lg tracking-[0] leading-[25.2px]">
-                        <span className="font-[number:var(--body-l-font-weight)] font-body-l [font-style:var(--body-l-font-style)] tracking-[var(--body-l-letter-spacing)] leading-[var(--body-l-line-height)] text-[length:var(--body-l-font-size)]">
-                          {product.price_of_pack
-                            ? `${product.price_of_pack.toFixed(2)}€`
-                            : "N/A"}
-                        </span>
-                        <span className="text-[length:var(--body-s-font-size)] leading-[var(--body-s-line-height)] font-body-s [font-style:var(--body-s-font-style)] font-[number:var(--body-s-font-weight)] tracking-[var(--body-s-letter-spacing)] ml-1">
-                          {product.pack_quantity
-                            ? `/${product.pack_quantity}pcs`
-                            : ""}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          );
-        })}
+        {relatedProducts?.map((product) => (
+          <div key={product.id} className="w-full max-w-[320px] mx-auto">
+            <RelatedProductCard product={product} />
+          </div>
+        ))}
       </div>
     </div>
   );
