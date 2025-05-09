@@ -30,7 +30,7 @@ const ProductCard = ({ product }) => (
               {product.name}
             </div>
             <div className="text-[#475569] text-sm">
-              Ref : {product.ref}
+              Ref : {product.id}
               <br />
               Prix : {product.price}
             </div>
@@ -68,7 +68,14 @@ const TicketCard = ({ ticket }) => (
 const DashboardSection = (): JSX.Element => {
   const { summary } = useSelector((state: RootState) => state.dashboard);
   console.log({ summary });
-  const topProducts = summary?.dashboard_data?.most_sold_products;
+  const topProducts =
+    summary?.dashboard_data?.most_sold_products?.map((prod, index) => ({
+      id: index + 1,
+      name: prod.product_name,
+      image: prod.product_image,
+      price: `${prod.price_of_pack} €/${prod.pack_quantity}pcs`,
+      quantity: prod.ordered_quantity,
+    })) || [];
 
   const topClients = [
     { id: 1, name: "Chronodrive" },
@@ -95,7 +102,7 @@ const DashboardSection = (): JSX.Element => {
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <ScrollArea className="h-[calc(100vh-180px)] pr-4">
+          <ScrollArea className="h-[28rem] pr-4">
             <div className="flex flex-col gap-4 p-5 pt-0">
               {topProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />

@@ -289,7 +289,9 @@ const ProductInfo = ({
 
   const stockStatus = product?.available_packs > 0 ? "inStock" : "outOfStock";
   const stockStatusColor =
-    stockStatus === "inStock" ? "bg-green-50 text-green-700" : "bg-red-50 text-red-700";
+    stockStatus === "inStock"
+      ? "bg-green-50 text-green-700"
+      : "bg-red-50 text-red-700";
 
   const productDetails = [
     {
@@ -326,11 +328,17 @@ const ProductInfo = ({
     <div className="flex flex-col items-start justify-start gap-8 flex-1">
       <div className="w-full">
         <div className="flex items-center gap-3 mb-6">
-          <Badge variant="outline" className={`${stockStatusColor} border-0 px-3 py-1.5 font-medium`}>
+          <Badge
+            variant="outline"
+            className={`${stockStatusColor} border-0 px-3 py-1.5 font-medium`}
+          >
             {t(`clientProduct.status.${stockStatus}`)}
           </Badge>
           {!product.is_active && (
-            <Badge variant="outline" className="bg-gray-50 text-gray-600 border-0 px-3 py-1.5 font-medium">
+            <Badge
+              variant="outline"
+              className="bg-gray-50 text-gray-600 border-0 px-3 py-1.5 font-medium"
+            >
               {t("dashboard.status.inactive")}
             </Badge>
           )}
@@ -349,9 +357,7 @@ const ProductInfo = ({
             <span className="font-medium text-gray-700 text-sm min-w-[120px]">
               {detail.label}
             </span>
-            <span className="text-gray-600 text-sm">
-              {detail.value}
-            </span>
+            <span className="text-gray-600 text-sm">{detail.value}</span>
           </div>
         ))}
       </div>
@@ -484,7 +490,11 @@ const RelatedProducts = ({ otherProducts }: { otherProducts: Product[] }) => {
         };
   };
 
-  const handleQuantityChange = async (product: Product, amount: number, e?: React.MouseEvent) => {
+  const handleQuantityChange = async (
+    product: Product,
+    amount: number,
+    e?: React.MouseEvent
+  ) => {
     e?.stopPropagation();
     const cartItem = items.find((item) => item.product_id === product.id);
     const quantity = cartItem?.quantity || 0;
@@ -638,7 +648,9 @@ const RelatedProducts = ({ otherProducts }: { otherProducts: Product[] }) => {
                                 variant="ghost"
                                 size="icon"
                                 className="h-6 w-6 rounded-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                onClick={(e) => handleQuantityChange(product, -1, e)}
+                                onClick={(e) =>
+                                  handleQuantityChange(product, -1, e)
+                                }
                                 disabled={quantity <= 0}
                                 aria-label={t("product.decreaseQuantity")}
                                 title={t("product.decreaseQuantity")}
@@ -648,7 +660,9 @@ const RelatedProducts = ({ otherProducts }: { otherProducts: Product[] }) => {
                               <span
                                 className="w-6 text-center text-sm font-medium text-gray-700"
                                 role="status"
-                                aria-label={t("product.quantityInCart", { quantity })}
+                                aria-label={t("product.quantityInCart", {
+                                  quantity,
+                                })}
                               >
                                 {quantity}
                               </span>
@@ -656,8 +670,12 @@ const RelatedProducts = ({ otherProducts }: { otherProducts: Product[] }) => {
                                 variant="ghost"
                                 size="icon"
                                 className="h-6 w-6 rounded-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                onClick={(e) => handleQuantityChange(product, 1, e)}
-                                disabled={quantity >= (product.available_packs ?? 0)}
+                                onClick={(e) =>
+                                  handleQuantityChange(product, 1, e)
+                                }
+                                disabled={
+                                  quantity >= (product.available_packs ?? 0)
+                                }
                                 aria-label={t("product.increaseQuantity")}
                                 title={t("product.increaseQuantity")}
                               >
@@ -677,7 +695,9 @@ const RelatedProducts = ({ otherProducts }: { otherProducts: Product[] }) => {
                     {/* Available Packs with Icon */}
                     <div className="text-sm text-gray-500 flex items-center gap-1">
                       <Package2 className="h-4 w-4" />
-                      <span>Available: {product.available_packs ?? 0} packs</span>
+                      <span>
+                        Available: {product.available_packs ?? 0} packs
+                      </span>
                     </div>
                   </div>
 
@@ -691,7 +711,9 @@ const RelatedProducts = ({ otherProducts }: { otherProducts: Product[] }) => {
                             : "N/A"}
                         </span>
                         <span className="text-[length:var(--body-s-font-size)] leading-[var(--body-s-line-height)] font-body-s [font-style:var(--body-s-font-style)] font-[number:var(--body-s-font-weight)] tracking-[var(--body-s-letter-spacing)] ml-1">
-                          {product.pack_quantity ? `/${product.pack_quantity}pcs` : ""}
+                          {product.pack_quantity
+                            ? `/${product.pack_quantity}pcs`
+                            : ""}
                         </span>
                       </div>
                     </div>

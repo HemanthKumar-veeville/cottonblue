@@ -39,7 +39,7 @@ export const useAdminMode = () => useContext(AdminModeContext);
 export const AdminModeProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [isAdminMode, setIsAdminMode] = useState(false);
+  const [isAdminMode, setIsAdminMode] = useState(true);
 
   return (
     <AdminModeContext.Provider value={{ isAdminMode, setIsAdminMode }}>
@@ -53,14 +53,14 @@ const navTabs: NavTabItem[] = [
     id: 1,
     name: "header.adminManagement",
     icon: "/img/crown.svg",
-    active: false,
+    active: true,
     isFirst: true,
   },
   {
     id: 2,
     name: "header.clientManagement",
     icon: "/img/crown.svg",
-    active: true,
+    active: false,
     isLast: true,
   },
 ];
