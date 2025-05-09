@@ -69,10 +69,10 @@ const OrderRow = ({ order, index }: { order: any; index: number }) => {
 
   return (
     <TableRow key={index} className="border-b border-primary-neutal-300">
-      <TableCell className="w-11 py-3 px-2">
+      <TableCell className="w-11 py-3 px-2 align-middle">
         <Checkbox className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
       </TableCell>
-      <TableCell className="w-[129px] p-2.5 text-center">
+      <TableCell className="w-[129px] p-2.5 text-left align-middle">
         <span
           className={`font-normal ${
             index === 0 ? "text-coolgray-100" : "text-[#121619]"
@@ -81,26 +81,26 @@ const OrderRow = ({ order, index }: { order: any; index: number }) => {
           {order?.order_id}
         </span>
       </TableCell>
-      <TableCell className="w-[145px] p-2.5 text-center">
+      <TableCell className="w-[145px] p-2.5 text-left align-middle">
         <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
           {formattedDate}
         </span>
       </TableCell>
-      <TableCell className="w-[145px] p-2.5 text-center">
+      <TableCell className="w-[145px] p-2.5 text-left align-middle">
         <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
-          {totalPrice?.toFixed(2)}€
+          {order?.total_amount}€
         </span>
       </TableCell>
-      <TableCell className="w-[145px] p-2.5">
+      <TableCell className="w-[145px] p-2.5 align-middle">
         <div className="flex items-center gap-2">
           <StatusIcon type="success" />
           <StatusText status={t(order?.order_status)} type="success" />
         </div>
       </TableCell>
-      <TableCell className="w-[69px] p-2.5 text-center">
+      <TableCell className="w-[69px] p-2.5 text-left align-middle">
         <FileText className="inline-block w-4 h-4" />
       </TableCell>
-      <TableCell className="w-[145px] p-2.5 text-center">
+      <TableCell className="w-[145px] p-2.5 text-right align-middle">
         <Button
           variant="ghost"
           className="p-0 underline font-medium text-[color:var(--1-tokens-color-modes-button-ghost-default-text)]"
@@ -135,7 +135,7 @@ export const OrderDetailsSection = (): JSX.Element => {
         <Table className="bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)]">
           <TableHeader className="bg-[#eaf8e7] rounded-md">
             <TableRow>
-              <TableHead className="w-11 p-2.5">
+              <TableHead className="w-11 p-2.5 align-middle">
                 <Checkbox className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
               </TableHead>
               {[
@@ -148,9 +148,9 @@ export const OrderDetailsSection = (): JSX.Element => {
               ].map((header, index) => (
                 <TableHead
                   key={index}
-                  className={`w-[${
-                    index === 4 ? 69 : 145
-                  }px] p-2.5 text-center`}
+                  className={`w-[${index === 4 ? 69 : 145}px] p-2.5 ${
+                    index === 5 ? "text-right" : "text-left"
+                  } align-middle`}
                 >
                   <span className="font-text-small text-[#1e2324] text-[length:var(--text-small-font-size)] tracking-[var(--text-small-letter-spacing)] leading-[var(--text-small-line-height)]">
                     {header}
