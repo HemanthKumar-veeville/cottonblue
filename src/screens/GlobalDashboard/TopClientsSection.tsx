@@ -4,16 +4,53 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
+import { colors, typography } from "../../theme/constants";
 
 interface Metric {
   titleKey: string;
-  value: string;
+  value: string | number | undefined;
   icon: React.ComponentType<{ className?: string }>;
 }
 
-const TopClientsSection = (): JSX.Element => {
+interface DashboardData {
+  total_amount?: string;
+  total_orders?: number;
+  average_basket_value?: string;
+}
+
+interface DashboardSummary {
+  dashboard_data?: DashboardData;
+}
+
+const MetricCard: React.FC<Metric> = ({ titleKey, value, icon: Icon }) => {
   const { t } = useTranslation();
-  const { summary } = useSelector((state: RootState) => state.dashboard);
+  return (
+    <Card className="flex-1 shadow-md rounded-md transition-all duration-200 hover:shadow-lg">
+      <CardContent className="p-6 flex flex-col gap-4">
+        <div className="flex items-center gap-4">
+          <Icon className="w-6 h-6 text-[#07515F]" />
+          <div className="flex items-center">
+            <h3 className="font-semibold text-lg text-[#475569] font-[Montserrat]">
+              {t(titleKey)}
+            </h3>
+          </div>
+        </div>
+        <div className="flex items-center">
+          <span className="font-bold text-2xl text-[#475569] font-[Montserrat]">
+            {value || "-"}
+          </span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const TopClientsSection: React.FC = () => {
+  const { t } = useTranslation();
+  const { summary } = useSelector((state: RootState) => ({
+    summary: state.dashboard.summary as DashboardSummary,
+  }));
+
   const stats = summary?.dashboard_data;
 
   const metricsData: Metric[] = [
@@ -34,26 +71,8 @@ const TopClientsSection = (): JSX.Element => {
     },
   ];
 
-  const MetricCard: React.FC<Metric> = ({ titleKey, value, icon: Icon }) => (
-    <Card className="flex-1 shadow-md rounded-md">
-      <CardContent className="p-5 flex flex-col gap-3">
-        <div className="flex items-center gap-2 mt-0">
-          <Icon className="w-6 h-6 text-[#475569]" />
-          <div className="font-bold text-lg leading-7 font-['Montserrat',Helvetica] text-[#475569]">
-            {t(titleKey)}
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="font-bold text-2xl text-[#475569] font-['Montserrat',Helvetica]">
-            {value}
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   return (
-    <div className="flex items-center gap-6 w-full">
+    <div className="flex gap-6 w-full">
       {metricsData.map((metric, index) => (
         <MetricCard key={index} {...metric} />
       ))}

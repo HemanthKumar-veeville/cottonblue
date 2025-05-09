@@ -9,6 +9,7 @@ import {
 import { Download } from "lucide-react";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { colors, typography } from "../../theme/constants";
 
 type TimeframeOption = "Weekly" | "Monthly" | "Quarterly";
 
@@ -25,7 +26,7 @@ const getQuarterRange = (quarter: number): string => {
 };
 
 const getWeekRange = (weekNumber: number): string => {
-  const startDate = new Date(2024, 0, 1); // Start from January 1st, 2024
+  const startDate = new Date(2024, 0, 1);
   startDate.setDate(startDate.getDate() + (weekNumber - 1) * 7);
 
   const endDate = new Date(startDate);
@@ -79,77 +80,98 @@ const getTimeframeValues = (timeframe: TimeframeOption): string[] => {
   }
 };
 
-const TimeframeSelect = ({
-  value,
-  onChange,
-}: {
+interface TimeframeSelectProps {
   value: TimeframeOption;
   onChange: (value: TimeframeOption) => void;
+}
+
+const TimeframeSelect: React.FC<TimeframeSelectProps> = ({
+  value,
+  onChange,
 }) => {
   const { t } = useTranslation();
   return (
-    <Select
-      value={value}
-      onValueChange={(val) => onChange(val as TimeframeOption)}
-    >
-      <SelectTrigger className="w-[180px] rounded border-[color:var(--1-tokens-color-modes-border-primary)] bg-[color:var(--1-tokens-color-modes-nav-tab-primary-default-background)]">
-        <SelectValue placeholder={t("dashboard.timeframes.selectTimeframe")} />
-      </SelectTrigger>
-      <SelectContent className="rounded">
-        {timeframeOptions.map((option) => (
-          <SelectItem key={option} value={option}>
-            {t(`dashboard.timeframes.${option.toLowerCase()}`)}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="flex flex-col gap-1">
+      <Select
+        value={value}
+        onValueChange={(val) => onChange(val as TimeframeOption)}
+      >
+        <SelectTrigger className="w-[180px] h-10 rounded-md border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] transition-all duration-200 px-4">
+          <SelectValue
+            placeholder={t("dashboard.timeframes.selectTimeframe")}
+            className="font-[Montserrat] text-[#475569] text-sm font-medium"
+          />
+        </SelectTrigger>
+        <SelectContent className="rounded-md border-[#E2E8F0] shadow-md">
+          {timeframeOptions.map((option) => (
+            <SelectItem
+              key={option}
+              value={option}
+              className="font-[Montserrat] text-sm font-medium text-[#475569] hover:bg-[#F8FAFC] hover:text-[#07515F] transition-all duration-200 cursor-pointer px-4 py-2"
+            >
+              {t(`dashboard.timeframes.${option.toLowerCase()}`)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 };
 
-const PeriodSelect = ({
-  timeframe,
-  value,
-  onChange,
-}: {
+interface PeriodSelectProps {
   timeframe: TimeframeOption;
   value: string;
   onChange: (value: string) => void;
+}
+
+const PeriodSelect: React.FC<PeriodSelectProps> = ({
+  timeframe,
+  value,
+  onChange,
 }) => {
   const { t } = useTranslation();
   const options = getTimeframeValues(timeframe);
 
   return (
-    <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-[240px] rounded border-[color:var(--1-tokens-color-modes-border-primary)] bg-[color:var(--1-tokens-color-modes-nav-tab-primary-default-background)]">
-        <SelectValue placeholder={t("dashboard.timeframes.selectPeriod")} />
-      </SelectTrigger>
-      <SelectContent className="rounded">
-        {options.map((option) => (
-          <SelectItem key={option} value={option}>
-            {option}
-          </SelectItem>
-        ))}
-      </SelectContent>
-    </Select>
+    <div className="flex flex-col gap-1">
+      <Select value={value} onValueChange={onChange}>
+        <SelectTrigger className="w-[240px] h-10 rounded-md border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] transition-all duration-200 px-4">
+          <SelectValue
+            placeholder={t("dashboard.timeframes.selectPeriod")}
+            className="font-[Montserrat] text-[#475569] text-sm font-medium"
+          />
+        </SelectTrigger>
+        <SelectContent className="rounded-md border-[#E2E8F0] shadow-md">
+          {options.map((option) => (
+            <SelectItem
+              key={option}
+              value={option}
+              className="font-[Montserrat] text-sm font-medium text-[#475569] hover:bg-[#F8FAFC] hover:text-[#07515F] transition-all duration-200 cursor-pointer px-4 py-2"
+            >
+              {option}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
   );
 };
 
-const TopProductsSection = (): JSX.Element => {
+const TopProductsSection: React.FC = () => {
   const { t } = useTranslation();
   const [selectedTimeframe, setSelectedTimeframe] =
     useState<TimeframeOption>("Monthly");
   const [selectedPeriod, setSelectedPeriod] = useState<string>(
     getTimeframeValues("Monthly")[5]
-  ); // Default to June
+  );
 
   const handleTimeframeChange = (timeframe: TimeframeOption) => {
     setSelectedTimeframe(timeframe);
-    // Reset period to first option when timeframe changes
     setSelectedPeriod(getTimeframeValues(timeframe)[0]);
   };
 
   return (
-    <div className="flex flex-col gap-4 w-full">
+    <div className="flex flex-col gap-6 w-full">
       <div className="flex items-center justify-between w-full">
         <div className="flex items-start gap-6">
           <TimeframeSelect
@@ -163,11 +185,9 @@ const TopProductsSection = (): JSX.Element => {
           />
         </div>
 
-        <Button className="bg-[#07515f] hover:bg-[#07515f]/90 text-white gap-2 px-4 py-2 h-auto rounded">
+        <Button className="bg-[#07515F] hover:bg-[#064249] text-white gap-3 px-5 py-2.5 h-10 rounded-md transition-all duration-200 font-[Montserrat] text-sm font-medium">
           <Download className="w-4 h-4" />
-          <span className="font-label-medium">
-            {t("dashboard.actions.exportKPI")}
-          </span>
+          <span>{t("dashboard.actions.exportKPI")}</span>
         </Button>
       </div>
     </div>

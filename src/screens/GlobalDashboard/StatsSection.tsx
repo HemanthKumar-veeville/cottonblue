@@ -4,29 +4,30 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
+import { colors, typography } from "../../theme/constants";
 
 interface StatCardProps {
   icon: React.ElementType;
   titleKey: string;
-  value: string;
+  value: string | number | undefined;
 }
 
 const StatCard: React.FC<StatCardProps> = ({ icon: Icon, titleKey, value }) => {
   const { t } = useTranslation();
   return (
-    <Card className="flex-1 shadow-md rounded-md">
-      <CardContent className="p-5 flex flex-col gap-3">
-        <div className="flex items-center gap-2 w-full">
-          <Icon className="w-6 h-6 text-[#475569]" />
+    <Card className="flex-1 shadow-md rounded-md transition-all duration-200 hover:shadow-lg">
+      <CardContent className="p-6 flex flex-col gap-4">
+        <div className="flex items-center gap-4 w-full">
+          <Icon className="w-6 h-6 text-[#07515F]" />
           <div className="flex items-center">
-            <h3 className="font-bold font-[Montserrat] text-lg leading-7 text-[#475569]">
+            <h3 className="font-semibold text-lg text-[#475569] font-[Montserrat]">
               {t(titleKey)}
             </h3>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="font-bold font-[Montserrat] text-[#475569] text-2xl">
-            {value}
+        <div className="flex items-center">
+          <span className="font-bold text-2xl text-[#475569] font-[Montserrat]">
+            {value || "-"}
           </span>
         </div>
       </CardContent>
@@ -34,9 +35,21 @@ const StatCard: React.FC<StatCardProps> = ({ icon: Icon, titleKey, value }) => {
   );
 };
 
-const StatsSection = (): JSX.Element => {
-  const { summary } = useSelector((state: RootState) => state.dashboard);
-  console.log({ summary });
+interface DashboardData {
+  total_active_users?: number;
+  total_users?: number;
+  average_delivery_time?: string;
+}
+
+interface DashboardSummary {
+  dashboard_data?: DashboardData;
+}
+
+const StatsSection: React.FC = () => {
+  const { summary } = useSelector((state: RootState) => ({
+    summary: state.dashboard.summary as DashboardSummary,
+  }));
+
   const stats = summary?.dashboard_data;
 
   const statsData = [
@@ -53,7 +66,7 @@ const StatsSection = (): JSX.Element => {
     {
       icon: Clock,
       titleKey: "dashboard.stats.averageDeliveryTime",
-      value: "2.3 j",
+      value: stats?.average_delivery_time || "2.3 j",
     },
   ];
 

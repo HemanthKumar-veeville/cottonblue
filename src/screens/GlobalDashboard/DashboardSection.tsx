@@ -9,27 +9,51 @@ import { ScrollArea, ScrollBar } from "../../components/ui/scroll-area";
 import { Crown, MessageSquare } from "lucide-react";
 import React from "react";
 import { RootState } from "../../store/store";
+import {
+  colors,
+  typography,
+  spacing,
+  shadows,
+  borderRadius,
+} from "../../theme/constants";
 
-const ProductCard = ({ product }) => (
-  <div className="flex flex-col bg-gray-50 rounded p-2">
-    <div className="flex flex-wrap items-center justify-between gap-2">
-      <div className="flex items-center gap-4 w-[352px]">
-        <div className="font-bold text-lg leading-7 text-[#475569]">
+interface Product {
+  id: number;
+  name: string;
+  image: string;
+  price: string;
+  quantity: number;
+}
+
+interface Client {
+  id: number;
+  name: string;
+}
+
+interface Ticket {
+  id: number;
+  issue: string;
+  client: string;
+}
+
+const ProductCard: React.FC<{ product: Product }> = ({ product }) => (
+  <div className="flex flex-col bg-[#F8FAFC] rounded-md transition-all duration-200 hover:shadow-md p-4">
+    <div className="flex flex-wrap items-center justify-between gap-4">
+      <div className="flex items-center gap-6">
+        <div className="font-semibold text-lg text-[#475569]">
           #{product.id}
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-[82px] h-[82px] rounded overflow-hidden border border-solid border-primary-neutal-200 relative">
+        <div className="flex items-center gap-4">
+          <div className="w-20 h-20 rounded-md overflow-hidden border border-[#E2E8F0] relative">
             <img
-              className="absolute w-[85px] h-[81px] top-0 -left-0.5 object-cover"
+              className="absolute inset-0 w-full h-full object-cover"
               alt={`${product.name} image`}
               src={product.image}
             />
           </div>
-          <div className="flex flex-col h-[82px] justify-between">
-            <div className="mt-[-1px] font-medium text-[#475569]">
-              {product.name}
-            </div>
-            <div className="text-[#475569] text-sm">
+          <div className="flex flex-col gap-2">
+            <div className="font-medium text-[#475569]">{product.name}</div>
+            <div className="text-[#64748B] text-sm font-medium">
               Ref : {product.id}
               <br />
               Prix : {product.price}
@@ -44,38 +68,40 @@ const ProductCard = ({ product }) => (
   </div>
 );
 
-const ClientCard = ({ client }) => (
-  <Card className="shadow-1dp-ambient rounded">
-    <CardContent className="px-5 py-2">
-      <div className="font-bold text-lg leading-7 text-[#475569]">
-        #{client.id} : {client.name}
+const ClientCard: React.FC<{ client: Client }> = ({ client }) => (
+  <Card className="transition-all duration-200 hover:shadow-md rounded-md">
+    <CardContent className="px-6 py-4">
+      <div className="font-semibold text-lg text-[#475569] flex items-center gap-2">
+        <span>#{client.id}</span>
+        <span className="text-[#64748B]">:</span>
+        <span>{client.name}</span>
       </div>
     </CardContent>
   </Card>
 );
 
-const TicketCard = ({ ticket }) => (
-  <div className="p-2 rounded border border-solid border-gray-300">
-    <div className="bg-white rounded p-1">
-      <div className="flex flex-col gap-1">
-        <div className="font-medium text-[#475569]">{ticket.issue}</div>
-        <div className="text-[#475569] text-xs">{ticket.client}</div>
-      </div>
+const TicketCard: React.FC<{ ticket: Ticket }> = ({ ticket }) => (
+  <div className="p-4 rounded-md border border-[#E2E8F0] bg-white transition-all duration-200 hover:shadow-md">
+    <div className="flex flex-col gap-2">
+      <div className="font-medium text-[#475569]">{ticket.issue}</div>
+      <div className="text-[#64748B] text-sm font-medium">{ticket.client}</div>
     </div>
   </div>
 );
 
-const DashboardSection = (): JSX.Element => {
+const DashboardSection: React.FC = () => {
   const { summary } = useSelector((state: RootState) => state.dashboard);
-  console.log({ summary });
+
   const topProducts =
-    summary?.dashboard_data?.most_sold_products?.map((prod, index) => ({
-      id: index + 1,
-      name: prod.product_name,
-      image: prod.product_image,
-      price: `${prod.price_of_pack} €/${prod.pack_quantity}pcs`,
-      quantity: prod.ordered_quantity,
-    })) || [];
+    summary?.dashboard_data?.most_sold_products?.map(
+      (prod: any, index: number) => ({
+        id: index + 1,
+        name: prod.product_name,
+        image: prod.product_image,
+        price: `${prod.price_of_pack} €/${prod.pack_quantity}pcs`,
+        quantity: prod.ordered_quantity,
+      })
+    ) || [];
 
   const topClients = [
     { id: 1, name: "Chronodrive" },
@@ -94,16 +120,16 @@ const DashboardSection = (): JSX.Element => {
 
   return (
     <div className="flex gap-8 w-full">
-      <Card className="flex-1 rounded">
-        <CardHeader className="flex flex-row items-center gap-4 pb-2">
-          <Crown className="w-6 h-6 text-[#475569]" />
-          <CardTitle className="font-bold text-lg leading-7 text-[#475569]">
+      <Card className="flex-1 rounded-md shadow-md">
+        <CardHeader className="flex flex-row items-center gap-4 pb-2 px-6 pt-6">
+          <Crown className="w-6 h-6 text-[#07515F]" />
+          <CardTitle className="font-bold text-lg text-[#475569]">
             Top 10 produits commandés
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
-          <ScrollArea className="h-[28rem] pr-4">
-            <div className="flex flex-col gap-4 p-5 pt-0">
+          <ScrollArea className="h-[28rem]">
+            <div className="flex flex-col gap-4 p-6 pt-4">
               {topProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}
@@ -114,34 +140,32 @@ const DashboardSection = (): JSX.Element => {
       </Card>
 
       <div className="flex flex-col gap-8 flex-1">
-        <Card className="rounded">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <Crown className="w-6 h-6 text-[#475569]" />
-              <CardTitle className="font-bold text-lg leading-7 text-[#475569]">
+        <Card className="rounded-md shadow-md">
+          <CardHeader className="pb-2 px-6 pt-6">
+            <div className="flex items-center gap-4">
+              <Crown className="w-6 h-6 text-[#07515F]" />
+              <CardTitle className="font-bold text-lg text-[#475569]">
                 Top 3 clients
               </CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="flex flex-col gap-2">
+          <CardContent className="flex flex-col gap-4 px-6 pb-6">
             {topClients.map((client) => (
               <ClientCard key={client.id} client={client} />
             ))}
           </CardContent>
         </Card>
 
-        <Card className="flex-1 rounded">
-          <CardHeader className="pb-2">
-            <div className="flex items-center gap-2">
-              <div className="flex w-6 h-6 items-center justify-center p-0.5">
-                <MessageSquare className="w-4 h-4 text-[#475569]" />
-              </div>
-              <CardTitle className="font-bold text-lg leading-7 text-[#475569]">
+        <Card className="flex-1 rounded-md shadow-md">
+          <CardHeader className="pb-2 px-6 pt-6">
+            <div className="flex items-center gap-4">
+              <MessageSquare className="w-6 h-6 text-[#07515F]" />
+              <CardTitle className="font-bold text-lg text-[#475569]">
                 Derniers tickets
               </CardTitle>
             </div>
           </CardHeader>
-          <CardContent className="flex flex-col gap-4">
+          <CardContent className="flex flex-col gap-4 px-6 pb-6">
             {latestTickets.map((ticket) => (
               <TicketCard key={ticket.id} ticket={ticket} />
             ))}
