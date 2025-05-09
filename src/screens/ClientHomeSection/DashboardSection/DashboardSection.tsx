@@ -97,66 +97,59 @@ const ProductCard = ({ product }: { product: Product }) => {
   const items = cart?.items || [];
   const { selectedStore } = useAppSelector((state) => state.agency);
   const dnsPrefix = getHost();
-
   const cartItem = items.find((item) => item.product_id === product.id);
   const quantity = cartItem?.quantity || 0;
+  // Local state for quantity instead of reading from cart
+  const [localQuantity, setLocalQuantity] = useState(quantity);
 
   const handleClick = () => {
     navigate(`/product/${product.id}`);
   };
 
-  const handleQuantityChange = async (amount: number, e?: React.MouseEvent) => {
+  // Updated to only handle local quantity changes
+  const handleQuantityChange = (amount: number, e?: React.MouseEvent) => {
     e?.stopPropagation();
-    const newQuantity = quantity + amount;
+    const newQuantity = localQuantity + amount;
 
     if (amount > 0 && newQuantity <= (product.available_packs ?? 0)) {
-      if (dnsPrefix && selectedStore) {
-        try {
-          // Optimistic update
-          dispatch(addToCart({ product, quantity: 1 }));
-
-          await dispatch(
-            addToCartAsync({
-              dns_prefix: dnsPrefix,
-              store_id: selectedStore,
-              product_id: product.id.toString(),
-              quantity: 1,
-            })
-          ).unwrap();
-        } catch (error) {
-          // Revert optimistic update
-          dispatch(addToCart({ product, quantity: -1 }));
-          toast.error(t("cart.error.addFailed"));
-        }
-      }
+      setLocalQuantity(newQuantity);
     } else if (amount < 0 && newQuantity >= 0) {
-      if (dnsPrefix && selectedStore) {
-        try {
-          // Optimistic update
-          dispatch(addToCart({ product, quantity: -1 }));
-
-          await dispatch(
-            addToCartAsync({
-              dns_prefix: dnsPrefix,
-              store_id: selectedStore,
-              product_id: product.id.toString(),
-              quantity: -1,
-            })
-          ).unwrap();
-        } catch (error) {
-          // Revert optimistic update
-          dispatch(addToCart({ product, quantity: 1 }));
-          toast.error(t("cart.error.removeFailed"));
-        }
-      }
+      setLocalQuantity(newQuantity);
     } else if (newQuantity > (product.available_packs ?? 0)) {
       toast.error(t("cart.error.notEnoughStock"));
     }
   };
 
-  const handleInitialAdd = (e: React.MouseEvent) => {
+  // New handler for cart icon click
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    handleQuantityChange(1, e);
+    
+    if (localQuantity === 0) {
+      return; // Don't do anything if quantity is 0
+    }
+
+    if (dnsPrefix && selectedStore) {
+      try {
+        // Optimistic update
+        dispatch(addToCart({ product, quantity: localQuantity }));
+
+        await dispatch(
+          addToCartAsync({
+            dns_prefix: dnsPrefix,
+            store_id: selectedStore,
+            product_id: product.id.toString(),
+            quantity: localQuantity,
+          })
+        ).unwrap();
+
+        // Reset local quantity after successful add to cart
+        setLocalQuantity(0);
+      } catch (error) {
+        // Revert optimistic update
+        dispatch(addToCart({ product, quantity: -localQuantity }));
+        toast.error(t("cart.error.addFailed"));
+      }
+    }
   };
 
   const stockStatus = getStockStatus(product);
@@ -226,7 +219,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                       size="icon"
                       className="h-8 w-8 rounded-l-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-r border-gray-200"
                       onClick={(e) => handleQuantityChange(-1, e)}
-                      disabled={quantity <= 0}
+                      disabled={localQuantity <= 0}
                       aria-label={t("product.decreaseQuantity")}
                       title={t("product.decreaseQuantity")}
                     >
@@ -235,16 +228,16 @@ const ProductCard = ({ product }: { product: Product }) => {
                     <span
                       className="w-8 text-center text-sm font-medium text-gray-700 bg-white"
                       role="status"
-                      aria-label={t("product.quantityInCart", { quantity })}
+                      aria-label={t("product.quantityInCart", { quantity: localQuantity })}
                     >
-                      {quantity}
+                      {localQuantity}
                     </span>
                     <Button
                       variant="ghost"
                       size="icon"
                       className="h-8 w-8 hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-x border-gray-200"
                       onClick={(e) => handleQuantityChange(1, e)}
-                      disabled={quantity >= (product.available_packs ?? 0)}
+                      disabled={localQuantity >= (product.available_packs ?? 0)}
                       aria-label={t("product.increaseQuantity")}
                       title={t("product.increaseQuantity")}
                     >
@@ -283,14 +276,19 @@ const ProductCard = ({ product }: { product: Product }) => {
                 
               </div>
               <Button
-                      size="icon"
-                      className="h-8 w-8 rounded-r-md bg-[#00b85b] hover:bg-[#00b85b]/90 text-white transition-all duration-200"
-                      onClick={handleInitialAdd}
-                      aria-label={t("product.addToCart")}
-                      title={t("product.addToCart")}
-                    >
-                      <ShoppingCart className="h-4 w-4 text-white" />
-                    </Button>
+                size="icon"
+                className="h-8 w-8 rounded-r-md bg-[#00b85b] hover:bg-[#00b85b]/90 text-white transition-all duration-200 relative"
+                onClick={handleAddToCart}
+                aria-label={t("product.addToCart")}
+                title={t("product.addToCart")}
+              >
+                <ShoppingCart className="h-4 w-4 text-white" />
+                {localQuantity > 0 && (
+                  <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-in fade-in duration-200">
+                    {localQuantity}
+                  </div>
+                )}
+              </Button>
             </div>
           </div>
         </div>
