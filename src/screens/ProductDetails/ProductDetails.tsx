@@ -6,7 +6,7 @@ import { useAppDispatch, useAppSelector } from "../../store/store";
 import {
   getProductById,
   type Product,
-  deleteProduct,
+  updateProduct,
 } from "../../store/features/productSlice";
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "../../components/Skeleton";
@@ -122,19 +122,30 @@ const ProductActions = () => {
   const dispatch = useAppDispatch();
   const { id } = useParams<{ id: string }>();
   const { selectedCompany } = useAppSelector((state) => state.client);
+  const { currentProduct } = useAppSelector((state) => state.product);
+  const isActive = currentProduct?.product?.is_active;
 
   const handleEdit = () => {
     navigate(`/products/edit/${id}`);
   };
 
-  const handleDelete = async () => {
+  const handleToggleActivation = async () => {
     if (id && selectedCompany?.dns) {
       const resultAction = await dispatch(
-        deleteProduct({ dnsPrefix: selectedCompany.dns, productId: id })
+        updateProduct({
+          dnsPrefix: selectedCompany.dns,
+          productId: id,
+          data: {
+            is_active: !isActive,
+          },
+        })
       ).unwrap();
 
       if (resultAction?.product_id) {
-        navigate("/products");
+        // Refresh the product details
+        dispatch(
+          getProductById({ dnsPrefix: selectedCompany.dns, productId: id })
+        );
       }
     }
   };
@@ -150,12 +161,20 @@ const ProductActions = () => {
         </span>
       </Button>
       <Button
-        variant="destructive"
-        className="flex-1 bg-red-600 hover:bg-red-700 h-9 text-sm"
-        onClick={handleDelete}
+        variant={isActive ? "destructive" : "default"}
+        className={`flex-1 h-9 text-sm ${
+          isActive
+            ? "bg-red-600 hover:bg-red-700"
+            : "bg-emerald-600 hover:bg-emerald-700 text-white"
+        }`}
+        onClick={handleToggleActivation}
       >
         <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5">
-          {t("productDetails.actions.delete")}
+          {t(
+            isActive
+              ? "productDetails.actions.deactivate"
+              : "productDetails.actions.activate"
+          )}
         </span>
       </Button>
     </div>

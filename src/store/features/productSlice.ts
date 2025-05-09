@@ -31,7 +31,9 @@ interface ProductState {
   products: {
     products: Product[];
   };
-  currentProduct: Product | null;
+  currentProduct: {
+    product: Product;
+  } | null;
   loading: boolean;
   error: string | null;
   createSuccess: boolean;

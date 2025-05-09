@@ -1,5 +1,6 @@
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
+import { Badge } from "../../components/ui/badge";
 import {
   Pagination,
   PaginationContent,
@@ -203,7 +204,11 @@ export const ProductTableSection = (): JSX.Element => {
                         : "Not available"}
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-smaller text-black align-middle">
-                      {product.is_active ? "Active" : "Inactive"}
+                      <Badge
+                        variant={product.is_active ? "active" : "inactive"}
+                      >
+                        {product.is_active ? "Active" : "Inactive"}
+                      </Badge>
                     </TableCell>
                     <TableCell className="w-[145px] text-left align-middle">
                       <Button
