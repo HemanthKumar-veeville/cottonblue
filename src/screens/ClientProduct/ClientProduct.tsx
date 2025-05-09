@@ -20,6 +20,7 @@ import {
   Heart,
   Share2,
   Info,
+  ChevronLeft,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -214,21 +215,32 @@ const ProductPage = () => {
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           <div className="p-6 sm:p-8 lg:p-12">
             <Breadcrumb className="flex items-center gap-2 w-full mb-8">
-              <BreadcrumbList>
+              <BreadcrumbList className="flex items-center gap-2">
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     onClick={() => navigate("/")}
-                    className="font-medium text-[#00b85b] text-base hover:text-[#00b85b]/90 transition-all duration-200 cursor-pointer flex items-center gap-1 group"
+                    className={cn(
+                      "font-medium text-sm transition-all duration-200 cursor-pointer",
+                      "flex items-center gap-1.5 group text-gray-600 hover:text-[#00b85b]",
+                      "focus:outline-none focus:ring-2 focus:ring-[#00b85b]/20 focus:ring-offset-2 rounded-md"
+                    )}
                   >
-                    <ArrowLeft className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform duration-200" />
+                    <ArrowLeft className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform duration-200" />
                     {t("clientProduct.breadcrumb.catalog")}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
                 <BreadcrumbSeparator>
-                  <ChevronRight className="w-5 h-5 text-gray-400" />
+                  <div className="text-gray-300">
+                    <ChevronRight className="w-4 h-4" />
+                  </div>
                 </BreadcrumbSeparator>
                 <BreadcrumbItem>
-                  <BreadcrumbLink className="font-medium text-gray-900 text-base">
+                  <BreadcrumbLink
+                    className={cn(
+                      "font-semibold text-sm text-gray-800",
+                      "focus:outline-none focus:ring-2 focus:ring-[#00b85b]/20 focus:ring-offset-2 rounded-md"
+                    )}
+                  >
                     {product?.name ?? t("clientProduct.notAvailable")}
                   </BreadcrumbLink>
                 </BreadcrumbItem>
@@ -247,6 +259,24 @@ const ProductPage = () => {
                 onAddToCart={handleAddToCart}
               />
             </div>
+
+            {/* Description Section - Now Full Width */}
+            <div className="mt-12 border-t border-gray-100 pt-12">
+              <div className="flex flex-col items-start gap-6 w-full">
+                <div className="flex flex-col w-full items-start gap-4">
+                  <h2 className="font-bold text-2xl text-gray-900 font-heading-h2">
+                    {t("clientProduct.description.title")}
+                  </h2>
+                </div>
+                <div className="w-full max-w-[900px]">
+                  <div className="prose prose-gray max-w-none">
+                    <p className="text-base leading-7 text-gray-700 whitespace-pre-wrap font-text-medium">
+                      {product?.description ?? t("clientProduct.notAvailable")}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -261,69 +291,189 @@ const ProductPage = () => {
 const ProductImages = ({ images }: { images: string[] }) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [touchStart, setTouchStart] = useState(0);
+  const [touchEnd, setTouchEnd] = useState(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX);
+  };
+
+  const handleTouchEnd = () => {
+    if (touchStart - touchEnd > 75) {
+      // Swipe left
+      setSelectedImage((prev) => (prev < images.length - 1 ? prev + 1 : prev));
+    }
+    if (touchStart - touchEnd < -75) {
+      // Swipe right
+      setSelectedImage((prev) => (prev > 0 ? prev - 1 : prev));
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowLeft") {
+      setSelectedImage((prev) => (prev > 0 ? prev - 1 : prev));
+    } else if (e.key === "ArrowRight") {
+      setSelectedImage((prev) => (prev < images.length - 1 ? prev + 1 : prev));
+    }
+  };
 
   return (
     <div className="flex flex-col items-start gap-6 w-full h-full">
-      <div className="relative group w-full h-full">
-        <div className="w-full h-full aspect-square rounded-2xl bg-white overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
-          {images[selectedImage] ? (
-            <div
+      <div
+        className={cn(
+          "w-full h-full aspect-square overflow-hidden",
+          "relative"
+        )}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onKeyDown={handleKeyDown}
+        tabIndex={0}
+        role="region"
+        aria-label="Product image gallery"
+      >
+        {images[selectedImage] ? (
+          <div
+            className={cn(
+              "w-full h-full flex items-start justify-start",
+              isZoomed ? "cursor-zoom-out" : "cursor-zoom-in",
+              "relative bg-white"
+            )}
+            onClick={() => setIsZoomed(!isZoomed)}
+          >
+            <img
+              src={images[selectedImage]}
+              alt={`Product view ${selectedImage + 1}`}
               className={cn(
-                "w-full h-full flex items-center justify-center p-4",
-                isZoomed && "cursor-zoom-out",
-                !isZoomed && "cursor-zoom-in"
+                "max-w-full max-h-full w-auto h-auto object-contain",
+                "transition-all duration-300 ease-in-out",
+                isZoomed ? "scale-150" : "group-hover:scale-105"
               )}
-              onClick={() => setIsZoomed(!isZoomed)}
-            >
-              <img
-                src={images[selectedImage]}
-                alt="Product"
-                className={cn(
-                  "max-w-full max-h-full w-auto h-auto object-contain rounded-xl transition-all duration-300",
-                  isZoomed ? "scale-150" : "group-hover:scale-105"
-                )}
-              />
-            </div>
-          ) : (
-            <div className="w-full h-full flex items-center justify-center">
-              <Package2 className="w-20 h-20 text-gray-300" />
-            </div>
-          )}
-        </div>
+            />
+            {/* Image Navigation Dots */}
+            {images.length > 1 && (
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-black/20 backdrop-blur-sm rounded-full px-3 py-1.5">
+                {images.map((_, index) => (
+                  <button
+                    key={index}
+                    className={cn(
+                      "w-2 h-2 rounded-full transition-all duration-200",
+                      selectedImage === index
+                        ? "bg-white"
+                        : "bg-white/50 hover:bg-white/75"
+                    )}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedImage(index);
+                    }}
+                    aria-label={`View image ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="w-full h-full flex items-start justify-start bg-gray-50">
+            <Package2 className="w-20 h-20 text-gray-300" />
+          </div>
+        )}
         {images[selectedImage] && !isZoomed && (
-          <div className="absolute top-4 right-4 flex items-center gap-2">
+          <div className="absolute top-4 right-4 flex items-center gap-4">
             <button
-              className="p-2.5 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md hover:bg-white cursor-pointer"
+              className={cn(
+                "text-gray-500 hover:text-[#00b85b]",
+                "transition-all duration-200"
+              )}
               onClick={() => setIsZoomed(true)}
+              aria-label="Zoom image"
             >
-              <ZoomIn className="w-5 h-5 text-[#00b85b]" />
+              <ZoomIn className="w-6 h-6" />
             </button>
-            <button className="p-2.5 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md hover:bg-white cursor-pointer">
-              <Heart className="w-5 h-5 text-[#00b85b]" />
+            <button
+              className={cn(
+                "text-gray-500 hover:text-[#00b85b]",
+                "transition-all duration-200"
+              )}
+              aria-label="Add to favorites"
+            >
+              <Heart className="w-6 h-6" />
             </button>
-            <button className="p-2.5 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md hover:bg-white cursor-pointer">
-              <Share2 className="w-5 h-5 text-[#00b85b]" />
+            <button
+              className={cn(
+                "text-gray-500 hover:text-[#00b85b]",
+                "transition-all duration-200"
+              )}
+              aria-label="Share product"
+            >
+              <Share2 className="w-6 h-6" />
             </button>
           </div>
         )}
+        {/* Image Navigation Arrows */}
+        {images.length > 1 && !isZoomed && (
+          <>
+            <button
+              className={cn(
+                "absolute left-4 top-1/2 -translate-y-1/2",
+                "text-gray-500 hover:text-[#00b85b]",
+                "transition-all duration-200",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImage((prev) => (prev > 0 ? prev - 1 : prev));
+              }}
+              disabled={selectedImage === 0}
+              aria-label="Previous image"
+            >
+              <ChevronLeft className="w-8 h-8" />
+            </button>
+            <button
+              className={cn(
+                "absolute right-4 top-1/2 -translate-y-1/2",
+                "text-gray-500 hover:text-[#00b85b]",
+                "transition-all duration-200",
+                "disabled:opacity-50 disabled:cursor-not-allowed"
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                setSelectedImage((prev) =>
+                  prev < images.length - 1 ? prev + 1 : prev
+                );
+              }}
+              disabled={selectedImage === images.length - 1}
+              aria-label="Next image"
+            >
+              <ChevronRight className="w-8 h-8" />
+            </button>
+          </>
+        )}
       </div>
+      {/* Thumbnail Gallery */}
       {images.length > 1 && (
-        <div className="flex items-center gap-4 overflow-x-auto pb-2">
+        <div className="flex items-center gap-4 overflow-x-auto pb-2 w-full scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
           {images.map((image, index) => (
             <button
               key={index}
               className={cn(
-                "w-20 h-20 rounded-lg border-2 transition-all duration-200",
+                "min-w-[5rem] w-20 h-20 transition-all duration-200",
+                "hover:opacity-100 focus:outline-none",
                 selectedImage === index
-                  ? "border-[#00b85b]"
-                  : "border-transparent hover:border-gray-200"
+                  ? "opacity-100 ring-2 ring-[#00b85b]"
+                  : "opacity-70 hover:opacity-90"
               )}
               onClick={() => setSelectedImage(index)}
+              aria-label={`Select image ${index + 1}`}
+              aria-current={selectedImage === index}
             >
               <img
                 src={image}
-                alt={`Product ${index + 1}`}
-                className="w-full h-full object-cover rounded-lg"
+                alt={`Product thumbnail ${index + 1}`}
+                className="w-full h-full object-cover"
               />
             </button>
           ))}
@@ -347,8 +497,6 @@ const ProductInfo = ({
   onAddToCart: () => void;
 }) => {
   const { t } = useTranslation();
-  const [isExpanded, setIsExpanded] = useState(false);
-
   const stockStatus = product?.available_packs > 0 ? "inStock" : "outOfStock";
   const stockStatusColor =
     stockStatus === "inStock"
@@ -382,14 +530,6 @@ const ProductInfo = ({
       icon: Package2,
     },
   ];
-
-  const toggleExpand = () => {
-    setIsExpanded(!isExpanded);
-  };
-
-  const text = product?.description ?? t("clientProduct.notAvailable");
-  const maxLength = 300;
-  const shouldTruncate = text.length > maxLength;
 
   return (
     <div className="flex flex-col items-start justify-start gap-8 flex-1 h-full">
@@ -451,23 +591,35 @@ const ProductInfo = ({
             <label className="sr-only font-label-medium">
               {t("clientProduct.selectors.quantity")}
             </label>
-            <div className="flex items-center justify-center gap-3 p-2.5 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
+            <div className="flex items-center justify-center bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
               <Button
                 variant="ghost"
                 size="icon"
-                className="w-9 h-9 p-0.5 hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-[#00b85b]"
+                className={cn(
+                  "w-10 h-10 rounded-l-lg",
+                  "hover:bg-gray-50 transition-all duration-200",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  "text-[#00b85b] border-r-2 border-gray-200"
+                )}
                 onClick={() => onQuantityChange(-1)}
                 disabled={localQuantity <= 0}
               >
                 <Minus className="w-4 h-4" />
               </Button>
-              <span className="font-semibold text-gray-900 min-w-[2.5rem] text-center text-lg font-text-bold-large">
-                {localQuantity + cartQuantity}
-              </span>
+              <div className="px-3 min-w-[3rem] flex items-center justify-center border-x-2 border-gray-200">
+                <span className="font-semibold text-gray-900 text-lg font-text-bold-large">
+                  {localQuantity + cartQuantity}
+                </span>
+              </div>
               <Button
                 variant="ghost"
                 size="icon"
-                className="w-9 h-9 p-0.5 hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-[#00b85b]"
+                className={cn(
+                  "w-10 h-10 rounded-r-lg",
+                  "hover:bg-gray-50 transition-all duration-200",
+                  "disabled:opacity-50 disabled:cursor-not-allowed",
+                  "text-[#00b85b] border-l-2 border-gray-200"
+                )}
                 onClick={() => onQuantityChange(1)}
                 disabled={localQuantity >= (product?.available_packs ?? 0)}
               >
@@ -485,56 +637,44 @@ const ProductInfo = ({
         </div>
       </div>
 
-      <Button
-        className="w-full gap-3 py-6 px-6 bg-[#00b85b] hover:bg-[#00b85b]/90 text-white text-lg font-medium rounded-xl shadow-sm transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5 relative font-text-bold-large"
-        disabled={
-          !product?.available_packs ||
-          product.available_packs <= 0 ||
-          localQuantity === 0
-        }
-        onClick={onAddToCart}
-      >
-        <ShoppingCart className="w-6 h-6" />
-        <span>{t("clientProduct.buttons.addToCart")}</span>
-        {localQuantity > 0 && (
-          <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-in fade-in duration-200">
-            {localQuantity}
+      <div className="relative">
+        <Button
+          className={cn(
+            "w-full py-6 px-6 bg-[#00b85b] text-white text-lg font-medium rounded-xl",
+            "shadow-sm transition-all duration-200 hover:shadow-md",
+            "hover:bg-[#00b85b]/90 transform hover:-translate-y-0.5",
+            "disabled:opacity-50 disabled:cursor-not-allowed",
+            "relative"
+          )}
+          disabled={
+            !product?.available_packs ||
+            product.available_packs <= 0 ||
+            localQuantity === 0
+          }
+          onClick={onAddToCart}
+        >
+          <div className="flex items-center justify-center gap-3">
+            <ShoppingCart className="w-6 h-6" />
+            <span className="font-text-bold-large">
+              {t("clientProduct.buttons.addToCart")}
+            </span>
           </div>
-        )}
-      </Button>
-
-      <div className="flex flex-col items-start gap-6 w-full mt-auto">
-        <div className="flex flex-col w-full items-start gap-4">
-          <h2 className="font-bold text-xl text-gray-900 font-heading-h2">
-            {t("clientProduct.description.title")}
-          </h2>
-          <hr className="w-full border-t border-gray-200" />
-        </div>
-        <div className="flex flex-col items-start gap-6">
-          <div className="relative">
-            <p className="w-full text-base leading-7 text-gray-700 whitespace-pre-wrap font-text-medium">
-              {shouldTruncate && !isExpanded
-                ? `${text.slice(0, maxLength)}... `
-                : text}
-              {shouldTruncate && !isExpanded && (
-                <button
-                  onClick={toggleExpand}
-                  className="text-[#00b85b] hover:text-[#00b85b]/90 font-medium text-sm inline-block focus:outline-none font-text-bold-medium"
-                >
-                  Read More
-                </button>
+          {localQuantity > 0 && (
+            <div
+              className={cn(
+                "absolute -top-3 -right-3",
+                "flex items-center justify-center",
+                "min-w-[24px] h-6 px-2",
+                "bg-red-500 text-white",
+                "text-sm font-bold rounded-full",
+                "shadow-lg animate-in fade-in zoom-in",
+                "duration-200"
               )}
-            </p>
-            {shouldTruncate && isExpanded && (
-              <button
-                onClick={toggleExpand}
-                className="text-[#00b85b] hover:text-[#00b85b]/90 font-medium text-sm mt-1 focus:outline-none font-text-bold-medium"
-              >
-                Show Less
-              </button>
-            )}
-          </div>
-        </div>
+            >
+              {localQuantity}
+            </div>
+          )}
+        </Button>
       </div>
     </div>
   );
@@ -655,37 +795,49 @@ const RelatedProductCard = ({ product }: { product: Product }) => {
                   role="group"
                   aria-label={t("product.cartControls")}
                 >
-                  <div className="flex items-center bg-white rounded-md shadow-sm border border-gray-200 h-7 p-0.5">
+                  <div className="flex items-center bg-white rounded-md shadow-sm border border-gray-200 h-7">
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 rounded-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className={cn(
+                        "h-7 w-7 rounded-l-md",
+                        "hover:bg-gray-50 transition-colors duration-200",
+                        "disabled:opacity-50 disabled:cursor-not-allowed",
+                        "text-[#00b85b] border-r-2 border-gray-200"
+                      )}
                       onClick={(e) => handleQuantityChange(-1, e)}
                       disabled={localQuantity <= 0}
                       aria-label={t("product.decreaseQuantity")}
                       title={t("product.decreaseQuantity")}
                     >
-                      <Minus className="h-3 w-3 text-[#00b85b]" />
+                      <Minus className="h-3 w-3" />
                     </Button>
-                    <span
-                      className="w-6 text-center text-sm font-medium text-gray-700"
-                      role="status"
-                      aria-label={t("product.quantityInCart", {
-                        quantity: localQuantity + cartQuantity,
-                      })}
-                    >
-                      {localQuantity + cartQuantity}
-                    </span>
+                    <div className="px-2 min-w-[2rem] flex items-center justify-center border-x-2 border-gray-200">
+                      <span
+                        className="text-center text-sm font-medium text-gray-700"
+                        role="status"
+                        aria-label={t("product.quantityInCart", {
+                          quantity: localQuantity + cartQuantity,
+                        })}
+                      >
+                        {localQuantity + cartQuantity}
+                      </span>
+                    </div>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 rounded-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className={cn(
+                        "h-7 w-7 rounded-r-md",
+                        "hover:bg-gray-50 transition-colors duration-200",
+                        "disabled:opacity-50 disabled:cursor-not-allowed",
+                        "text-[#00b85b] border-l-2 border-gray-200"
+                      )}
                       onClick={(e) => handleQuantityChange(1, e)}
                       disabled={localQuantity >= (product.available_packs ?? 0)}
                       aria-label={t("product.increaseQuantity")}
                       title={t("product.increaseQuantity")}
                     >
-                      <Plus className="h-3 w-3 text-[#00b85b]" />
+                      <Plus className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>
@@ -717,21 +869,40 @@ const RelatedProductCard = ({ product }: { product: Product }) => {
                   {product.pack_quantity ? `/${product.pack_quantity}pcs` : ""}
                 </span>
               </div>
-              <Button
-                size="icon"
-                className="h-8 w-8 rounded-r-md bg-[#00b85b] hover:bg-[#00b85b]/90 text-white transition-all duration-200 relative"
-                onClick={handleAddToCart}
-                disabled={localQuantity === 0}
-                aria-label={t("product.addToCart")}
-                title={t("product.addToCart")}
-              >
-                <ShoppingCart className="h-4 w-4 text-white" />
-                {localQuantity > 0 && (
-                  <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-in fade-in duration-200">
-                    {localQuantity}
-                  </div>
-                )}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="icon"
+                  className={cn(
+                    "h-9 w-9 rounded-xl",
+                    "bg-[#00b85b] hover:bg-[#00b85b]/90 text-white",
+                    "shadow-sm hover:shadow-md transition-all duration-200",
+                    "disabled:opacity-50 disabled:cursor-not-allowed",
+                    "relative"
+                  )}
+                  onClick={handleAddToCart}
+                  disabled={localQuantity === 0}
+                  aria-label={t("product.addToCart")}
+                  title={t("product.addToCart")}
+                >
+                  <ShoppingCart className="h-4 w-4 text-white" />
+                  {localQuantity > 0 && (
+                    <div
+                      className={cn(
+                        "absolute -top-2 -right-2",
+                        "flex items-center justify-center",
+                        "min-w-[20px] h-5 px-1.5",
+                        "bg-red-500 text-white",
+                        "text-xs font-bold rounded-full",
+                        "shadow-md animate-in fade-in zoom-in",
+                        "duration-200",
+                        "border-2 border-white"
+                      )}
+                    >
+                      {localQuantity}
+                    </div>
+                  )}
+                </Button>
+              </div>
             </div>
           </div>
         </div>
