@@ -17,6 +17,9 @@ import {
   PackageX,
   Package2,
   ArrowLeft,
+  Heart,
+  Share2,
+  Info,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -32,6 +35,7 @@ import { getHost } from "../../utils/hostUtils";
 import { Skeleton } from "../../components/Skeleton";
 import { toast } from "sonner";
 import { getProductsByStoreId } from "../../store/features/productSlice";
+import { cn } from "../../lib/utils";
 
 const ProductNotFound = () => {
   const { t } = useTranslation();
@@ -205,7 +209,7 @@ const ProductPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-[#F8FAFC]">
       <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           <div className="p-6 sm:p-8 lg:p-12">
@@ -214,7 +218,7 @@ const ProductPage = () => {
                 <BreadcrumbItem>
                   <BreadcrumbLink
                     onClick={() => navigate("/")}
-                    className="font-medium text-[#07515f] text-base hover:text-[#064a56] transition-all duration-200 cursor-pointer flex items-center gap-1 group"
+                    className="font-medium text-[#00b85b] text-base hover:text-[#00b85b]/90 transition-all duration-200 cursor-pointer flex items-center gap-1 group"
                   >
                     <ArrowLeft className="w-4 h-4 transform group-hover:-translate-x-0.5 transition-transform duration-200" />
                     {t("clientProduct.breadcrumb.catalog")}
@@ -231,7 +235,7 @@ const ProductPage = () => {
               </BreadcrumbList>
             </Breadcrumb>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 min-h-[600px]">
               <ProductImages
                 images={product?.product_image ? [product.product_image] : []}
               />
@@ -254,32 +258,80 @@ const ProductPage = () => {
   );
 };
 
-const ProductImages = ({ images }: { images: string[] }) => (
-  <div className="flex flex-col items-start gap-4 w-full">
-    <div className="relative group w-full">
-      <div className="w-full aspect-square rounded-2xl bg-gray-50 overflow-hidden border border-gray-200 shadow-sm hover:shadow-md transition-all duration-300">
-        {images[0] ? (
-          <div className="w-full h-full flex items-center justify-center p-4">
-            <img
-              src={images[0]}
-              alt="Product"
-              className="max-w-full max-h-full w-auto h-auto object-contain rounded-xl transition-all duration-300 group-hover:scale-105"
-            />
-          </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Package2 className="w-20 h-20 text-gray-300" />
+const ProductImages = ({ images }: { images: string[] }) => {
+  const [selectedImage, setSelectedImage] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
+
+  return (
+    <div className="flex flex-col items-start gap-6 w-full h-full">
+      <div className="relative group w-full h-full">
+        <div className="w-full h-full aspect-square rounded-2xl bg-white overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300">
+          {images[selectedImage] ? (
+            <div
+              className={cn(
+                "w-full h-full flex items-center justify-center p-4",
+                isZoomed && "cursor-zoom-out",
+                !isZoomed && "cursor-zoom-in"
+              )}
+              onClick={() => setIsZoomed(!isZoomed)}
+            >
+              <img
+                src={images[selectedImage]}
+                alt="Product"
+                className={cn(
+                  "max-w-full max-h-full w-auto h-auto object-contain rounded-xl transition-all duration-300",
+                  isZoomed ? "scale-150" : "group-hover:scale-105"
+                )}
+              />
+            </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <Package2 className="w-20 h-20 text-gray-300" />
+            </div>
+          )}
+        </div>
+        {images[selectedImage] && !isZoomed && (
+          <div className="absolute top-4 right-4 flex items-center gap-2">
+            <button
+              className="p-2.5 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md hover:bg-white cursor-pointer"
+              onClick={() => setIsZoomed(true)}
+            >
+              <ZoomIn className="w-5 h-5 text-[#00b85b]" />
+            </button>
+            <button className="p-2.5 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md hover:bg-white cursor-pointer">
+              <Heart className="w-5 h-5 text-[#00b85b]" />
+            </button>
+            <button className="p-2.5 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md hover:bg-white cursor-pointer">
+              <Share2 className="w-5 h-5 text-[#00b85b]" />
+            </button>
           </div>
         )}
       </div>
-      {images[0] && (
-        <div className="absolute top-4 right-4 p-2.5 bg-white/90 backdrop-blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-md hover:bg-white cursor-pointer">
-          <ZoomIn className="w-5 h-5 text-[#07515f]" />
+      {images.length > 1 && (
+        <div className="flex items-center gap-4 overflow-x-auto pb-2">
+          {images.map((image, index) => (
+            <button
+              key={index}
+              className={cn(
+                "w-20 h-20 rounded-lg border-2 transition-all duration-200",
+                selectedImage === index
+                  ? "border-[#00b85b]"
+                  : "border-transparent hover:border-gray-200"
+              )}
+              onClick={() => setSelectedImage(index)}
+            >
+              <img
+                src={image}
+                alt={`Product ${index + 1}`}
+                className="w-full h-full object-cover rounded-lg"
+              />
+            </button>
+          ))}
         </div>
       )}
     </div>
-  </div>
-);
+  );
+};
 
 const ProductInfo = ({
   product,
@@ -300,29 +352,34 @@ const ProductInfo = ({
   const stockStatus = product?.available_packs > 0 ? "inStock" : "outOfStock";
   const stockStatusColor =
     stockStatus === "inStock"
-      ? "bg-green-50 text-green-700"
-      : "bg-red-50 text-red-700";
+      ? "bg-white text-[#00b85b] border-[#00b85b]"
+      : "bg-white text-red-600 border-red-300";
 
   const productDetails = [
     {
       label: t("clientProduct.suitableFor"),
       value: product?.suitable_for ?? t("clientProduct.notAvailable"),
+      icon: Info,
     },
     {
       label: t("clientProduct.size"),
       value: product?.size ?? t("clientProduct.notAvailable"),
+      icon: Package2,
     },
     {
       label: t("clientProduct.availablePacks"),
       value: product?.available_packs?.toString() ?? "0",
+      icon: ShoppingCart,
     },
     {
       label: t("clientProduct.totalPacks"),
       value: product?.total_packs?.toString() ?? "0",
+      icon: Package2,
     },
     {
       label: t("clientProduct.packQuantity"),
       value: product?.pack_quantity?.toString() ?? "0",
+      icon: Package2,
     },
   ];
 
@@ -335,94 +392,101 @@ const ProductInfo = ({
   const shouldTruncate = text.length > maxLength;
 
   return (
-    <div className="flex flex-col items-start justify-start gap-8 flex-1">
+    <div className="flex flex-col items-start justify-start gap-8 flex-1 h-full">
       <div className="w-full">
         <div className="flex items-center gap-3 mb-6">
           <Badge
             variant="active"
-            className={`${stockStatusColor} border-0 px-3 py-1.5 font-medium`}
+            className={`${stockStatusColor} border px-3 py-1.5 font-medium`}
           >
             {t(`clientProduct.status.${stockStatus}`)}
           </Badge>
           {!product.is_active && (
             <Badge
               variant="inactive"
-              className="bg-gray-50 text-gray-600 border-0 px-3 py-1.5 font-medium"
+              className="bg-white text-gray-600 border border-gray-300 px-3 py-1.5 font-medium"
             >
               {t("dashboard.status.inactive")}
             </Badge>
           )}
         </div>
-        <h1 className="font-bold text-3xl text-gray-900 mb-2 tracking-tight">
+        <h1 className="font-bold text-3xl text-gray-900 mb-2 tracking-tight font-heading-h1">
           {product?.name ?? t("clientProduct.notAvailable")}
         </h1>
-        <p className="font-medium text-gray-500 text-sm mb-6">
+        <p className="font-medium text-gray-500 text-sm mb-6 font-text-medium">
           SKU: {product?.id ?? t("clientProduct.notAvailable")}
         </p>
       </div>
 
-      <div className="grid grid-cols-2 gap-x-8 gap-y-4 w-full">
+      <div className="grid grid-cols-2 gap-x-8 gap-y-4 w-full bg-gray-50 p-6 rounded-xl">
         {productDetails.map((detail, index) => (
-          <div key={index} className="flex items-center py-2">
-            <span className="font-medium text-gray-700 text-sm min-w-[120px]">
-              {detail.label}
-            </span>
-            <span className="text-gray-600 text-sm">{detail.value}</span>
+          <div key={index} className="flex items-center gap-3 py-2 group">
+            <detail.icon className="w-5 h-5 text-gray-400 group-hover:text-[#00b85b] transition-colors duration-200" />
+            <div>
+              <span className="font-medium text-gray-700 text-sm block font-label-medium">
+                {detail.label}
+              </span>
+              <span className="text-gray-600 text-sm font-text-medium">
+                {detail.value}
+              </span>
+            </div>
           </div>
         ))}
       </div>
 
       <div className="flex flex-col gap-3 w-full">
-        <div className="text-3xl text-[#07515f]">
-          <span className="font-bold">
-            {product?.price_of_pack
-              ? `${product.price_of_pack.toFixed(2)}€`
-              : t("clientProduct.notAvailable")}
-          </span>
-          <span className="text-base text-gray-500 ml-2">
-            {product?.pack_quantity ? `/${product.pack_quantity}pcs` : ""}
-          </span>
-        </div>
-      </div>
-
-      <div className="flex items-start gap-8 w-full">
-        <div className="flex flex-col items-center gap-3">
-          <label className="font-medium text-gray-700 text-base">
-            {t("clientProduct.selectors.quantity")}
-          </label>
-          <div className="flex items-center justify-center gap-3 p-2.5 bg-gray-50 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-9 h-9 p-0.5 hover:bg-gray-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={() => onQuantityChange(-1)}
-              disabled={localQuantity <= 0}
-            >
-              <Minus className="w-4 h-4" />
-            </Button>
-            <span className="font-semibold text-gray-900 min-w-[2.5rem] text-center text-lg">
-              {localQuantity + cartQuantity}
+        <div className="flex items-center justify-between">
+          <div className="text-4xl text-gray-900 font-heading-h1">
+            <span className="font-bold">
+              {product?.price_of_pack
+                ? `${product.price_of_pack.toFixed(2)}€`
+                : t("clientProduct.notAvailable")}
             </span>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="w-9 h-9 p-0.5 hover:bg-gray-100 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-              onClick={() => onQuantityChange(1)}
-              disabled={localQuantity >= (product?.available_packs ?? 0)}
-            >
-              <Plus className="w-4 h-4" />
-            </Button>
+            <span className="text-base text-gray-500 ml-2 font-text-medium">
+              {product?.pack_quantity ? `/${product.pack_quantity}pcs` : ""}
+            </span>
           </div>
-          <div className="text-sm text-gray-500 mt-1">
-            {t("clientProduct.stockAvailable", {
-              stock: product?.available_packs ?? 0,
-            })}
+
+          <div className="flex items-center gap-3">
+            <label className="sr-only font-label-medium">
+              {t("clientProduct.selectors.quantity")}
+            </label>
+            <div className="flex items-center justify-center gap-3 p-2.5 bg-white border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-all duration-200">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-9 h-9 p-0.5 hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-[#00b85b]"
+                onClick={() => onQuantityChange(-1)}
+                disabled={localQuantity <= 0}
+              >
+                <Minus className="w-4 h-4" />
+              </Button>
+              <span className="font-semibold text-gray-900 min-w-[2.5rem] text-center text-lg font-text-bold-large">
+                {localQuantity + cartQuantity}
+              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="w-9 h-9 p-0.5 hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-[#00b85b]"
+                onClick={() => onQuantityChange(1)}
+                disabled={localQuantity >= (product?.available_packs ?? 0)}
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
+            </div>
+            <div className="text-sm text-gray-500 font-text-medium">
+              (
+              {t("clientProduct.stockAvailable", {
+                stock: product?.available_packs ?? 0,
+              })}
+              )
+            </div>
           </div>
         </div>
       </div>
 
       <Button
-        className="w-full gap-3 py-4 px-6 bg-[#07515f] hover:bg-[#064a56] text-white text-base font-medium rounded-lg shadow-sm transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5 relative"
+        className="w-full gap-3 py-6 px-6 bg-[#00b85b] hover:bg-[#00b85b]/90 text-white text-lg font-medium rounded-xl shadow-sm transition-all duration-200 hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transform hover:-translate-y-0.5 relative font-text-bold-large"
         disabled={
           !product?.available_packs ||
           product.available_packs <= 0 ||
@@ -430,7 +494,7 @@ const ProductInfo = ({
         }
         onClick={onAddToCart}
       >
-        <ShoppingCart className="w-5 h-5" />
+        <ShoppingCart className="w-6 h-6" />
         <span>{t("clientProduct.buttons.addToCart")}</span>
         {localQuantity > 0 && (
           <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-in fade-in duration-200">
@@ -439,23 +503,23 @@ const ProductInfo = ({
         )}
       </Button>
 
-      <div className="flex flex-col items-start gap-6 w-full">
+      <div className="flex flex-col items-start gap-6 w-full mt-auto">
         <div className="flex flex-col w-full items-start gap-4">
-          <h2 className="font-bold text-xl text-gray-900">
+          <h2 className="font-bold text-xl text-gray-900 font-heading-h2">
             {t("clientProduct.description.title")}
           </h2>
           <hr className="w-full border-t border-gray-200" />
         </div>
         <div className="flex flex-col items-start gap-6">
           <div className="relative">
-            <p className="w-full text-base leading-7 text-gray-700 whitespace-pre-wrap">
+            <p className="w-full text-base leading-7 text-gray-700 whitespace-pre-wrap font-text-medium">
               {shouldTruncate && !isExpanded
                 ? `${text.slice(0, maxLength)}... `
                 : text}
               {shouldTruncate && !isExpanded && (
                 <button
                   onClick={toggleExpand}
-                  className="text-[#07515f] hover:text-[#064a56] font-medium text-sm inline-block focus:outline-none"
+                  className="text-[#00b85b] hover:text-[#00b85b]/90 font-medium text-sm inline-block focus:outline-none font-text-bold-medium"
                 >
                   Read More
                 </button>
@@ -464,7 +528,7 @@ const ProductInfo = ({
             {shouldTruncate && isExpanded && (
               <button
                 onClick={toggleExpand}
-                className="text-[#07515f] hover:text-[#064a56] font-medium text-sm mt-1 focus:outline-none"
+                className="text-[#00b85b] hover:text-[#00b85b]/90 font-medium text-sm mt-1 focus:outline-none font-text-bold-medium"
               >
                 Show Less
               </button>
@@ -534,7 +598,7 @@ const RelatedProductCard = ({ product }: { product: Product }) => {
 
   return (
     <Card
-      className="w-full h-full bg-white shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 rounded-xl overflow-hidden border border-gray-100"
+      className="w-full h-full bg-white shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 rounded-xl overflow-hidden border border-gray-100 cursor-pointer"
       onClick={() => navigate(`/product/${product.id}`)}
     >
       <CardContent className="p-4 h-full">
@@ -685,14 +749,14 @@ const RelatedProducts = ({ otherProducts }: { otherProducts: Product[] }) => {
     <div className="w-full">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <Package2 className="w-5 h-5 text-[#07515f]" />
+          <Package2 className="w-5 h-5 text-[#00b85b]" />
           <h2 className="font-bold text-xl text-gray-900">
             {t("clientProduct.relatedProducts.title")}
           </h2>
         </div>
         <div
           onClick={() => navigate("/")}
-          className="font-medium text-[#07515f] text-base hover:text-[#064a56] transition-all duration-200 cursor-pointer flex items-center gap-1 group"
+          className="font-medium text-[#00b85b] hover:text-[#00b85b]/90 transition-all duration-200 cursor-pointer flex items-center gap-1 group"
         >
           {t("common.viewAll")}
           <ChevronRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform duration-200" />
