@@ -100,7 +100,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   const cartItem = items.find((item) => item.product_id === product.id);
   const quantity = cartItem?.quantity || 0;
   // Local state for quantity instead of reading from cart
-  const [localQuantity, setLocalQuantity] = useState(quantity);
+  const [localQuantity, setLocalQuantity] = useState(0);
 
   const handleClick = () => {
     navigate(`/product/${product.id}`);
@@ -123,7 +123,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   // New handler for cart icon click
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (localQuantity === 0) {
       return; // Don't do anything if quantity is 0
     }
@@ -131,7 +131,7 @@ const ProductCard = ({ product }: { product: Product }) => {
     if (dnsPrefix && selectedStore) {
       try {
         // Optimistic update
-        dispatch(addToCart({ product, quantity: localQuantity }));
+        // dispatch(addToCart({ product, quantity: localQuantity }));
 
         await dispatch(
           addToCartAsync({
@@ -141,6 +141,10 @@ const ProductCard = ({ product }: { product: Product }) => {
             quantity: localQuantity,
           })
         ).unwrap();
+
+        await dispatch(
+          fetchCart({ dns_prefix: dnsPrefix, store_id: selectedStore })
+        );
 
         // Reset local quantity after successful add to cart
         setLocalQuantity(0);
@@ -228,9 +232,11 @@ const ProductCard = ({ product }: { product: Product }) => {
                     <span
                       className="w-8 text-center text-sm font-medium text-gray-700 bg-white"
                       role="status"
-                      aria-label={t("product.quantityInCart", { quantity: localQuantity })}
+                      aria-label={t("product.quantityInCart", {
+                        quantity: localQuantity + quantity,
+                      })}
                     >
-                      {localQuantity}
+                      {localQuantity + quantity}
                     </span>
                     <Button
                       variant="ghost"
@@ -243,7 +249,6 @@ const ProductCard = ({ product }: { product: Product }) => {
                     >
                       <PlusIcon className="h-4 w-4 text-[#00b85b]" />
                     </Button>
-                    
                   </div>
                 </div>
               )}
@@ -273,7 +278,6 @@ const ProductCard = ({ product }: { product: Product }) => {
                 <span className="text-[length:var(--body-s-font-size)] leading-[var(--body-s-line-height)] font-body-s [font-style:var(--body-s-font-style)] font-[number:var(--body-s-font-weight)] tracking-[var(--body-s-letter-spacing)] ml-1">
                   {product.pack_quantity ? `/${product.pack_quantity}pcs` : ""}
                 </span>
-                
               </div>
               <Button
                 size="icon"
