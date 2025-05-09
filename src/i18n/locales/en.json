@@ -136,7 +136,8 @@
       "orClickToSearch": "Or click to search"
     },
     "actions": {
-      "save": "Save"
+      "save": "Save",
+      "next": "Next"
     },
     "messages": {
       "loadError": "Error loading product data"

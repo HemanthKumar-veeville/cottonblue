@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "../../../../components/ui/button";
 import { Checkbox } from "../../../../components/ui/checkbox";
@@ -130,6 +130,21 @@ interface BaseProductData {
   reference?: string;
 }
 
+interface InitialProductData {
+  name: string;
+  productId: string;
+  suitable_for: string;
+  size: string;
+  soldByCarton: boolean;
+  soldByUnit: boolean;
+  pack_price: string;
+  pack_of: string;
+  total_packs: string;
+  reference: string;
+  description: string;
+  product_image?: string;
+}
+
 // Reusable Components
 const FormField = ({
   label,
@@ -256,7 +271,7 @@ interface ProductSidebarSectionProps {
 const ProgressIndicator = () => (
   <div className="flex items-center justify-center w-full mt-8">
     <div className="flex items-center justify-center gap-2">
-      {[1, 2, 3].map((step, index) => (
+      {[1, 2].map((step, index) => (
         <React.Fragment key={step}>
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -274,7 +289,7 @@ const ProgressIndicator = () => (
             >
               {step}
             </div>
-            {step < 3 && (
+            {step < 2 && (
               <div
                 className={cn(
                   "w-12 h-0.5 mx-2 transition-colors duration-200",
@@ -297,6 +312,9 @@ export const ProductSidebarSection = ({
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const { selectedCompany } = useAppSelector((state) => state.client);
+  const [initialData, setInitialData] = useState<InitialProductData | null>(
+    null
+  );
 
   const {
     control,
@@ -362,6 +380,22 @@ export const ProductSidebarSection = ({
               imageUrls: { 0: product.product_image || "" },
             };
 
+            // Store initial data for comparison
+            setInitialData({
+              name: product.name || "",
+              productId: product.id?.toString() || "",
+              suitable_for: product.suitable_for || "",
+              size: product.size || "",
+              soldByCarton: isSoldByCarton,
+              soldByUnit: isSoldByUnit,
+              pack_price: product.price_of_pack?.toString() || "0",
+              pack_of: product.pack_quantity?.toString() || "1",
+              total_packs: product.total_packs?.toString() || "0",
+              reference: product.id?.toString() || "",
+              description: product.description || "",
+              product_image: product.product_image || "",
+            });
+
             console.log("Mapped form data:", formData); // Debug log
             reset(formData);
           }
@@ -419,6 +453,35 @@ export const ProductSidebarSection = ({
     [watch, setValue]
   );
 
+  // Function to detect changes in form data
+  const getChangedFields = (data: FormData): UpdateProductData => {
+    if (!initialData) return {};
+
+    const changes: UpdateProductData = {};
+
+    // Compare and add only changed fields
+    if (data.name !== initialData.name) {
+      changes.product_name = data.name;
+    }
+    if (data.description !== initialData.description) {
+      changes.product_description = data.description;
+    }
+    if (data.pack_price !== initialData.pack_price) {
+      changes.pack_price = parseFloat(data.pack_price);
+    }
+    if (data.pack_of !== initialData.pack_of) {
+      changes.pack_of = parseInt(data.pack_of);
+    }
+    if (data.total_packs !== initialData.total_packs) {
+      changes.total_packs = parseInt(data.total_packs);
+    }
+    if (data.images[0]) {
+      changes.product_image = data.images[0];
+    }
+
+    return changes;
+  };
+
   const onSubmit = async (data: FormData) => {
     try {
       if (!selectedCompany?.id) {
@@ -447,22 +510,26 @@ export const ProductSidebarSection = ({
       };
 
       if (mode === "edit" && id) {
-        const updateData: UpdateProductData = {
-          ...baseData,
-          product_image: data.images[0],
-        };
+        // Get only the changed fields
+        const changedFields = getChangedFields(data);
+
+        // If no fields have changed, show a message and return
+        if (Object.keys(changedFields).length === 0) {
+          navigate(`/products/allot-store-edit/${id}`);
+          return;
+        }
 
         const resultAction = await dispatch(
           updateProduct({
             dnsPrefix: selectedCompany.dns,
             productId: id,
-            data: updateData,
+            data: changedFields,
           }) as any
         ).unwrap();
         const productId = resultAction?.product_id;
         console.log({ productId, resultAction });
         if (productId) {
-          toast.success("Product updated successfully");
+          toast.success(t("productSidebar.messages.updateSuccess"));
           navigate(`/products/allot-store-edit/${productId}`);
         }
       } else {
@@ -480,7 +547,7 @@ export const ProductSidebarSection = ({
         const productId = resultAction?.product_id;
         console.log({ productId });
         if (productId) {
-          toast.success("Product created successfully");
+          toast.success(t("productSidebar.messages.createSuccess"));
           navigate(`/products/allot-store/${productId}`);
         }
       }
@@ -699,7 +766,7 @@ export const ProductSidebarSection = ({
               disabled={isSubmitting}
             >
               <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5 whitespace-nowrap">
-                {t("productSidebar.actions.save")}
+                {t("productSidebar.actions.next")}
               </span>
             </Button>
           </div>
