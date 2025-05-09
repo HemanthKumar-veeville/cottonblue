@@ -220,49 +220,38 @@ const ProductCard = ({ product }: { product: Product }) => {
                   role="group"
                   aria-label={t("product.cartControls")}
                 >
-                  {quantity === 0 ? (
+                  <div className="flex items-center bg-white rounded-md shadow-sm border border-gray-200">
                     <Button
+                      variant="ghost"
                       size="icon"
-                      className="h-7 w-7 rounded-md bg-[#00b85b] hover:bg-[#00b85b]/90 text-white shadow-sm transition-all duration-200 hover:scale-105"
-                      onClick={handleInitialAdd}
-                      aria-label={t("product.addToCart")}
-                      title={t("product.addToCart")}
+                      className="h-8 w-8 rounded-l-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-r border-gray-200"
+                      onClick={(e) => handleQuantityChange(-1, e)}
+                      disabled={quantity <= 0}
+                      aria-label={t("product.decreaseQuantity")}
+                      title={t("product.decreaseQuantity")}
                     >
-                      <ShoppingCart className="h-3.5 w-3.5 text-white" />
+                      <MinusIcon className="h-4 w-4 text-[#00b85b]" />
                     </Button>
-                  ) : (
-                    <div className="flex items-center bg-white rounded-md shadow-sm border border-gray-200 h-7 p-0.5">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 rounded-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        onClick={(e) => handleQuantityChange(-1, e)}
-                        disabled={quantity <= 0}
-                        aria-label={t("product.decreaseQuantity")}
-                        title={t("product.decreaseQuantity")}
-                      >
-                        <MinusIcon className="h-3 w-3 text-[#00b85b]" />
-                      </Button>
-                      <span
-                        className="w-6 text-center text-sm font-medium text-gray-700"
-                        role="status"
-                        aria-label={t("product.quantityInCart", { quantity })}
-                      >
-                        {quantity}
-                      </span>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 rounded-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                        onClick={(e) => handleQuantityChange(1, e)}
-                        disabled={quantity >= (product.available_packs ?? 0)}
-                        aria-label={t("product.increaseQuantity")}
-                        title={t("product.increaseQuantity")}
-                      >
-                        <PlusIcon className="h-3 w-3 text-[#00b85b]" />
-                      </Button>
-                    </div>
-                  )}
+                    <span
+                      className="w-8 text-center text-sm font-medium text-gray-700 bg-white"
+                      role="status"
+                      aria-label={t("product.quantityInCart", { quantity })}
+                    >
+                      {quantity}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-x border-gray-200"
+                      onClick={(e) => handleQuantityChange(1, e)}
+                      disabled={quantity >= (product.available_packs ?? 0)}
+                      aria-label={t("product.increaseQuantity")}
+                      title={t("product.increaseQuantity")}
+                    >
+                      <PlusIcon className="h-4 w-4 text-[#00b85b]" />
+                    </Button>
+                    
+                  </div>
                 </div>
               )}
             </div>
@@ -291,7 +280,17 @@ const ProductCard = ({ product }: { product: Product }) => {
                 <span className="text-[length:var(--body-s-font-size)] leading-[var(--body-s-line-height)] font-body-s [font-style:var(--body-s-font-style)] font-[number:var(--body-s-font-weight)] tracking-[var(--body-s-letter-spacing)] ml-1">
                   {product.pack_quantity ? `/${product.pack_quantity}pcs` : ""}
                 </span>
+                
               </div>
+              <Button
+                      size="icon"
+                      className="h-8 w-8 rounded-r-md bg-[#00b85b] hover:bg-[#00b85b]/90 text-white transition-all duration-200"
+                      onClick={handleInitialAdd}
+                      aria-label={t("product.addToCart")}
+                      title={t("product.addToCart")}
+                    >
+                      <ShoppingCart className="h-4 w-4 text-white" />
+                    </Button>
             </div>
           </div>
         </div>
