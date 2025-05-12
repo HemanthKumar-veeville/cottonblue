@@ -52,6 +52,38 @@ interface GetOrderResponse {
   };
 }
 
+interface GetOrdersForApprovalResponse {
+  success: boolean;
+  orders: Array<{
+    id: string;
+    date: string;
+    price: string;
+    status: {
+      text: string;
+      type: 'success' | 'warning' | 'danger' | 'default';
+    };
+    hasInvoice: boolean;
+    items: Array<{
+      id: string;
+      name: string;
+      quantity: number;
+      price: number;
+    }>;
+  }>;
+}
+
+interface ApproveOrderResponse {
+  success: boolean;
+  message: string;
+  order_id: string;
+}
+
+interface RefuseOrderResponse {
+  success: boolean;
+  message: string;
+  order_id: string;
+}
+
 export const cartService = {
   /**
    * Add a product to the cart
@@ -126,5 +158,42 @@ export const cartService = {
     order_id: string
   ): Promise<GetOrderResponse> => {
     return axiosInstance.get(`/${dns_prefix}/order/${store_id}/${order_id}`);
+  },
+
+  /**
+   * Get all orders pending approval
+   * @param dns_prefix DNS prefix of the company
+   * @returns Promise with list of orders pending approval
+   */
+  getOrdersForApproval: async (
+    dns_prefix: string
+  ): Promise<GetOrdersForApprovalResponse> => {
+    return axiosInstance.get(`/${dns_prefix}/orders-for-approval`);
+  },
+
+  /**
+   * Approve a specific order
+   * @param dns_prefix DNS prefix of the company
+   * @param order_id ID of the order to approve
+   * @returns Promise with order approval response
+   */
+  approveOrder: async (
+    dns_prefix: string,
+    order_id: string
+  ): Promise<ApproveOrderResponse> => {
+    return axiosInstance.post(`/${dns_prefix}/approve-order/${order_id}`);
+  },
+
+  /**
+   * Refuse a specific order
+   * @param dns_prefix DNS prefix of the company
+   * @param order_id ID of the order to refuse
+   * @returns Promise with order refusal response
+   */
+  refuseOrder: async (
+    dns_prefix: string,
+    order_id: string
+  ): Promise<RefuseOrderResponse> => {
+    return axiosInstance.post(`/${dns_prefix}/refuse-order/${order_id}`);
   },
 };

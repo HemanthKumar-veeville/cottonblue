@@ -25,6 +25,11 @@ const navItems = [
     label: "sidebar.orderHistory",
     path: "/history",
   },
+  {
+    icon: <ClipboardListIcon className="w-4 h-4" />,
+    label: "sidebar.adminDashboard",
+    path: "/admin-dashboard",
+  },
 ];
 
 const bottomNavItems = [

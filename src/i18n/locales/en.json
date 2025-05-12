@@ -38,6 +38,7 @@
   },
   "sidebar": {
     "admin": "Admin",
+    "adminDashboard": "Admin Dashboard",
     "dashboard": "Dashboard",
     "orderHistory": "Order History",
     "products": {
@@ -75,7 +76,11 @@
     "budget": {
       "title": "Monthly Budget",
       "expenses": "Expenses",
-      "orders": "Orders"
+      "orders": "Orders",
+      "ordersToValidate": "Orders to validate",
+      "noOrdersFound": "No orders found",
+      "search": "Search",
+      "averageCart": "Average Cart"
     }
   },
   "productList": {
@@ -249,6 +254,9 @@
         }
       }
     },
+    "topProducts": "Top 10 products ordered",
+    "topClients": "Top 3 clients",
+    "latestTickets": "Latest tickets",
     "timeframes": {
       "selectTimeframe": "Select timeframe",
       "selectPeriod": "Select period",
@@ -813,6 +821,38 @@
       "requiredFields": "Please fill in all required fields",
       "clientAddedSuccess": "Client added successfully!",
       "clientUpdatedSuccess": "Client updated successfully!"
+    }
+  },
+  "clientAdminDashboard": {
+    "orders": {
+      "title": "Orders",
+      "filter": "Filter",
+      "exportKPI": "Export KPI",
+      "months": {
+        "january": "January",
+        "february": "February",
+        "march": "March",
+        "april": "April",
+        "may": "May",
+        "june": "June",
+        "july": "July",
+        "august": "August",
+        "september": "September",
+        "october": "October",
+        "november": "November",
+        "december": "December"
+      }
+    },
+    "budget": {
+      "title": "Monthly Budget",
+      "expenses": "Expenses",
+      "orders": "Orders",
+      "totalExpenses": "Total Expenses",
+      "totalOrders": "Total Orders",
+      "averageCart": "Average Cart",
+      "ordersToValidate": "Orders to Validate",
+      "search": "Search",
+      "noOrdersFound": "No orders found"
     }
   }
 }

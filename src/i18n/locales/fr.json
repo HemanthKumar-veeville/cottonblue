@@ -40,6 +40,7 @@
     "admin": "Admin",
     "dashboard": "Tableau de bord",
     "orderHistory": "Historique des commandes",
+    "adminDashboard": "Tableau de bord administrateur",
     "products": {
       "title": "Produits",
       "list": "Liste des produits",
@@ -75,7 +76,11 @@
     "budget": {
       "title": "Budget du mois",
       "expenses": "Dépenses",
-      "orders": "Commandes"
+      "orders": "Commandes",
+      "ordersToValidate": "Commandes à valider",
+      "noOrdersFound": "Aucune commande trouvée",
+      "search": "Rechercher",
+      "averageCart": "Panier moyen"
     }
   },
   "productList": {
@@ -259,6 +264,9 @@
         }
       }
     },
+    "topProducts": "Top 10 produits commandés",
+    "topClients": "Top 3 clients",
+    "latestTickets": "Derniers tickets",
     "timeframes": {
       "selectTimeframe": "Sélectionner la période",
       "selectPeriod": "Sélectionner la période",
@@ -842,6 +850,38 @@
       "requiredFields": "Veuillez remplir tous les champs obligatoires",
       "clientAddedSuccess": "Client ajouté avec succès !",
       "clientUpdatedSuccess": "Client mis à jour avec succès !"
+    }
+  },
+  "clientAdminDashboard": {
+    "orders": {
+      "title": "Commandes",
+      "filter": "Filtrer",
+      "exportKPI": "Exporter KPI",
+      "months": {
+        "january": "Janvier",
+        "february": "Février",
+        "march": "Mars",
+        "april": "Avril",
+        "may": "Mai",
+        "june": "Juin",
+        "july": "Juillet",
+        "august": "Août",
+        "september": "Septembre",
+        "october": "Octobre",
+        "november": "Novembre",
+        "december": "Décembre"
+      }
+    },
+    "budget": {
+      "title": "Budget mensuel",
+      "expenses": "Dépenses",
+      "orders": "Commandes",
+      "totalExpenses": "Dépenses totales",
+      "totalOrders": "Commandes totales",
+      "averageCart": "Panier moyen",
+      "ordersToValidate": "Commandes à valider",
+      "search": "Rechercher",
+      "noOrdersFound": "Aucune commande trouvée"
     }
   }
 }

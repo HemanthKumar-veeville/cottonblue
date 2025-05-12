@@ -17,6 +17,9 @@ import {
   borderRadius,
 } from "../../theme/constants";
 
+import { useTranslation } from "react-i18next";
+import BudgetDashboard from "../ClientDashboard/BudgetDashboard";
+import { useLocation } from "react-router-dom";
 interface Product {
   id: number;
   name: string;
@@ -92,6 +95,8 @@ const TicketCard: React.FC<{ ticket: Ticket }> = ({ ticket }) => (
 
 const DashboardSection: React.FC = () => {
   const { summary } = useSelector((state: RootState) => state.dashboard);
+  const { t } = useTranslation();
+  const pathname = useLocation().pathname;
 
   const topProducts =
     summary?.dashboard_data?.most_sold_products?.map(
@@ -125,7 +130,7 @@ const DashboardSection: React.FC = () => {
         <CardHeader className="flex flex-row items-center gap-4 pb-2 px-6 pt-6">
           <Crown className="w-6 h-6 text-[#07515F]" />
           <CardTitle className="font-bold text-lg text-[#475569]">
-            Top 10 produits commandés
+            {t("dashboard.topProducts")}
           </CardTitle>
         </CardHeader>
         <CardContent className="p-0">
@@ -139,30 +144,32 @@ const DashboardSection: React.FC = () => {
           </ScrollArea>
         </CardContent>
       </Card>
-
       <div className="flex flex-col gap-8 flex-1">
-        <Card className="rounded-md shadow-md">
-          <CardHeader className="pb-2 px-6 pt-6">
-            <div className="flex items-center gap-4">
-              <Crown className="w-6 h-6 text-[#07515F]" />
-              <CardTitle className="font-bold text-lg text-[#475569]">
-                Top 3 clients
-              </CardTitle>
-            </div>
-          </CardHeader>
-          <CardContent className="flex flex-col gap-4 px-6 pb-6">
-            {topClients.map((client) => (
-              <ClientCard key={client.id} client={client} />
-            ))}
-          </CardContent>
-        </Card>
-
+        {!pathname?.includes("client-dashboard") ? (
+          <Card className="rounded-md shadow-md">
+            <CardHeader className="pb-2 px-6 pt-6">
+              <div className="flex items-center gap-4">
+                <Crown className="w-6 h-6 text-[#07515F]" />
+                <CardTitle className="font-bold text-lg text-[#475569]">
+                  {t("dashboard.topClients")}
+                </CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-4 px-6 pb-6">
+              {topClients.map((client) => (
+                <ClientCard key={client.id} client={client} />
+              ))}
+            </CardContent>
+          </Card>
+        ) : (
+          <BudgetDashboard />
+        )}
         <Card className="flex-1 rounded-md shadow-md">
           <CardHeader className="pb-2 px-6 pt-6">
             <div className="flex items-center gap-4">
               <MessageSquare className="w-6 h-6 text-[#07515F]" />
               <CardTitle className="font-bold text-lg text-[#475569]">
-                Derniers tickets
+                {t("dashboard.latestTickets")}
               </CardTitle>
             </div>
           </CardHeader>

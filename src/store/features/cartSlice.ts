@@ -12,20 +12,18 @@ export interface CartItem {
 }
 
 interface Order {
-  id: string;
-  date: string;
-  price: string;
-  status: {
-    text: string;
-    type: 'success' | 'warning' | 'danger' | 'default';
-  };
-  hasInvoice: boolean;
-  items?: Array<{
-    id: string;
-    name: string;
+  created_at: string;
+  order_id: number;
+  order_items: Array<{
+    product_id: number;
+    product_image: string;
+    product_name: string;
+    product_price: number;
     quantity: number;
-    price: number;
   }>;
+  order_status: string;
+  store_address: string;
+  store_name: string;
 }
 
 interface CartState {
@@ -37,6 +35,7 @@ interface CartState {
   orders: Order[];
   currentOrderId: string | null;
   currentOrder: Order | null;
+  ordersForApproval: Order[];
 }
 
 // Updated response types
@@ -127,6 +126,30 @@ export const getOrder = createAsyncThunk(
   }
 );
 
+export const getOrdersForApproval = createAsyncThunk(
+  'cart/getOrdersForApproval',
+  async ({ dns_prefix }: { dns_prefix: string }) => {
+    const response = await cartService.getOrdersForApproval(dns_prefix);
+    return response.data;
+  }
+);
+
+export const approveOrder = createAsyncThunk(
+  'cart/approveOrder',
+  async ({ dns_prefix, order_id }: { dns_prefix: string; order_id: string }) => {
+    const response = await cartService.approveOrder(dns_prefix, order_id);
+    return response.data;
+  }
+);
+
+export const refuseOrder = createAsyncThunk(
+  'cart/refuseOrder',
+  async ({ dns_prefix, order_id }: { dns_prefix: string; order_id: string }) => {
+    const response = await cartService.refuseOrder(dns_prefix, order_id);
+    return response;
+  }
+);
+
 const initialState: CartState = {
   items: [],
   loading: false,
@@ -136,6 +159,7 @@ const initialState: CartState = {
   currentOrderId: null,
   currentOrder: null,
   cartId: null,
+  ordersForApproval: [],
 };
 
 const cartSlice = createSlice({
@@ -277,6 +301,52 @@ const cartSlice = createSlice({
       .addCase(getOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch order details';
+      });
+
+    builder
+      .addCase(getOrdersForApproval.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getOrdersForApproval.fulfilled, (state, action) => {
+        state.loading = false;
+        state.ordersForApproval = action.payload.orders;
+      })
+      .addCase(getOrdersForApproval.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch orders for approval';
+      });
+
+    builder
+      .addCase(approveOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(approveOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.ordersForApproval = state.ordersForApproval.filter(
+          order => order.id !== action.payload.order_id
+        );
+      })
+      .addCase(approveOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to approve order';
+      });
+
+    builder
+      .addCase(refuseOrder.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(refuseOrder.fulfilled, (state, action) => {
+        state.loading = false;
+        state.ordersForApproval = state.ordersForApproval.filter(
+          order => order.order_id !== Number(action.payload.order_id)
+        );
+      })
+      .addCase(refuseOrder.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to refuse order';
       });
   },
 });

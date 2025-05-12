@@ -44,6 +44,9 @@ import SuperAdminOrderHistory from "./screens/SuperAdminOrderHistory/SuperAdminO
 import SuperAdminOrderDetails from "./screens/SuperAdminOrderDetails/SuperAdminOrderDetails";
 import SuperAdminSettings from "./screens/SuperAdminSettings/SuperAdminSettings";
 import AddProduct_step_1 from "./screens/AddProduct/AddProduct_step_1";
+import ClientAdminDashboard from "./screens/ClientAdminDashboard/ClientAdminDashboard";
+import OrderValidation from "./screens/OrderValidation/OrderValidation";
+import { ClientDashboard } from "./screens/ClientDashboard/ClientDashboard";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
@@ -90,6 +93,7 @@ function App() {
             <Route path="/" element={<SuperadminLayout />}>
               <Route index element={<Navigate to="/dashboard" replace />} />
               <Route path="dashboard" element={<GlobalDashboard />} />
+              <Route path="client-dashboard" element={<ClientDashboard />} />
               <Route
                 path="order-history"
                 element={<SuperAdminOrderHistory />}
@@ -152,6 +156,11 @@ function App() {
         isLoggedIn ? (
           <Route path="/" element={<ClientLayout />}>
             <Route index element={<AdminClientHome />} />
+            <Route path="admin-dashboard" element={<ClientAdminDashboard />} />
+            <Route
+              path="validate-order/:store_id/:id"
+              element={<OrderValidation />}
+            />
             <Route path="product/:id" element={<ClientProduct />} />
             <Route path="cart" element={<CartContainer />} />
             <Route path="history" element={<History />} />

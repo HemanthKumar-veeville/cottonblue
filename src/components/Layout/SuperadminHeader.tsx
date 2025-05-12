@@ -134,7 +134,7 @@ export const SuperadminHeader = (): JSX.Element => {
     }));
     setTabs(newTabs);
     setIsAdminMode(tabId === 1);
-    navigate("/dashboard");
+    tabId === 1 ? navigate("/dashboard") : navigate("/client-dashboard");
   };
 
   const handleLanguageChange = (value: string) => {
