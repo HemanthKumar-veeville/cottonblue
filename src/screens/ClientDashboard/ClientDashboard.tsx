@@ -2,6 +2,12 @@ import { DashboardSection } from "../GlobalDashboard/DashboardSection";
 import { StatsSection } from "../GlobalDashboard/StatsSection";
 import { TopClientsSection } from "../GlobalDashboard/TopClientsSection";
 import { TopProductsSection } from "../GlobalDashboard/TopProductsSection";
+import {
+  DashboardSectionSkeleton,
+  StatsSkeleton,
+  TopClientsSkeleton,
+  TopProductsSkeleton,
+} from "../GlobalDashboard/DashboardSkeletons";
 import React, { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { fetchDashboard } from "../../store/features/dashboardSlice";
@@ -13,18 +19,33 @@ const ClientDashboard: React.FC = () => {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { selectedCompany } = useAppSelector((state) => state.client);
+  const { loading } = useAppSelector((state) => state.dashboard);
   const dns = selectedCompany?.dns;
+
   useEffect(() => {
-    dispatch(fetchDashboard(dns));
-  }, [dispatch]);
+    if (dns) {
+      dispatch(fetchDashboard(dns));
+    }
+  }, [dispatch, dns]);
 
   return (
     <main className="flex flex-col gap-8 p-6">
       <SectionWrapper>
-        <TopProductsSection />
-        <TopClientsSection />
-        <StatsSection />
-        <DashboardSection />
+        {loading ? (
+          <>
+            <TopProductsSkeleton />
+            <TopClientsSkeleton />
+            <StatsSkeleton />
+            <DashboardSectionSkeleton />
+          </>
+        ) : (
+          <>
+            <TopProductsSection />
+            <TopClientsSection />
+            <StatsSection />
+            <DashboardSection />
+          </>
+        )}
       </SectionWrapper>
     </main>
   );
