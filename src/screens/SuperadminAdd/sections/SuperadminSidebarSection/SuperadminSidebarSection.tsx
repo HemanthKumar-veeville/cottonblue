@@ -150,7 +150,7 @@ export const SuperadminSidebarSection = ({
         {
           icon: <HomeIcon className="w-4 h-4" />,
           label: t("sidebar.dashboard"),
-          path: "/dashboard",
+          path: "/client-dashboard",
         },
         {
           icon: <FileTextIcon className="w-4 h-4" />,
