@@ -153,7 +153,7 @@ const ProductPage = () => {
 
     if (amount > 0 && newQuantity <= (product?.available_packs ?? 0)) {
       setLocalQuantity(newQuantity);
-    } else if (amount < 0 && newQuantity >= 0) {
+    } else if (amount < 0) {
       setLocalQuantity(newQuantity);
     } else if (newQuantity > (product?.available_packs ?? 0)) {
       toast.error(t("cart.error.notEnoughStock"));
@@ -167,6 +167,20 @@ const ProductPage = () => {
     }
 
     if (dnsPrefix && selectedStore) {
+      // Optimistic update - Update UI immediately
+      dispatch(
+        addToCart({
+          product: product,
+          quantity: localQuantity,
+        })
+      );
+
+      // Store the quantity for potential rollback
+      const quantityToAdd = localQuantity;
+
+      // Reset local quantity immediately for better UX
+      setLocalQuantity(0);
+
       try {
         await dispatch(
           addToCartAsync({
@@ -176,14 +190,18 @@ const ProductPage = () => {
             quantity: localQuantity,
           })
         ).unwrap();
-
-        await dispatch(
-          fetchCart({ dns_prefix: dnsPrefix, store_id: selectedStore })
+      } catch (error) {
+        // Revert the optimistic update on failure
+        dispatch(
+          addToCart({
+            product: product,
+            quantity: -quantityToAdd, // Reverse the quantity change
+          })
         );
 
-        // Reset local quantity after successful add to cart
-        setLocalQuantity(0);
-      } catch (error) {
+        // Restore the local quantity
+        setLocalQuantity(quantityToAdd);
+
         toast.error(t("cart.error.addFailed"));
       }
     }
@@ -536,7 +554,7 @@ const ProductInfo = ({
                   "rounded-l-lg rounded-r-none"
                 )}
                 onClick={() => onQuantityChange(-1)}
-                disabled={localQuantity <= 0}
+                disabled={localQuantity + cartQuantity <= 0}
               >
                 <Minus className="w-4 h-4" />
               </Button>
@@ -594,7 +612,7 @@ const ProductInfo = ({
               {t("clientProduct.buttons.addToCart")}
             </span>
           </div>
-          {localQuantity > 0 && (
+          {localQuantity !== 0 && (
             <div
               className={cn(
                 "absolute -top-3 -right-3",

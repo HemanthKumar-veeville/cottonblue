@@ -320,6 +320,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                 onClick={handleAddToCart}
                 aria-label={t("product.addToCart")}
                 title={t("product.addToCart")}
+                disabled={localQuantity === 0}
               >
                 <ShoppingCart className="h-4 w-4 text-white" />
                 {localQuantity !== 0 && (

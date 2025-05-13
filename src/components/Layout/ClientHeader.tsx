@@ -2,7 +2,7 @@ import { BellIcon, SearchIcon, ShoppingCartIcon, UserIcon } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { useTranslation } from "react-i18next";
 import { useAppSelector, useAppDispatch } from "../../store/store";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -87,7 +87,7 @@ export const ClientHeader = () => {
   const handleStoreChange = (value: string) => {
     dispatch(setSelectedStore(value));
   };
-
+  const pathname = useLocation().pathname;
   return (
     <div className="sticky top-0 z-50 flex w-full min-w-[320px] items-center justify-between px-4 md:px-6 lg:px-8 py-3 bg-defaultwhite border-b border-1-tokens-color-modes-common-neutral-lower shadow-sm backdrop-blur-sm bg-white/90">
       {/* Left section with search and store selector */}
@@ -105,46 +105,48 @@ export const ClientHeader = () => {
         </div>
 
         {/* Store Selector */}
-        <div className="w-[35%] min-w-[140px]">
-          <Select
-            value={selectedStore || "all"}
-            onValueChange={handleStoreChange}
-          >
-            <SelectTrigger className="w-full h-11 px-4 rounded-md border-[color:var(--1-tokens-color-modes-input-primary-default-border)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] hover:border-gray-400 focus:border-gray-400 focus:ring-0 outline-none transition-all duration-200">
-              <SelectValue>{getCurrentStoreName()}</SelectValue>
-            </SelectTrigger>
-            <SelectContent
-              className="max-h-[300px] overflow-y-auto rounded-md bg-white shadow-lg border-0 outline-none ring-0 focus:ring-0"
-              style={{ border: "none" }}
+        {pathname !== "/admin-dashboard" && (
+          <div className="w-[35%] min-w-[140px]">
+            <Select
+              value={selectedStore || "all"}
+              onValueChange={handleStoreChange}
             >
-              {isAdmin ? (
-                <>
-                  {storeList?.map((store) => (
-                    <SelectItem
-                      key={store.id}
-                      value={store.id}
-                      className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors duration-150 focus:bg-transparent active:bg-gray-50 outline-none ring-0 focus:ring-0"
-                    >
-                      {store.name}
-                    </SelectItem>
-                  ))}
-                </>
-              ) : (
-                <>
-                  {storeIds.map((store) => (
-                    <SelectItem
-                      key={store.store_id}
-                      value={store.store_id}
-                      className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors duration-150 focus:bg-transparent active:bg-gray-50 outline-none ring-0 focus:ring-0"
-                    >
-                      {store.store_name}
-                    </SelectItem>
-                  ))}
-                </>
-              )}
-            </SelectContent>
-          </Select>
-        </div>
+              <SelectTrigger className="w-full h-11 px-4 rounded-md border-[color:var(--1-tokens-color-modes-input-primary-default-border)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] hover:border-gray-400 focus:border-gray-400 focus:ring-0 outline-none transition-all duration-200">
+                <SelectValue>{getCurrentStoreName()}</SelectValue>
+              </SelectTrigger>
+              <SelectContent
+                className="max-h-[300px] overflow-y-auto rounded-md bg-white shadow-lg border-0 outline-none ring-0 focus:ring-0"
+                style={{ border: "none" }}
+              >
+                {isAdmin ? (
+                  <>
+                    {storeList?.map((store) => (
+                      <SelectItem
+                        key={store.id}
+                        value={store.id}
+                        className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors duration-150 focus:bg-transparent active:bg-gray-50 outline-none ring-0 focus:ring-0"
+                      >
+                        {store.name}
+                      </SelectItem>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    {storeIds.map((store) => (
+                      <SelectItem
+                        key={store.store_id}
+                        value={store.store_id}
+                        className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors duration-150 focus:bg-transparent active:bg-gray-50 outline-none ring-0 focus:ring-0"
+                      >
+                        {store.store_name}
+                      </SelectItem>
+                    ))}
+                  </>
+                )}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
       </div>
 
       {/* Right Section - User Profile, Notifications, Cart */}
