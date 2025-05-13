@@ -17,11 +17,14 @@ i18n
         translation: frTranslations,
       },
     },
-    fallbackLng: 'en',
+    lng: 'fr',
+    fallbackLng: 'fr',
     supportedLngs: ['en', 'fr'],
     detection: {
       order: ['navigator', 'htmlTag', 'path', 'subdomain'],
       caches: ['localStorage'],
+      lookupFromPathIndex: 0,
+      checkWhitelist: true
     },
     interpolation: {
       escapeValue: false,
