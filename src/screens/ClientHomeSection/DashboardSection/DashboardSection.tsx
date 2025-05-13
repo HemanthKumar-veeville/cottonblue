@@ -30,6 +30,7 @@ import {
   addToCartAsync,
 } from "../../../store/features/cartSlice";
 import { toast } from "react-hot-toast";
+import { cn } from "../../../lib/utils";
 
 interface Product {
   id: number;
@@ -238,7 +239,14 @@ const ProductCard = ({ product }: { product: Product }) => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 rounded-l-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-r border-gray-200"
+                      className={cn(
+                        "w-8 h-8",
+                        "hover:bg-gray-50 transition-all duration-200",
+                        "disabled:opacity-50 disabled:cursor-not-allowed",
+                        "text-[#00b85b] border-r border-gray-200",
+                        "rounded-l-lg rounded-r-none",
+                        "border-r-2 border-gray-200"
+                      )}
                       onClick={(e) => handleQuantityChange(-1, e)}
                       disabled={localQuantity + quantity <= 0}
                       aria-label={t("product.decreaseQuantity")}
@@ -258,7 +266,14 @@ const ProductCard = ({ product }: { product: Product }) => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-8 w-8 hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-x border-gray-200"
+                      className={cn(
+                        "w-8 h-8",
+                        "hover:bg-gray-50 transition-all duration-200",
+                        "disabled:opacity-50 disabled:cursor-not-allowed",
+                        "text-[#00b85b]",
+                        "rounded-r-lg rounded-l-none",
+                        "border-l-2 border-gray-200"
+                      )}
                       onClick={(e) => handleQuantityChange(1, e)}
                       disabled={
                         localQuantity + quantity >=
