@@ -130,23 +130,44 @@ const ProductCard = ({ product }: { product: Product }) => {
     }
 
     if (dnsPrefix && selectedStore) {
+      // Optimistic update - Update UI immediately
+      dispatch(
+        addToCart({
+          product: product,
+          quantity: localQuantity,
+        })
+      );
+
+      // Store the quantity for potential rollback
+      const quantityToAdd = localQuantity;
+
+      // Reset local quantity immediately for better UX
+      setLocalQuantity(0);
+
       try {
+        // Make API call in the background
         await dispatch(
           addToCartAsync({
             dns_prefix: dnsPrefix,
             store_id: selectedStore,
             product_id: product.id.toString(),
-            quantity: localQuantity, // This can now be negative for removals
+            quantity: quantityToAdd,
           })
         ).unwrap();
 
-        await dispatch(
-          fetchCart({ dns_prefix: dnsPrefix, store_id: selectedStore })
+        // No need to fetch cart again as we've already updated the UI optimistically
+      } catch (error) {
+        // Revert the optimistic update on failure
+        dispatch(
+          addToCart({
+            product: product,
+            quantity: -quantityToAdd, // Reverse the quantity change
+          })
         );
 
-        // Reset local quantity after successful cart update
-        setLocalQuantity(0);
-      } catch (error) {
+        // Restore the local quantity
+        setLocalQuantity(quantityToAdd);
+
         toast.error(t("cart.error.updateFailed"));
       }
     }
