@@ -18,9 +18,13 @@ const initialState: DashboardState = {
 // Create async thunk for fetching dashboard data
 export const fetchDashboard = createAsyncThunk(
   'dashboard/fetchDashboard',
-  async (dns_prefix: string, { rejectWithValue }) => {
+  async ({ dns_prefix, filter_by, filter_value }: { dns_prefix: string, filter_by: string, filter_value: string }, { rejectWithValue }) => {
     try {
-      const response = await dashboardService.getDashboard(dns_prefix);
+      const response = await dashboardService.getDashboard(
+        dns_prefix,
+        filter_by,
+        filter_value
+      );
       return response;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch dashboard data');

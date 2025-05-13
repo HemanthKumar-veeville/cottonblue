@@ -90,6 +90,7 @@ interface Order {
 interface BudgetSectionProps {
   budgetData: BudgetData;
   orderList: Order[];
+  dashboardLoading: boolean;
 }
 
 const BudgetMetricCard = ({
@@ -142,11 +143,17 @@ const OrderItem = ({
 export function BudgetSection({
   budgetData,
   orderList,
+  dashboardLoading,
 }: BudgetSectionProps): JSX.Element {
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
   console.log({ budgetData });
+
+  if (dashboardLoading) {
+    return <BudgetSectionSkeleton />;
+  }
+
   // Filter orders based on search query
   const filteredOrders = orderList?.filter(
     (order) =>

@@ -33,44 +33,20 @@ const getTimeframeValues = (timeframe: TimeframeOption): string[] => {
 
   switch (timeframe) {
     case "Weekly":
-      // Generate last 12 weeks
-      return Array.from({ length: 12 }, (_, i) => {
-        const date = new Date();
-        date.setDate(date.getDate() - i * 7);
-        return `Week ${date.getDate()}/${date.getMonth() + 1}`;
-      }).reverse();
+      // Generate weeks 1-52
+      return Array.from({ length: 52 }, (_, i) => String(i + 1));
 
     case "Monthly":
-      // Generate last 12 months
-      return [
-        "January",
-        "February",
-        "March",
-        "April",
-        "May",
-        "June",
-        "July",
-        "August",
-        "September",
-        "October",
-        "November",
-        "December",
-      ];
+      // Generate months 1-12
+      return Array.from({ length: 12 }, (_, i) => String(i + 1));
 
     case "Quarterly":
-      // Generate quarters for current year
-      return [
-        `Q1 ${currentYear}`,
-        `Q2 ${currentYear}`,
-        `Q3 ${currentYear}`,
-        `Q4 ${currentYear}`,
-      ];
+      // Generate quarters 1-4
+      return ["1", "2", "3", "4"];
 
     case "Yearly":
-      // Generate last 5 years
-      return Array.from({ length: 5 }, (_, i) =>
-        String(currentYear - i)
-      ).reverse();
+      // Generate next year and current year
+      return [String(currentYear + 1), String(currentYear)];
 
     default:
       return [];
@@ -87,6 +63,62 @@ interface PeriodSelectProps {
   value: string;
   onChange: (value: string) => void;
 }
+
+const getTimeframeLabel = (value: string): string => {
+  switch (value) {
+    case "1":
+      return "January";
+    case "2":
+      return "February";
+    case "3":
+      return "March";
+    case "4":
+      return "April";
+    case "5":
+      return "May";
+    case "6":
+      return "June";
+    case "7":
+      return "July";
+    case "8":
+      return "August";
+    case "9":
+      return "September";
+    case "10":
+      return "October";
+    case "11":
+      return "November";
+    case "12":
+      return "December";
+    default:
+      return value;
+  }
+};
+
+const getWeekLabel = (value: string): string => {
+  return `Week ${value}`;
+};
+
+const getQuarterLabel = (value: string): string => {
+  const currentYear = new Date().getFullYear();
+  return `Q${value} ${currentYear}`;
+};
+
+const getDisplayLabel = (
+  option: string,
+  timeframe: TimeframeOption
+): string => {
+  switch (timeframe) {
+    case "Monthly":
+      return getTimeframeLabel(option);
+    case "Weekly":
+      return getWeekLabel(option);
+    case "Quarterly":
+      return getQuarterLabel(option);
+    default:
+      return option;
+  }
+};
 
 const TimeframeSelect: React.FC<TimeframeSelectProps> = ({
   value,
@@ -136,7 +168,9 @@ const PeriodSelect: React.FC<PeriodSelectProps> = ({
           <SelectValue
             placeholder={t("dashboard.timeframes.selectPeriod")}
             className="font-[Montserrat] text-[#475569] text-sm font-medium"
-          />
+          >
+            {getDisplayLabel(value, timeframe)}
+          </SelectValue>
         </SelectTrigger>
         <SelectContent className="rounded-md border-[#E2E8F0] shadow-md">
           {options.map((option) => (
@@ -145,7 +179,7 @@ const PeriodSelect: React.FC<PeriodSelectProps> = ({
               value={option}
               className="font-[Montserrat] text-sm font-medium text-[#475569] hover:bg-[#F8FAFC] hover:text-[#07515F] transition-all duration-200 cursor-pointer px-4 py-2"
             >
-              {option}
+              {getDisplayLabel(option, timeframe)}
             </SelectItem>
           ))}
         </SelectContent>
@@ -181,17 +215,49 @@ interface Order {
   hasInvoice: boolean;
 }
 
+const getDefaultPeriodValue = (timeframe: TimeframeOption): string => {
+  const currentDate = new Date();
+
+  switch (timeframe) {
+    case "Weekly":
+      // Get current week number (1-52)
+      const startOfYear = new Date(currentDate.getFullYear(), 0, 1);
+      const days = Math.floor(
+        (currentDate.getTime() - startOfYear.getTime()) / (24 * 60 * 60 * 1000)
+      );
+      const currentWeek = Math.ceil((days + startOfYear.getDay() + 1) / 7);
+      return String(currentWeek);
+
+    case "Monthly":
+      // Get current month (1-12)
+      return String(currentDate.getMonth() + 1);
+
+    case "Quarterly":
+      // Get current quarter (1-4)
+      return String(Math.floor(currentDate.getMonth() / 3) + 1);
+
+    case "Yearly":
+      // Get current year
+      return String(currentDate.getFullYear());
+
+    default:
+      return "";
+  }
+};
+
 export default function ClientAdminDashboard(): JSX.Element {
   const [selectedTimeframe, setSelectedTimeframe] =
     useState<TimeframeOption>("Monthly");
   const [selectedPeriod, setSelectedPeriod] = useState<string>(
-    getTimeframeValues("Monthly")[5]
+    getDefaultPeriodValue("Monthly")
   );
   const dispatch = useAppDispatch();
 
-  const { summary } = useSelector((state: RootState) => ({
-    summary: state.dashboard.summary,
-  }));
+  const { summary, loading: dashboardLoading } = useSelector(
+    (state: RootState) => ({
+      summary: state.dashboard.summary,
+    })
+  );
 
   const { ordersForApproval, loading, error } = useAppSelector(
     (state: RootState) => state.cart
@@ -205,11 +271,21 @@ export default function ClientAdminDashboard(): JSX.Element {
     };
   });
 
+  const dns_prefix = getHost();
+
   useEffect(() => {
-    const dns_prefix = getHost();
     dispatch(getOrdersForApproval({ dns_prefix }));
-    dispatch(fetchDashboard(dns_prefix));
   }, [dispatch]);
+
+  useEffect(() => {
+    dispatch(
+      fetchDashboard({
+        dns_prefix,
+        filter_by: selectedTimeframe.toLowerCase(),
+        filter_value: selectedPeriod,
+      })
+    );
+  }, [dispatch, selectedPeriod, selectedTimeframe]);
 
   const summaryData = summary?.dashboard_data;
   const averageBasketValue = summaryData?.average_basket_value;
@@ -234,8 +310,7 @@ export default function ClientAdminDashboard(): JSX.Element {
 
   const handleTimeframeChange = (timeframe: TimeframeOption) => {
     setSelectedTimeframe(timeframe);
-    setSelectedPeriod(getTimeframeValues(timeframe)[0]);
-    // TODO: Fetch data for the new timeframe
+    setSelectedPeriod(getDefaultPeriodValue(timeframe));
   };
 
   if (error) {
@@ -262,7 +337,11 @@ export default function ClientAdminDashboard(): JSX.Element {
               onChange={setSelectedPeriod}
             />
           </div>
-          <BudgetSection budgetData={budgetData} orderList={orderList} />
+          <BudgetSection
+            budgetData={budgetData}
+            orderList={orderList}
+            dashboardLoading={dashboardLoading}
+          />
         </>
       )}
     </main>
