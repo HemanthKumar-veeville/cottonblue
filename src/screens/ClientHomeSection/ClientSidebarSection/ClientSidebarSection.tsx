@@ -92,14 +92,16 @@ const NavigationMenu = () => {
           key={index}
           variant="ghost"
           onClick={() => navigate(item.path)}
-          className={`flex justify-start items-center w-full gap-2 py-2 px-4 rounded-lg ${
+          className={`h-fit flex justify-start items-center w-full gap-2 py-2 px-4 rounded-lg ${
             location.pathname === item.path
               ? "bg-[#e9f9ef] text-[#1e2324]"
               : "bg-[color:var(--1-tokens-color-modes-nav-tab-primary-default-background)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]"
           }`}
         >
           {item.icon}
-          <span className="mt-[-1.00px] font-label-small">{t(item.label)}</span>
+          <span className="mt-[-1.00px] font-label-small text-wrap text-left">
+            {t(item.label)}
+          </span>
         </Button>
       ))}
     </nav>
