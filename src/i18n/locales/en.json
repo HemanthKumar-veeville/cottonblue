@@ -258,9 +258,9 @@
         }
       }
     },
-    "topProducts": "Top 10 products ordered",
-    "topClients": "Top 3 clients",
-    "latestTickets": "Latest tickets",
+    "topProducts": "Top Products",
+    "topClients": "Top Clients",
+    "latestTickets": "Latest Tickets",
     "timeframes": {
       "selectTimeframe": "Select timeframe",
       "selectPeriod": "Select period",
@@ -287,7 +287,9 @@
     "status": {
       "inStock": "In Stock",
       "outOfStock": "Out of Stock"
-    }
+    },
+    "noTopProducts": "No Top Products",
+    "noTopProductsDescription": "There are no top selling products to display at the moment. Products will appear here once sales data is available."
   },
   "clientProduct": {
     "breadcrumb": {

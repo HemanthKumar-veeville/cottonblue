@@ -268,9 +268,11 @@
         }
       }
     },
-    "topProducts": "Top 10 produits commandés",
-    "topClients": "Top 3 clients",
+    "topProducts": "Produits les plus vendus",
+    "topClients": "Meilleurs clients",
     "latestTickets": "Derniers tickets",
+    "noTopProducts": "Aucun produit populaire",
+    "noTopProductsDescription": "Il n'y a pas de produits les plus vendus à afficher pour le moment. Les produits apparaîtront ici une fois que les données de vente seront disponibles.",
     "timeframes": {
       "selectTimeframe": "Sélectionner la période",
       "selectPeriod": "Sélectionner la période",
