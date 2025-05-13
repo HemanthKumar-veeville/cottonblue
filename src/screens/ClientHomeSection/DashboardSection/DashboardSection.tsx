@@ -106,21 +106,22 @@ const ProductCard = ({ product }: { product: Product }) => {
     navigate(`/product/${product.id}`);
   };
 
-  // Updated to only handle local quantity changes
+  // Updated to handle negative quantities
   const handleQuantityChange = (amount: number, e?: React.MouseEvent) => {
     e?.stopPropagation();
     const newQuantity = localQuantity + amount;
 
     if (amount > 0 && newQuantity <= (product.available_packs ?? 0)) {
       setLocalQuantity(newQuantity);
-    } else if (amount < 0 && newQuantity >= 0) {
+    } else if (amount < 0) {
+      // Allow negative quantities for cart removals
       setLocalQuantity(newQuantity);
     } else if (newQuantity > (product.available_packs ?? 0)) {
       toast.error(t("cart.error.notEnoughStock"));
     }
   };
 
-  // New handler for cart icon click
+  // New handler for cart icon click that handles both additions and removals
   const handleAddToCart = async (e: React.MouseEvent) => {
     e.stopPropagation();
 
@@ -130,15 +131,12 @@ const ProductCard = ({ product }: { product: Product }) => {
 
     if (dnsPrefix && selectedStore) {
       try {
-        // Optimistic update
-        // dispatch(addToCart({ product, quantity: localQuantity }));
-
         await dispatch(
           addToCartAsync({
             dns_prefix: dnsPrefix,
             store_id: selectedStore,
             product_id: product.id.toString(),
-            quantity: localQuantity,
+            quantity: localQuantity, // This can now be negative for removals
           })
         ).unwrap();
 
@@ -146,12 +144,10 @@ const ProductCard = ({ product }: { product: Product }) => {
           fetchCart({ dns_prefix: dnsPrefix, store_id: selectedStore })
         );
 
-        // Reset local quantity after successful add to cart
+        // Reset local quantity after successful cart update
         setLocalQuantity(0);
       } catch (error) {
-        // Revert optimistic update
-        dispatch(addToCart({ product, quantity: -localQuantity }));
-        toast.error(t("cart.error.addFailed"));
+        toast.error(t("cart.error.updateFailed"));
       }
     }
   };
@@ -223,7 +219,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                       size="icon"
                       className="h-8 w-8 rounded-l-md hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-r border-gray-200"
                       onClick={(e) => handleQuantityChange(-1, e)}
-                      disabled={localQuantity <= 0}
+                      disabled={localQuantity + quantity <= 0}
                       aria-label={t("product.decreaseQuantity")}
                       title={t("product.decreaseQuantity")}
                     >
@@ -243,7 +239,10 @@ const ProductCard = ({ product }: { product: Product }) => {
                       size="icon"
                       className="h-8 w-8 hover:bg-gray-50 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed border-x border-gray-200"
                       onClick={(e) => handleQuantityChange(1, e)}
-                      disabled={localQuantity >= (product.available_packs ?? 0)}
+                      disabled={
+                        localQuantity + quantity >=
+                        (product.available_packs ?? 0)
+                      }
                       aria-label={t("product.increaseQuantity")}
                       title={t("product.increaseQuantity")}
                     >
@@ -287,7 +286,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                 title={t("product.addToCart")}
               >
                 <ShoppingCart className="h-4 w-4 text-white" />
-                {localQuantity > 0 && (
+                {localQuantity !== 0 && (
                   <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-in fade-in duration-200">
                     {localQuantity}
                   </div>
