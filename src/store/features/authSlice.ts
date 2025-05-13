@@ -9,6 +9,7 @@ interface AuthState {
   error: string | null;
   isLoggedIn: boolean;
   isAdmin: boolean;
+  isClientAdmin: boolean;
   user: any;
 }
 
@@ -21,6 +22,7 @@ const initialState: AuthState = {
   isLoggedIn: false,
   user: null,
   isAdmin: false,
+  isClientAdmin: false,
 };
 
 // Async thunks
@@ -139,6 +141,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = action.payload;
         state.isLoggedIn = true;
+        state.isClientAdmin = action.payload.user_role === "admin";
         state.company = action.payload.company || null;
       })
       .addCase(getUser.rejected, (state, action) => {

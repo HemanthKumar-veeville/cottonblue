@@ -14,7 +14,7 @@ import { useAppDispatch } from "../../../store/store";
 import { logout } from "../../../store/features/authSlice";
 import { useAppSelector } from "../../../store/store";
 
-const navItems = [
+let navItems = [
   {
     icon: <HomeIcon className="w-4 h-4" />,
     label: "sidebar.home",
@@ -84,6 +84,8 @@ const NavigationMenu = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const { isClientAdmin } = useAppSelector((state) => state.auth);
+  navItems = navItems?.slice(0, isClientAdmin ? 3 : 2);
 
   return (
     <nav className="w-full space-y-2">
