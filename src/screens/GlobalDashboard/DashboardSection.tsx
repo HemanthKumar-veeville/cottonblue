@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { ScrollArea, ScrollBar } from "../../components/ui/scroll-area";
-import { Crown, MessageSquare } from "lucide-react";
+import { Crown, MessageSquare, Package2 } from "lucide-react";
 import React from "react";
 import { RootState } from "../../store/store";
 import {
@@ -20,6 +20,8 @@ import {
 import { useTranslation } from "react-i18next";
 import BudgetDashboard from "../ClientDashboard/BudgetDashboard";
 import { useLocation } from "react-router-dom";
+import EmptyState from "../../components/EmptyState";
+
 interface Product {
   id: number;
   name: string;
@@ -136,9 +138,18 @@ const DashboardSection: React.FC = () => {
         <CardContent className="p-0">
           <ScrollArea className="h-[32rem]">
             <div className="flex flex-col gap-4 p-6 pt-4">
-              {topProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
+              {topProducts.length === 0 ? (
+                <EmptyState
+                  icon={Package2}
+                  title={t("dashboard.noTopProducts")}
+                  description={t("dashboard.noTopProductsDescription")}
+                  className="h-[28rem]"
+                />
+              ) : (
+                topProducts.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))
+              )}
             </div>
             <ScrollBar orientation="vertical" />
           </ScrollArea>

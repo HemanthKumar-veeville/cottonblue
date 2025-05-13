@@ -189,16 +189,16 @@ export const ClientSidebarSection = (): JSX.Element => {
   const companyLogo = user?.company_logo;
 
   return (
-    <aside className="flex flex-col w-64 h-screen bg-defaultwhite border-r border-solid border-1-tokens-color-modes-common-neutral-lower">
-      <div className="p-8">
+    <aside className="flex flex-col w-64 min-h-screen bg-defaultwhite border-r border-solid border-1-tokens-color-modes-common-neutral-lower overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full relative">
+      <div className="p-8 sticky top-0 bg-defaultwhite z-10">
         <LogoSection companyLogo={companyLogo} />
       </div>
-      <div className="flex flex-col flex-1 justify-between">
-        <div className="space-y-10 px-4">
+      <div className="flex flex-col min-h-[calc(100vh-96px)]">
+        <div className="flex-1 space-y-10 px-4">
           <NavigationMenu />
           <BudgetSection />
         </div>
-        <div className="px-4 pb-8 border-t border-1-tokens-color-modes-common-neutral-lower pt-8">
+        <div className="sticky bottom-0 bg-defaultwhite px-4 pb-8 border-t border-1-tokens-color-modes-common-neutral-lower pt-8">
           <BottomNavigation />
         </div>
       </div>
