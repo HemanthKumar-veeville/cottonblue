@@ -425,7 +425,9 @@
       "totalPrice": "Total Price",
       "status": "Status",
       "invoice": "Invoice",
-      "details": "Details"
+      "details": "Details",
+      "previous": "Previous",
+      "next": "Next"
     },
     "status": {
       "delivered": "Delivered",
@@ -466,6 +468,10 @@
           "page": "Page {{number}}"
         }
       }
+    },
+    "empty": {
+      "title": "No Orders Yet",
+      "description": "You haven't placed any orders yet. Start shopping to see your order history here."
     }
   },
   "orderDetails": {

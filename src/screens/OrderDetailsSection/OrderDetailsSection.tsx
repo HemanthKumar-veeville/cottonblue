@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
 import { StatusIcon } from "../../components/ui/status-icon";
-import { FileText, ChevronLeft, ChevronRight } from "lucide-react";
+import { FileText, ChevronLeft, ChevronRight, ShoppingBag } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -24,6 +24,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { Skeleton } from "../../components/Skeleton";
+import EmptyState from "../../components/EmptyState";
 
 const paginationItems = [
   { page: 1, active: true },
@@ -127,6 +128,22 @@ export const OrderDetailsSection = (): JSX.Element => {
 
   if (error) {
     return <div>Error: {error}</div>;
+  }
+
+  if (!orderList.length) {
+    return (
+      <div className="h-full flex items-center justify-center bg-white">
+        <EmptyState
+          icon={ShoppingBag}
+          title={t("history.empty.title") || "No Orders Yet"}
+          description={
+            t("history.empty.description") ||
+            "You haven't placed any orders yet. Start shopping to see your order history here."
+          }
+          className="max-w-md"
+        />
+      </div>
+    );
   }
 
   return (

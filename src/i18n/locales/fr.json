@@ -435,13 +435,19 @@
       "totalPrice": "Prix total",
       "status": "Statut",
       "invoice": "Facture",
-      "details": "Détails"
+      "details": "Détails",
+      "previous": "Précédent",
+      "next": "Suivant"
     },
     "status": {
       "delivered": "Livrée",
       "inDelivery": "En livraison",
       "shipped": "Expédié",
       "cancelled": "Annulée"
+    },
+    "empty": {
+      "title": "Aucune commande",
+      "description": "Vous n'avez pas encore passé de commande. Commencez vos achats pour voir votre historique de commandes ici."
     },
     "pagination": {
       "previous": "Précédent",
