@@ -79,6 +79,10 @@
       "orders": "Commandes",
       "ordersToValidate": "Commandes à valider",
       "noOrdersFound": "Aucune commande trouvée",
+      "noOrdersFoundSearch": "Aucune commande ne correspond à votre recherche",
+      "noOrdersToValidate": "Aucune commande à valider",
+      "tryDifferentSearch": "Essayez un autre terme de recherche ou effacez la recherche",
+      "ordersWillAppearHere": "Les nouvelles commandes à valider apparaîtront ici",
       "search": "Rechercher",
       "averageCart": "Panier moyen"
     }

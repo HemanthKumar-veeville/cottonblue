@@ -79,6 +79,10 @@
       "orders": "Orders",
       "ordersToValidate": "Orders to validate",
       "noOrdersFound": "No orders found",
+      "noOrdersFoundSearch": "No orders match your search",
+      "noOrdersToValidate": "No Orders to Validate",
+      "tryDifferentSearch": "Try a different search term or clear the search",
+      "ordersWillAppearHere": "New orders that need validation will appear here",
       "search": "Search",
       "averageCart": "Average Cart"
     }

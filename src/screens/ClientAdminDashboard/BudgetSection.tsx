@@ -6,11 +6,13 @@ import {
   PackageIcon,
   SearchIcon,
   ShoppingCartIcon,
+  ClipboardList,
 } from "lucide-react";
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { BudgetData } from "./ClientAdminDashboard";
 import { useNavigate } from "react-router-dom";
+import EmptyState from "../../components/EmptyState";
 
 export const BudgetSectionSkeleton = () => (
   <div className="flex gap-6 w-full animate-pulse">
@@ -144,7 +146,7 @@ export function BudgetSection({
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-
+  console.log({ budgetData });
   // Filter orders based on search query
   const filteredOrders = orderList?.filter(
     (order) =>
@@ -200,7 +202,7 @@ export function BudgetSection({
                 <Card className="flex-1 border border-solid border-1-tokens-color-modes-border-secondary">
                   <CardContent className="p-4">
                     <div className="flex flex-col gap-2">
-                      <p className="font-normal text-base font-montserrat">
+                      <p className="font-medium text-base font-montserrat">
                         {t("sidebar.budget.orders")}
                       </p>
                       <div className="flex items-center gap-2">
@@ -254,17 +256,29 @@ export function BudgetSection({
             <SearchIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
           </div>
           <div className="flex flex-col gap-3 max-h-[500px] overflow-y-auto">
-            {filteredOrders.map((order, index) => (
-              <OrderItem
-                key={index}
-                order={order}
-                onClick={() => handleOrderClick(order)}
+            {filteredOrders.length > 0 ? (
+              filteredOrders.map((order, index) => (
+                <OrderItem
+                  key={index}
+                  order={order}
+                  onClick={() => handleOrderClick(order)}
+                />
+              ))
+            ) : (
+              <EmptyState
+                icon={ClipboardList}
+                title={
+                  searchQuery
+                    ? t("sidebar.budget.noOrdersFoundSearch")
+                    : t("sidebar.budget.noOrdersToValidate")
+                }
+                description={
+                  searchQuery
+                    ? t("sidebar.budget.tryDifferentSearch")
+                    : t("sidebar.budget.ordersWillAppearHere")
+                }
+                className="py-12"
               />
-            ))}
-            {filteredOrders.length === 0 && (
-              <div className="text-center text-gray-500 py-4">
-                {t("sidebar.budget.noOrdersFound")}
-              </div>
             )}
           </div>
         </CardContent>

@@ -206,7 +206,7 @@ const ProductPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#F8FAFC]">
+    <div className="min-h-screen bg-[#F8FAFC] mt-[-90px]">
       <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
           <div className="p-6 sm:p-8 lg:p-12">

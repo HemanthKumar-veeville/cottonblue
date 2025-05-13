@@ -93,7 +93,7 @@ export const SuperadminSidebarSection = ({
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const company = useSelector((state: RootState) => state.auth.company);
-
+  console.log({ company });
   const handleLogout = async () => {
     try {
       if (company) {
