@@ -141,7 +141,8 @@
       "packOf": "Unités par lot",
       "totalPacks": "Nombre de lots disponibles",
       "reference": "Référence (SKU)",
-      "description": "Description"
+      "description": "Description",
+      "selectPlaceholder": "Sélectionner une taille"
     },
     "imageUpload": {
       "dropImages": "Déposez vos images ici",
