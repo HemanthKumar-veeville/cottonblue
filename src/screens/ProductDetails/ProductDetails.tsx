@@ -93,7 +93,7 @@ const ProductInfo = ({ product }: { product: Product }) => {
           {product?.name ?? "Not Available"}
         </h2>
         <p className="font-label-small text-gray-500 text-xs tracking-wide leading-4">
-          SKU: {product?.id ?? "Not Available"}
+          Ref.: {product?.id ?? "Not Available"}
         </p>
       </div>
 

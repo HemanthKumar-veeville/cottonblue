@@ -98,7 +98,7 @@
       "exportCsv": "Exporter CSV"
     },
     "table": {
-      "sku": "SKU",
+      "sku": "Ref.",
       "photo": "Photo",
       "name": "Nom",
       "category": "Catégorie",

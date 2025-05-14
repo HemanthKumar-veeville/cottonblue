@@ -508,7 +508,7 @@ const ProductInfo = ({
           {product?.name ?? t("clientProduct.notAvailable")}
         </h1>
         <p className="font-medium text-gray-500 text-sm mb-6 font-text-medium">
-          SKU: {product?.id ?? t("clientProduct.notAvailable")}
+          Ref.: {product?.id ?? t("clientProduct.notAvailable")}
         </p>
       </div>
 
