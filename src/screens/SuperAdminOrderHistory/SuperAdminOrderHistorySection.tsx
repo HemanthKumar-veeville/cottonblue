@@ -64,7 +64,7 @@ const StatusText = ({ status, type }: { status: string; type: string }) => {
 
   return (
     <div
-      className={`font-normal text-[15px] leading-normal whitespace-nowrap ${textColorClass} font-['Montserrat',Helvetica]`}
+      className={`font-normal text-[15px] leading-normal whitespace-nowrap ${textColorClass}`}
     >
       {status}
     </div>
