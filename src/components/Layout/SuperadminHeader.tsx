@@ -16,7 +16,7 @@ import {
 import { useAppSelector } from "../../store/store";
 import { fetchAllStores } from "../../store/features/agencySlice";
 import { useNavigate } from "react-router-dom";
-
+import { resetDashboard } from "../../store/features/dashboardSlice";
 interface NavTabItem {
   id: number;
   name: string;
@@ -128,6 +128,8 @@ export const SuperadminHeader = (): JSX.Element => {
   }, [dispatch]);
 
   const handleTabClick = (tabId: number) => {
+    dispatch(resetDashboard());
+
     const newTabs = tabs.map((tab) => ({
       ...tab,
       active: tab.id === tabId,
@@ -142,6 +144,7 @@ export const SuperadminHeader = (): JSX.Element => {
   };
 
   const handleCompanySelect = (company: { id: string; name: string }) => {
+    dispatch(resetDashboard());
     dispatch(setSelectedCompany(company));
     dispatch(fetchAllStores(company.dns));
   };
