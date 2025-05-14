@@ -32,6 +32,21 @@ interface GetAllOrdersResponse {
   }>;
 }
 
+interface GetAllCompanyOrdersResponse {
+  success: boolean;
+  orders: Array<{
+    id: string;
+    store_id: string;
+    date: string;
+    price: string;
+    status: {
+      text: string;
+      type: 'success' | 'warning' | 'danger' | 'default';
+    };
+    hasInvoice: boolean;
+  }>;
+}
+
 interface GetOrderResponse {
   success: boolean;
   order: {
@@ -195,5 +210,16 @@ export const cartService = {
     order_id: string
   ): Promise<RefuseOrderResponse> => {
     return axiosInstance.post(`/${dns_prefix}/refuse-order/${order_id}`);
+  },
+
+  /**
+   * Get all orders for a company across all stores
+   * @param dns_prefix DNS prefix of the company
+   * @returns Promise with list of all company orders
+   */
+  getAllCompanyOrders: async (
+    dns_prefix: string
+  ): Promise<GetAllCompanyOrdersResponse> => {
+    return axiosInstance.get(`/${dns_prefix}/all/orders`);
   },
 };

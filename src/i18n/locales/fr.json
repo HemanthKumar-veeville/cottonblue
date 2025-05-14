@@ -483,6 +483,10 @@
         },
         "pagination": {
           "page": "Page {{number}}"
+        },
+        "empty": {
+          "title": "Aucune commande",
+          "description": "Vous n'avez pas encore reçu de commande. Une fois que vous recevrez une commande, elle apparaîtra ici."
         }
       }
     }

@@ -52,6 +52,10 @@ interface GetOrderResponse {
   order: Order;
 }
 
+interface GetAllCompanyOrdersResponse {
+  orders: Array<Order & { store_id: string }>;
+}
+
 // Updated async thunks
 export const fetchCart = createAsyncThunk(
   'cart/fetchCart',
@@ -147,6 +151,14 @@ export const refuseOrder = createAsyncThunk(
   async ({ dns_prefix, order_id }: { dns_prefix: string; order_id: string }) => {
     const response = await cartService.refuseOrder(dns_prefix, order_id);
     return response;
+  }
+);
+
+export const getAllCompanyOrders = createAsyncThunk(
+  'cart/getAllCompanyOrders',
+  async ({ dns_prefix }: { dns_prefix: string }) => {
+    const response = await cartService.getAllCompanyOrders(dns_prefix);
+    return response.data;
   }
 );
 
@@ -347,6 +359,20 @@ const cartSlice = createSlice({
       .addCase(refuseOrder.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to refuse order';
+      });
+
+    builder
+      .addCase(getAllCompanyOrders.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getAllCompanyOrders.fulfilled, (state, action) => {
+        state.loading = false;
+        state.orders = action.payload.orders;
+      })
+      .addCase(getAllCompanyOrders.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch company orders';
       });
   },
 });

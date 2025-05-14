@@ -4,7 +4,7 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Checkbox } from "../../components/ui/checkbox";
 import { StatusIcon } from "../../components/ui/status-icon";
-import { DownloadIcon, FileText, SearchIcon } from "lucide-react";
+import { DownloadIcon, FileText, SearchIcon, ShoppingBag } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -26,6 +26,33 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { Skeleton } from "../../components/Skeleton";
 import ErrorState from "../../components/ErrorState";
+import EmptyState from "../../components/EmptyState";
+
+interface OrderItem {
+  product_id: number;
+  product_name: string;
+  product_image: string;
+  product_price: number;
+  quantity: number;
+}
+
+interface Order {
+  order_id: number;
+  store_id: number;
+  store_name: string;
+  store_address: string;
+  created_at: string;
+  order_status:
+    | "approval_pending"
+    | "confirmed"
+    | "refused"
+    | "shipped"
+    | "in_transit"
+    | "delivered";
+  order_items: OrderItem[];
+}
+
+type StatusIconType = "warning" | "success" | "danger" | "default";
 
 const Heading = ({ text }: { text: string }) => (
   <h3 className="text-[length:var(--heading-h3-font-size)] font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
@@ -54,9 +81,12 @@ const DownloadButton = ({
 
 const StatusText = ({ status, type }: { status: string; type: string }) => {
   const textColorClassMap: { [key: string]: string } = {
-    success: "text-1-tokens-color-modes-common-success-medium",
-    warning: "text-1-tokens-color-modes-common-warning-medium",
-    danger: "text-1-tokens-color-modes-common-danger-medium",
+    approval_pending: "text-1-tokens-color-modes-common-warning-medium",
+    confirmed: "text-1-tokens-color-modes-common-success-medium",
+    refused: "text-1-tokens-color-modes-common-danger-medium",
+    shipped: "text-1-tokens-color-modes-common-success-medium",
+    in_transit: "text-1-tokens-color-modes-common-success-medium",
+    delivered: "text-1-tokens-color-modes-common-success-medium",
     default:
       "text-[color:var(--1-tokens-color-modes-input-primary-default-text)]",
   };
@@ -66,35 +96,42 @@ const StatusText = ({ status, type }: { status: string; type: string }) => {
     <div
       className={`font-normal text-[15px] leading-normal whitespace-nowrap ${textColorClass}`}
     >
-      {status}
+      {status
+        ?.split("_")
+        ?.join(" ")
+        ?.replace(/_/g, " ")
+        ?.replace(/\b\w/g, (char) => char.toUpperCase())}
     </div>
   );
 };
 
-const OrderRow = ({ order, index }: { order: any; index: number }) => {
+const OrderRow = ({ order, index }: { order: Order; index: number }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Calculate total price for the order
-  const totalPrice = order?.order_items?.reduce((sum: number, item: any) => {
-    return sum + (item?.product_price || 0) * (item?.quantity || 0);
-  }, 0);
+  const totalPrice = order?.order_items?.reduce(
+    (sum: number, item: OrderItem) => {
+      return sum + (item?.product_price ?? 0) * (item?.quantity ?? 0);
+    },
+    0
+  );
 
   // Format date
   const formattedDate = order?.created_at
     ? new Date(order.created_at).toLocaleDateString()
     : t("common.notAvailable");
 
-  // Map order status to translation key
-  const getStatusTranslationKey = (status: string) => {
-    const statusMap: { [key: string]: string } = {
-      delivered: "history.superAdmin.orderHistory.status.delivered",
-      in_progress: "history.superAdmin.orderHistory.status.inProgress",
-      shipped: "history.superAdmin.orderHistory.status.shipped",
-      cancelled: "history.superAdmin.orderHistory.status.cancelled",
+  const statusIcon: Record<Order["order_status"] | "default", StatusIconType> =
+    {
+      approval_pending: "warning",
+      confirmed: "success",
+      refused: "danger",
+      shipped: "success",
+      in_transit: "success",
+      delivered: "success",
+      default: "default",
     };
-    return statusMap[status] || "common.notAvailable";
-  };
 
   return (
     <TableRow
@@ -108,12 +145,7 @@ const OrderRow = ({ order, index }: { order: any; index: number }) => {
       </TableCell>
       <TableCell className="w-[129px] text-left">
         <span className="font-text-smaller text-coolgray-100">
-          {order?.order_id || t("common.notAvailable")}
-        </span>
-      </TableCell>
-      <TableCell className="w-[145px] text-left">
-        <span className="font-text-smaller text-black">
-          {order?.store_name || t("common.notAvailable")}
+          {order?.order_id ?? t("common.notAvailable")}
         </span>
       </TableCell>
       <TableCell className="w-[145px] text-left">
@@ -121,15 +153,20 @@ const OrderRow = ({ order, index }: { order: any; index: number }) => {
       </TableCell>
       <TableCell className="w-[145px] text-left">
         <span className="font-text-smaller text-black">
-          {totalPrice ? `${totalPrice.toFixed(2)}€` : t("common.notAvailable")}
+          {order?.store_name}
+        </span>
+      </TableCell>
+      <TableCell className="w-[145px] text-left">
+        <span className="font-text-smaller text-black">
+          {totalPrice ?? t("common.notAvailable")}
         </span>
       </TableCell>
       <TableCell className="w-[145px] text-left">
         <div className="flex items-center gap-2">
-          <StatusIcon type="success" />
+          <StatusIcon type={statusIcon[order?.order_status ?? "default"]} />
           <StatusText
-            status={t(getStatusTranslationKey(order?.order_status))}
-            type="success"
+            status={order?.order_status ?? ""}
+            type={order?.order_status ?? "default"}
           />
         </div>
       </TableCell>
@@ -165,8 +202,8 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
   const loading = useSelector((state: any) => state.cart.loading);
   const error = useSelector((state: any) => state.cart.error);
   const [searchQuery, setSearchQuery] = useState("");
-
-  const orderList = orders?.orders || [];
+  console.log({ orders });
+  const orderList = orders ?? [];
 
   if (loading) {
     return <Skeleton variant="table" />;
@@ -179,6 +216,61 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
         variant="inline"
         onRetry={() => window.location.reload()}
       />
+    );
+  }
+
+  if (orderList.length === 0) {
+    return (
+      <section className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
+        <header>
+          <h3 className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] font-[number:var(--heading-h3-font-weight)] [font-style:var(--heading-h3-font-style)]">
+            {t("history.superAdmin.orderHistory.title")}
+          </h3>
+        </header>
+        <div className="flex items-center justify-between w-full">
+          <div className="relative w-[400px]">
+            <Input
+              className="pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] pr-12 py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)] rounded-[var(--2-tokens-screen-modes-input-border-radius)]"
+              placeholder={t(
+                "history.superAdmin.orderHistory.search.placeholder"
+              )}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center w-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)] h-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)]">
+              <SearchIcon className="w-5 h-5 text-[color:var(--1-tokens-color-modes-input-primary-default-icon)]" />
+            </div>
+          </div>
+          <Button
+            className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[#07515f] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)]"
+            disabled={true}
+          >
+            <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] [font-style:var(--label-smaller-font-style)]">
+              {t("history.superAdmin.orderHistory.downloadSelectedInvoices")}
+            </span>
+            <DownloadIcon className="w-6 h-6" />
+          </Button>
+        </div>
+        <div className="flex-grow flex items-center justify-center min-h-[400px] bg-white rounded-lg">
+          <EmptyState
+            icon={ShoppingBag}
+            title={
+              t("history.superAdmin.orderHistory.empty.title") ||
+              "No Orders Found"
+            }
+            description={
+              searchQuery
+                ? t(
+                    "history.superAdmin.orderHistory.empty.searchDescription"
+                  ) ||
+                  "No orders match your search criteria. Try adjusting your search terms."
+                : t("history.superAdmin.orderHistory.empty.description") ||
+                  "There are no orders in the system yet."
+            }
+            className="max-w-md"
+          />
+        </div>
+      </section>
     );
   }
 
@@ -228,8 +320,8 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
                 </TableHead>
                 {[
                   "table.order",
-                  "table.store",
                   "table.date",
+                  "table.store",
                   "table.totalPrice",
                   "table.status",
                   "table.invoice",

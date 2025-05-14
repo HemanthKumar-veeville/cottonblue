@@ -468,6 +468,10 @@
         },
         "pagination": {
           "page": "Page {{number}}"
+        },
+        "empty": {
+          "title": "No Orders Yet",
+          "description": "You haven't received any orders yet. Once you receive an order, it will appear here."
         }
       }
     },
