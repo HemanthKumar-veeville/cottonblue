@@ -242,7 +242,9 @@ const TopProductsSection: React.FC = () => {
   });
 
   const { summary } = useSelector((state: RootState) => state.dashboard);
-  const dns_prefix = getHost();
+  const { selectedCompany } = useSelector((state: RootState) => state.client);
+
+  const dns_prefix = selectedCompany?.dns ?? getHost();
 
   useEffect(() => {
     if (!summary) {

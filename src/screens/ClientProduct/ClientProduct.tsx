@@ -282,7 +282,7 @@ const ProductPage = () => {
                     {t("clientProduct.description.title")}
                   </h2>
                 </div>
-                <div className="w-full max-w-[900px]">
+                <div className="w-full">
                   <div className="prose prose-gray max-w-none">
                     <p className="text-base leading-7 text-gray-700 whitespace-pre-wrap font-text-medium">
                       {product?.description ?? t("clientProduct.notAvailable")}
