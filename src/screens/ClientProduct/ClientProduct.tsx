@@ -448,6 +448,8 @@ const ProductInfo = ({
   onAddToCart: () => void;
 }) => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const dnsPrefix = getHost();
   const stockStatus = product?.available_packs > 0 ? "inStock" : "outOfStock";
   const stockStatusColor =
     stockStatus === "inStock"
@@ -462,7 +464,8 @@ const ProductInfo = ({
     },
     {
       label: t("clientProduct.size"),
-      value: product?.size ?? t("clientProduct.notAvailable"),
+      value: product?.linked_products ?? t("clientProduct.notAvailable"),
+      isSize: true,
       icon: Package2,
     },
     {
@@ -517,9 +520,50 @@ const ProductInfo = ({
               <span className="font-medium text-gray-700 text-sm block font-label-medium">
                 {detail.label}
               </span>
-              <span className="text-gray-600 text-sm font-text-medium">
-                {detail.value}
-              </span>
+              <div className="flex-1 pl-4">
+                {detail.isSize && Array.isArray(detail.value) ? (
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      key={"main"}
+                      variant="outline"
+                      size="sm"
+                      className="h-7 px-3 py-1 bg-[#07515f] border border-[#07515f] text-white hover:bg-[#064a56] hover:border-[#064a56] hover:text-white"
+                    >
+                      {product?.size || "-"}
+                    </Button>
+                    {detail.value.map((item, i) => (
+                      <Button
+                        key={i}
+                        variant="outline"
+                        size="sm"
+                        className="h-7 px-3 py-1 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+                        onClick={() => {
+                          dispatch(
+                            getProductById({
+                              dnsPrefix,
+                              productId: item.linked_product_id,
+                            })
+                          );
+                        }}
+                      >
+                        {item.size}
+                      </Button>
+                    ))}
+                  </div>
+                ) : (
+                  <span
+                    className={`${
+                      detail.isPrice
+                        ? "text-[#07515f] font-semibold"
+                        : "text-gray-700"
+                    } font-label-small text-sm tracking-wide leading-5`}
+                  >
+                    {Array.isArray(detail.value)
+                      ? detail.value.map((item) => item.size).join(", ")
+                      : detail.value}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
         ))}
