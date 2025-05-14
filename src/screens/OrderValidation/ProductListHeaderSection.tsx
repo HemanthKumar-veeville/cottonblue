@@ -117,7 +117,7 @@ const ProductListHeaderSection: React.FC<{ orderDetails: OrderItem[] }> = ({
                   className="p-3 cursor-pointer group"
                   onClick={() => handleSort(key)}
                 >
-                  <div className="flex items-center gap-2 font-montserrat font-medium text-gray-800 text-sm tracking-wide">
+                  <div className="flex items-center gap-2 font-medium text-gray-800 text-sm tracking-wide">
                     {label}
                     <span className="text-gray-400 group-hover:text-primary transition-colors">
                       <SortIcon columnKey={key} />
@@ -125,7 +125,7 @@ const ProductListHeaderSection: React.FC<{ orderDetails: OrderItem[] }> = ({
                   </div>
                 </TableCell>
               ))}
-              <TableCell className="p-3 font-montserrat font-medium text-gray-800 text-sm tracking-wide">
+              <TableCell className="p-3 font-medium text-gray-800 text-sm tracking-wide">
                 Total
               </TableCell>
             </TableRow>
@@ -163,21 +163,21 @@ const ProductListHeaderSection: React.FC<{ orderDetails: OrderItem[] }> = ({
                         }}
                       />
                     </div>
-                    <span className="font-montserrat font-medium text-gray-900 text-sm">
+                    <span className="font-medium text-gray-900 text-sm">
                       {item.product_name}
                     </span>
                   </div>
                 </TableCell>
-                <TableCell className="p-3 font-montserrat text-gray-600 text-sm">
+                <TableCell className="p-3 text-gray-600 text-sm">
                   {item.product_id}
                 </TableCell>
-                <TableCell className="p-3 font-montserrat text-gray-900 text-sm">
+                <TableCell className="p-3 text-gray-900 text-sm">
                   {formatCurrency(item.product_price)}
                 </TableCell>
-                <TableCell className="p-3 font-montserrat text-gray-900 text-sm">
+                <TableCell className="p-3 text-gray-900 text-sm">
                   {item.quantity}
                 </TableCell>
-                <TableCell className="p-3 font-montserrat font-medium text-primary text-sm">
+                <TableCell className="p-3 font-medium text-primary text-sm">
                   {formatCurrency(item.product_price * item.quantity)}
                 </TableCell>
               </TableRow>

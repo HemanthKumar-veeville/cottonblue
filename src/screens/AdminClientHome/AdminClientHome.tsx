@@ -2,7 +2,7 @@ import { DashboardSection } from "../ClientHomeSection/DashboardSection/Dashboar
 
 export const AdminClientHome = (): JSX.Element => {
   return (
-    <main className="flex w-full h-screen overflow-hidden bg-gray-50 font-montserrat">
+    <main className="flex w-full h-screen overflow-hidden bg-gray-50">
       <DashboardSection />
     </main>
   );

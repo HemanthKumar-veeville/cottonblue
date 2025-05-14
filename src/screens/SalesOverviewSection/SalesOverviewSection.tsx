@@ -45,37 +45,33 @@ const SalesCard = ({
       <CardContent className="flex flex-col gap-3 p-5">
         <div className="flex flex-col gap-1">
           <div className="flex items-center justify-between">
-            <h3 className="font-bold text-lg text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] font-['Montserrat',Helvetica] leading-7">
+            <h3 className="font-bold text-lg text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]">
               {t(titleKey)}
             </h3>
           </div>
-          <p className="text-primary-neutal-500 text-sm tracking-[-0.28px] font-['Montserrat',Helvetica]">
+          <p className="text-primary-neutal-500 text-sm tracking-[-0.28px]">
             {t(periodKey)}
           </p>
         </div>
 
         <div className="flex items-center gap-4">
-          <span className="font-bold text-[#023337] text-[32px] font-['Montserrat',Helvetica]">
-            {value}
-          </span>
+          <span className="font-bold text-[#023337] text-[32px]">{value}</span>
 
           <div className="flex items-end gap-1">
-            <span className="font-normal text-1-tokens-color-modes-common-neutral-hightest text-base font-['Montserrat',Helvetica]">
+            <span className="font-normal text-1-tokens-color-modes-common-neutral-hightest text-base">
               {t(labelKey)}
             </span>
 
             <div className="flex items-center">
               <ArrowDownIcon className="w-4 h-4 text-primary-success-500" />
-              <span className="font-medium text-primary-success-500 text-sm font-['Montserrat',Helvetica]">
+              <span className="font-medium text-primary-success-500 text-sm">
                 {percentage}
               </span>
             </div>
           </div>
         </div>
 
-        <p className="text-primary-neutal-500 text-sm font-['Montserrat',Helvetica]">
-          {t(lastPeriodKey)}
-        </p>
+        <p className="text-primary-neutal-500 text-sm">{t(lastPeriodKey)}</p>
       </CardContent>
     </Card>
   );

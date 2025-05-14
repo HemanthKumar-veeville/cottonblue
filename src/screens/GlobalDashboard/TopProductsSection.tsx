@@ -144,7 +144,7 @@ const TimeframeSelect: React.FC<TimeframeSelectProps> = ({
         <SelectTrigger className="w-[180px] h-10 rounded-md border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] transition-all duration-200 px-4">
           <SelectValue
             placeholder={t("dashboard.timeframes.selectTimeframe")}
-            className="font-[Montserrat] text-[#475569] text-sm font-medium"
+            className="text-[#475569] text-sm font-medium"
           />
         </SelectTrigger>
         <SelectContent className="rounded-md border-[#E2E8F0] shadow-md">
@@ -152,7 +152,7 @@ const TimeframeSelect: React.FC<TimeframeSelectProps> = ({
             <SelectItem
               key={option}
               value={option}
-              className="font-[Montserrat] text-sm font-medium text-[#475569] hover:bg-[#F8FAFC] hover:text-[#07515F] transition-all duration-200 cursor-pointer px-4 py-2"
+              className="text-sm font-medium text-[#475569] hover:bg-[#F8FAFC] hover:text-[#07515F] transition-all duration-200 cursor-pointer px-4 py-2"
             >
               {t(`dashboard.timeframes.${option.toLowerCase()}`)}
             </SelectItem>
@@ -177,7 +177,7 @@ const PeriodSelect: React.FC<PeriodSelectProps> = ({
         <SelectTrigger className="w-[240px] h-10 rounded-md border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] transition-all duration-200 px-4">
           <SelectValue
             placeholder={t("dashboard.timeframes.selectPeriod")}
-            className="font-[Montserrat] text-[#475569] text-sm font-medium"
+            className="text-[#475569] text-sm font-medium"
           >
             {getDisplayLabel(value, timeframe)}
           </SelectValue>
@@ -187,7 +187,7 @@ const PeriodSelect: React.FC<PeriodSelectProps> = ({
             <SelectItem
               key={option}
               value={option}
-              className="font-[Montserrat] text-sm font-medium text-[#475569] hover:bg-[#F8FAFC] hover:text-[#07515F] transition-all duration-200 cursor-pointer px-4 py-2"
+              className="text-sm font-medium text-[#475569] hover:bg-[#F8FAFC] hover:text-[#07515F] transition-all duration-200 cursor-pointer px-4 py-2"
             >
               {getDisplayLabel(option, timeframe)}
             </SelectItem>
@@ -289,7 +289,7 @@ const TopProductsSection: React.FC = () => {
           />
         </div>
 
-        <Button className="bg-[#07515F] hover:bg-[#064249] text-white gap-3 px-5 py-2.5 h-10 rounded-md transition-all duration-200 font-[Montserrat] text-sm font-medium">
+        <Button className="bg-[#07515F] hover:bg-[#064249] text-white gap-3 px-5 py-2.5 h-10 rounded-md transition-all duration-200 font-medium">
           <Download className="w-4 h-4" />
           <span>{t("dashboard.actions.exportKPI")}</span>
         </Button>

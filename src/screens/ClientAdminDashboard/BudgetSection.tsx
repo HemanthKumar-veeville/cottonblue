@@ -106,12 +106,10 @@ const BudgetMetricCard = ({
     <CardContent className="p-5 flex flex-col gap-3">
       <div className="flex items-center gap-2">
         <Icon className="w-6 h-6" />
-        <h3 className="text-lg font-bold font-montserrat">{title}</h3>
+        <h3 className="text-lg font-bold">{title}</h3>
       </div>
       <div className="flex items-center gap-4">
-        <p className="text-2xl font-bold font-montserrat text-[#023337]">
-          {value}
-        </p>
+        <p className="text-2xl font-bold text-[#023337]">{value}</p>
       </div>
     </CardContent>
   </Card>
@@ -182,7 +180,7 @@ export function BudgetSection({
           <CardContent className="p-5">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-1">
-                <h2 className="text-lg font-bold font-montserrat">
+                <h2 className="text-lg font-bold">
                   {t("sidebar.budget.title")}
                 </h2>
               </div>
@@ -190,11 +188,11 @@ export function BudgetSection({
                 <Card className="flex-1 border border-solid border-1-tokens-color-modes-border-secondary">
                   <CardContent className="p-4">
                     <div className="flex flex-col gap-2">
-                      <p className="font-medium text-base font-montserrat">
+                      <p className="font-medium text-base">
                         {t("sidebar.budget.expenses")}
                       </p>
                       <div className="flex items-center gap-2">
-                        <p className="text-2xl font-bold font-montserrat">
+                        <p className="text-2xl font-bold">
                           <span className="text-emerald-500">
                             {formatCurrency(budgetData.expenses.current)}/
                           </span>
@@ -209,11 +207,11 @@ export function BudgetSection({
                 <Card className="flex-1 border border-solid border-1-tokens-color-modes-border-secondary">
                   <CardContent className="p-4">
                     <div className="flex flex-col gap-2">
-                      <p className="font-medium text-base font-montserrat">
+                      <p className="font-medium text-base">
                         {t("sidebar.budget.orders")}
                       </p>
                       <div className="flex items-center gap-2">
-                        <p className="text-2xl font-bold font-montserrat">
+                        <p className="text-2xl font-bold">
                           <span className="text-red-500">
                             {budgetData?.orders?.current}/
                           </span>
@@ -249,7 +247,7 @@ export function BudgetSection({
         <CardContent className="p-5 flex flex-col gap-3">
           <div className="flex items-center gap-4">
             <PackageIcon className="w-4 h-4" />
-            <h3 className="text-lg font-bold font-montserrat">
+            <h3 className="text-lg font-bold">
               {t("sidebar.budget.ordersToValidate")}
             </h3>
           </div>

@@ -20,13 +20,13 @@ const StatCard: React.FC<StatCardProps> = ({ icon: Icon, titleKey, value }) => {
         <div className="flex items-center gap-4 w-full">
           <Icon className="w-6 h-6 text-[#07515F]" />
           <div className="flex items-center">
-            <h3 className="font-semibold text-lg text-[#475569] font-[Montserrat]">
+            <h3 className="font-semibold text-lg text-[#475569]">
               {t(titleKey)}
             </h3>
           </div>
         </div>
         <div className="flex items-center">
-          <span className="font-bold text-2xl text-[#475569] font-[Montserrat]">
+          <span className="font-bold text-2xl text-[#475569]">
             {value || "-"}
           </span>
         </div>

@@ -31,8 +31,8 @@ export const colors = {
 
 export const typography = {
   fontFamily: {
-    primary: 'Montserrat, sans-serif',
-    secondary: 'Inter, sans-serif',
+    primary: '"Inter", "Helvetica"',
+    secondary: '"Helvetica"',
   },
   fontSize: {
     xs: '0.75rem',    // 12px

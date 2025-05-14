@@ -47,7 +47,7 @@ const StatusText = ({ status, type }: { status: string; type: string }) => {
 
   return (
     <div
-      className={`font-normal text-[15px] leading-normal whitespace-nowrap ${textColorClass} font-['Montserrat',Helvetica]`}
+      className={`font-normal text-[15px] leading-normal whitespace-nowrap ${textColorClass}`}
     >
       {status}
     </div>
@@ -77,18 +77,18 @@ const OrderRow = ({ order, index }: { order: any; index: number }) => {
         <span
           className={`font-normal ${
             index === 0 ? "text-coolgray-100" : "text-[#121619]"
-          } text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]`}
+          } text-[15px] tracking-[0] leading-normal whitespace-nowrap`}
         >
           {order?.order_id}
         </span>
       </TableCell>
       <TableCell className="w-[145px] p-2.5 text-left align-middle">
-        <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
+        <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap">
           {formattedDate}
         </span>
       </TableCell>
       <TableCell className="w-[145px] p-2.5 text-left align-middle">
-        <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap font-['Montserrat',Helvetica]">
+        <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap">
           {order?.total_amount}€
         </span>
       </TableCell>
