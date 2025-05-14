@@ -520,14 +520,14 @@ const ProductInfo = ({
               <span className="font-medium text-gray-700 text-sm block font-label-medium">
                 {detail.label}
               </span>
-              <div className="flex-1 pl-4">
+              <div className="flex-1">
                 {detail.isSize && Array.isArray(detail.value) ? (
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2 pt-2">
                     <Button
                       key={"main"}
                       variant="outline"
                       size="sm"
-                      className="h-7 px-3 py-1 bg-[#07515f] border border-[#07515f] text-white hover:bg-[#064a56] hover:border-[#064a56] hover:text-white"
+                      className="h-7 px-3 py-1 bg-[#00b85b] border border-[#00b85b] text-white hover:bg-[#00b85b]/90 hover:border-[#00b85b]/90 hover:text-white"
                     >
                       {product?.size || "-"}
                     </Button>
@@ -536,7 +536,7 @@ const ProductInfo = ({
                         key={i}
                         variant="outline"
                         size="sm"
-                        className="h-7 px-3 py-1 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+                        className="h-7 px-3 py-1 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-[#00b85b] hover:text-[#00b85b]"
                         onClick={() => {
                           dispatch(
                             getProductById({
