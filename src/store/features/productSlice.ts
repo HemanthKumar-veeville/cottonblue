@@ -25,6 +25,7 @@ interface Product {
   price_of_pack: number;
   is_active: boolean;
   updated_at: string;
+  linked_products?: Product[];
 }
 
 interface ProductState {
@@ -40,6 +41,7 @@ interface ProductState {
   updateSuccess: boolean;
   deleteSuccess: boolean;
   allocationSuccess: boolean;
+  linkSuccess: boolean;
   allocations: ProductAllocation[];
   allocatedStores: string[];
 }
@@ -56,6 +58,7 @@ const initialState: ProductState = {
   updateSuccess: false,
   deleteSuccess: false,
   allocationSuccess: false,
+  linkSuccess: false,
   allocations: [],
   allocatedStores: [],
 };
@@ -165,6 +168,18 @@ export const allocateProductToStores = createAsyncThunk(
   }
 );
 
+export const linkProducts = createAsyncThunk(
+  'product/linkProducts',
+  async ({ dnsPrefix, productIds }: { dnsPrefix: string; productIds: string[] }, { rejectWithValue }) => {
+    try {
+      const response = await productService.linkProducts(dnsPrefix, productIds);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to link products');
+    }
+  }
+);
+
 // Create the product slice
 const productSlice = createSlice({
   name: 'product',
@@ -177,6 +192,7 @@ const productSlice = createSlice({
       state.updateSuccess = false;
       state.deleteSuccess = false;
       state.allocationSuccess = false;
+      state.linkSuccess = false;
       state.allocations = [];
     },
     decrementStock: (state, action: PayloadAction<{ productId: number; quantity: number }>) => {
@@ -339,6 +355,21 @@ const productSlice = createSlice({
       .addCase(getAllocatedStores.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      // Link products cases
+      .addCase(linkProducts.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.linkSuccess = false;
+      })
+      .addCase(linkProducts.fulfilled, (state) => {
+        state.loading = false;
+        state.linkSuccess = true;
+      })
+      .addCase(linkProducts.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.linkSuccess = false;
       });
   },
 });

@@ -94,6 +94,8 @@
     },
     "actions": {
       "create": "Create",
+      "link": "Link",
+      "linkProducts": "Link Products",
       "importCsv": "Import CSV",
       "exportCsv": "Export CSV"
     },
@@ -562,7 +564,8 @@
       "delete": "Delete",
       "publish": "Publish",
       "activate": "Activate Product",
-      "deactivate": "Deactivate Product"
+      "deactivate": "Deactivate Product",
+      "linkProducts": "Link Products"
     },
     "description": {
       "title": "Description"

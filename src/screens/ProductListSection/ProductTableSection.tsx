@@ -26,7 +26,7 @@ import { useNavigate } from "react-router-dom";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
-import { Package } from "lucide-react";
+import { LinkIcon, Package } from "lucide-react";
 
 export const ProductTableSection = (): JSX.Element => {
   const { t } = useTranslation();
@@ -67,6 +67,10 @@ export const ProductTableSection = (): JSX.Element => {
         return [...prev, productId];
       }
     });
+  };
+
+  const handleLinkProducts = (productId: number) => {
+    navigate(`/products/link-products/${productId}`);
   };
 
   // Generate pagination items
@@ -126,10 +130,10 @@ export const ProductTableSection = (): JSX.Element => {
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
                     {t("productList.table.size")}
                   </TableHead>
-                  <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                  <TableHead className="w-[175px] text-left text-[#1e2324] font-text-small">
                     {t("productList.table.packQuantity")}
                   </TableHead>
-                  <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                  <TableHead className="w-[175px] text-left text-[#1e2324] font-text-small">
                     {t("productList.table.availablePacks")}
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
@@ -137,6 +141,9 @@ export const ProductTableSection = (): JSX.Element => {
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
                     {t("productList.table.status")}
+                  </TableHead>
+                  <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                    {t("productList.actions.link")}
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
                     {t("productList.table.details")}
@@ -209,6 +216,15 @@ export const ProductTableSection = (): JSX.Element => {
                       >
                         {product.is_active ? "Active" : "Inactive"}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="w-[15px] text-left align-middle">
+                      <Button
+                        variant="link"
+                        onClick={() => handleLinkProducts(product.id)}
+                        className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
+                      >
+                        <LinkIcon className="w-6 h-6" />
+                      </Button>
                     </TableCell>
                     <TableCell className="w-[145px] text-left align-middle">
                       <Button
