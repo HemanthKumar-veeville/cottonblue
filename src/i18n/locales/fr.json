@@ -587,7 +587,9 @@
     "actions": {
       "modify": "Modifier le produit",
       "delete": "Supprimer",
-      "publish": "Publier"
+      "publish": "Publier",
+      "unpublish": "Dépublier",
+      "deactivate": "Désactiver"
     },
     "description": {
       "title": "Description"

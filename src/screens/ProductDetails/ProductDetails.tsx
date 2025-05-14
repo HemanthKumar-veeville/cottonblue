@@ -52,11 +52,14 @@ const ProductImage = ({ imageUrl }: { imageUrl: string | null }) => {
 
 const ProductInfo = ({ product }: { product: Product }) => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
+  const { selectedCompany } = useAppSelector((state) => state.client);
 
   const productDetails = [
     {
       label: t("productDetails.info.sizes"),
-      value: product?.size ?? "Not Available",
+      value: product?.linked_products ?? "Not Available",
+      isSize: true,
     },
     {
       label: t("productDetails.info.suitableFor"),
@@ -97,18 +100,58 @@ const ProductInfo = ({ product }: { product: Product }) => {
       <div className="grid grid-cols-2 gap-x-8 gap-y-2 flex-1">
         {productDetails.map((detail, index) => (
           <div key={index} className="flex items-center py-2">
-            <span className="font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5 min-w-[120px]">
-              {detail.label}
-            </span>
-            <span
-              className={`${
-                detail.isPrice
-                  ? "text-[#07515f] font-semibold"
-                  : "text-gray-700"
-              } font-label-small text-sm tracking-wide leading-5`}
-            >
-              {detail.value}
-            </span>
+            <div className="flex items-center gap-2 w-[180px]">
+              <span className="font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5 w-[160px]">
+                {detail.label}
+              </span>
+              <span className="font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5 w-[20px]">
+                :
+              </span>
+            </div>
+            <div className="flex-1 pl-4">
+              {detail.isSize && Array.isArray(detail.value) ? (
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    key={"main"}
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-3 py-1 bg-[#07515f] border border-[#07515f] text-white hover:bg-[#064a56] hover:border-[#064a56] hover:text-white"
+                  >
+                    {product?.size || "-"}
+                  </Button>
+                  {detail.value.map((item, i) => (
+                    <Button
+                      key={i}
+                      variant="outline"
+                      size="sm"
+                      className="h-7 px-3 py-1 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+                      onClick={() => {
+                        dispatch(
+                          getProductById({
+                            dnsPrefix: selectedCompany.dns,
+                            productId: item.linked_product_id,
+                          })
+                        );
+                      }}
+                    >
+                      {item.size}
+                    </Button>
+                  ))}
+                </div>
+              ) : (
+                <span
+                  className={`${
+                    detail.isPrice
+                      ? "text-[#07515f] font-semibold"
+                      : "text-gray-700"
+                  } font-label-small text-sm tracking-wide leading-5`}
+                >
+                  {Array.isArray(detail.value)
+                    ? detail.value.map((item) => item.size).join(", ")
+                    : detail.value}
+                </span>
+              )}
+            </div>
           </div>
         ))}
       </div>
