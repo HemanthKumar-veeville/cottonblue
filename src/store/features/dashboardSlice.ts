@@ -42,6 +42,7 @@ const dashboardSlice = createSlice({
     },
     resetDashboard: (state) => {
       state.summary = null;
+      state.loading = false;
       state.error = null;
     },
   },

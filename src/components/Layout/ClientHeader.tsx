@@ -1,4 +1,10 @@
-import { BellIcon, SearchIcon, ShoppingCartIcon, UserIcon } from "lucide-react";
+import {
+  BellIcon,
+  SearchIcon,
+  ShoppingCartIcon,
+  UserIcon,
+  Globe,
+} from "lucide-react";
 import { Badge } from "../ui/badge";
 import { useTranslation } from "react-i18next";
 import { useAppSelector, useAppDispatch } from "../../store/store";
@@ -28,8 +34,13 @@ interface UserStore {
   store_name: string;
 }
 
+interface LanguageOption {
+  value: string;
+  label: string;
+}
+
 export const ClientHeader = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user } = useAppSelector((state) => state.auth);
   const cart = useAppSelector((state) => state.cart);
   const items = cart?.items || [];
@@ -41,6 +52,23 @@ export const ClientHeader = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const dns = getHost();
+
+  const languages: LanguageOption[] = [
+    {
+      value: "en",
+      label: t("language.en"),
+    },
+    {
+      value: "fr",
+      label: t("language.fr"),
+    },
+  ];
+
+  const getCurrentLanguage = () => {
+    return (
+      languages.find((lang) => lang.value === i18n.language) || languages[0]
+    );
+  };
 
   // Get the current store name for display
   const getCurrentStoreName = () => {
@@ -87,6 +115,11 @@ export const ClientHeader = () => {
   const handleStoreChange = (value: string) => {
     dispatch(setSelectedStore(value));
   };
+
+  const handleLanguageChange = (value: string) => {
+    i18n.changeLanguage(value);
+  };
+
   const pathname = useLocation().pathname;
   return (
     <div className="sticky top-0 z-50 flex w-full min-w-[320px] items-center justify-between px-4 md:px-6 lg:px-8 py-3 bg-defaultwhite border-b border-1-tokens-color-modes-common-neutral-lower shadow-sm backdrop-blur-sm bg-white/90">
@@ -149,18 +182,38 @@ export const ClientHeader = () => {
         )}
       </div>
 
-      {/* Right Section - User Profile, Notifications, Cart */}
+      {/* Right Section - Language, User Profile, Notifications, Cart */}
       <div className="flex items-center gap-3 md:gap-4 ml-4">
+        {/* Language Selector */}
+        <div className="relative">
+          <Select value={i18n.language} onValueChange={handleLanguageChange}>
+            <SelectTrigger className="h-11 min-w-[100px] px-3 rounded-md border-[color:var(--1-tokens-color-modes-input-primary-default-border)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] hover:border-gray-400 focus:border-gray-400 focus:ring-0 outline-none transition-all duration-200">
+              <span className="text-sm font-medium">
+                {getCurrentLanguage().label}
+              </span>
+            </SelectTrigger>
+            <SelectContent className="min-w-[100px] overflow-y-auto rounded-md bg-white shadow-lg border border-gray-100 outline-none ring-0 focus:ring-0 animate-in fade-in-0 zoom-in-95">
+              {languages.map((language) => (
+                <SelectItem
+                  key={language.value}
+                  value={language.value}
+                  className="px-3 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors duration-150 focus:bg-transparent active:bg-gray-50 outline-none ring-0 focus:ring-0"
+                >
+                  <span className="text-sm font-medium">{language.label}</span>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {/* User Profile */}
         <div className="relative">
           <div className="inline-flex justify-center items-center p-2.5 md:p-3 bg-[color:var(--1-tokens-color-modes-background-secondary)] rounded-md hover:bg-gray-100 active:bg-gray-200 transition-all duration-200">
-            <div className="flex items-center gap-3">
-              <UserIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
-              <div className="inline-flex flex-col items-start justify-center">
-                <div className="text-sm font-semibold text-gray-900">
-                  {userName}
-                </div>
-              </div>
+            <div className="flex items-center gap-3 whitespace-nowrap">
+              <UserIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-700 flex-shrink-0" />
+              <span className="text-sm font-semibold text-gray-900 truncate max-w-[120px]">
+                {userName}
+              </span>
             </div>
           </div>
         </div>

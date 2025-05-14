@@ -2,10 +2,9 @@ import { DashboardSection } from "./DashboardSection";
 import { StatsSection } from "./StatsSection";
 import { TopClientsSection } from "./TopClientsSection";
 import { TopProductsSection } from "./TopProductsSection";
-import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { fetchDashboard } from "../../store/features/dashboardSlice";
-import { AppDispatch, RootState } from "../../store";
+import React from "react";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 import { useTranslation } from "react-i18next";
 import {
   DashboardSectionSkeleton,
@@ -16,12 +15,8 @@ import {
 
 const GlobalDashboard: React.FC = () => {
   const { t } = useTranslation();
-  const dispatch = useDispatch<AppDispatch>();
-  const { loading } = useSelector((state: RootState) => state.dashboard);
 
-  useEffect(() => {
-    dispatch(fetchDashboard("admin"));
-  }, [dispatch]);
+  const { loading } = useSelector((state: RootState) => state.dashboard);
 
   return (
     <main className="flex flex-col gap-8 p-6">
