@@ -456,6 +456,10 @@ const ProductInfo = ({
       ? "bg-white text-[#00b85b] border-[#00b85b]"
       : "bg-white text-red-600 border-red-300";
 
+  const availableSizes = [
+    ...product?.linked_products,
+    { size: product?.size },
+  ].sort((a, b) => a.size.localeCompare(b.size));
   const productDetails = [
     {
       label: t("clientProduct.suitableFor"),
@@ -464,7 +468,7 @@ const ProductInfo = ({
     },
     {
       label: t("clientProduct.size"),
-      value: product?.linked_products ?? t("clientProduct.notAvailable"),
+      value: availableSizes ?? t("clientProduct.notAvailable"),
       isSize: true,
       icon: Package2,
     },
@@ -523,27 +527,25 @@ const ProductInfo = ({
               <div className="flex-1">
                 {detail.isSize && Array.isArray(detail.value) ? (
                   <div className="flex flex-wrap gap-2 pt-2">
-                    <Button
-                      key={"main"}
-                      variant="outline"
-                      size="sm"
-                      className="h-7 px-3 py-1 bg-[#00b85b] border border-[#00b85b] text-white hover:bg-[#00b85b]/90 hover:border-[#00b85b]/90 hover:text-white"
-                    >
-                      {product?.size || "-"}
-                    </Button>
                     {detail.value.map((item, i) => (
                       <Button
                         key={i}
                         variant="outline"
                         size="sm"
-                        className="h-7 px-3 py-1 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-[#00b85b] hover:text-[#00b85b]"
+                        className={cn(
+                          "h-7 px-3 py-1 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-[#00b85b] hover:text-[#00b85b]",
+                          item.size === product?.size &&
+                            "bg-[#00b85b] text-white hover:bg-[#00b85b]/90 hover:border-[#00b85b]/90 hover:text-white"
+                        )}
                         onClick={() => {
-                          dispatch(
-                            getProductById({
-                              dnsPrefix,
-                              productId: item.linked_product_id,
-                            })
-                          );
+                          if (item.linked_product_id) {
+                            dispatch(
+                              getProductById({
+                                dnsPrefix,
+                                productId: item.linked_product_id,
+                              })
+                            );
+                          }
                         }}
                       >
                         {item.size}

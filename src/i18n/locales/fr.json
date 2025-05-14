@@ -590,7 +590,8 @@
       "delete": "Supprimer",
       "publish": "Publier",
       "unpublish": "Dépublier",
-      "deactivate": "Désactiver"
+      "deactivate": "Désactiver",
+      "activate": "Activer"
     },
     "description": {
       "title": "Description"

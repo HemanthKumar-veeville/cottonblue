@@ -10,7 +10,7 @@ import {
 } from "../../store/features/productSlice";
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "../../components/Skeleton";
-
+import { cn } from "../../lib/utils";
 const ProductHeader = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -54,11 +54,15 @@ const ProductInfo = ({ product }: { product: Product }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedCompany } = useAppSelector((state) => state.client);
+  const availableSizes = [
+    ...product?.linked_products,
+    { size: product?.size },
+  ].sort((a, b) => a.size.localeCompare(b.size));
 
   const productDetails = [
     {
       label: t("productDetails.info.sizes"),
-      value: product?.linked_products ?? "Not Available",
+      value: availableSizes ?? "Not Available",
       isSize: true,
     },
     {
@@ -111,20 +115,16 @@ const ProductInfo = ({ product }: { product: Product }) => {
             <div className="flex-1 pl-4">
               {detail.isSize && Array.isArray(detail.value) ? (
                 <div className="flex flex-wrap gap-2">
-                  <Button
-                    key={"main"}
-                    variant="outline"
-                    size="sm"
-                    className="h-7 px-3 py-1 bg-[#07515f] border border-[#07515f] text-white hover:bg-[#064a56] hover:border-[#064a56] hover:text-white"
-                  >
-                    {product?.size || "-"}
-                  </Button>
                   {detail.value.map((item, i) => (
                     <Button
                       key={i}
                       variant="outline"
                       size="sm"
-                      className="h-7 px-3 py-1 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
+                      className={cn(
+                        "h-7 px-3 py-1 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50",
+                        item.size === product?.size &&
+                          "bg-[#07515f] text-white hover:bg-[#07515f]/90 hover:border-[#07515f]/90 hover:text-white"
+                      )}
                       onClick={() => {
                         dispatch(
                           getProductById({
