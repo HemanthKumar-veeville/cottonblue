@@ -94,8 +94,8 @@
     },
     "actions": {
       "create": "Create",
-      "link": "Link",
-      "linkProducts": "Link Products",
+      "link": "Group Products",
+      "linkProducts": "Group Products",
       "importCsv": "Import CSV",
       "exportCsv": "Export CSV"
     },
@@ -451,7 +451,7 @@
           "placeholder": "Search an order..."
         },
         "table": {
-          "order": "Order",
+          "order": "Order Id.",
           "company": "Company",
           "store": "Store",
           "date": "Date",
@@ -569,7 +569,7 @@
       "publish": "Publish",
       "activate": "Activate Product",
       "deactivate": "Deactivate Product",
-      "linkProducts": "Link Products"
+      "linkProducts": "Group Products"
     },
     "description": {
       "title": "Description"

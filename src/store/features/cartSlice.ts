@@ -26,6 +26,12 @@ interface Order {
   store_name: string;
 }
 
+interface StoreDetails {
+  store_id: string;
+  store_name: string;
+  store_address: string;
+}
+
 interface CartState {
   items: CartItem[];
   cartId: string | null;
@@ -36,6 +42,7 @@ interface CartState {
   currentOrderId: string | null;
   currentOrder: Order | null;
   ordersForApproval: Order[];
+  store_details: StoreDetails | null;
 }
 
 // Updated response types
@@ -172,6 +179,7 @@ const initialState: CartState = {
   currentOrder: null,
   cartId: null,
   ordersForApproval: [],
+  store_details: null,
 };
 
 const cartSlice = createSlice({
@@ -243,6 +251,7 @@ const cartSlice = createSlice({
       .addCase(fetchCart.fulfilled, (state, action) => {
         state.loading = false;
         state.items = action.payload.products;
+        state.store_details = action.payload.store_details;
         state.cartId = action.payload.cart_id;
         state.total = state.items.reduce((sum, item) => sum + (item.price_of_pack * item.quantity), 0);
       })

@@ -33,6 +33,16 @@ import {
   getProductsByStoreId,
 } from "../../store/features/productSlice";
 
+interface StoreDetails {
+  store_id: number;
+  store_name: string;
+  store_address: string;
+  store_city: string;
+  store_postal_code: number;
+  admin_name: string;
+  admin_email: string;
+}
+
 interface ShippingAddress {
   firstName: string;
   lastName: string;
@@ -56,6 +66,7 @@ const ProductRow = ({ product }: { product: CartItem }) => {
   const dnsPrefix = getHost();
   const { selectedStore } = useAppSelector((state) => state.agency);
   const products = useAppSelector((state) => state.product.products.products);
+
   const productDetails =
     products?.find((p) => p.id === product.product_id) || null;
 
@@ -279,20 +290,28 @@ const OrderSummary = () => {
 export default function CartContainer(): JSX.Element {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const { items, loading, cartId } = useAppSelector((state) => state.cart);
+  const { items, loading, cartId, store_details } = useAppSelector(
+    (state) => state.cart
+  ) as {
+    items: CartItem[];
+    loading: boolean;
+    cartId: string | null;
+    store_details: StoreDetails | null;
+  };
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const userEmail = user?.user_email;
   const dnsPrefix = getHost();
   const { selectedStore } = useAppSelector((state) => state.agency);
-  const cart = useAppSelector((state) => state.cart);
-  const cartProducts = cart?.items || [];
+
+  console.log({ store_details });
+
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     firstName: "",
     lastName: "",
     street: "",
     city: "",
-    country: "",
+    country: "France",
     phone: "",
   });
 
@@ -300,9 +319,31 @@ export default function CartContainer(): JSX.Element {
     name: "",
     street: "",
     city: "",
-    country: "",
+    country: "France",
     phone: "",
   });
+
+  // Add useEffect to update addresses when store_details changes
+  useEffect(() => {
+    if (store_details) {
+      // Update shipping address
+      setShippingAddress((prev) => ({
+        ...prev,
+        firstName: store_details.admin_name?.split(" ")[0] || "",
+        lastName: store_details.admin_name?.split(" ")[1] || "",
+        street: store_details.store_address || "",
+        city: store_details.store_city || "",
+      }));
+
+      // Update billing address
+      setBillingAddress((prev) => ({
+        ...prev,
+        name: store_details.admin_name || "",
+        street: store_details.store_address || "",
+        city: store_details.store_city || "",
+      }));
+    }
+  }, [store_details]);
 
   const [comments, setComments] = useState("");
 
@@ -356,7 +397,7 @@ export default function CartContainer(): JSX.Element {
     return (
       <div className="flex flex-col h-full p-6 gap-8">
         <div className="flex flex-col gap-2.5">
-          <h1 className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)]">
+          <h1 className="text-[length:var(--heading-h3-font-size)] font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
             {t("cart.title")}
           </h1>
         </div>
@@ -382,7 +423,7 @@ export default function CartContainer(): JSX.Element {
   return (
     <div className="flex flex-col h-full p-6 gap-8">
       <div className="flex flex-col gap-2.5">
-        <h1 className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)]">
+        <h1 className="text-[length:var(--heading-h3-font-size)] font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
           {t("cart.title")}
         </h1>
       </div>

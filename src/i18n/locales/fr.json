@@ -94,8 +94,8 @@
     },
     "actions": {
       "create": "Créer",
-      "link": "Lien",
-      "linkProducts": "Lier les produits",
+      "link": "Groupe produits",
+      "linkProducts": "Grouper les produits",
       "importCsv": "Importer CSV",
       "exportCsv": "Exporter CSV"
     },
@@ -466,7 +466,7 @@
           "placeholder": "Rechercher une commande..."
         },
         "table": {
-          "order": "Commande",
+          "order": "Commande Id.",
           "company": "Entreprise",
           "store": "Magasin",
           "date": "Date",
@@ -602,7 +602,7 @@
       "unpublish": "Dépublier",
       "deactivate": "Désactiver",
       "activate": "Activer",
-      "linkProducts": "Lier les produits"
+      "linkProducts": "Grouper les produits"
     },
     "description": {
       "title": "Description"
