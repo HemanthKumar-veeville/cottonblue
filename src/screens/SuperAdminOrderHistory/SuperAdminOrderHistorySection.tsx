@@ -27,6 +27,7 @@ import { useSelector } from "react-redux";
 import { Skeleton } from "../../components/Skeleton";
 import ErrorState from "../../components/ErrorState";
 import EmptyState from "../../components/EmptyState";
+import * as XLSX from "xlsx";
 
 interface OrderItem {
   product_id: number;
@@ -228,6 +229,67 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
     );
   };
 
+  const handleDownloadInvoices = () => {
+    // Filter selected orders
+    const selectedOrdersData = orderList.filter((order: Order) => 
+      selectedOrders.includes(order.order_id)
+    );
+
+    // Prepare data for export
+    const exportData = selectedOrdersData.map((order: Order) => {
+      // Calculate total price for the order
+      const totalPrice = order.order_items.reduce(
+        (sum, item) => sum + (item.product_price * item.quantity),
+        0
+      );
+
+      // Format date
+      const formattedDate = order.created_at
+        ? new Date(order.created_at).toLocaleDateString()
+        : '';
+
+      // Create row data
+      return {
+        'Order ID': order.order_id,
+        'Date': formattedDate,
+        'Store Name': order.store_name,
+        'Store Address': order.store_address,
+        'Total Price': totalPrice,
+        'Status': order.order_status.split('_').map(word => 
+          word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' '),
+        'Items': order.order_items.map(item => 
+          `${item.product_name} (${item.quantity}x)`
+        ).join(', ')
+      };
+    });
+
+    // Create worksheet
+    const ws = XLSX.utils.json_to_sheet(exportData);
+
+    // Set column widths
+    const colWidths = [
+      { wch: 10 }, // Order ID
+      { wch: 12 }, // Date
+      { wch: 20 }, // Store Name
+      { wch: 30 }, // Store Address
+      { wch: 12 }, // Total Price
+      { wch: 15 }, // Status
+      { wch: 50 }, // Items
+    ];
+    ws['!cols'] = colWidths;
+
+    // Create workbook and append worksheet
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Orders');
+
+    // Generate timestamp for filename
+    const timestamp = new Date().toISOString().split('T')[0];
+    
+    // Save file
+    XLSX.writeFile(wb, `orders_${timestamp}.xlsx`);
+  };
+
   if (loading) {
     return <Skeleton variant="table" />;
   }
@@ -323,6 +385,7 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
         <Button
           className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[#07515f] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)]"
           disabled={loading || selectedOrders.length === 0}
+          onClick={handleDownloadInvoices}
         >
           <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] [font-style:var(--label-smaller-font-style)]">
             {t("history.superAdmin.orderHistory.downloadSelectedInvoices")}
