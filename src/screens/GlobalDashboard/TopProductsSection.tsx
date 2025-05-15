@@ -9,6 +9,8 @@ import {
 import { Download } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import {
   fetchDashboard,
   resetDashboard,
@@ -243,7 +245,7 @@ const TopProductsSection: React.FC = () => {
 
   const { summary } = useSelector((state: RootState) => state.dashboard);
   const { selectedCompany } = useSelector((state: RootState) => state.client);
-
+console.log({summary})
   const dns_prefix = selectedCompany?.dns ?? getHost();
 
   useEffect(() => {
@@ -274,6 +276,133 @@ const TopProductsSection: React.FC = () => {
     localStorage.setItem(PERIOD_KEY, period);
   };
 
+  const handleDownload = () => {
+    if (!summary?.dashboard_data) return;
+
+    const data = summary.dashboard_data;
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.width;
+
+    // Add header with logo and title
+    doc.setFontSize(20);
+    doc.setTextColor(7, 81, 95); // #07515F
+    doc.text("Dashboard Report", pageWidth / 2, 20, { align: "center" });
+
+    // Add company name
+    doc.setFontSize(14);
+    doc.setTextColor(71, 85, 105); // #475569
+    doc.text(`Company: ${dns_prefix}`, pageWidth / 2, 30, { align: "center" });
+
+    // Add timeframe info
+    doc.setFontSize(12);
+    doc.setTextColor(71, 85, 105); // #475569
+    doc.text(
+      `${selectedTimeframe}: ${getDisplayLabel(selectedPeriod, selectedTimeframe)}`,
+      pageWidth / 2,
+      40,
+      { align: "center" }
+    );
+
+    // Add key metrics section
+    const metrics = [
+      ["Total Orders", data.total_orders.toString()],
+      ["Total Amount", `$${data.total_amount.toFixed(2)}`],
+      ["Average Basket Value", `$${data.average_basket_value.toFixed(2)}`],
+      ["Total Active Users", data.total_active_users.toString()],
+      ["Total Users", data.total_users.toString()],
+      ["Total Stores", data.total_stores.toString()],
+    ];
+
+    autoTable(doc, {
+      startY: 50,
+      head: [["Metric", "Value"]],
+      body: metrics,
+      theme: "striped",
+      headStyles: {
+        fillColor: [7, 81, 95],
+        textColor: 255,
+        fontSize: 12,
+      },
+      styles: {
+        fontSize: 10,
+        cellPadding: 5,
+      },
+      alternateRowStyles: {
+        fillColor: [248, 250, 252],
+      },
+    });
+
+    // Add top clients section if available
+    if (data.top_clients && data.top_clients.length > 0) {
+      doc.addPage();
+      doc.setFontSize(16);
+      doc.setTextColor(7, 81, 95);
+      doc.text("Top Clients", 14, 20);
+
+      autoTable(doc, {
+        startY: 30,
+        head: [["Client Name", "Orders", "Total Amount"]],
+        body: data.top_clients.map((client: any) => [
+          client.name,
+          client.orders,
+          `$${client.total_amount.toFixed(2)}`,
+        ]),
+        theme: "striped",
+        headStyles: {
+          fillColor: [7, 81, 95],
+        },
+      });
+    }
+
+    // Add most sold products section if available
+    if (data.most_sold_products && data.most_sold_products.length > 0) {
+      if (data.top_clients && data.top_clients.length > 0) {
+        doc.addPage();
+      }
+      doc.setFontSize(16);
+      doc.setTextColor(7, 81, 95);
+      doc.text("Most Sold Products", 14, doc.autoTable.previous?.finalY ? doc.autoTable.previous.finalY + 20 : 20);
+
+      autoTable(doc, {
+        startY: doc.autoTable.previous?.finalY ? doc.autoTable.previous.finalY + 30 : 30,
+        head: [["Product Name", "Quantity Sold", "Total Revenue"]],
+        body: data.most_sold_products.map((product: any) => [
+          product.name,
+          product.quantity,
+          `$${product.revenue.toFixed(2)}`,
+        ]),
+        theme: "striped",
+        headStyles: {
+          fillColor: [7, 81, 95],
+        },
+      });
+    }
+
+    // Add footer with date
+    const totalPages = doc.internal.getNumberOfPages();
+    for (let i = 1; i <= totalPages; i++) {
+      doc.setPage(i);
+      doc.setFontSize(8);
+      doc.setTextColor(71, 85, 105);
+      doc.text(
+        `Generated on ${new Date().toLocaleDateString()}`,
+        pageWidth - 14,
+        doc.internal.pageSize.height - 10,
+        { align: "right" }
+      );
+      doc.text(
+        `Page ${i} of ${totalPages}`,
+        14,
+        doc.internal.pageSize.height - 10,
+        { align: "left" }
+      );
+    }
+
+    // Save the PDF
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+    doc.save(`dashboard-report-${selectedTimeframe.toLowerCase()}-${selectedPeriod}-${timestamp}.pdf`);
+  };
+
   return (
     <div className="flex flex-col gap-6 w-full">
       <div className="flex items-center justify-between w-full">
@@ -289,7 +418,10 @@ const TopProductsSection: React.FC = () => {
           />
         </div>
 
-        <Button className="bg-[#07515F] hover:bg-[#064249] text-white gap-3 px-5 py-2.5 h-10 rounded-md transition-all duration-200 font-medium">
+        <Button 
+          onClick={handleDownload}
+          className="bg-[#07515F] hover:bg-[#064249] text-white gap-3 px-5 py-2.5 h-10 rounded-md transition-all duration-200 font-medium"
+        >
           <Download className="w-4 h-4" />
           <span>{t("dashboard.actions.exportKPI")}</span>
         </Button>

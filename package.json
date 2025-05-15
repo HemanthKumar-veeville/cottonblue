@@ -32,6 +32,8 @@
     "i18next": "^24.2.3",
     "i18next-browser-languagedetector": "^8.0.4",
     "jiti": "2.4.2",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "less": "4.2.2",
     "lightningcss": "1.29.3",
     "lottie-react": "^2.4.1",
