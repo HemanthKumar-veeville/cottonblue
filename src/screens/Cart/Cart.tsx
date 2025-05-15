@@ -307,21 +307,43 @@ export default function CartContainer(): JSX.Element {
   console.log({ store_details });
 
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
-    firstName: store_details?.admin_name?.split(" ")[0] || "",
-    lastName: store_details?.admin_name?.split(" ")[1] || "",
-    street: store_details?.store_address || "",
-    city: store_details?.store_city || "",
+    firstName: "",
+    lastName: "",
+    street: "",
+    city: "",
     country: "France",
     phone: "",
   });
 
   const [billingAddress, setBillingAddress] = useState<BillingAddress>({
-    name: store_details?.admin_name || "",
-    street: store_details?.store_address || "",
-    city: store_details?.store_city || "",
+    name: "",
+    street: "",
+    city: "",
     country: "France",
     phone: "",
   });
+
+  // Add useEffect to update addresses when store_details changes
+  useEffect(() => {
+    if (store_details) {
+      // Update shipping address
+      setShippingAddress((prev) => ({
+        ...prev,
+        firstName: store_details.admin_name?.split(" ")[0] || "",
+        lastName: store_details.admin_name?.split(" ")[1] || "",
+        street: store_details.store_address || "",
+        city: store_details.store_city || "",
+      }));
+
+      // Update billing address
+      setBillingAddress((prev) => ({
+        ...prev,
+        name: store_details.admin_name || "",
+        street: store_details.store_address || "",
+        city: store_details.store_city || "",
+      }));
+    }
+  }, [store_details]);
 
   const [comments, setComments] = useState("");
 
