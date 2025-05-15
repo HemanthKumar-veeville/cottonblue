@@ -1,6 +1,6 @@
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
-import { Switch } from "../../components/ui/switch";
+import { Checkbox } from "../../components/ui/checkbox";
 import { ImageIcon } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -32,6 +32,33 @@ interface ImageUploadAreaProps {
   onRemove: () => void;
   disabled?: boolean;
 }
+
+const CheckboxField = ({
+  label,
+  id,
+  checked,
+  onChange,
+}: {
+  label: string;
+  id: string;
+  checked: boolean;
+  onChange: (checked: boolean) => void;
+}) => (
+  <div className="flex items-center gap-2">
+    <Checkbox
+      id={id}
+      checked={checked}
+      onCheckedChange={onChange}
+      className="h-5 w-5 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+    />
+    <label
+      htmlFor={id}
+      className="font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] whitespace-nowrap"
+    >
+      {label}
+    </label>
+  </div>
+);
 
 const ImageUploadArea = ({
   onFileSelect,
@@ -437,32 +464,18 @@ export default function Container(): JSX.Element {
             <Card className="border border-solid border-[color:var(--1-tokens-color-modes-input-primary-default-border)] rounded-lg bg-[color:var(--1-tokens-color-modes-input-primary-default-background)]">
               <CardContent className="p-4 flex flex-col gap-4 relative">
                 <div className="flex-col items-start gap-4 inline-flex">
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      id="show-carousel"
-                      checked={isActive}
-                      onCheckedChange={handleIsActiveChange}
-                    />
-                    <label
-                      htmlFor="show-carousel"
-                      className="font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] whitespace-nowrap"
-                    >
-                      {t("carousel.configuration.showOnHome")}
-                    </label>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      id="auto-loop"
-                      checked={autoPlay}
-                      onCheckedChange={handleAutoPlayChange}
-                    />
-                    <label
-                      htmlFor="auto-loop"
-                      className="font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] whitespace-nowrap"
-                    >
-                      {t("carousel.configuration.autoLoop")}
-                    </label>
-                  </div>
+                  <CheckboxField
+                    id="show-carousel"
+                    label={t("carousel.configuration.showOnHome")}
+                    checked={isActive}
+                    onChange={handleIsActiveChange}
+                  />
+                  <CheckboxField
+                    id="auto-loop"
+                    label={t("carousel.configuration.autoLoop")}
+                    checked={autoPlay}
+                    onChange={handleAutoPlayChange}
+                  />
                 </div>
                 <SectionLabel text={t("carousel.configuration.title")} />
               </CardContent>
