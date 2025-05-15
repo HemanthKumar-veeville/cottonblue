@@ -220,7 +220,7 @@ export const ProductTableSection = (): JSX.Element => {
                     <TableCell className="w-[15px] text-left align-middle">
                       <div
                         onClick={() => handleLinkProducts(product.id)}
-                        className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)]"
+                        className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] cursor-pointer"
                       >
                         <Boxes className="w-5 h-5" />
                       </div>
