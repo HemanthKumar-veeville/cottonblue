@@ -176,7 +176,9 @@ const OrderRow = ({ order, index }: { order: Order; index: number }) => {
       <TableCell className="w-[145px] text-left">
         <Button
           variant="link"
-          onClick={() => navigate(`/order-details/${order?.order_id}`)}
+          onClick={() =>
+            navigate(`/order-details/${order?.store_id}/${order?.order_id}`)
+          }
           disabled={!order?.order_id}
           className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
         >

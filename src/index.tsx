@@ -100,7 +100,7 @@ function App() {
                 element={<SuperAdminOrderHistory />}
               />
               <Route
-                path="order-details/:id"
+                path="order-details/:store_id/:id"
                 element={<SuperAdminOrderDetails />}
               />
               <Route path="products" element={<ProductList />} />

@@ -524,7 +524,11 @@
       "status": "Statut",
       "customer": "Client",
       "managementEmail": "Email de gestion",
-      "shippingAddress": "Adresse de livraison"
+      "shippingAddress": "Adresse de livraison",
+      "storeAddress": "Adresse du magasin",
+      "totalItems": "Total des articles",
+      "totalQuantity": "Quantité totale",
+      "store": "Magasin"
     },
     "products": {
       "title": "Produits commandés",

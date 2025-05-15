@@ -2,29 +2,32 @@ import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Checkbox } from "../../components/ui/checkbox";
-import { ArrowLeft, Download, Package2 } from "lucide-react";
+import { ArrowLeft, Download, Package2, FileText } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { getOrder } from "../../store/features/cartSlice";
 import { useAppSelector, AppDispatch } from "../../store/store";
-import { getHost } from "../../utils/hostUtils";
 import { Skeleton } from "../../components/Skeleton";
+import { StatusIcon } from "../../components/ui/status-icon";
 
 const OrderHeader = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
   return (
     <div className="flex justify-between items-center w-full mb-8">
-      <div className="inline-flex items-center gap-1">
-        <Button variant="ghost" size="icon" className="h-10 w-10">
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <h1 className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]">
+      <div className="inline-flex items-center gap-2">
+        <ArrowLeft
+          onClick={() => navigate(-1)}
+          className="w-5 h-5 text-[#07515f] cursor-pointer hover:text-[#064a56] transition-colors duration-200"
+        />
+        <h1 className="font-heading-h3 font-bold text-gray-700 text-lg tracking-wide leading-6">
           {t("orderDetails.title")}
         </h1>
       </div>
-      <Button className="bg-[#07515f] text-[color:var(--1-tokens-color-modes-button-primary-default-text)]">
+      <Button className="bg-[#07515f] text-white hover:bg-[#064a56] h-9 text-sm">
         <Download className="mr-2 h-4 w-4" />
         {t("orderDetails.downloadInvoice")}
       </Button>
@@ -42,22 +45,44 @@ const OrderInfo = ({
   isStatus: boolean;
 }) => (
   <div className="flex flex-col items-start gap-1">
-    <h3 className="font-text-medium text-black">{label}</h3>
-    <p
-      className={`font-text-medium ${
-        isStatus
-          ? "text-[color:var(--1-tokens-color-modes-common-warning-medium)]"
-          : "text-black"
-      }`}
-    >
-      {value}
-    </p>
+    <h3 className="font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5">
+      {label}
+    </h3>
+    {isStatus ? (
+      <div className="flex items-center gap-2">
+        <StatusIcon
+          type={
+            value === "confirmed"
+              ? "success"
+              : value === "approval_pending"
+              ? "warning"
+              : "default"
+          }
+        />
+        <p
+          className={`font-text-medium ${
+            value === "confirmed"
+              ? "text-[color:var(--1-tokens-color-modes-common-success-medium)]"
+              : value === "approval_pending"
+              ? "text-[color:var(--1-tokens-color-modes-common-warning-medium)]"
+              : "text-black"
+          }`}
+        >
+          {value
+            ?.split("_")
+            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+            .join(" ")}
+        </p>
+      </div>
+    ) : (
+      <p className="font-text-medium text-black">{value}</p>
+    )}
   </div>
 );
 
 const OrderDetailsCard = ({ order }: { order: any }) => {
   const { t } = useTranslation();
-  console.log({ order });
+
   if (!order) return null;
 
   return (
@@ -76,42 +101,65 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
                 label={t("orderDetails.fields.date")}
                 value={
                   order?.created_at
-                    ? new Date(order.created_at).toLocaleDateString()
+                    ? new Date(order.created_at).toLocaleDateString(undefined, {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
                     : t("common.notAvailable")
                 }
                 isStatus={false}
               />
               <OrderInfo
-                label={t("orderDetails.fields.totalPrice")}
-                value={
-                  order?.total_price
-                    ? `${order.total_price}€`
-                    : t("common.notAvailable")
-                }
+                label={t("orderDetails.fields.store")}
+                value={order?.store_name ?? t("common.notAvailable")}
                 isStatus={false}
               />
               <OrderInfo
                 label={t("orderDetails.fields.status")}
                 value={order?.order_status ?? t("common.notAvailable")}
-                isStatus={!!order?.order_status}
+                isStatus={true}
               />
             </div>
           </div>
           <div className="space-y-4">
             <div className="space-y-4">
               <OrderInfo
-                label={t("orderDetails.fields.customer")}
-                value={order?.customer_name ?? t("common.notAvailable")}
+                label={t("orderDetails.fields.storeAddress")}
+                value={order?.store_address ?? t("common.notAvailable")}
                 isStatus={false}
               />
               <OrderInfo
-                label={t("orderDetails.fields.managementEmail")}
-                value={order?.customer_email ?? t("common.notAvailable")}
+                label={t("orderDetails.fields.totalItems")}
+                value={order?.order_items?.length?.toString() ?? "0"}
                 isStatus={false}
               />
               <OrderInfo
-                label={t("orderDetails.fields.shippingAddress")}
-                value={order?.shipping_address ?? t("common.notAvailable")}
+                label={t("orderDetails.fields.totalQuantity")}
+                value={
+                  order?.order_items
+                    ?.reduce(
+                      (sum: number, item: any) => sum + (item?.quantity ?? 0),
+                      0
+                    )
+                    .toString() ?? "0"
+                }
+                isStatus={false}
+              />
+              <OrderInfo
+                label={t("orderDetails.fields.totalPrice")}
+                value={
+                  `${order?.order_items
+                    ?.reduce(
+                      (sum: number, item: any) =>
+                        sum +
+                        (item?.product_price ?? 0) * (item?.quantity ?? 0),
+                      0
+                    )
+                    .toFixed(2)}€` ?? "0.00€"
+                }
                 isStatus={false}
               />
             </div>
@@ -172,7 +220,7 @@ const ProductRow = ({ product }: { product: any }) => {
           {product?.product_image ? (
             <img
               src={product.product_image}
-              alt={product?.product_name ?? "Product"}
+              alt={product?.product_name ?? t("common.product")}
               className="w-[30px] h-[29px] object-cover"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
@@ -202,17 +250,14 @@ const ProductRow = ({ product }: { product: any }) => {
       <div className="w-[145px] flex items-center justify-center">
         <span className="font-text-medium text-black">
           {product?.product_price
-            ? `${product.product_price}€`
+            ? `${product.product_price.toFixed(2)}€`
             : t("common.notAvailable")}
         </span>
       </div>
       <div className="w-[145px] flex items-center justify-center">
-        <Badge
-          variant="secondary"
-          className="w-full flex justify-center bg-[color:var(--1-tokens-color-modes-background-secondary)] text-black"
-        >
+        <span className="font-text-medium text-black">
           {product?.quantity ?? 0}
-        </Badge>
+        </span>
       </div>
       <div className="w-[145px] flex items-center justify-center">
         <span className="font-text-medium text-[color:var(--1-tokens-color-modes-common-success-medium)]">
@@ -233,14 +278,14 @@ const ProductTable = ({ order }: { order: any }) => {
   return (
     <Card className="w-full">
       <CardContent className="p-6">
-        <h2 className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] mb-6">
+        <h2 className="font-heading-h3 font-bold text-gray-700 text-lg tracking-wide leading-6 mb-6">
           {t("orderDetails.products.title")}
         </h2>
         <div className="w-full">
           <ProductTableHeader />
           <div className="overflow-y-auto">
             {order.order_items.map((product: any) => (
-              <ProductRow key={product.product_id} product={product} />
+              <ProductRow key={product?.product_id} product={product} />
             ))}
           </div>
         </div>
@@ -252,22 +297,23 @@ const ProductTable = ({ order }: { order: any }) => {
 export default function SuperAdminOrderDetails() {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
-  const { id } = useParams();
+  const navigate = useNavigate();
+  const { id, store_id } = useParams();
   const { currentOrder, loading, error } = useAppSelector(
     (state) => state.cart
   );
 
   useEffect(() => {
-    if (id) {
+    if (id && store_id) {
       dispatch(
         getOrder({
           dns_prefix: "chronodrive",
-          store_id: "27",
+          store_id: store_id,
           order_id: id,
         })
       );
     }
-  }, [dispatch, id]);
+  }, [dispatch, id, store_id]);
 
   if (loading) {
     return (
@@ -286,7 +332,7 @@ export default function SuperAdminOrderDetails() {
   }
 
   return (
-    <div className="flex flex-col items-start gap-2.5 p-2.5">
+    <div className="flex flex-col items-start gap-6 p-6">
       <OrderDetailsCard order={currentOrder} />
       <ProductTable order={currentOrder} />
     </div>

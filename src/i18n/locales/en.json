@@ -492,7 +492,11 @@
       "status": "Status",
       "customer": "Customer",
       "managementEmail": "Management Email",
-      "shippingAddress": "Shipping Address"
+      "shippingAddress": "Shipping Address",
+      "storeAddress": "Store Address",
+      "totalItems": "Total Items",
+      "totalQuantity": "Total Quantity",
+      "store": "Store"
     },
     "products": {
       "title": "Ordered Products",

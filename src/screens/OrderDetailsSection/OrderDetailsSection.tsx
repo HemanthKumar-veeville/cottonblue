@@ -37,6 +37,12 @@ const paginationItems = [
 
 const StatusText = ({ status, type }: { status: string; type: string }) => {
   const textColorClassMap: { [key: string]: string } = {
+    approval_pending: "text-1-tokens-color-modes-common-warning-medium",
+    confirmed: "text-1-tokens-color-modes-common-success-medium",
+    refused: "text-1-tokens-color-modes-common-danger-medium",
+    shipped: "text-1-tokens-color-modes-common-success-medium",
+    in_transit: "text-1-tokens-color-modes-common-success-medium",
+    delivered: "text-1-tokens-color-modes-common-success-medium",
     success: "text-1-tokens-color-modes-common-success-medium",
     warning: "text-1-tokens-color-modes-common-warning-medium",
     danger: "text-1-tokens-color-modes-common-danger-medium",
@@ -49,7 +55,11 @@ const StatusText = ({ status, type }: { status: string; type: string }) => {
     <div
       className={`font-normal text-[15px] leading-normal whitespace-nowrap ${textColorClass}`}
     >
-      {status}
+      {status
+        ?.split("_")
+        ?.join(" ")
+        ?.replace(/_/g, " ")
+        ?.replace(/\b\w/g, (char) => char.toUpperCase())}
     </div>
   );
 };
@@ -58,15 +68,21 @@ const OrderRow = ({ order, index }: { order: any; index: number }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  // Calculate total price for the order
-  const totalPrice = order?.order_items?.reduce((sum: number, item: any) => {
-    return sum + (item?.product_price || 0) * (item?.quantity || 0);
-  }, 0);
-
   // Format date
   const formattedDate = order?.created_at
     ? new Date(order.created_at).toLocaleDateString()
     : "";
+
+  const statusIcon: Record<Order["order_status"] | "default", StatusIconType> =
+    {
+      approval_pending: "warning",
+      confirmed: "success",
+      refused: "danger",
+      shipped: "success",
+      in_transit: "success",
+      delivered: "success",
+      default: "default",
+    };
 
   return (
     <TableRow key={index} className="border-b border-primary-neutal-300">
@@ -94,8 +110,11 @@ const OrderRow = ({ order, index }: { order: any; index: number }) => {
       </TableCell>
       <TableCell className="w-[145px] p-2.5 align-middle">
         <div className="flex items-center gap-2">
-          <StatusIcon type="success" />
-          <StatusText status={t(order?.order_status)} type="success" />
+          <StatusIcon type={statusIcon[order?.order_status]} />
+          <StatusText
+            status={t(order?.order_status)}
+            type={order?.order_status}
+          />
         </div>
       </TableCell>
       <TableCell className="w-[69px] p-2.5 text-left align-middle">
