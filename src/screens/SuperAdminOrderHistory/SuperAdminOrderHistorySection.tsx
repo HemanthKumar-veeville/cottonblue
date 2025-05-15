@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -194,15 +194,6 @@ const OrderRow = ({ order, index, isSelected, onSelect }: { order: Order; index:
   );
 };
 
-const paginationItems = [
-  { page: 1, active: true },
-  { page: 2, active: false },
-  { page: 3, active: false },
-  { page: 4, active: false },
-  { page: 5, active: false },
-  { page: 24, active: false },
-];
-
 export const SuperAdminOrderHistorySection = (): JSX.Element => {
   const { t } = useTranslation();
   const orders = useSelector((state: any) => state.cart.orders);
@@ -210,8 +201,53 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
   const error = useSelector((state: any) => state.cart.error);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10; // You can adjust this value as needed
 
   const orderList = orders ?? [];
+
+  // Filter orders based on search query
+  const filteredOrders = useMemo(() => {
+    return orderList.filter((order: Order) => {
+      const searchStr = searchQuery.toLowerCase();
+      return (
+        order.order_id.toString().includes(searchStr) ||
+        order.store_name.toLowerCase().includes(searchStr) ||
+        order.store_address.toLowerCase().includes(searchStr)
+      );
+    });
+  }, [orderList, searchQuery]);
+
+  // Calculate pagination
+  const totalItems = filteredOrders.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+  const currentOrders = filteredOrders.slice(startIndex, endIndex);
+
+  // Generate pagination items
+  const getPaginationItems = () => {
+    const items = [];
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      items.push({ page: i, active: i === currentPage });
+    }
+
+    return items;
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -429,7 +465,7 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orderList?.map((order: Order, index: number) => (
+              {currentOrders.map((order: Order, index: number) => (
                 <OrderRow 
                   key={order?.order_id} 
                   order={order} 
@@ -447,7 +483,13 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
             <Pagination className="flex items-center justify-between w-full mx-auto">
               <PaginationPrevious
                 href="#"
-                className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(currentPage - 1);
+                }}
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px] ${
+                  currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
                 <img
                   className="w-6 h-6"
@@ -458,30 +500,52 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
               </PaginationPrevious>
 
               <PaginationContent className="flex items-center gap-3">
-                {paginationItems.map((item, index) => (
-                  <React.Fragment key={index}>
+                {getPaginationItems().map((item, index) => (
+                  <PaginationItem key={item.page}>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(item.page);
+                      }}
+                      className={`flex items-center justify-center w-9 h-9 rounded ${
+                        item.active
+                          ? "bg-cyan-100 font-bold text-[#1e2324]"
+                          : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                      }`}
+                    >
+                      {item.page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                {totalPages > getPaginationItems()[getPaginationItems().length - 1]?.page && (
+                  <>
+                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
                     <PaginationItem>
                       <PaginationLink
                         href="#"
-                        className={`flex items-center justify-center w-9 h-9 rounded ${
-                          item.active
-                            ? "bg-cyan-100 font-bold text-[#1e2324]"
-                            : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                        }`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(totalPages);
+                        }}
+                        className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
                       >
-                        {item.page}
+                        {totalPages}
                       </PaginationLink>
                     </PaginationItem>
-                    {index === paginationItems.length - 2 && (
-                      <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
-                    )}
-                  </React.Fragment>
-                ))}
+                  </>
+                )}
               </PaginationContent>
 
               <PaginationNext
                 href="#"
-                className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px]"
+                onClick={(e) => {
+                  e.preventDefault();
+                  handlePageChange(currentPage + 1);
+                }}
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px] ${
+                  currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''
+                }`}
               >
                 {t("history.superAdmin.orderHistory.table.next")}
                 <img
