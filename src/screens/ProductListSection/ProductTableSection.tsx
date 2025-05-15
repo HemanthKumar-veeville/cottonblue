@@ -32,8 +32,7 @@ export const ProductTableSection = (): JSX.Element => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { products, loading, error } = useAppSelector((state) => state.product);
-  const productList =
-    products?.products?.filter((product) => !product.linked) || [];
+  const productList = products?.products || [];
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);

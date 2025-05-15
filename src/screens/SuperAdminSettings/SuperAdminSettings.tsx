@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next";
 import { ArrowLeft, Save, Mail, Settings2 } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
-import { Switch } from "../../components/ui/switch";
+import { Checkbox } from "../../components/ui/checkbox";
 import { Label } from "../../components/ui/label";
 import { Separator } from "../../components/ui/separator";
 import {
@@ -189,9 +189,19 @@ function SuperAdminSettings() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Checkbox
+                  id="maintenanceMode"
+                  checked={formData.maintenanceMode}
+                  onCheckedChange={() => handleToggleChange("maintenanceMode")}
+                  disabled={isSubmitting}
+                  className="h-5 w-5 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+                />
                 <div className="space-y-0.5">
-                  <Label className="text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--label-small-font-size)] font-label-small">
+                  <Label
+                    htmlFor="maintenanceMode"
+                    className="font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] whitespace-nowrap"
+                  >
                     {t(
                       "superAdminSettings.maintenanceMode",
                       "Maintenance Mode"
@@ -204,16 +214,23 @@ function SuperAdminSettings() {
                     )}
                   </p>
                 </div>
-                <Switch
-                  checked={formData.maintenanceMode}
-                  onCheckedChange={() => handleToggleChange("maintenanceMode")}
-                  disabled={isSubmitting}
-                />
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Checkbox
+                  id="enableRegistration"
+                  checked={formData.enableRegistration}
+                  onCheckedChange={() =>
+                    handleToggleChange("enableRegistration")
+                  }
+                  disabled={isSubmitting}
+                  className="h-5 w-5 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+                />
                 <div className="space-y-0.5">
-                  <Label className="text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--label-small-font-size)] font-label-small">
+                  <Label
+                    htmlFor="enableRegistration"
+                    className="font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] whitespace-nowrap"
+                  >
                     {t("superAdminSettings.registration", "User Registration")}
                   </Label>
                   <p className="text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] font-label-smaller">
@@ -223,20 +240,25 @@ function SuperAdminSettings() {
                     )}
                   </p>
                 </div>
-                <Switch
-                  checked={formData.enableRegistration}
-                  onCheckedChange={() =>
-                    handleToggleChange("enableRegistration")
-                  }
-                  disabled={isSubmitting}
-                />
               </div>
 
               <Separator />
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Checkbox
+                  id="enableNotifications"
+                  checked={formData.enableNotifications}
+                  onCheckedChange={() =>
+                    handleToggleChange("enableNotifications")
+                  }
+                  disabled={isSubmitting}
+                  className="h-5 w-5 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+                />
                 <div className="space-y-0.5">
-                  <Label className="text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--label-small-font-size)] font-label-small">
+                  <Label
+                    htmlFor="enableNotifications"
+                    className="font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] whitespace-nowrap"
+                  >
                     {t("superAdminSettings.notifications", "Notifications")}
                   </Label>
                   <p className="text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] font-label-smaller">
@@ -246,18 +268,23 @@ function SuperAdminSettings() {
                     )}
                   </p>
                 </div>
-                <Switch
-                  checked={formData.enableNotifications}
-                  onCheckedChange={() =>
-                    handleToggleChange("enableNotifications")
-                  }
-                  disabled={isSubmitting}
-                />
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Checkbox
+                  id="emailNotifications"
+                  checked={formData.emailNotifications}
+                  onCheckedChange={() =>
+                    handleToggleChange("emailNotifications")
+                  }
+                  disabled={isSubmitting}
+                  className="h-5 w-5 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+                />
                 <div className="space-y-0.5">
-                  <Label className="text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--label-small-font-size)] font-label-small">
+                  <Label
+                    htmlFor="emailNotifications"
+                    className="font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] whitespace-nowrap"
+                  >
                     {t("superAdminSettings.emailNotif", "Email Notifications")}
                   </Label>
                   <p className="text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] font-label-smaller">
@@ -267,20 +294,23 @@ function SuperAdminSettings() {
                     )}
                   </p>
                 </div>
-                <Switch
-                  checked={formData.emailNotifications}
-                  onCheckedChange={() =>
-                    handleToggleChange("emailNotifications")
-                  }
-                  disabled={isSubmitting}
-                />
               </div>
 
               <Separator />
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Checkbox
+                  id="autoBackup"
+                  checked={formData.autoBackup}
+                  onCheckedChange={() => handleToggleChange("autoBackup")}
+                  disabled={isSubmitting}
+                  className="h-5 w-5 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+                />
                 <div className="space-y-0.5">
-                  <Label className="text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--label-small-font-size)] font-label-small">
+                  <Label
+                    htmlFor="autoBackup"
+                    className="font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] whitespace-nowrap"
+                  >
                     {t("superAdminSettings.backup", "Auto Backup")}
                   </Label>
                   <p className="text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] font-label-smaller">
@@ -290,16 +320,21 @@ function SuperAdminSettings() {
                     )}
                   </p>
                 </div>
-                <Switch
-                  checked={formData.autoBackup}
-                  onCheckedChange={() => handleToggleChange("autoBackup")}
-                  disabled={isSubmitting}
-                />
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-4">
+                <Checkbox
+                  id="debugMode"
+                  checked={formData.debugMode}
+                  onCheckedChange={() => handleToggleChange("debugMode")}
+                  disabled={isSubmitting}
+                  className="h-5 w-5 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+                />
                 <div className="space-y-0.5">
-                  <Label className="text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--label-small-font-size)] font-label-small">
+                  <Label
+                    htmlFor="debugMode"
+                    className="font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] whitespace-nowrap"
+                  >
                     {t("superAdminSettings.debug", "Debug Mode")}
                   </Label>
                   <p className="text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] font-label-smaller">
@@ -309,11 +344,6 @@ function SuperAdminSettings() {
                     )}
                   </p>
                 </div>
-                <Switch
-                  checked={formData.debugMode}
-                  onCheckedChange={() => handleToggleChange("debugMode")}
-                  disabled={isSubmitting}
-                />
               </div>
             </CardContent>
           </Card>
