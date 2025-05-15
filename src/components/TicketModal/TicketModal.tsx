@@ -44,14 +44,21 @@ interface TicketModalProps {
 const getStatusColor = (status: TicketStatus) => {
   switch (status) {
     case TicketStatus.OPEN:
-      return "bg-teal-100 text-teal-800";
+      return "border-indigo-400 text-indigo-700 bg-indigo-50/30 hover:bg-indigo-50 transition-colors";
     case TicketStatus.IN_PROGRESS:
-      return "bg-blue-100 text-blue-800";
+      return "border-amber-400 text-amber-700 bg-amber-50/30 hover:bg-amber-50 transition-colors";
     case TicketStatus.CLOSED:
-      return "bg-gray-100 text-gray-800";
+      return "border-green-300 text-green-600 bg-green-50/30 hover:bg-green-50 transition-colors";
     default:
-      return "bg-gray-100 text-gray-800";
+      return "border-slate-300 text-slate-600 bg-slate-50/30 hover:bg-slate-50 transition-colors";
   }
+};
+
+const formatStatus = (status: string): string => {
+  // Replace underscores with spaces and convert to sentence case
+  return status.replace(/_/g, " ").replace(/\w\S*/g, (txt) => {
+    return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
+  });
 };
 
 export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
@@ -165,9 +172,9 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
                   <Badge
                     className={`${getStatusColor(
                       ticket?.ticket_status ?? TicketStatus.OPEN
-                    )} font-label-small pointer-events-none`}
+                    )} font-label-small pointer-events-none border`}
                   >
-                    {t(ticket?.ticket_status ?? "NA")}
+                    {formatStatus(ticket?.ticket_status ?? "open")}
                   </Badge>
                   <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
                     {ticket?.created_at
