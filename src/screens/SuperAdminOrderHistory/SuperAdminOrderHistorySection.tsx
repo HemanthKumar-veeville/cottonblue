@@ -106,7 +106,17 @@ const StatusText = ({ status, type }: { status: string; type: string }) => {
   );
 };
 
-const OrderRow = ({ order, index, isSelected, onSelect }: { order: Order; index: number; isSelected: boolean; onSelect: (orderId: number) => void }) => {
+const OrderRow = ({
+  order,
+  index,
+  isSelected,
+  onSelect,
+}: {
+  order: Order;
+  index: number;
+  isSelected: boolean;
+  onSelect: (orderId: number) => void;
+}) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -141,7 +151,7 @@ const OrderRow = ({ order, index, isSelected, onSelect }: { order: Order; index:
     >
       <TableCell className="w-11">
         <div className="flex justify-center">
-          <Checkbox 
+          <Checkbox
             className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
             checked={isSelected}
             onCheckedChange={() => onSelect(order.order_id)}
@@ -258,16 +268,16 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
   };
 
   const handleSelectOrder = (orderId: number) => {
-    setSelectedOrders(prev => 
-      prev.includes(orderId) 
-        ? prev.filter(id => id !== orderId)
+    setSelectedOrders((prev) =>
+      prev.includes(orderId)
+        ? prev.filter((id) => id !== orderId)
         : [...prev, orderId]
     );
   };
 
   const handleDownloadInvoices = () => {
     // Filter selected orders
-    const selectedOrdersData = orderList.filter((order: Order) => 
+    const selectedOrdersData = orderList.filter((order: Order) =>
       selectedOrders.includes(order.order_id)
     );
 
@@ -275,28 +285,29 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
     const exportData = selectedOrdersData.map((order: Order) => {
       // Calculate total price for the order
       const totalPrice = order.order_items.reduce(
-        (sum, item) => sum + (item.product_price * item.quantity),
+        (sum, item) => sum + item.product_price * item.quantity,
         0
       );
 
       // Format date
       const formattedDate = order.created_at
         ? new Date(order.created_at).toLocaleDateString()
-        : '';
+        : "";
 
       // Create row data
       return {
-        'Order ID': order.order_id,
-        'Date': formattedDate,
-        'Store Name': order.store_name,
-        'Store Address': order.store_address,
-        'Total Price': totalPrice,
-        'Status': order.order_status.split('_').map(word => 
-          word.charAt(0).toUpperCase() + word.slice(1)
-        ).join(' '),
-        'Items': order.order_items.map(item => 
-          `${item.product_name} (${item.quantity}x)`
-        ).join(', ')
+        "Order ID": order.order_id,
+        Date: formattedDate,
+        "Store Name": order.store_name,
+        "Store Address": order.store_address,
+        "Total Price": totalPrice,
+        Status: order.order_status
+          .split("_")
+          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+          .join(" "),
+        Items: order.order_items
+          .map((item) => `${item.product_name} (${item.quantity}x)`)
+          .join(", "),
       };
     });
 
@@ -313,15 +324,15 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
       { wch: 15 }, // Status
       { wch: 50 }, // Items
     ];
-    ws['!cols'] = colWidths;
+    ws["!cols"] = colWidths;
 
     // Create workbook and append worksheet
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Orders');
+    XLSX.utils.book_append_sheet(wb, ws, "Orders");
 
     // Generate timestamp for filename
-    const timestamp = new Date().toISOString().split('T')[0];
-    
+    const timestamp = new Date().toISOString().split("T")[0];
+
     // Save file
     XLSX.writeFile(wb, `orders_${timestamp}.xlsx`);
   };
@@ -430,16 +441,19 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
         </Button>
       </div>
 
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col h-full">
         <div className="flex-grow overflow-auto pb-24">
           <Table className="w-full">
             <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
               <TableRow>
                 <TableHead className="w-11">
                   <div className="flex justify-center">
-                    <Checkbox 
+                    <Checkbox
                       className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
-                      checked={orderList.length > 0 && selectedOrders.length === orderList.length}
+                      checked={
+                        orderList.length > 0 &&
+                        selectedOrders.length === orderList.length
+                      }
                       onCheckedChange={handleSelectAll}
                     />
                   </div>
@@ -466,10 +480,10 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
             </TableHeader>
             <TableBody>
               {currentOrders.map((order: Order, index: number) => (
-                <OrderRow 
-                  key={order?.order_id} 
-                  order={order} 
-                  index={index} 
+                <OrderRow
+                  key={order?.order_id}
+                  order={order}
+                  index={index}
                   isSelected={selectedOrders.includes(order.order_id)}
                   onSelect={handleSelectOrder}
                 />
@@ -488,7 +502,7 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
                   handlePageChange(currentPage - 1);
                 }}
                 className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px] ${
-                  currentPage === 1 ? 'opacity-50 cursor-not-allowed' : ''
+                  currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
                 <img
@@ -518,7 +532,9 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-                {totalPages > getPaginationItems()[getPaginationItems().length - 1]?.page && (
+                {totalPages >
+                  getPaginationItems()[getPaginationItems().length - 1]
+                    ?.page && (
                   <>
                     <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
                     <PaginationItem>
@@ -544,7 +560,9 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
                   handlePageChange(currentPage + 1);
                 }}
                 className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px] ${
-                  currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : ''
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
                 }`}
               >
                 {t("history.superAdmin.orderHistory.table.next")}
