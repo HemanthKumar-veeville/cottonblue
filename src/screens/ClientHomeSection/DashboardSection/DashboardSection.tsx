@@ -401,7 +401,8 @@ export const DashboardSection = (): JSX.Element => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { products, loading } = useAppSelector((state) => state.product);
-  const productList = products?.products || [];
+  const productList =
+    products?.products?.filter((product) => !product.linked) || [];
   const cart = useAppSelector((state) => state.cart);
   const cartProducts = cart?.items || [];
   const dnsPrefix = getHost();
