@@ -26,7 +26,7 @@ import { useNavigate } from "react-router-dom";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
-import { LinkIcon, Package } from "lucide-react";
+import { Boxes, Package } from "lucide-react";
 
 export const ProductTableSection = (): JSX.Element => {
   const { t } = useTranslation();
@@ -218,13 +218,12 @@ export const ProductTableSection = (): JSX.Element => {
                       </Badge>
                     </TableCell>
                     <TableCell className="w-[15px] text-left align-middle">
-                      <Button
-                        variant="link"
+                      <div
                         onClick={() => handleLinkProducts(product.id)}
-                        className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
+                        className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)]"
                       >
-                        <LinkIcon className="w-6 h-6" />
-                      </Button>
+                        <Boxes className="w-5 h-5" />
+                      </div>
                     </TableCell>
                     <TableCell className="w-[145px] text-left align-middle">
                       <Button

@@ -569,7 +569,7 @@
       "publish": "Publish",
       "activate": "Activate Product",
       "deactivate": "Deactivate Product",
-      "linkProducts": "Link Products"
+      "linkProducts": "Group Products"
     },
     "description": {
       "title": "Description"
