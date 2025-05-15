@@ -105,7 +105,7 @@ const StatusText = ({ status, type }: { status: string; type: string }) => {
   );
 };
 
-const OrderRow = ({ order, index }: { order: Order; index: number }) => {
+const OrderRow = ({ order, index, isSelected, onSelect }: { order: Order; index: number; isSelected: boolean; onSelect: (orderId: number) => void }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -140,7 +140,11 @@ const OrderRow = ({ order, index }: { order: Order; index: number }) => {
     >
       <TableCell className="w-11">
         <div className="flex justify-center">
-          <Checkbox className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
+          <Checkbox 
+            className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+            checked={isSelected}
+            onCheckedChange={() => onSelect(order.order_id)}
+          />
         </div>
       </TableCell>
       <TableCell className="w-[129px] text-left">
@@ -204,8 +208,25 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
   const loading = useSelector((state: any) => state.cart.loading);
   const error = useSelector((state: any) => state.cart.error);
   const [searchQuery, setSearchQuery] = useState("");
-  console.log({ orders });
+  const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
+
   const orderList = orders ?? [];
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedOrders(orderList.map((order: Order) => order.order_id));
+    } else {
+      setSelectedOrders([]);
+    }
+  };
+
+  const handleSelectOrder = (orderId: number) => {
+    setSelectedOrders(prev => 
+      prev.includes(orderId) 
+        ? prev.filter(id => id !== orderId)
+        : [...prev, orderId]
+    );
+  };
 
   if (loading) {
     return <Skeleton variant="table" />;
@@ -301,7 +322,7 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
 
         <Button
           className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[#07515f] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)]"
-          disabled={loading || !orderList?.length}
+          disabled={loading || selectedOrders.length === 0}
         >
           <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] [font-style:var(--label-smaller-font-style)]">
             {t("history.superAdmin.orderHistory.downloadSelectedInvoices")}
@@ -317,7 +338,11 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
               <TableRow>
                 <TableHead className="w-11">
                   <div className="flex justify-center">
-                    <Checkbox className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
+                    <Checkbox 
+                      className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+                      checked={orderList.length > 0 && selectedOrders.length === orderList.length}
+                      onCheckedChange={handleSelectAll}
+                    />
                   </div>
                 </TableHead>
                 {[
@@ -341,8 +366,14 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orderList?.map((order: any, index: number) => (
-                <OrderRow key={order?.order_id} order={order} index={index} />
+              {orderList?.map((order: Order, index: number) => (
+                <OrderRow 
+                  key={order?.order_id} 
+                  order={order} 
+                  index={index} 
+                  isSelected={selectedOrders.includes(order.order_id)}
+                  onSelect={handleSelectOrder}
+                />
               ))}
             </TableBody>
           </Table>
