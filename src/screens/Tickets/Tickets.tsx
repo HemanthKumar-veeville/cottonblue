@@ -46,25 +46,32 @@ interface TicketCardProps {
   onCheckboxClick: (ticket: Ticket, e: React.MouseEvent) => void;
 }
 
+const getStatusColor = (status: TicketStatus) => {
+  switch (status) {
+    case TicketStatus.OPEN:
+      return "border-indigo-400 text-indigo-700 bg-indigo-50/30 hover:bg-indigo-50 transition-colors";
+    case TicketStatus.IN_PROGRESS:
+      return "border-amber-400 text-amber-700 bg-amber-50/30 hover:bg-amber-50 transition-colors";
+    case TicketStatus.CLOSED:
+      return "border-green-300 text-green-600 bg-green-50/30 hover:bg-green-50 transition-colors";
+    default:
+      return "border-slate-300 text-slate-600 bg-slate-50/30 hover:bg-slate-50 transition-colors";
+  }
+};
+
+const formatStatus = (status: string): string => {
+  // Replace underscores with spaces and convert to sentence case
+  return status.replace(/_/g, " ").replace(/\w\S*/g, (txt) => {
+    return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
+  });
+};
+
 const TicketCard: React.FC<TicketCardProps> = ({
   ticket,
   onClick,
   onCheckboxClick,
 }) => {
   const { t } = useTranslation();
-
-  const getStatusColor = (status: TicketStatus) => {
-    switch (status) {
-      case TicketStatus.OPEN:
-        return "bg-blue-100 text-blue-800";
-      case TicketStatus.IN_PROGRESS:
-        return "bg-yellow-100 text-yellow-800";
-      case TicketStatus.CLOSED:
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
 
   return (
     <motion.div
@@ -95,9 +102,9 @@ const TicketCard: React.FC<TicketCardProps> = ({
                 <Badge
                   className={`${getStatusColor(
                     ticket.ticket_status
-                  )} font-label-small pointer-events-none`}
+                  )} font-label-small pointer-events-none border`}
                 >
-                  {t(ticket.ticket_status)}
+                  {formatStatus(ticket.ticket_status)}
                 </Badge>
                 <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
                   {new Date(ticket.created_at).toLocaleDateString()}
@@ -224,19 +231,6 @@ const TicketList: React.FC<TicketListProps> = ({
   );
 };
 
-const getStatusColor = (status: TicketStatus): string => {
-  switch (status) {
-    case TicketStatus.OPEN:
-      return "bg-blue-100 text-blue-800";
-    case TicketStatus.IN_PROGRESS:
-      return "bg-yellow-100 text-yellow-800";
-    case TicketStatus.CLOSED:
-      return "bg-gray-100 text-gray-800";
-    default:
-      return "bg-gray-100 text-gray-800";
-  }
-};
-
 export default function Tickets(): JSX.Element {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -321,10 +315,6 @@ export default function Tickets(): JSX.Element {
       ) ?? []
     );
   }, [tickets]);
-
-  if (isLoading) {
-    return <Skeleton variant="tickets" />;
-  }
 
   return (
     <section className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-l)] p-[var(--2-tokens-screen-modes-common-spacing-l)] bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)] w-full">
