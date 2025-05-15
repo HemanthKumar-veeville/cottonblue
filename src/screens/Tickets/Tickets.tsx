@@ -322,10 +322,6 @@ export default function Tickets(): JSX.Element {
     );
   }, [tickets]);
 
-  if (isLoading) {
-    return <Skeleton variant="tickets" />;
-  }
-
   return (
     <section className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-l)] p-[var(--2-tokens-screen-modes-common-spacing-l)] bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)] w-full">
       <div className="flex items-center justify-between w-full">
