@@ -109,9 +109,9 @@ const NoProductsAvailable = ({ searchQuery }: { searchQuery: string }) => (
     initial={{ opacity: 0, y: 10 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.3 }}
-    className="flex flex-col items-center justify-start h-[340px] w-full"
+    className="flex flex-col items-center justify-start w-full min-h-[200px] h-full"
   >
-    <div className="flex flex-col items-center gap-4 max-w-md text-center">
+    <div className="flex flex-col items-center gap-4 max-w-md text-center mt-8">
       <div className="p-4 rounded-full bg-gray-50">
         <Package2 className="w-8 h-8 text-gray-400" />
       </div>
@@ -142,10 +142,16 @@ const ProductList = ({
     return <NoProductsAvailable searchQuery={searchQuery} />;
   }
 
+  // Sort products: selected products first, then unselected
+  const sortedProducts = [...products].sort((a, b) => {
+    if (a.isSelected === b.isSelected) return 0;
+    return a.isSelected ? -1 : 1;
+  });
+
   return (
-    <div className="h-[340px] overflow-y-auto pr-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+    <div className="h-[calc(100vh-400px)] min-h-[300px] max-h-[800px] overflow-y-auto pr-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {products.map((product) => (
+        {sortedProducts.map((product) => (
           <motion.div
             key={product.id}
             initial={{ opacity: 0, y: 10 }}
@@ -195,14 +201,6 @@ const ProductList = ({
                   </span>
                 )}
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex-shrink-0 ml-2 p-1 hover:bg-gray-100"
-                onClick={(e: React.MouseEvent) => e.stopPropagation()}
-              >
-                <Info className="w-4 h-4 text-gray-400" />
-              </Button>
             </div>
           </motion.div>
         ))}
@@ -340,7 +338,7 @@ const ProductDetails = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="flex flex-col w-full gap-8 pt-10"
+      className="flex flex-col w-full gap-8 pt-10 pb-24"
     >
       <div className="flex items-center justify-between w-full">
         <div className="inline-flex items-center gap-3">
@@ -358,9 +356,9 @@ const ProductDetails = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 min-h-[calc(100vh-300px)]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 h-full">
         {/* Left Column - Product Image */}
-        <div className="lg:col-span-4 h-full">
+        <div className="lg:col-span-4">
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -418,7 +416,7 @@ const ProductDetails = () => {
       </div>
 
       {/* Fixed Footer */}
-      <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
+      <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4 z-10">
         <div className="px-6 max-w-[calc(100%-2rem)]">
           <div className="flex items-center justify-end w-full mx-auto">
             <Button

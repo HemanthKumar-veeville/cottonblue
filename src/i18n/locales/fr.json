@@ -94,8 +94,8 @@
     },
     "actions": {
       "create": "Créer",
-      "link": "Lien",
-      "linkProducts": "Lier les produits",
+      "link": "Groupe produits",
+      "linkProducts": "Grouper les produits",
       "importCsv": "Importer CSV",
       "exportCsv": "Exporter CSV"
     },
