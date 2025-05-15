@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
@@ -25,6 +25,30 @@ import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
+
+interface OrderItem {
+  product_id: number;
+  product_name: string;
+  product_image: string;
+  product_price: number;
+  quantity: number;
+}
+
+interface Order {
+  order_id: number;
+  created_at: string;
+  total_amount: number;
+  order_status:
+    | "approval_pending"
+    | "confirmed"
+    | "refused"
+    | "shipped"
+    | "in_transit"
+    | "delivered";
+  order_items: OrderItem[];
+}
+
+type StatusIconType = "warning" | "success" | "danger" | "default";
 
 const paginationItems = [
   { page: 1, active: true },
@@ -64,7 +88,17 @@ const StatusText = ({ status, type }: { status: string; type: string }) => {
   );
 };
 
-const OrderRow = ({ order, index }: { order: any; index: number }) => {
+const OrderRow = ({
+  order,
+  index,
+  isSelected,
+  onSelect,
+}: {
+  order: Order;
+  index: number;
+  isSelected: boolean;
+  onSelect: (orderId: number) => void;
+}) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
@@ -87,7 +121,11 @@ const OrderRow = ({ order, index }: { order: any; index: number }) => {
   return (
     <TableRow key={index} className="border-b border-primary-neutal-300">
       <TableCell className="w-11 py-3 px-2 align-middle">
-        <Checkbox className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
+        <Checkbox
+          className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
+          checked={isSelected}
+          onCheckedChange={() => onSelect(order.order_id)}
+        />
       </TableCell>
       <TableCell className="w-[129px] p-2.5 text-left align-middle">
         <span
@@ -138,8 +176,27 @@ export const OrderDetailsSection = (): JSX.Element => {
   const orders = useSelector((state: any) => state.cart.orders);
   const loading = useSelector((state: any) => state.cart.loading);
   const error = useSelector((state: any) => state.cart.error);
+  const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
 
   const orderList = orders?.orders || [];
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedOrders(orderList.map((order: Order) => order.order_id));
+    } else {
+      setSelectedOrders([]);
+    }
+  };
+
+  const handleSelectOrder = (orderId: number) => {
+    setSelectedOrders((prev) => {
+      if (prev.includes(orderId)) {
+        return prev.filter((id) => id !== orderId);
+      } else {
+        return [...prev, orderId];
+      }
+    });
+  };
 
   if (loading) {
     return <Skeleton variant="table" />;
@@ -172,7 +229,16 @@ export const OrderDetailsSection = (): JSX.Element => {
           <TableHeader className="bg-[#eaf8e7] rounded-md">
             <TableRow>
               <TableHead className="w-11 p-2.5 align-middle">
-                <Checkbox className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium" />
+                <Checkbox
+                  className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
+                  checked={
+                    selectedOrders.length === orderList.length &&
+                    orderList.length > 0
+                  }
+                  onCheckedChange={(checked: boolean | "indeterminate") =>
+                    handleSelectAll(checked === true)
+                  }
+                />
               </TableHead>
               {[
                 t("history.table.order"),
@@ -196,8 +262,14 @@ export const OrderDetailsSection = (): JSX.Element => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orderList?.map((order: any, index: number) => (
-              <OrderRow key={order?.order_id} order={order} index={index} />
+            {orderList?.map((order: Order, index: number) => (
+              <OrderRow
+                key={order?.order_id}
+                order={order}
+                index={index}
+                isSelected={selectedOrders.includes(order.order_id)}
+                onSelect={handleSelectOrder}
+              />
             ))}
           </TableBody>
         </Table>

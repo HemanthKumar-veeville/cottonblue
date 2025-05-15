@@ -318,7 +318,9 @@ const ProductDetails = () => {
       await dispatch(
         linkProducts({
           dnsPrefix: selectedCompany.dns,
-          productIds: [...selectedProductIds, id].map((id) => parseInt(id)), // Convert all IDs to strings
+          productIds: [
+            ...new Set([...selectedProductIds, id].map((id) => parseInt(id))),
+          ], // Convert all IDs to strings
         })
       ).unwrap();
 
