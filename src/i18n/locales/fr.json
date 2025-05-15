@@ -466,7 +466,7 @@
           "placeholder": "Rechercher une commande..."
         },
         "table": {
-          "order": "Commande",
+          "order": "Commande Id.",
           "company": "Entreprise",
           "store": "Magasin",
           "date": "Date",

@@ -457,9 +457,9 @@ const ProductInfo = ({
       : "bg-white text-red-600 border-red-300";
 
   const availableSizes = [
-    ...product?.linked_products,
-    { size: product?.size },
-  ].sort((a, b) => a.size.localeCompare(b.size));
+    ...(product?.linked_products || []),
+    { size: product?.size || "" },
+  ].sort((a, b) => (a.size || "").localeCompare(b.size || ""));
   const productDetails = [
     {
       label: t("clientProduct.suitableFor"),
@@ -542,7 +542,7 @@ const ProductInfo = ({
                             dispatch(
                               getProductById({
                                 dnsPrefix,
-                                productId: item.linked_product_id,
+                                productId: item.linked_product_id.toString(),
                               })
                             );
                           }

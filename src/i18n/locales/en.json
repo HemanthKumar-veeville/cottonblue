@@ -451,7 +451,7 @@
           "placeholder": "Search an order..."
         },
         "table": {
-          "order": "Order",
+          "order": "Order Id.",
           "company": "Company",
           "store": "Store",
           "date": "Date",

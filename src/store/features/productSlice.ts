@@ -25,7 +25,10 @@ interface Product {
   price_of_pack: number;
   is_active: boolean;
   updated_at: string;
-  linked_products?: Product[];
+  linked_products?: Array<{
+    size: string;
+    linked_product_id?: number;
+  }>;
 }
 
 interface ProductState {
