@@ -346,7 +346,11 @@ export default function ClientSupportTicket() {
                     <Button
                       variant={activeTab === "active" ? "default" : "outline"}
                       onClick={() => setActiveTab("active")}
-                      className="flex-1"
+                      className={`flex-1 ${
+                        activeTab === "active"
+                          ? "bg-[#00b85b] text-white border-[#1a8563] hover:bg-[#00b85b]/90"
+                          : "border-[#1a8563] text-[#00b85b] hover:bg-[#00b85b]/10"
+                      }`}
                     >
                       {t("clientSupport.activeTickets")} (
                       {activeTickets?.length ?? 0})
@@ -356,7 +360,11 @@ export default function ClientSupportTicket() {
                         activeTab === "completed" ? "default" : "outline"
                       }
                       onClick={() => setActiveTab("completed")}
-                      className="flex-1"
+                      className={`flex-1 ${
+                        activeTab === "completed"
+                          ? "bg-[#00b85b] text-white border-[#1a8563] hover:bg-[#00b85b]/90"
+                          : "border-[#1a8563] text-[#00b85b] hover:bg-[#00b85b]/10"
+                      }`}
                     >
                       {t("clientSupport.completedTickets")} (
                       {completedTickets?.length ?? 0})
