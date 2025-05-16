@@ -252,7 +252,7 @@ const TopProductsSection: React.FC = () => {
     if (!summary) {
       dispatch(
         fetchDashboard({
-          dns_prefix,
+          dns_prefix: dns_prefix || "admin",
           filter_by: selectedTimeframe.toLowerCase(),
           filter_value: selectedPeriod,
         })
@@ -367,18 +367,20 @@ const TopProductsSection: React.FC = () => {
       doc.text(
         "Most Sold Products",
         14,
-        doc.autoTable.previous?.finalY ? doc.autoTable.previous.finalY + 20 : 20
+        doc.autoTable?.previous?.finalY
+          ? doc.autoTable?.previous.finalY + 20
+          : 20
       );
 
       autoTable(doc, {
-        startY: doc.autoTable.previous?.finalY
-          ? doc.autoTable.previous.finalY + 30
+        startY: doc.autoTable?.previous?.finalY
+          ? doc.autoTable?.previous.finalY + 30
           : 30,
         head: [["Product Name", "Quantity Sold", "Total Revenue"]],
         body: data.most_sold_products.map((product: any) => [
           product.name,
           product.quantity,
-          `$${product.revenue.toFixed(2)}`,
+          `$${product?.revenue?.toFixed(2)}`,
         ]),
         theme: "striped",
         headStyles: {
