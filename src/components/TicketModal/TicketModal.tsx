@@ -83,7 +83,7 @@ const TicketModalSkeleton = () => {
                   <Skeleton className="h-4 w-32" />
                 </div>
               </div>
-              <div className="h-[400px] w-full overflow-auto pr-2">
+              <div className="h-[400px] w-full">
                 <div className="space-y-4">
                   {[...Array(3)].map((_, index) => (
                     <div key={index} className="bg-gray-50 p-4 rounded-lg">
@@ -113,7 +113,6 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const [description, setDescription] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const currentTicket = useAppSelector(
     (state: RootState) => state.ticket.currentTicket
@@ -146,8 +145,8 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
   }
 
   const handleSubmit = async () => {
-    setIsSubmitting(true);
     try {
+      setIsLoading(true);
       await dispatch(
         replyToTicket({
           dnsPrefix: "admin",
@@ -155,16 +154,17 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
           data: { message: description },
         })
       ).unwrap();
+      setDescription("");
     } catch (error) {
       console.error("Failed to reply to ticket:", error);
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   const handleMarkAsComplete = async () => {
-    setIsSubmitting(true);
     try {
+      setIsLoading(true);
       await dispatch(
         updateTicketStatus({
           dnsPrefix: "admin",
@@ -178,13 +178,13 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
     } catch (error) {
       console.error("Failed to update ticket status:", error);
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
   const handleReopenTicket = async () => {
-    setIsSubmitting(true);
     try {
+      setIsLoading(true);
       await dispatch(
         updateTicketStatus({
           dnsPrefix: "admin",
@@ -198,7 +198,7 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
     } catch (error) {
       console.error("Failed to reopen ticket:", error);
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(false);
     }
   };
 
@@ -287,7 +287,7 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
                   variant="outline"
                   className="h-10 border border-solid border-gray-300 text-gray-900"
                   onClick={handleMarkAsComplete}
-                  disabled={isSubmitting}
+                  disabled={isLoading}
                 >
                   {t("tickets.modal.markAsComplete")}
                 </Button>
@@ -297,7 +297,7 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
                   variant="outline"
                   className="h-10 border border-solid border-gray-300 text-gray-900"
                   onClick={handleReopenTicket}
-                  disabled={isSubmitting}
+                  disabled={isLoading}
                 >
                   {t("tickets.modal.reopenTicket")}
                 </Button>
@@ -306,7 +306,7 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
                 <Button
                   className="h-10 bg-teal-700 border border-solid border-gray-300 text-white"
                   onClick={handleSubmit}
-                  disabled={isSubmitting}
+                  disabled={isLoading}
                 >
                   {t("tickets.modal.sendResponse")}
                 </Button>

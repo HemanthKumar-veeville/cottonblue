@@ -181,7 +181,7 @@ const TicketList: React.FC<TicketListProps> = ({
       <div className="h-[742px] w-full md:h-[600px] sm:h-[400px]">
         <ScrollAreaPrimitive.Root className="h-full w-full overflow-hidden">
           <ScrollAreaPrimitive.Viewport className="h-full w-full">
-            <div className="p-1">
+            <div className="p-1 pr-4">
               {isLoading ? (
                 <div className="space-y-3">
                   {[...Array(3)].map((_, i) => (
