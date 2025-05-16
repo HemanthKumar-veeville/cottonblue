@@ -385,12 +385,56 @@ export const OrderDetailsSection = (): JSX.Element => {
   const loading = useSelector((state: any) => state.cart.loading);
   const error = useSelector((state: any) => state.cart.error);
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const ordersPerPage = 10; // Number of orders to show per page
 
   const orderList = orders?.orders || [];
+  const totalPages = Math.ceil(orderList.length / ordersPerPage);
+
+  // Get current orders
+  const indexOfLastOrder = currentPage * ordersPerPage;
+  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
+  const currentOrders = orderList.slice(indexOfFirstOrder, indexOfLastOrder);
+
+  // Generate pagination items
+  const generatePaginationItems = () => {
+    const items = [];
+    const maxVisiblePages = 5;
+    let startPage = 1;
+    let endPage = totalPages;
+
+    if (totalPages > maxVisiblePages) {
+      const leftOffset = Math.floor(maxVisiblePages / 2);
+      const rightOffset = maxVisiblePages - leftOffset - 1;
+
+      if (currentPage <= leftOffset) {
+        endPage = maxVisiblePages;
+      } else if (currentPage > totalPages - rightOffset) {
+        startPage = totalPages - maxVisiblePages + 1;
+      } else {
+        startPage = currentPage - leftOffset;
+        endPage = currentPage + rightOffset;
+      }
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      items.push({ page: i, active: i === currentPage });
+    }
+
+    return items;
+  };
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+      // Reset selected orders when changing pages
+      setSelectedOrders([]);
+    }
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedOrders(orderList.map((order: Order) => order.order_id));
+      setSelectedOrders(currentOrders.map((order: Order) => order.order_id));
     } else {
       setSelectedOrders([]);
     }
@@ -440,8 +484,8 @@ export const OrderDetailsSection = (): JSX.Element => {
                 <Checkbox
                   className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
                   checked={
-                    selectedOrders.length === orderList.length &&
-                    orderList.length > 0
+                    selectedOrders.length === currentOrders.length &&
+                    currentOrders.length > 0
                   }
                   onCheckedChange={(checked: boolean | "indeterminate") =>
                     handleSelectAll(checked === true)
@@ -470,7 +514,7 @@ export const OrderDetailsSection = (): JSX.Element => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orderList?.map((order: Order, index: number) => (
+            {currentOrders?.map((order: Order, index: number) => (
               <OrderRow
                 key={order?.order_id}
                 order={order}
@@ -487,8 +531,11 @@ export const OrderDetailsSection = (): JSX.Element => {
         <div className="px-6 max-w-[calc(100%-2rem)]">
           <Pagination className="flex items-center justify-between w-full mx-auto">
             <PaginationPrevious
-              href="#"
-              className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
+              onClick={() => handlePageChange(currentPage - 1)}
+              className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px] ${
+                currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+              }`}
+              disabled={currentPage === 1}
             >
               <img
                 className="w-6 h-6"
@@ -499,12 +546,12 @@ export const OrderDetailsSection = (): JSX.Element => {
             </PaginationPrevious>
 
             <PaginationContent className="flex items-center gap-3">
-              {paginationItems.map((item, index) => (
+              {generatePaginationItems().map((item, index) => (
                 <React.Fragment key={index}>
                   <PaginationItem>
                     <PaginationLink
-                      href="#"
-                      className={`flex items-center justify-center w-9 h-9 rounded ${
+                      onClick={() => handlePageChange(item.page)}
+                      className={`flex items-center justify-center w-9 h-9 rounded cursor-pointer ${
                         item.active
                           ? "bg-cyan-100 font-bold text-[#1e2324]"
                           : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
@@ -513,18 +560,31 @@ export const OrderDetailsSection = (): JSX.Element => {
                       {item.page}
                     </PaginationLink>
                   </PaginationItem>
-                  {index === paginationItems.length - 2 && (
-                    <PaginationItem>
-                      <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
-                    </PaginationItem>
+                  {totalPages > 5 && index === generatePaginationItems().length - 1 && item.page < totalPages && (
+                    <>
+                      <PaginationItem>
+                        <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                      </PaginationItem>
+                      <PaginationItem>
+                        <PaginationLink
+                          onClick={() => handlePageChange(totalPages)}
+                          className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337] cursor-pointer"
+                        >
+                          {totalPages}
+                        </PaginationLink>
+                      </PaginationItem>
+                    </>
                   )}
                 </React.Fragment>
               ))}
             </PaginationContent>
 
             <PaginationNext
-              href="#"
-              className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
+              onClick={() => handlePageChange(currentPage + 1)}
+              className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px] ${
+                currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+              }`}
+              disabled={currentPage === totalPages}
             >
               {t("history.table.next")}
               <img
