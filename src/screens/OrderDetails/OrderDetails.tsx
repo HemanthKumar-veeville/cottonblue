@@ -6,23 +6,215 @@ import { ArrowLeft, Download, Package2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getOrder } from "../../store/features/cartSlice";
 import { useAppSelector, AppDispatch } from "../../store/store";
 import { getHost } from "../../utils/hostUtils";
 import { Skeleton } from "../../components/Skeleton";
+import { jsPDF } from "jspdf";
 
-const OrderHeader = () => {
+const OrderHeader = ({ order }: { order: any }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const handleDownloadInvoice = (order: any) => {
+    // Validate order data
+    if (!order?.order_items?.length) {
+      console.error('No order items found');
+      return;
+    }
+
+    const doc = new jsPDF();
+    
+    // Helper function to draw borders
+    const drawBorder = () => {
+      doc.setDrawColor(7, 81, 95); // #07515f
+      doc.setLineWidth(0.5);
+      doc.rect(10, 10, 190, 277);
+      doc.setLineWidth(0.2);
+      doc.rect(15, 15, 180, 267);
+    };
+
+    // Helper function to draw horizontal line
+    const drawHorizontalLine = (y: number, opacity = 1) => {
+      doc.setDrawColor(7, 81, 95);
+      doc.setLineWidth(0.2);
+      doc.line(15, y, 195, y);
+    };
+
+    // Helper function to format price
+    const formatPrice = (price: number | undefined): string => {
+      return typeof price === 'number' ? price.toFixed(2) : '0.00';
+    };
+
+    // Add borders
+    drawBorder();
+
+    // Add header bar
+    doc.setFillColor(7, 81, 95);
+    doc.rect(10, 10, 190, 25, 'F');
+    
+    // Add company logo/header
+    doc.setTextColor(255, 255, 255);
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(24);
+    doc.text("Cotton Blue", 20, 27);
+    
+    // Add "INVOICE" text
+    doc.setFontSize(16);
+    doc.text("INVOICE", 160, 27);
+
+    // Add invoice details section
+    doc.setTextColor(7, 81, 95);
+    doc.setFontSize(12);
+    doc.text("BILL TO:", 20, 50);
+    
+    // Add subtle divider
+    drawHorizontalLine(53);
+
+    // Store information
+    doc.setTextColor(0, 0, 0);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(10);
+    doc.text(order.store_name || "Customer", 20, 60);
+    doc.text(order.store_address || "", 20, 66);
+
+    // Add invoice info box
+    doc.setDrawColor(7, 81, 95);
+    doc.setFillColor(247, 250, 252);
+    doc.rect(120, 45, 70, 35, 'FD');
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text("Invoice Number:", 125, 53);
+    doc.text("Date:", 125, 61);
+    doc.text("Status:", 125, 69);
+    
+    doc.setFont('helvetica', 'normal');
+    doc.text(`#${order.order_id}`, 165, 53);
+    doc.text(new Date(order.created_at).toLocaleDateString(), 165, 61);
+    
+    // Status with color coding
+    const statusColors = {
+      approval_pending: [255, 170, 0],
+      confirmed: [0, 150, 0],
+      refused: [200, 0, 0],
+      shipped: [0, 150, 0],
+      in_transit: [0, 150, 0],
+      delivered: [0, 150, 0]
+    };
+    const [r, g, b] = statusColors[order.order_status as keyof typeof statusColors] || [0, 0, 0];
+    doc.setTextColor(r, g, b);
+    doc.text(order.order_status.replace(/_/g, ' ').toUpperCase(), 165, 69);
+    doc.setTextColor(0, 0, 0);
+
+    // Add order items table
+    drawHorizontalLine(85);
+    
+    // Table headers
+    doc.setFillColor(247, 250, 252);
+    doc.rect(15, 90, 180, 10, 'F');
+    doc.setFont('helvetica', 'bold');
+    doc.text("Item", 20, 97);
+    doc.text("Quantity", 120, 97);
+    doc.text("Price", 150, 97);
+    doc.text("Total", 175, 97);
+
+    // Table content
+    let yPos = 107;
+    doc.setFont('helvetica', 'normal');
+    
+    order.order_items.forEach((item: any, index: number) => {
+      if (!item) return; // Skip if item is undefined
+
+      // Alternate row background
+      if (index % 2 === 0) {
+        doc.setFillColor(252, 252, 252);
+        doc.rect(15, yPos - 5, 180, 8, 'F');
+      }
+
+      const itemTotal = (item.product_price || 0) * (item.quantity || 0);
+      
+      // Truncate long product names
+      const maxLength = 45;
+      const displayName = (item.product_name || 'Unknown Product').length > maxLength 
+        ? (item.product_name || 'Unknown Product').substring(0, maxLength) + '...'
+        : (item.product_name || 'Unknown Product');
+
+      doc.text(displayName, 20, yPos);
+      doc.text(item.quantity?.toString() || '0', 120, yPos);
+      doc.text(`$${formatPrice(item.product_price)}`, 150, yPos);
+      doc.text(`$${formatPrice(itemTotal)}`, 175, yPos);
+      yPos += 8;
+    });
+
+    // Calculate total with safe checks
+    const subtotal = order.order_items.reduce(
+      (sum: number, item: any) => sum + ((item?.product_price || 0) * (item?.quantity || 0)),
+      0
+    );
+    const tax = subtotal * 0.1; // 10% tax
+    const total = subtotal + tax;
+
+    // Add total section
+    yPos += 5;
+    doc.setFillColor(247, 250, 252);
+    doc.rect(120, yPos - 5, 75, 35, 'F');
+    
+    doc.setFont('helvetica', 'normal');
+    doc.text("Subtotal:", 125, yPos + 5);
+    doc.text(`$${formatPrice(subtotal)}`, 175, yPos + 5);
+    
+    doc.text("Tax (10%):", 125, yPos + 15);
+    doc.text(`$${formatPrice(tax)}`, 175, yPos + 15);
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text("Total:", 125, yPos + 25);
+    doc.text(`$${formatPrice(total)}`, 175, yPos + 25);
+
+    // Add payment terms
+    yPos += 45;
+    doc.setFont('helvetica', 'bold');
+    doc.text("Payment Terms", 20, yPos);
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.text("Payment is due within 30 days of invoice date.", 20, yPos + 7);
+    doc.text("Please include invoice number with your payment.", 20, yPos + 14);
+
+    // Add footer
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
+    doc.setTextColor(128, 128, 128);
+    
+    // Add divider before footer
+    drawHorizontalLine(260);
+    
+    // Footer text
+    doc.text("Thank you for your business with Cotton Blue!", doc.internal.pageSize.width / 2, 265, { align: 'center' });
+    doc.setFontSize(8);
+    doc.text("For any questions about this invoice, please contact support@cottonblue.com", doc.internal.pageSize.width / 2, 270, { align: 'center' });
+    doc.text("Cotton Blue Inc. | 123 Fashion Street, Style City, SC 12345 | +1 (555) 123-4567", doc.internal.pageSize.width / 2, 275, { align: 'center' });
+    
+    try {
+      // Save the PDF with a clean name
+      const timestamp = new Date().toISOString().split('T')[0];
+      doc.save(`CottonBlue_Invoice_${order.order_id}_${timestamp}.pdf`);
+    } catch (error) {
+      console.error('Error saving PDF:', error);
+    }
+  };
+
   return (
     <div className="flex items-center justify-between mb-8">
       <div className="flex items-center gap-2">
-        <Button variant="ghost" size="icon" className="h-10 w-10">
+        <Button variant="ghost" size="icon" className="h-10 w-10" onClick={() => navigate(-1)}>
           <ArrowLeft className="h-5 w-5" />
         </Button>
         <h2 className="text-xl font-bold">{t("orderDetails.title")}</h2>
       </div>
-      <Button className="bg-[#00b85b] hover:bg-[#00a050] border border-[#1a8563] text-white">
+      <Button 
+        className="bg-[#00b85b] hover:bg-[#00a050] border border-[#1a8563] text-white"
+        onClick={() => handleDownloadInvoice(order)}
+      >
         <Download className="mr-2 h-4 w-4" />
         {t("orderDetails.downloadInvoice")}
       </Button>
@@ -54,7 +246,7 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
   return (
     <Card className="w-full">
       <CardContent className="p-6">
-        <OrderHeader />
+        <OrderHeader order={order} />
         <div className="grid md:grid-cols-2 gap-8">
           <div className="space-y-4">
             <div className="space-y-2">
