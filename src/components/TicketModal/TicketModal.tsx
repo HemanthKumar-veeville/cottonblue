@@ -15,6 +15,7 @@ import {
 } from "../../store/features/ticketSlice";
 import { AppDispatch, RootState, useAppSelector } from "../../store/store";
 import { Badge } from "../ui/badge";
+import { Skeleton } from "../ui/skeleton";
 
 interface TicketMessage {
   message_id: number;
@@ -61,21 +62,70 @@ const formatStatus = (status: string): string => {
   });
 };
 
+const TicketModalSkeleton = () => {
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="w-full h-full flex items-center justify-center p-4">
+        <Card className="w-full max-w-2xl bg-white rounded-md overflow-hidden">
+          <CardHeader className="flex flex-row items-center justify-between p-3 pb-0">
+            <CardTitle className="font-bold text-gray-900 text-base flex items-center gap-2 flex-1">
+              <Skeleton className="h-6 w-48" />
+            </CardTitle>
+            <Button variant="ghost" size="icon" className="h-8 w-8">
+              <X className="h-5 w-5" />
+            </Button>
+          </CardHeader>
+          <CardContent className="p-3">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Skeleton className="h-6 w-24" />
+                  <Skeleton className="h-4 w-32" />
+                </div>
+              </div>
+              <div className="h-[400px] w-full overflow-auto pr-2">
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, index) => (
+                    <div key={index} className="bg-gray-50 p-4 rounded-lg">
+                      <div className="flex justify-between items-center mb-2">
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-4 w-40" />
+                      </div>
+                      <Skeleton className="h-16 w-full" />
+                    </div>
+                  ))}
+                </div>
+                <Skeleton className="h-24 w-full mt-4" />
+              </div>
+            </div>
+            <div className="flex justify-end gap-2 mt-4">
+              <Skeleton className="h-10 w-32" />
+              <Skeleton className="h-10 w-32" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+};
+
 export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const [description, setDescription] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const currentTicket = useAppSelector(
     (state: RootState) => state.ticket.currentTicket
   );
 
   const ticket = currentTicket?.ticket || null;
   const isClosedTicket = ticket?.ticket_status === TicketStatus.CLOSED;
-  console.log({ ticketId, currentTicket });
+
   useEffect(() => {
     const fetchTicketMessages = async () => {
       try {
+        setIsLoading(true);
         await dispatch(
           getTicketById({
             dnsPrefix: "admin",
@@ -84,12 +134,16 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
         ).unwrap();
       } catch (error) {
         console.error("Failed to fetch ticket messages:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
-    if (!ticket) {
-      fetchTicketMessages();
-    }
+    fetchTicketMessages();
   }, [ticketId]);
+
+  if (isLoading) {
+    return <TicketModalSkeleton />;
+  }
 
   const handleSubmit = async () => {
     setIsSubmitting(true);
