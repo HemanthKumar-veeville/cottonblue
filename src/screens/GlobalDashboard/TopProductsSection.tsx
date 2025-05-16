@@ -245,7 +245,7 @@ const TopProductsSection: React.FC = () => {
 
   const { summary } = useSelector((state: RootState) => state.dashboard);
   const { selectedCompany } = useSelector((state: RootState) => state.client);
-console.log({summary})
+  console.log({ summary });
   const dns_prefix = selectedCompany?.dns ?? getHost();
 
   useEffect(() => {
@@ -297,7 +297,10 @@ console.log({summary})
     doc.setFontSize(12);
     doc.setTextColor(71, 85, 105); // #475569
     doc.text(
-      `${selectedTimeframe}: ${getDisplayLabel(selectedPeriod, selectedTimeframe)}`,
+      `${selectedTimeframe}: ${getDisplayLabel(
+        selectedPeriod,
+        selectedTimeframe
+      )}`,
       pageWidth / 2,
       40,
       { align: "center" }
@@ -361,10 +364,16 @@ console.log({summary})
       }
       doc.setFontSize(16);
       doc.setTextColor(7, 81, 95);
-      doc.text("Most Sold Products", 14, doc.autoTable.previous?.finalY ? doc.autoTable.previous.finalY + 20 : 20);
+      doc.text(
+        "Most Sold Products",
+        14,
+        doc.autoTable.previous?.finalY ? doc.autoTable.previous.finalY + 20 : 20
+      );
 
       autoTable(doc, {
-        startY: doc.autoTable.previous?.finalY ? doc.autoTable.previous.finalY + 30 : 30,
+        startY: doc.autoTable.previous?.finalY
+          ? doc.autoTable.previous.finalY + 30
+          : 30,
         head: [["Product Name", "Quantity Sold", "Total Revenue"]],
         body: data.most_sold_products.map((product: any) => [
           product.name,
@@ -399,8 +408,10 @@ console.log({summary})
     }
 
     // Save the PDF
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    doc.save(`dashboard-report-${selectedTimeframe.toLowerCase()}-${selectedPeriod}-${timestamp}.pdf`);
+    const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+    doc.save(
+      `dashboard-report-${selectedTimeframe.toLowerCase()}-${selectedPeriod}-${timestamp}.pdf`
+    );
   };
 
   return (
@@ -418,7 +429,7 @@ console.log({summary})
           />
         </div>
 
-        <Button 
+        <Button
           onClick={handleDownload}
           className="bg-[#07515F] hover:bg-[#064249] text-white gap-3 px-5 py-2.5 h-10 rounded-md transition-all duration-200 font-medium"
         >
