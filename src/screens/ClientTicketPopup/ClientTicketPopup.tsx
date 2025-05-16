@@ -18,16 +18,23 @@ import { TicketStatus } from "../../screens/Tickets/Tickets";
 import EmptyState from "../../components/EmptyState";
 
 const getStatusColor = (status: string) => {
-  switch (status) {
-    case TicketStatus.OPEN:
-      return "bg-teal-100 text-teal-800";
-    case TicketStatus.IN_PROGRESS:
-      return "bg-blue-100 text-blue-800";
-    case TicketStatus.CLOSED:
-      return "bg-gray-100 text-gray-800";
+  switch (status.toLowerCase()) {
+    case "open":
+      return "border-blue-200 text-blue-700 bg-blue-50/50 hover:bg-blue-100/50";
+    case "in_progress":
+      return "border-amber-200 text-amber-700 bg-amber-50/50 hover:bg-amber-100/50";
+    case "closed":
+      return "border-emerald-200 text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100/50";
     default:
-      return "bg-gray-100 text-gray-800";
+      return "border-gray-200 text-gray-700 bg-gray-50/50 hover:bg-gray-100/50";
   }
+};
+
+const formatStatus = (status: string): string => {
+  // Replace underscores with spaces and convert to sentence case
+  return status.replace(/_/g, " ").replace(/\w\S*/g, (txt) => {
+    return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
+  });
 };
 
 interface TicketMessage {
@@ -182,9 +189,9 @@ const PopupTicket = ({ ticketId, onClose }: PopupTicketProps) => {
                   <Badge
                     className={`${getStatusColor(
                       ticket?.ticket_status ?? ""
-                    )} font-label-small pointer-events-none`}
+                    )} font-label-small pointer-events-none border`}
                   >
-                    {t(ticket?.ticket_status ?? "")}
+                    {formatStatus(ticket?.ticket_status ?? "")}
                   </Badge>
                 </div>
               </div>

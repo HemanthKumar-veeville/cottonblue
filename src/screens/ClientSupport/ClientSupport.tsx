@@ -20,6 +20,7 @@ import { getHost } from "../../utils/hostUtils";
 import { TicketStatus } from "../Tickets/Tickets";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
+import { Badge } from "../../components/ui/badge";
 
 interface Ticket {
   ticket_id: number;
@@ -44,6 +45,26 @@ const TicketFormSkeleton = () => (
     </div>
   </div>
 );
+
+const getStatusColor = (status: string) => {
+  switch (status.toLowerCase()) {
+    case "open":
+      return "border-blue-200 text-blue-700 bg-blue-50/50 hover:bg-blue-100/50";
+    case "in_progress":
+      return "border-amber-200 text-amber-700 bg-amber-50/50 hover:bg-amber-100/50";
+    case "closed":
+      return "border-emerald-200 text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100/50";
+    default:
+      return "border-gray-200 text-gray-700 bg-gray-50/50 hover:bg-gray-100/50";
+  }
+};
+
+const formatStatus = (status: string): string => {
+  // Replace underscores with spaces and convert to sentence case
+  return status.replace(/_/g, " ").replace(/\w\S*/g, (txt) => {
+    return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
+  });
+};
 
 const TicketCard = ({
   ticket,
@@ -88,7 +109,10 @@ const TicketCard = ({
                 {ticket?.company_name ?? "N/A"}
               </p>
               <p className="font-label-smaller font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] tracking-[var(--label-smaller-letter-spacing)] leading-[var(--label-smaller-line-height)]">
-                {t("clientSupport.ticket.status")}: {ticket?.ticket_status}
+                {t("clientSupport.ticket.status")}:{" "}
+                <Badge className={`${getStatusColor(ticket?.ticket_status)} border`}>
+                  {formatStatus(ticket?.ticket_status)}
+                </Badge>
               </p>
             </div>
             {isCompleted ? (
