@@ -10,7 +10,7 @@ import {
 } from "../../components/ui/select";
 import { Separator } from "../../components/ui/separator";
 import { Textarea } from "../../components/ui/textarea";
-import { PlusCircle, Upload, User } from "lucide-react";
+import { PlusCircle, Upload, User, Palette } from "lucide-react";
 import React, { useState, useRef, useEffect } from "react";
 import { HexColorPicker } from "react-colorful";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -142,7 +142,52 @@ const ColorPicker = ({
   required?: boolean;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [inputValue, setInputValue] = useState(color);
   const pickerRef = useRef<HTMLDivElement>(null);
+
+  // Update input value when color prop changes
+  useEffect(() => {
+    setInputValue(color);
+  }, [color]);
+
+  // Add validation for hex color code
+  const validateHexColor = (value: string) => {
+    const hexRegex = /^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+    return hexRegex.test(value);
+  };
+
+  // Handle manual color code input
+  const handleColorInput = (value: string) => {
+    // Update the input value immediately for responsive UI
+    setInputValue(value);
+
+    // Clean up the input value
+    let newValue = value.trim();
+
+    // Add # if missing
+    if (newValue && !newValue.startsWith("#")) {
+      newValue = `#${newValue}`;
+    }
+
+    // Handle 3-digit hex codes by converting to 6-digit
+    if (validateHexColor(newValue) && newValue.length === 4) {
+      newValue = `#${newValue[1]}${newValue[1]}${newValue[2]}${newValue[2]}${newValue[3]}${newValue[3]}`;
+    }
+
+    // Only update if it's a valid hex color
+    if (validateHexColor(newValue)) {
+      onChange(newValue.toLowerCase());
+    }
+  };
+
+  // Handle blur event to reformat invalid input
+  const handleBlur = () => {
+    if (!validateHexColor(inputValue)) {
+      setInputValue(color); // Reset to last valid color
+    } else if (!inputValue.startsWith("#")) {
+      handleColorInput(inputValue); // Add # if missing
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -169,13 +214,26 @@ const ColorPicker = ({
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
       </p>
-      <div
-        className="w-[50px] h-[50px] rounded-md border cursor-pointer"
-        style={{ backgroundColor: color }}
-        onClick={() => setIsOpen(!isOpen)}
-      />
+      <div className="flex flex-col items-center gap-2">
+        <div
+          className="w-[50px] h-[50px] rounded-md border cursor-pointer relative"
+          style={{ backgroundColor: color }}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <div className="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm border">
+            <Palette className="w-4 h-4 text-gray-600" />
+          </div>
+        </div>
+        <Input
+          value={inputValue}
+          onChange={(e) => handleColorInput(e.target.value)}
+          onBlur={handleBlur}
+          className="w-[80px] h-7 px-2 py-1 text-xs font-mono text-center uppercase"
+          maxLength={7}
+        />
+      </div>
       {isOpen && (
-        <div className="absolute top-[60px] left-0 z-50">
+        <div className="absolute top-[85px] left-0 z-50">
           <HexColorPicker color={color} onChange={onChange} />
         </div>
       )}
@@ -230,7 +288,7 @@ const ContrastIndicator = ({
   isValid: boolean;
   ratio: number;
 }) => (
-  <div className="w-[160px] h-[80px] border rounded-md flex flex-col">
+  <div className="w-[155px] h-[80px] border rounded-md flex flex-col">
     <div className="h-[28px] flex items-center justify-center border-b">
       <p className="text-xs font-label-small text-[#475569]">{label}</p>
     </div>
