@@ -60,7 +60,15 @@ interface BillingAddress {
   phone: string;
 }
 
-const ProductRow = ({ product }: { product: CartItem }) => {
+const ProductRow = ({
+  product,
+  checked,
+  onCheckChange,
+}: {
+  product: CartItem;
+  checked: boolean;
+  onCheckChange: (id: number) => void;
+}) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const dnsPrefix = getHost();
@@ -126,7 +134,8 @@ const ProductRow = ({ product }: { product: CartItem }) => {
     >
       <TableCell className="w-11 p-2">
         <Checkbox
-          onChange={() => dispatch(removeFromCart(product.product_id))}
+          checked={checked}
+          onCheckedChange={() => onCheckChange(product.product_id)}
         />
       </TableCell>
       <TableCell className="w-[203px] p-3">
@@ -194,21 +203,21 @@ const AddressSection = ({
 }) => {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col gap-2">
-      <h2 className="font-heading-h5 text-[#1e2324] text-[length:var(--heading-h5-font-size)] tracking-[var(--heading-h5-letter-spacing)] leading-[var(--heading-h5-line-height)]">
+    <div className="flex flex-col gap-4">
+      <h2 className="text-[length:var(--heading-h5-font-size)] font-heading-h5 font-[number:var(--heading-h5-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h5-letter-spacing)] leading-[var(--heading-h5-line-height)]">
         {t(title)}
       </h2>
       <div className="flex flex-col gap-4">
         {"firstName" in address && (
           <div className="flex gap-2">
             <Input
-              className="flex-1"
+              className="flex-1 bg-white border-[#e0e0e0] hover:border-[#00b85b] focus:border-[#00b85b] transition-colors duration-200"
               placeholder={t("cart.shipping.firstName")}
               value={address.firstName}
               onChange={(e) => onUpdate("firstName", e.target.value)}
             />
             <Input
-              className="flex-1"
+              className="flex-1 bg-white border-[#e0e0e0] hover:border-[#00b85b] focus:border-[#00b85b] transition-colors duration-200"
               placeholder={t("cart.shipping.lastName")}
               value={address.lastName}
               onChange={(e) => onUpdate("lastName", e.target.value)}
@@ -216,21 +225,25 @@ const AddressSection = ({
           </div>
         )}
         <Input
+          className="bg-white border-[#e0e0e0] hover:border-[#00b85b] focus:border-[#00b85b] transition-colors duration-200"
           placeholder={t("cart.address.street")}
           value={address.street}
           onChange={(e) => onUpdate("street", e.target.value)}
         />
         <Input
+          className="bg-white border-[#e0e0e0] hover:border-[#00b85b] focus:border-[#00b85b] transition-colors duration-200"
           placeholder={t("cart.address.city")}
           value={address.city}
           onChange={(e) => onUpdate("city", e.target.value)}
         />
         <Input
+          className="bg-white border-[#e0e0e0] hover:border-[#00b85b] focus:border-[#00b85b] transition-colors duration-200"
           placeholder={t("cart.address.country")}
           value={address.country}
           onChange={(e) => onUpdate("country", e.target.value)}
         />
         <Input
+          className="bg-white border-[#e0e0e0] hover:border-[#00b85b] focus:border-[#00b85b] transition-colors duration-200"
           placeholder={t("cart.address.phone")}
           value={address.phone}
           onChange={(e) => onUpdate("phone", e.target.value)}
@@ -347,6 +360,32 @@ export default function CartContainer(): JSX.Element {
 
   const [comments, setComments] = useState("");
 
+  // Add state for checked items
+  const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
+
+  // Handle check all functionality
+  const handleCheckAll = (checked: boolean | "indeterminate") => {
+    if (checked === true) {
+      setCheckedItems(new Set(items.map((item) => item.product_id)));
+    } else {
+      setCheckedItems(new Set());
+    }
+  };
+
+  // Handle individual item check
+  const handleItemCheck = (productId: number) => {
+    const newCheckedItems = new Set(checkedItems);
+    if (newCheckedItems.has(productId)) {
+      newCheckedItems.delete(productId);
+    } else {
+      newCheckedItems.add(productId);
+    }
+    setCheckedItems(newCheckedItems);
+  };
+
+  // Check if all items are selected
+  const allChecked = items.length > 0 && checkedItems.size === items.length;
+
   const handleShippingUpdate = (field: string, value: string) => {
     setShippingAddress((prev) => ({ ...prev, [field]: value }));
   };
@@ -437,7 +476,12 @@ export default function CartContainer(): JSX.Element {
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
                       <TableHead className="w-11 h-10 p-2">
-                        <Checkbox />
+                        <Checkbox
+                          checked={allChecked}
+                          onCheckedChange={(
+                            checked: boolean | "indeterminate"
+                          ) => handleCheckAll(checked)}
+                        />
                       </TableHead>
                       <TableHead className="w-[203px] h-10 p-2.5 text-[#1e2324] font-text-small">
                         {t("cart.table.product")}
@@ -463,7 +507,12 @@ export default function CartContainer(): JSX.Element {
                 <Table>
                   <TableBody>
                     {items.map((product) => (
-                      <ProductRow key={product.product_id} product={product} />
+                      <ProductRow
+                        key={product.product_id}
+                        product={product}
+                        checked={checkedItems.has(product.product_id)}
+                        onCheckChange={handleItemCheck}
+                      />
                     ))}
                   </TableBody>
                 </Table>
@@ -491,32 +540,32 @@ export default function CartContainer(): JSX.Element {
               </div>
 
               <div className="flex flex-col gap-2">
-                <h2 className="font-heading-h5 text-[#1e2324] text-[length:var(--heading-h5-font-size)] tracking-[var(--heading-h5-letter-spacing)] leading-[var(--heading-h5-line-height)]">
+                <h2 className="text-[length:var(--heading-h5-font-size)] font-heading-h5 font-[number:var(--heading-h5-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h5-letter-spacing)] leading-[var(--heading-h5-line-height)]">
                   {t("cart.validation.title")}
                 </h2>
                 <Input
-                  className="bg-[color:var(--1-tokens-color-modes-input-primary-disable-background)] border-[color:var(--1-tokens-color-modes-input-primary-disable-border)] text-[color:var(--1-tokens-color-modes-input-primary-disable-placeholder-label)]"
+                  className="bg-[#f5f5f5] border-[#e0e0e0] text-[#666] cursor-not-allowed"
                   value={userEmail}
                   disabled
                 />
               </div>
 
               <div className="flex flex-col gap-4 flex-1">
-                <h2 className="font-heading-h5 text-[#1e2324] text-[length:var(--heading-h5-font-size)] tracking-[var(--heading-h5-letter-spacing)] leading-[var(--heading-h5-line-height)]">
+                <h2 className="text-[length:var(--heading-h5-font-size)] font-heading-h5 font-[number:var(--heading-h5-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h5-letter-spacing)] leading-[var(--heading-h5-line-height)]">
                   {t("cart.comments.title")}
                 </h2>
                 <Textarea
-                  className="flex-1 bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)]"
-                  placeholder={t("cart.comments.placeholder")}
+                  className="flex-1 bg-white border-[#e0e0e0] hover:border-[#00b85b] focus:border-[#00b85b] transition-colors duration-200"
                   value={comments}
                   onChange={(e) => setComments(e.target.value)}
                 />
               </div>
             </div>
-            <div className="flex justify-end" onClick={handleValidateOrder}>
+            <div className="flex justify-end">
               <Button
-                className="w-full bg-[#00b85b] border-[#1a8563] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] font-label-medium"
+                className="w-full bg-[#00b85b] hover:bg-[#00a050] border border-[#1a8563] text-white font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={items.length === 0 || loading}
+                onClick={handleValidateOrder}
               >
                 {loading
                   ? t("cart.buttons.processing")
