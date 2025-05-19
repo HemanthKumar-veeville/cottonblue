@@ -256,12 +256,15 @@ export default function ClientAdminDashboard(): JSX.Element {
   const { summary, loading: dashboardLoading } = useSelector(
     (state: RootState) => ({
       summary: state.dashboard.summary,
+      loading: state.dashboard.loading,
     })
   );
 
-  const { ordersForApproval, loading, error } = useAppSelector(
-    (state: RootState) => state.cart
-  );
+  const {
+    ordersForApproval,
+    loading: ordersLoading,
+    error,
+  } = useAppSelector((state: RootState) => state.cart);
 
   const orderList = ordersForApproval?.map((order) => {
     return {
@@ -317,32 +320,33 @@ export default function ClientAdminDashboard(): JSX.Element {
     return <div>Error: {error}</div>;
   }
 
+  const isLoading = ordersLoading || dashboardLoading;
+
   return (
     <main className="flex flex-col gap-6 p-6">
-      {loading ? (
+      <div className="flex items-start gap-6 mb-4 mt-[-30px]">
+        <TimeframeSelect
+          value={selectedTimeframe}
+          onChange={handleTimeframeChange}
+        />
+        <PeriodSelect
+          timeframe={selectedTimeframe}
+          value={selectedPeriod}
+          onChange={setSelectedPeriod}
+        />
+      </div>
+
+      {isLoading ? (
         <>
           <OrdersSectionSkeleton />
           <BudgetSectionSkeleton />
         </>
       ) : (
-        <>
-          <div className="flex items-start gap-6 mb-4 mt-[-30px]">
-            <TimeframeSelect
-              value={selectedTimeframe}
-              onChange={handleTimeframeChange}
-            />
-            <PeriodSelect
-              timeframe={selectedTimeframe}
-              value={selectedPeriod}
-              onChange={setSelectedPeriod}
-            />
-          </div>
-          <BudgetSection
-            budgetData={budgetData}
-            orderList={orderList}
-            dashboardLoading={dashboardLoading}
-          />
-        </>
+        <BudgetSection
+          budgetData={budgetData}
+          orderList={orderList}
+          dashboardLoading={false}
+        />
       )}
     </main>
   );
