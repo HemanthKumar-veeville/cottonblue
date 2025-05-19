@@ -500,6 +500,7 @@
     },
     "products": {
       "title": "Ordered Products",
+      "selected": "product selected",
       "table": {
         "product": "Product",
         "ref": "Ref.",

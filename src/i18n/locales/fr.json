@@ -532,6 +532,7 @@
     },
     "products": {
       "title": "Produits commandés",
+      "selected": "produit sélectionné",
       "table": {
         "product": "Produit",
         "ref": "Réf.",
