@@ -167,6 +167,9 @@ export function BudgetSection({
   };
 
   const formatCurrency = (value: number) => {
+    if (value === "-") {
+      return "-";
+    }
     return new Intl.NumberFormat("fr-FR", {
       style: "currency",
       currency: "EUR",

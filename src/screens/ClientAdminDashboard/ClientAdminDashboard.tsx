@@ -341,20 +341,24 @@ export default function ClientAdminDashboard(): JSX.Element {
   const averageBasketValue = summaryData?.average_basket_value;
   const totalOrders = summaryData?.total_orders;
   const totalAmount = summaryData?.total_amount;
+  const currentMonthOrders = summaryData?.current_month_orders;
+  const currentMonthAmount = summaryData?.current_month_amount;
+  const monthlyOrderLimit = summaryData?.monthly_order_limit;
+  const monthlyExpenseLimit = summaryData?.monthly_budget_limit;
 
   const budgetData: BudgetData = {
     expenses: {
-      current: totalAmount || 0,
-      total: totalAmount || 0,
+      current: currentMonthAmount || "-",
+      total: monthlyExpenseLimit || "-",
     },
     orders: {
-      current: totalOrders || 0,
-      total: totalOrders || 0,
+      current: currentMonthOrders || "-",
+      total: monthlyOrderLimit || "-",
     },
     metrics: {
-      totalExpenses: totalAmount || 0,
-      totalOrders: totalOrders || 0,
-      averageCart: averageBasketValue || 0,
+      totalExpenses: totalAmount || "-",
+      totalOrders: totalOrders || "-",
+      averageCart: averageBasketValue || "-",
     },
   };
 
