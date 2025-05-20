@@ -271,7 +271,7 @@ interface ProductSidebarSectionProps {
 const ProgressIndicator = () => (
   <div className="flex items-center justify-center w-full mt-8">
     <div className="flex items-center justify-center gap-2">
-      {[1, 2].map((step, index) => (
+      {[1, 2, 3].map((step, index) => (
         <React.Fragment key={step}>
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -289,7 +289,7 @@ const ProgressIndicator = () => (
             >
               {step}
             </div>
-            {step < 2 && (
+            {step < 3 && (
               <div
                 className={cn(
                   "w-12 h-0.5 mx-2 transition-colors duration-200",
@@ -515,7 +515,7 @@ export const ProductSidebarSection = ({
 
         // If no fields have changed, show a message and return
         if (Object.keys(changedFields).length === 0) {
-          navigate(`/products/allot-store-edit/${id}`);
+          navigate(`/products/add-variant/${id}`);
           return;
         }
 
@@ -530,7 +530,7 @@ export const ProductSidebarSection = ({
         console.log({ productId, resultAction });
         if (productId) {
           toast.success(t("productSidebar.messages.updateSuccess"));
-          navigate(`/products/allot-store-edit/${productId}`);
+          navigate(`/products/add-variant/${productId}`);
         }
       } else {
         const createData: CreateProductData = {
@@ -548,7 +548,7 @@ export const ProductSidebarSection = ({
         console.log({ productId });
         if (productId) {
           toast.success(t("productSidebar.messages.createSuccess"));
-          navigate(`/products/allot-store/${productId}`);
+          navigate(`/products/add-variant/${productId}`);
         }
       }
     } catch (error: any) {

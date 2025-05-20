@@ -26,6 +26,17 @@ export interface UpdateProductData {
   is_active?: boolean;
 }
 
+export interface ProductVariant {
+  product_id: number;
+  size: string;
+  price_of_pack: number;
+  total_packs: number;
+}
+
+export interface AddProductVariantsRequest {
+  product_variants: ProductVariant[];
+}
+
 export const productService = {
   /**
    * Create a new product
@@ -164,6 +175,21 @@ export const productService = {
     return axiosInstance.post(`/${dnsPrefix}/link/products`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
+
+  /**
+   * Add variants to a product
+   * @param dnsPrefix DNS prefix of the company
+   * @param productId ID of the parent product
+   * @param data Product variants data
+   * @returns Promise with variant addition response
+   */
+  addProductVariants: async (dnsPrefix: string, productId: string, data: AddProductVariantsRequest) => {
+    return axiosInstance.post(`/${dnsPrefix}/add/product/${productId}/variants`, data, {
+      headers: {
+        'Content-Type': 'application/json',
       },
     });
   },

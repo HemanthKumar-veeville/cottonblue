@@ -37,7 +37,7 @@ export const ProductTableSection = (): JSX.Element => {
   const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
 
-  const ITEMS_PER_PAGE = 5;
+  const ITEMS_PER_PAGE = 25;
 
   // Calculate total pages
   const totalPages = Math.ceil(productList.length / ITEMS_PER_PAGE);

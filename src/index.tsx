@@ -48,6 +48,7 @@ import ClientAdminDashboard from "./screens/ClientAdminDashboard/ClientAdminDash
 import OrderValidation from "./screens/OrderValidation/OrderValidation";
 import { ClientDashboard } from "./screens/ClientDashboard/ClientDashboard";
 import LinkProducts from "./screens/LinkProducts/LinkProducts";
+import AddVariant from "./screens/AddVariant/AddVariant";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
@@ -116,6 +117,7 @@ function App() {
                 path="products/allot-store-edit/:id"
                 element={<AddProduct_step_1 />}
               />
+              <Route path="products/add-variant/:id" element={<AddVariant />} />
               <Route
                 path="products/link-products/:id"
                 element={<LinkProducts />}

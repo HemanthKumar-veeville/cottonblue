@@ -377,6 +377,21 @@
     "step1": {
       "title": "Choisir le magasin",
       "description": "Sélectionnez le magasin où le produit sera stocké"
+    },
+    "variants": {
+      "title": "Variantes du produit",
+      "size": "Taille",
+      "sku": "Référence (SKU)",
+      "price": "Prix ({{currency}})",
+      "stock": "Stock",
+      "active": "Activer",
+      "sizePlaceholder": "Sélectionner la taille",
+      "skuPlaceholder": "Entrer la référence",
+      "pricePlaceholder": "Entrer le prix",
+      "stockPlaceholder": "Entrer le stock",
+      "addVariant": "Ajouter une variante",
+      "delete": "Supprimer",
+      "heading": "Ajouter des variantes de produit"
     }
   },
   "cart": {
@@ -603,7 +618,8 @@
       "unpublish": "Dépublier",
       "deactivate": "Désactiver",
       "activate": "Activer",
-      "linkProducts": "Grouper les produits"
+      "linkProducts": "Grouper les produits",
+      "next": "Suivant"
     },
     "description": {
       "title": "Description"

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { productService, CreateProductData, UpdateProductData } from '../../services/productService.ts';
+import { productService, CreateProductData, UpdateProductData, AddProductVariantsRequest } from '../../services/productService.ts';
 
 // Define types for the product state
 interface ProductAllocation {
@@ -45,6 +45,7 @@ interface ProductState {
   deleteSuccess: boolean;
   allocationSuccess: boolean;
   linkSuccess: boolean;
+  variantSuccess: boolean;
   allocations: ProductAllocation[];
   allocatedStores: string[];
 }
@@ -62,6 +63,7 @@ const initialState: ProductState = {
   deleteSuccess: false,
   allocationSuccess: false,
   linkSuccess: false,
+  variantSuccess: false,
   allocations: [],
   allocatedStores: [],
 };
@@ -183,6 +185,26 @@ export const linkProducts = createAsyncThunk(
   }
 );
 
+export const addProductVariants = createAsyncThunk(
+  'product/addProductVariants',
+  async ({ 
+    dnsPrefix, 
+    productId, 
+    variants 
+  }: { 
+    dnsPrefix: string; 
+    productId: string; 
+    variants: AddProductVariantsRequest 
+  }, { rejectWithValue }) => {
+    try {
+      const response = await productService.addProductVariants(dnsPrefix, productId, variants);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to add product variants');
+    }
+  }
+);
+
 // Create the product slice
 const productSlice = createSlice({
   name: 'product',
@@ -196,6 +218,7 @@ const productSlice = createSlice({
       state.deleteSuccess = false;
       state.allocationSuccess = false;
       state.linkSuccess = false;
+      state.variantSuccess = false;
       state.allocations = [];
     },
     decrementStock: (state, action: PayloadAction<{ productId: number; quantity: number }>) => {
@@ -373,6 +396,21 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         state.linkSuccess = false;
+      })
+      // Add product variants cases
+      .addCase(addProductVariants.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.variantSuccess = false;
+      })
+      .addCase(addProductVariants.fulfilled, (state, action) => {
+        state.loading = false;
+        state.variantSuccess = true;
+      })
+      .addCase(addProductVariants.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.variantSuccess = false;
       });
   },
 });

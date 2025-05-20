@@ -366,6 +366,21 @@
     "step1": {
       "title": "Allocate the store",
       "description": "Select the store where the product will be allocated"
+    },
+    "variants": {
+      "title": "Product Variants",
+      "size": "Size",
+      "sku": "Reference (SKU)",
+      "price": "Price ({{currency}})",
+      "stock": "Stock",
+      "active": "Active",
+      "sizePlaceholder": "Select size",
+      "skuPlaceholder": "Enter SKU",
+      "pricePlaceholder": "Enter price",
+      "stockPlaceholder": "Enter stock",
+      "addVariant": "Add Variant",
+      "delete": "Delete",
+      "heading": "Add Product Variants"
     }
   },
   "cart": {
@@ -570,7 +585,8 @@
       "publish": "Publish",
       "activate": "Activate Product",
       "deactivate": "Deactivate Product",
-      "linkProducts": "Group Products"
+      "linkProducts": "Group Products",
+      "next": "Next"
     },
     "description": {
       "title": "Description"

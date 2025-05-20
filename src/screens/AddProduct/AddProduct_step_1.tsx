@@ -46,7 +46,7 @@ const FormField = ({
 const ProgressIndicator = () => (
   <div className="flex items-center justify-center w-full mt-8">
     <div className="flex items-center justify-center gap-2">
-      {[1, 2].map((step, index) => (
+      {[1, 2, 3].map((step, index) => (
         <React.Fragment key={step}>
           <motion.div
             initial={{ scale: 0.8, opacity: 0 }}
@@ -57,18 +57,18 @@ const ProgressIndicator = () => (
             <div
               className={cn(
                 "w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors duration-200",
-                step <= 2
+                step <= 3
                   ? "bg-[#07515f] text-white"
                   : "bg-gray-100 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]"
               )}
             >
-              {step === 1 ? (
+              {step === 1 || step === 2 ? (
                 <Check className="w-4 h-4 stroke-[2.5]" />
               ) : (
                 <span className="font-label-medium">{step}</span>
               )}
             </div>
-            {step < 2 && (
+            {step < 3 && (
               <div
                 className={cn(
                   "w-12 h-0.5 mx-2 transition-colors duration-200",
