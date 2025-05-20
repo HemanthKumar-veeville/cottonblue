@@ -42,24 +42,13 @@ const initialFormData = {
     address: "",
     addressComment: "",
   },
-  limits: {
-    order: {
-      enabled: true,
-      value: "",
-      period: "Month",
-    },
-    budget: {
-      enabled: false,
-      value: "",
-      period: "Month",
-    },
-  },
   passwords: {
     admin: "",
     client: "",
   },
   validation: {
     email: "",
+    adminMobile: "",
   },
 };
 
@@ -431,24 +420,13 @@ const ClientForm = () => {
       address: prefillData.address || "",
       addressComment: prefillData.address_comment || "",
     },
-    limits: {
-      order: {
-        enabled: prefillData.order_limit_enabled || true,
-        value: prefillData.order_limit_value || "",
-        period: prefillData.order_limit_period || "Month",
-      },
-      budget: {
-        enabled: prefillData.budget_limit_enabled || false,
-        value: prefillData.budget_limit_value || "",
-        period: prefillData.budget_limit_period || "Month",
-      },
-    },
     passwords: {
       admin: prefillData.admin_password || "",
       client: prefillData.client_password || "",
     },
     validation: {
       email: prefillData.validation_email || "",
+      adminMobile: prefillData.admin_mobile || "",
     },
   });
 
@@ -538,12 +516,12 @@ const ClientForm = () => {
         name: t("addClient.fields.adminPassword"),
       },
       {
-        value: formData.passwords.client,
-        name: t("addClient.fields.clientPassword"),
-      },
-      {
         value: formData.validation.email,
         name: t("addClient.fields.validationEmail"),
+      },
+      {
+        value: formData.validation.adminMobile,
+        name: t("addClient.fields.adminMobile"),
       },
       {
         value: formData.brandColors.background,
@@ -553,7 +531,9 @@ const ClientForm = () => {
     ];
 
     const missingFields = requiredFields?.filter(
-      (field) => !field?.value?.trim()
+      (field) =>
+        !field?.value ||
+        (typeof field.value === "string" && !field.value.trim())
     );
 
     // Check for logo separately since it's not a string value
@@ -587,18 +567,14 @@ const ClientForm = () => {
       company_address: formData.location.address,
       city: formData.location.city,
       postal_code: formData.location.postalCode,
-      phone_number: "", // Not in the form, but required by API
-      logo: logoFile || new File([], "empty.png"), // Use empty file if no logo
-      color_code: formData.brandColors.background,
+      phone_number: formData.validation.adminMobile,
+      logo: logoFile || new File([], "empty.png"),
+      bg_color_code: formData.brandColors.background,
+      text_color_code: formData.brandColors.text,
       dns_prefix: formData.name.toLowerCase().replace(/\s+/g, "-"),
       Admin_email: formData.validation.email,
       Admin_password: formData.passwords.admin,
-      order_limit_enabled: formData.limits.order.enabled,
-      order_limit_value: formData.limits.order.value,
-      order_limit_period: formData.limits.order.period,
-      budget_limit_enabled: formData.limits.budget.enabled,
-      budget_limit_value: formData.limits.budget.value,
-      budget_limit_period: formData.limits.budget.period,
+      Admin_mobile: formData.validation.adminMobile,
     };
 
     if (isEditMode) {
@@ -617,14 +593,14 @@ const ClientForm = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-[854px] gap-8 p-6 bg-white rounded-lg overflow-hidden">
+    <div className="flex flex-col min-h-[854px] gap-8 p-6 bg-white rounded-lg overflow-hidden relative">
       <header className="inline-flex items-center gap-2">
         <h1 className="font-heading-h3 text-[20px] font-bold leading-[28px] text-[#475569]">
           {isEditMode ? t("addClient.title.edit") : t("addClient.title.add")}
         </h1>
       </header>
 
-      <div className="flex items-start justify-around gap-6 flex-1 w-full overflow-hidden">
+      <div className="flex items-start justify-around gap-6 flex-1 w-full overflow-hidden pb-20">
         <div className="flex flex-col gap-6 flex-1 overflow-hidden">
           <div className="flex flex-col gap-6">
             <div className="flex flex-col gap-2 pt-2">
@@ -893,178 +869,6 @@ const ClientForm = () => {
               <div className="h-0.5 bg-gray-300 rounded-full" />
 
               <div className="flex flex-col gap-6">
-                <div className="flex gap-4">
-                  <LabeledButton
-                    label={t("addClient.fields.orderLimit")}
-                    icon={Checkbox}
-                    checked={formData.limits.order.enabled}
-                    onChange={(checked) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        limits: {
-                          ...prev.limits,
-                          order: { ...prev.limits.order, enabled: checked },
-                        },
-                      }))
-                    }
-                  />
-                  <LabeledButton
-                    label={t("addClient.fields.budgetLimit")}
-                    icon={Checkbox}
-                    checked={formData.limits.budget.enabled}
-                    onChange={(checked) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        limits: {
-                          ...prev.limits,
-                          budget: { ...prev.limits.budget, enabled: checked },
-                        },
-                      }))
-                    }
-                  />
-                </div>
-
-                <div className="flex gap-4">
-                  <div className="flex items-center gap-3 flex-1">
-                    <LabeledInput
-                      label={t("addClient.fields.limit")}
-                      defaultValue={formData.limits.order.value}
-                      onChange={(value) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          limits: {
-                            ...prev.limits,
-                            order: { ...prev.limits.order, value },
-                          },
-                        }))
-                      }
-                    />
-                    <span className="text-xs font-text-smaller text-[#475569]">
-                      {t("addClient.fields.per")}
-                    </span>
-                    <div className="relative flex-1">
-                      <Select
-                        value={formData.limits.order.period}
-                        onValueChange={(value) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            limits: {
-                              ...prev.limits,
-                              order: { ...prev.limits.order, period: value },
-                            },
-                          }))
-                        }
-                      >
-                        <SelectTrigger
-                          className={cn(
-                            "w-full font-label-medium",
-                            "pt-4 pr-3 pb-2 pl-3 border-gray-300 min-h-[3.25rem]"
-                          )}
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Day">{t("common.day")}</SelectItem>
-                          <SelectItem value="Week">
-                            {t("common.week")}
-                          </SelectItem>
-                          <SelectItem value="Month">
-                            {t("common.month")}
-                          </SelectItem>
-                          <SelectItem value="Year">
-                            {t("common.year")}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 flex-1">
-                    <LabeledInput
-                      label={t("addClient.fields.limit")}
-                      defaultValue={formData.limits.budget.value}
-                      disabled={!formData.limits.budget.enabled}
-                      onChange={(value) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          limits: {
-                            ...prev.limits,
-                            budget: { ...prev.limits.budget, value },
-                          },
-                        }))
-                      }
-                    />
-                    <span className="text-xs font-text-smaller text-[#475569]">
-                      {t("addClient.fields.per")}
-                    </span>
-                    <div className="relative flex-1">
-                      <Select
-                        value={formData.limits.budget.period}
-                        onValueChange={(value) =>
-                          setFormData((prev) => ({
-                            ...prev,
-                            limits: {
-                              ...prev.limits,
-                              budget: { ...prev.limits.budget, period: value },
-                            },
-                          }))
-                        }
-                        disabled={!formData.limits.budget.enabled}
-                      >
-                        <SelectTrigger
-                          className={cn(
-                            "w-full font-label-medium",
-                            "pt-4 pr-3 pb-2 pl-3 border-gray-300 min-h-[3.25rem]"
-                          )}
-                        >
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Day">{t("common.day")}</SelectItem>
-                          <SelectItem value="Week">
-                            {t("common.week")}
-                          </SelectItem>
-                          <SelectItem value="Month">
-                            {t("common.month")}
-                          </SelectItem>
-                          <SelectItem value="Year">
-                            {t("common.year")}
-                          </SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-6">
-                <div className="flex gap-4">
-                  <LabeledInput
-                    label={t("addClient.fields.adminPassword")}
-                    defaultValue={formData.passwords.admin}
-                    type="password"
-                    onChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        passwords: { ...prev.passwords, admin: value },
-                      }))
-                    }
-                    required
-                  />
-                  <LabeledInput
-                    label={t("addClient.fields.clientPassword")}
-                    defaultValue={formData.passwords.client}
-                    type="password"
-                    onChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        passwords: { ...prev.passwords, client: value },
-                      }))
-                    }
-                    required
-                  />
-                </div>
-
                 <LabeledInput
                   label={t("addClient.fields.validationEmail")}
                   defaultValue={formData.validation.email}
@@ -1076,27 +880,61 @@ const ClientForm = () => {
                   }
                   required
                 />
+                <LabeledInput
+                  label={t("addClient.fields.adminPassword")}
+                  defaultValue={formData.passwords.admin}
+                  type="password"
+                  onChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      passwords: { ...prev.passwords, admin: value },
+                    }))
+                  }
+                  required
+                />
+                <LabeledInput
+                  label={t("addClient.fields.adminMobile")}
+                  defaultValue={formData.validation.adminMobile}
+                  type="tel"
+                  onChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      validation: { ...prev.validation, adminMobile: value },
+                    }))
+                  }
+                  required
+                />
               </div>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div className="flex justify-end mt-6">
-              <Button
-                className="bg-[#07515f] text-white h-12 font-text-medium text-[16px] leading-[24px]"
-                onClick={handleNext}
-                disabled={loading}
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center">
-                    <Loader size="sm" className="mr-2" />
-                    {t("common.loading")}
-                  </div>
-                ) : isEditMode ? (
-                  t("common.save")
-                ) : (
-                  t("common.next")
-                )}
-              </Button>
-            </div>
+      {/* Fixed Footer */}
+      <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
+        <div className="px-6 max-w-[calc(100%-2rem)]">
+          <div className="flex items-center justify-end w-full mx-auto">
+            <Button
+              className={cn(
+                "gap-4 py-4 px-4 self-stretch bg-[#07515f] border-gray-300",
+                "hover:bg-[#064a56] transition-colors duration-200",
+                "disabled:opacity-50 disabled:cursor-not-allowed",
+                loading && "animate-pulse"
+              )}
+              onClick={handleNext}
+              disabled={loading}
+            >
+              {loading ? (
+                <div className="flex items-center justify-center">
+                  <Loader size="sm" className="mr-2" />
+                  {t("common.loading")}
+                </div>
+              ) : isEditMode ? (
+                t("common.save")
+              ) : (
+                t("common.next")
+              )}
+            </Button>
           </div>
         </div>
       </div>

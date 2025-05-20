@@ -834,7 +834,8 @@
       "per": "Per",
       "adminPassword": "ADMIN password",
       "clientPassword": "CLIENT password",
-      "validationEmail": "N+1 validation email"
+      "adminMobile": "Admin mobile",
+      "validationEmail": "Admin email"
     },
     "buttons": {
       "login": "Login",

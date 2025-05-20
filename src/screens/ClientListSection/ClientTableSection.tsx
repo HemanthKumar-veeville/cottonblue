@@ -85,7 +85,7 @@ export const ClientTableSection = ({
   }, [filteredCompanies]);
 
   // Pagination logic
-  const itemsPerPage = 5;
+  const itemsPerPage = 25;
   const totalPages = Math.ceil(filteredCompanies.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;

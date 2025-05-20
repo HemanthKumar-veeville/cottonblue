@@ -68,7 +68,7 @@ export const ClientList = (): JSX.Element => {
   }
 
   return (
-    <main className="flex flex-col w-full gap-8 p-6 bg-white rounded-lg">
+    <main className="flex flex-col w-full gap-8 p-6 bg-white rounded-lg overflow-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
       <ClientListSection onSearch={handleSearch} />
       <ClientTableSection
         companies={companiesArray}

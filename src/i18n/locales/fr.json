@@ -867,6 +867,7 @@
       "per": "Par",
       "adminPassword": "Mot de passe ADMIN",
       "clientPassword": "Mot de passe CLIENT",
+      "adminMobile": "Téléphone ADMIN",
       "validationEmail": "Email de validation N+1"
     },
     "buttons": {
