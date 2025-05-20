@@ -11,6 +11,7 @@ import {
   Product,
   allocateProductToStores,
   getAllocatedStores,
+  allocateMultipleProductsToStores,
 } from "../../store/features/productSlice";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { fetchAllStores, Agency } from "../../store/features/agencySlice";
@@ -222,6 +223,7 @@ const ProductDetails = () => {
   const allocatedStoresList = allocatedStores?.stores || [];
   const [searchQuery, setSearchQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [productIds, setProductIds] = useState<string[]>([]);
   const [storesWithSelection, setStoresWithSelection] = useState<
     StoreWithSelection[]
   >([]);
@@ -255,6 +257,16 @@ const ProductDetails = () => {
       );
     }
   }, [stores, allocatedStoresList]);
+
+  useEffect(() => {
+    if (currentProduct?.product) {
+      const mainProductId = currentProduct?.product?.id;
+      const variantProductIds = currentProduct?.product?.linked_products?.map(
+        (variant: any) => variant.linked_product_id
+      );
+      setProductIds([mainProductId, ...variantProductIds]);
+    }
+  }, [currentProduct?.product]);
 
   const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
@@ -311,17 +323,21 @@ const ProductDetails = () => {
     setIsSubmitting(true);
     try {
       const response = await dispatch(
-        allocateProductToStores({
+        allocateMultipleProductsToStores({
           dnsPrefix: selectedCompany.dns,
-          productId: id,
           storeIds: selectedStoreIds,
+          productIds,
         })
       ).unwrap();
-      console.log(response);
-      const productId = response?.product_id;
-      toast.success(t("addProduct.success.storesAllocated"));
-      // Navigate to next step
-      navigate(`/products/${productId}`);
+      console.log({ response });
+      if (response?.product_id) {
+        const productId = id;
+        toast.success(t("addProduct.success.storesAllocated"));
+        // Navigate to next step
+        navigate(`/products/${productId}`);
+      } else {
+        throw new Error(response.message);
+      }
     } catch (error) {
       toast.error(t("addProduct.errors.allocationFailed"));
       console.error("Failed to allocate product to stores:", error);

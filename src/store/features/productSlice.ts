@@ -205,6 +205,26 @@ export const addProductVariants = createAsyncThunk(
   }
 );
 
+export const allocateMultipleProductsToStores = createAsyncThunk(
+  'product/allocateMultipleProductsToStores',
+  async ({ 
+    dnsPrefix, 
+    storeIds,
+    productIds 
+  }: { 
+    dnsPrefix: string; 
+    storeIds: string[];
+    productIds: string[];
+  }, { rejectWithValue }) => {
+    try {
+      const response = await productService.allocateMultipleProductsToStores(dnsPrefix, storeIds, productIds);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to allocate multiple products to stores');
+    }
+  }
+);
+
 // Create the product slice
 const productSlice = createSlice({
   name: 'product',
@@ -411,6 +431,21 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         state.variantSuccess = false;
+      })
+      // Allocate multiple products to stores cases
+      .addCase(allocateMultipleProductsToStores.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.allocationSuccess = false;
+      })
+      .addCase(allocateMultipleProductsToStores.fulfilled, (state) => {
+        state.loading = false;
+        state.allocationSuccess = true;
+      })
+      .addCase(allocateMultipleProductsToStores.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.allocationSuccess = false;
       });
   },
 });
