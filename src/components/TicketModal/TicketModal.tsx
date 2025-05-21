@@ -120,14 +120,17 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
 
   const ticket = currentTicket?.ticket || null;
   const isClosedTicket = ticket?.ticket_status === TicketStatus.CLOSED;
-
+  const { selectedCompany } = useAppSelector(
+    (state: RootState) => state.client
+  );
+  const dns = selectedCompany?.dns || "admin";
   useEffect(() => {
     const fetchTicketMessages = async () => {
       try {
         setIsLoading(true);
         await dispatch(
           getTicketById({
-            dnsPrefix: "admin",
+            dnsPrefix: dns,
             ticketId,
           })
         ).unwrap();
@@ -138,7 +141,7 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
       }
     };
     fetchTicketMessages();
-  }, [ticketId]);
+  }, [ticketId, dns]);
 
   if (isLoading) {
     return <TicketModalSkeleton />;
@@ -149,7 +152,7 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
       setIsLoading(true);
       await dispatch(
         replyToTicket({
-          dnsPrefix: "admin",
+          dnsPrefix: dns,
           ticketId,
           data: { message: description },
         })
@@ -167,14 +170,14 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
       setIsLoading(true);
       await dispatch(
         updateTicketStatus({
-          dnsPrefix: "admin",
+          dnsPrefix: dns,
           ticketId: ticket?.ticket_id?.toString(),
           status: TicketStatus.CLOSED,
         })
       ).unwrap();
       onClose();
       await dispatch(resetCurrentTicket());
-      await dispatch(getTicketById({ dnsPrefix: "admin", ticketId }));
+      await dispatch(getTicketById({ dnsPrefix: dns, ticketId }));
     } catch (error) {
       console.error("Failed to update ticket status:", error);
     } finally {
@@ -187,14 +190,14 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
       setIsLoading(true);
       await dispatch(
         updateTicketStatus({
-          dnsPrefix: "admin",
+          dnsPrefix: dns,
           ticketId: ticket?.ticket_id?.toString(),
           status: TicketStatus.OPEN,
         })
       ).unwrap();
       onClose();
       await dispatch(resetCurrentTicket());
-      await dispatch(getTicketById({ dnsPrefix: "admin", ticketId }));
+      await dispatch(getTicketById({ dnsPrefix: dns, ticketId }));
     } catch (error) {
       console.error("Failed to reopen ticket:", error);
     } finally {

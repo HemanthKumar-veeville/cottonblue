@@ -237,7 +237,10 @@ export default function Tickets(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<TicketStatus | "all">("all");
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
-
+  const { selectedCompany } = useAppSelector(
+    (state: RootState) => state.client
+  );
+  const dns = selectedCompany?.dns || "admin";
   const { tickets, status } = useAppSelector(
     (state: RootState) => state.ticket
   );
@@ -246,7 +249,7 @@ export default function Tickets(): JSX.Element {
     try {
       await dispatch(
         fetchTickets({
-          dnsPrefix: "admin",
+          dnsPrefix: dns,
           ticketStatus: statusFilter === "all" ? undefined : statusFilter,
         })
       ).unwrap();
@@ -256,7 +259,7 @@ export default function Tickets(): JSX.Element {
   };
   useEffect(() => {
     fetchTicketsData();
-  }, [dispatch, statusFilter, selectedTicket]);
+  }, [dispatch, statusFilter, selectedTicket, dns]);
 
   const handleTicketClick = (ticket: Ticket): void => {
     dispatch(resetCurrentTicket());
@@ -273,7 +276,7 @@ export default function Tickets(): JSX.Element {
       try {
         await dispatch(
           updateTicketStatus({
-            dnsPrefix: "admin",
+            dnsPrefix: dns,
             ticketId: ticket?.ticket_id?.toString(),
             status: TicketStatus.CLOSED,
           })
