@@ -153,59 +153,78 @@ const StoreSelectionSkeleton = () => (
   </div>
 );
 
+const EmptyState = () => (
+  <div className="flex flex-col items-center justify-center h-[340px] w-full">
+    <Store className="w-12 h-12 text-gray-300 mb-4" />
+    <h3 className="text-lg font-semibold text-gray-700 mb-2">
+      No Stores Available
+    </h3>
+    <p className="text-sm text-gray-500 text-center max-w-md">
+      There are no stores available at the moment. Please add stores to your
+      account to continue.
+    </p>
+  </div>
+);
+
 const StoreList = ({
   stores,
   onToggleStore,
 }: {
   stores: StoreWithSelection[];
   onToggleStore: (storeId: string) => void;
-}) => (
-  <div className="h-[340px] overflow-y-auto pr-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-      {stores.map((store) => (
-        <motion.div
-          key={store.id}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
-          onClick={() => onToggleStore(store.id.toString())}
-          className="flex items-center p-3 border rounded-md hover:bg-gray-50 transition-all duration-200 bg-white shadow-sm cursor-pointer"
-        >
-          <div className="flex items-center gap-3 w-full">
-            <Checkbox
-              checked={store.isSelected}
-              onCheckedChange={() => onToggleStore(store.id.toString())}
-              className="w-4 h-4 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
-              onClick={(e: React.MouseEvent) => e.stopPropagation()}
-            />
-            <div className="flex flex-col min-w-0 flex-1">
-              <span className="font-label-small font-bold text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-sm tracking-wide leading-5 truncate">
-                {store.name}
-              </span>
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <span className="truncate">{store.city}</span>
-                {store.region && (
-                  <>
-                    <span>•</span>
-                    <span className="truncate">{store.region}</span>
-                  </>
-                )}
+}) => {
+  if (stores.length === 0) {
+    return <EmptyState />;
+  }
+
+  return (
+    <div className="h-[340px] overflow-y-auto pr-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        {stores.map((store) => (
+          <motion.div
+            key={store.id}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.2 }}
+            onClick={() => onToggleStore(store.id.toString())}
+            className="flex items-center p-3 border rounded-md hover:bg-gray-50 transition-all duration-200 bg-white shadow-sm cursor-pointer"
+          >
+            <div className="flex items-center gap-3 w-full">
+              <Checkbox
+                checked={store.isSelected}
+                onCheckedChange={() => onToggleStore(store.id.toString())}
+                className="w-4 h-4 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              />
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="font-label-small font-bold text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-sm tracking-wide leading-5 truncate">
+                  {store.name}
+                </span>
+                <div className="flex items-center gap-1 text-xs text-gray-500">
+                  <span className="truncate">{store.city}</span>
+                  {store.region && (
+                    <>
+                      <span>•</span>
+                      <span className="truncate">{store.region}</span>
+                    </>
+                  )}
+                </div>
               </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex-shrink-0 ml-2 p-1 hover:bg-gray-100"
+                onClick={(e: React.MouseEvent) => e.stopPropagation()}
+              >
+                <Info className="w-4 h-4 text-gray-400" />
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex-shrink-0 ml-2 p-1 hover:bg-gray-100"
-              onClick={(e: React.MouseEvent) => e.stopPropagation()}
-            >
-              <Info className="w-4 h-4 text-gray-400" />
-            </Button>
-          </div>
-        </motion.div>
-      ))}
+          </motion.div>
+        ))}
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ProductDetails = () => {
   const { t } = useTranslation();
