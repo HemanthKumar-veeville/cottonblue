@@ -92,7 +92,7 @@ const LabeledSelect = ({
   onChange?: (values: number[]) => void;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const selectedStores = options?.filter((store) => values.includes(store.id));
+  const selectedStores = options?.filter((store) => values?.includes(store.id));
   console.log({ selectedStores, values, options });
   const toggleStore = (storeId: number) => {
     const newValues = values.includes(storeId)
