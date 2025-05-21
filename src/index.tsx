@@ -49,6 +49,7 @@ import OrderValidation from "./screens/OrderValidation/OrderValidation";
 import { ClientDashboard } from "./screens/ClientDashboard/ClientDashboard";
 import LinkProducts from "./screens/LinkProducts/LinkProducts";
 import AddVariant from "./screens/AddVariant/AddVariant";
+import CreatePassword from "./screens/CreatePassword/CreatePassword";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
@@ -181,6 +182,7 @@ function App() {
 
         {/* 404 Route - Must be last */}
         <Route path="*" element={<NotFound />} />
+        <Route path="/create-password" element={<CreatePassword />} />
       </Routes>
     </BrowserRouter>
   );

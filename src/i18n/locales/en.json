@@ -17,6 +17,7 @@
     "week": "Week",
     "month": "Month",
     "year": "Year",
+    "email": "Email",
     "months": {
       "january": "January",
       "february": "February",
@@ -894,6 +895,32 @@
       "ordersToValidate": "Orders to Validate",
       "search": "Search",
       "noOrdersFound": "No orders found"
+    }
+  },
+  "createPassword": {
+    "welcome": "Create Your Password",
+    "instruction": "Please create a strong password for your account",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "enterPassword": "Enter your password",
+    "reenterPassword": "Re-enter your password",
+    "createAccount": "Create Account",
+    "requirements": {
+      "title": "Your password must contain:",
+      "length": "At least 8 characters long",
+      "uppercase": "Contains at least one uppercase letter",
+      "lowercase": "Contains at least one lowercase letter",
+      "number": "Contains at least one number",
+      "special": "Contains at least one special character",
+      "match": "Passwords match"
+    },
+    "error": {
+      "mismatch": "Passwords do not match",
+      "weak": "Password is too weak",
+      "creation": "Failed to create password"
+    },
+    "success": {
+      "created": "Password created successfully"
     }
   }
 }

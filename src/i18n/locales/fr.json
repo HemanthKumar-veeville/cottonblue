@@ -17,6 +17,7 @@
     "week": "Semaine",
     "month": "Mois",
     "year": "Année",
+    "email": "Email",
     "months": {
       "january": "Janvier",
       "february": "Février",
@@ -927,6 +928,32 @@
       "ordersToValidate": "Commandes à valider",
       "search": "Rechercher",
       "noOrdersFound": "Aucune commande trouvée"
+    }
+  },
+  "createPassword": {
+    "welcome": "Créez votre mot de passe",
+    "instruction": "Veuillez créer un mot de passe sécurisé pour votre compte",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "enterPassword": "Entrez votre mot de passe",
+    "reenterPassword": "Réentrez votre mot de passe",
+    "createAccount": "Créer le compte",
+    "requirements": {
+      "title": "Votre mot de passe doit contenir :",
+      "length": "Au moins 8 caractères",
+      "uppercase": "Au moins une lettre majuscule",
+      "lowercase": "Au moins une lettre minuscule",
+      "number": "Au moins un chiffre",
+      "special": "Au moins un caractère spécial",
+      "match": "Les mots de passe correspondent"
+    },
+    "error": {
+      "mismatch": "Les mots de passe ne correspondent pas",
+      "weak": "Le mot de passe est trop faible",
+      "creation": "Échec de la création du mot de passe"
+    },
+    "success": {
+      "created": "Mot de passe créé avec succès"
     }
   }
 }
