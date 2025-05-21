@@ -239,8 +239,7 @@ const TopProductsSection: React.FC = () => {
     getStoredValue(TIMEFRAME_KEY, "Monthly") as TimeframeOption
   );
   const [selectedPeriod, setSelectedPeriod] = useState<string>(() => {
-    const storedPeriod = localStorage.getItem(PERIOD_KEY);
-    return storedPeriod || getDefaultPeriodValue("Monthly");
+    return  getDefaultPeriodValue("Monthly");
   });
 
   const { summary } = useSelector((state: RootState) => state.dashboard);

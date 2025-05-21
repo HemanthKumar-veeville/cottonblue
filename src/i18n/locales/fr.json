@@ -141,7 +141,7 @@
         "packPrice": "Prix par lot"
       },
       "packOf": "Unités par lot",
-      "totalPacks": "Nombre de lots disponibles",
+      "totalPacks": "lots disponibles",
       "reference": "Référence (SKU)",
       "description": "Description",
       "selectPlaceholder": "Sélectionner une taille"

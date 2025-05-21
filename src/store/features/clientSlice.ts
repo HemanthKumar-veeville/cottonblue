@@ -204,10 +204,11 @@ const clientSlice = createSlice({
         state.companies = action.payload;
         
         if (!state.selectedCompany && action.payload.companies.length > 0) {
+          const defaultCompany = action.payload.companies.find((company: any) => company.dns_prefix === 'chronodrive');
           state.selectedCompany = {
-            id: action.payload.companies[0].id,
-            name: action.payload.companies[0].name,
-            dns: action.payload.companies[0].dns_prefix,
+            id: defaultCompany.id,
+            name: defaultCompany.name,
+            dns: defaultCompany.dns_prefix,
           };
         }
       })
