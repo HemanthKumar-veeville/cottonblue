@@ -95,8 +95,8 @@ const LabeledSelect = ({
   const selectedStores = options?.filter((store) => values?.includes(store.id));
   console.log({ selectedStores, values, options });
   const toggleStore = (storeId: number) => {
-    const newValues = values.includes(storeId)
-      ? values.filter((id) => id !== storeId)
+    const newValues = values?.includes(storeId)
+      ? values?.filter((id) => id !== storeId)
       : [...values, storeId];
     onChange?.(newValues);
   };
@@ -132,7 +132,7 @@ const LabeledSelect = ({
                 <div className="flex items-center w-full">
                   <Checkbox
                     id={`store-${store.id}`}
-                    checked={values.includes(store.id)}
+                    checked={values?.includes(store.id)}
                     onCheckedChange={() => {}}
                     className="mr-3"
                   />
@@ -196,7 +196,8 @@ export default function AddUser() {
   const { stores } = useSelector((state: RootState) => state.agency);
   const { selectedUser } = useSelector((state: RootState) => state.user);
   const storeList = stores?.stores;
-  const user = selectedUser;
+  const user = selectedUser?.user;
+
   // Check if we're in edit mode
   const isEditMode = location.pathname.includes("/edit");
   console.log({ stores });
@@ -247,7 +248,7 @@ export default function AddUser() {
         lastname: user.lastname,
         email: user.email,
         password: "", // Password is not included in user details for security
-        store_ids: user.store_ids,
+        store_ids: user?.store_ids || [],
       });
     }
   }, [isEditMode, user]);
@@ -262,6 +263,7 @@ export default function AddUser() {
       formData.store_ids.length === 0
     ) {
       toast.error("Please fill in all required fields");
+      console.log({ formData });
       return;
     }
 
