@@ -12,6 +12,7 @@ interface AuthState {
   isClientAdmin: boolean;
   user: any;
   adminMode: boolean;
+  passwordResetSuccess: boolean;
 }
 
 const initialState: AuthState = {
@@ -25,6 +26,7 @@ const initialState: AuthState = {
   isAdmin: false,
   isClientAdmin: false,
   adminMode: false,
+  passwordResetSuccess: false,
 };
 
 // Async thunks
@@ -77,6 +79,28 @@ export const getUser = createAsyncThunk(
   }
 );
 
+export const resetPassword = createAsyncThunk(
+  'auth/resetPassword',
+  async ({ 
+    dnsPrefix, 
+    userId, 
+    token, 
+    newPassword 
+  }: { 
+    dnsPrefix: string; 
+    userId: string; 
+    token: string; 
+    newPassword: string;
+  }, { rejectWithValue }) => {
+    try {
+      const response = await authService.resetPassword(dnsPrefix, userId, token, newPassword);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Password reset failed');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -86,6 +110,9 @@ const authSlice = createSlice({
     },
     setAdminMode: (state, action) => {
       state.adminMode = action.payload;
+    },
+    clearPasswordResetStatus: (state) => {
+      state.passwordResetSuccess = false;
     },
   },
   extraReducers: (builder) => {
@@ -137,6 +164,21 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.error = action.payload as string;
       })
+      // Reset Password
+      .addCase(resetPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.passwordResetSuccess = false;
+      })
+      .addCase(resetPassword.fulfilled, (state) => {
+        state.isLoading = false;
+        state.passwordResetSuccess = true;
+      })
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+        state.passwordResetSuccess = false;
+      })
       // Get User
       .addCase(getUser.pending, (state) => {
         state.isLoading = true;
@@ -146,7 +188,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = action.payload;
         state.isLoggedIn = true;
-        state.isClientAdmin = action.payload.user_role === "admin";
+        state.isClientAdmin = action.payload.role === "admin";
         state.company = action.payload.company || null;
       })
       .addCase(getUser.rejected, (state, action) => {
@@ -156,5 +198,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError, setAdminMode } = authSlice.actions;
+export const { clearError, setAdminMode, clearPasswordResetStatus } = authSlice.actions;
 export default authSlice.reducer; 

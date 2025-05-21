@@ -14,6 +14,10 @@ export interface UserResponse {
   // Add other user fields as needed
 }
 
+export interface ResetPasswordResponse {
+  message: string;
+}
+
 export const authService = {
   loginPage: async (company: string): Promise<LoginResponse> => {
     const response = await axiosInstance.get(`/${company}/login`);
@@ -32,6 +36,12 @@ export const authService = {
   },
   getUser: async (company: string): Promise<UserResponse> => {
     const response = await axiosInstance.get(`/${company.toLowerCase()}/`);
+    return response.data;
+  },
+  resetPassword: async (dnsPrefix: string, userId: string, token: string, newPassword: string): Promise<ResetPasswordResponse> => {
+    const response = await axiosInstance.post(`/${dnsPrefix}/reset-password/${userId}/${token}`, {
+      new_password: newPassword
+    });
     return response.data;
   },
 };
