@@ -308,12 +308,26 @@ const ProductDetails = () => {
         return;
       }
 
-      const formattedVariants = variants.map((variant) => ({
-        product_id: parseInt(variant.sku),
-        size: variant.size,
-        price_of_pack: parseFloat(variant.price),
-        total_packs: parseInt(variant.stock),
-      }));
+      const formattedVariants = variants
+        ?.filter(
+          (variant) =>
+            variant.sku !== "" &&
+            variant.size !== "" &&
+            variant.price !== "" &&
+            variant.stock !== ""
+        )
+        ?.map((variant) => ({
+          product_id: parseInt(variant.sku),
+          size: variant.size,
+          price_of_pack: parseFloat(variant.price),
+          total_packs: parseInt(variant.stock),
+        }));
+
+      // If no changes, skip API call and navigate directly
+      if (formattedVariants?.length === 0) {
+        navigate(`/products/allot-store-edit/${id}`);
+        return;
+      }
 
       const variantData = {
         product_variants: formattedVariants,
