@@ -11,6 +11,7 @@ interface AuthState {
   isAdmin: boolean;
   isClientAdmin: boolean;
   user: any;
+  adminMode: boolean;
 }
 
 const initialState: AuthState = {
@@ -23,6 +24,7 @@ const initialState: AuthState = {
   user: null,
   isAdmin: false,
   isClientAdmin: false,
+  adminMode: false,
 };
 
 // Async thunks
@@ -81,6 +83,9 @@ const authSlice = createSlice({
   reducers: {
     clearError: (state) => {
       state.error = null;
+    },
+    setAdminMode: (state, action) => {
+      state.adminMode = action.payload;
     },
   },
   extraReducers: (builder) => {
@@ -151,5 +156,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { clearError } = authSlice.actions;
+export const { clearError, setAdminMode } = authSlice.actions;
 export default authSlice.reducer; 
