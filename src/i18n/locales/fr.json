@@ -596,7 +596,8 @@
     "login": "Connexion",
     "poweredBy": "par Cotton Blue",
     "email": "Email",
-    "emailPlaceholder": "Entrez votre email"
+    "emailPlaceholder": "Entrez votre email",
+    "forgotPassword": "Mot de passe oublié ?"
   },
   "productDetails": {
     "header": "Détails du produit",

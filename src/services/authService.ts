@@ -18,6 +18,10 @@ export interface ResetPasswordResponse {
   message: string;
 }
 
+export interface ForgotPasswordResponse {
+  message: string;
+}
+
 export const authService = {
   loginPage: async (company: string): Promise<LoginResponse> => {
     const response = await axiosInstance.get(`/${company}/login`);
@@ -42,6 +46,10 @@ export const authService = {
     const response = await axiosInstance.post(`/${dnsPrefix}/reset-password/${userId}/${token}`, {
       new_password: newPassword
     });
+    return response.data;
+  },
+  forgotPassword: async (dnsPrefix: string, email: string): Promise<ForgotPasswordResponse> => {
+    const response = await axiosInstance.post(`/${dnsPrefix}/forgot-password/${email}`);
     return response.data;
   },
 };

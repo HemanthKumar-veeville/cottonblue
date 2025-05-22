@@ -71,6 +71,14 @@ const InputSection = ({
         placeholder={t("clientLogin.password")}
         className="flex items-center justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] w-full bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)] border border-solid border-[color:var(--1-tokens-color-modes-input-primary-default-border)] font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)]"
       />
+      <div className="w-full flex justify-end">
+        <a
+          href="/forgot-password"
+          className="text-[#6B7280] hover:text-[#4B5563] text-sm"
+        >
+          {t("clientLogin.forgotPassword")}
+        </a>
+      </div>
       <Button
         type="submit"
         disabled={isLoading}

@@ -13,6 +13,7 @@ interface AuthState {
   user: any;
   adminMode: boolean;
   passwordResetSuccess: boolean;
+  forgotPasswordEmailSent: boolean;
 }
 
 const initialState: AuthState = {
@@ -27,6 +28,7 @@ const initialState: AuthState = {
   isClientAdmin: false,
   adminMode: false,
   passwordResetSuccess: false,
+  forgotPasswordEmailSent: false,
 };
 
 // Async thunks
@@ -101,6 +103,18 @@ export const resetPassword = createAsyncThunk(
   }
 );
 
+export const forgotPassword = createAsyncThunk(
+  'auth/forgotPassword',
+  async ({ dnsPrefix, email }: { dnsPrefix: string; email: string }, { rejectWithValue }) => {
+    try {
+      const response = await authService.forgotPassword(dnsPrefix, email);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to send password reset email');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -113,6 +127,7 @@ const authSlice = createSlice({
     },
     clearPasswordResetStatus: (state) => {
       state.passwordResetSuccess = false;
+      state.forgotPasswordEmailSent = false;
     },
   },
   extraReducers: (builder) => {
@@ -179,6 +194,21 @@ const authSlice = createSlice({
         state.error = action.payload as string;
         state.passwordResetSuccess = false;
       })
+      // Forgot Password
+      .addCase(forgotPassword.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.forgotPasswordEmailSent = false;
+      })
+      .addCase(forgotPassword.fulfilled, (state) => {
+        state.isLoading = false;
+        state.forgotPasswordEmailSent = true;
+      })
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+        state.forgotPasswordEmailSent = false;
+      })
       // Get User
       .addCase(getUser.pending, (state) => {
         state.isLoading = true;
@@ -188,8 +218,8 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = action.payload;
         state.isLoggedIn = true;
-        state.isClientAdmin = action.payload.role === "admin";
-        state.company = action.payload.company || null;
+        state.isClientAdmin = action.payload.company_admin;
+        state.company = action.payload.company_name || null;
       })
       .addCase(getUser.rejected, (state, action) => {
         state.isLoading = false;
