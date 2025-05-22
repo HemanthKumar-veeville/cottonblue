@@ -183,6 +183,7 @@ function App() {
         {/* 404 Route - Must be last */}
         <Route path="*" element={<NotFound />} />
         <Route path="/create-password" element={<CreatePassword />} />
+        <Route path="/reset-password" element={<CreatePassword />} />
       </Routes>
     </BrowserRouter>
   );
