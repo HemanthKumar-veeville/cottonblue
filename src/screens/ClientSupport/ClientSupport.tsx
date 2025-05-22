@@ -347,22 +347,24 @@ export default function ClientSupportTicket() {
                   </div>
 
                   <Button
-                    className={`w-[352px] flex items-center justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] bg-[#00b85b] text-white rounded-[var(--2-tokens-screen-modes-button-border-radius)] border border-solid border-[#1a8563] ${
+                    className={`w-[352px] flex items-center justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] bg-[#00b85b] text-white rounded-[var(--2-tokens-screen-modes-button-border-radius)] hover:bg-[#00b85b]/90 ${
                       isSubmitting ? "opacity-70 cursor-not-allowed" : ""
                     }`}
                     onClick={handleSubmit}
                     disabled={isSubmitting}
                   >
+                    {" "}
                     <Send
                       className={`w-4 h-4 ${
                         isSubmitting ? "animate-pulse" : ""
                       }`}
-                    />
-                    <span className="font-label-medium font-[number:var(--label-medium-font-weight)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] [font-style:var(--label-medium-font-style)]">
+                    />{" "}
+                    <span>
+                      {" "}
                       {isSubmitting
                         ? t("clientSupport.ticket.submitting")
-                        : t("clientSupport.ticket.submit")}
-                    </span>
+                        : t("clientSupport.ticket.submit")}{" "}
+                    </span>{" "}
                   </Button>
                 </div>
               </div>
@@ -375,8 +377,8 @@ export default function ClientSupportTicket() {
                       onClick={() => setActiveTab("active")}
                       className={`flex-1 ${
                         activeTab === "active"
-                          ? "bg-[#00b85b] text-white border-[#1a8563] hover:bg-[#00b85b]/90"
-                          : "border-[#1a8563] text-[#00b85b] hover:bg-[#00b85b]/10"
+                          ? "bg-[#00b85b] text-white hover:bg-[#00b85b]/90"
+                          : "text-[#00b85b] hover:bg-[#00b85b]/10"
                       }`}
                     >
                       {t("clientSupport.activeTickets")} (
@@ -389,8 +391,8 @@ export default function ClientSupportTicket() {
                       onClick={() => setActiveTab("completed")}
                       className={`flex-1 ${
                         activeTab === "completed"
-                          ? "bg-[#00b85b] text-white border-[#1a8563] hover:bg-[#00b85b]/90"
-                          : "border-[#1a8563] text-[#00b85b] hover:bg-[#00b85b]/10"
+                          ? "bg-[#00b85b] text-white hover:bg-[#00b85b]/90"
+                          : "text-[#00b85b] hover:bg-[#00b85b]/10"
                       }`}
                     >
                       {t("clientSupport.completedTickets")} (
