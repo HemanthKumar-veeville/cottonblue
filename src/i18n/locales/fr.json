@@ -372,7 +372,8 @@
     "addToCart": "Ajouter au panier",
     "decreaseQuantity": "Diminuer la quantité",
     "increaseQuantity": "Augmenter la quantité",
-    "quantityInCart": "Quantité dans le panier : {{quantity}}"
+    "quantityInCart": "Quantité dans le panier : {{quantity}}",
+    "cartControls": "Contrôles du panier"
   },
   "addProduct": {
     "step1": {
@@ -956,5 +957,25 @@
     "success": {
       "created": "Mot de passe créé avec succès"
     }
+  },
+  "forgotPassword": {
+    "title": "Mot de passe oublié",
+    "sendResetLink": "Envoyer un lien de réinitialisation",
+    "backToLogin": "Se connecter",
+    "emailSent": "Un lien de réinitialisation a été envoyé à votre adresse email"
+  },
+  "exportCSV": {
+    "title": "Exporter les produits",
+    "export": "Exporter"
+  },
+  "userSidebar": {
+    "messages": {
+      "published": "Utilisateur publié avec succès",
+      "publishError": "Échec de la publication de l'utilisateur"
+    }
+  },
+  "userTable": {
+    "noUsers": "Aucun utilisateur trouvé",
+    "emptyMessage": "Il n'y a pas encore d'utilisateurs dans votre liste. Ajoutez votre premier utilisateur pour commencer."
   }
 }

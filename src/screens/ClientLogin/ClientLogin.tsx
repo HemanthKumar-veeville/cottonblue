@@ -3,45 +3,55 @@ import { Card, CardContent } from "../../components/ui/card";
 import { Input } from "../../components/ui/input";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../../store/store";
-import { login, loginPage } from "../../store/features/authSlice";
+import {
+  login,
+  loginPage,
+  forgotPassword,
+} from "../../store/features/authSlice";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loader";
 import { getHost } from "../../utils/hostUtils";
+
 const LogoSection = ({ companyLogo }: { companyLogo: string | null }) => {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col items-end justify-center w-full">
+    <div className="flex flex-col items-center justify-center w-full">
       <img
-        className="w-full h-[56.57px]"
+        className="w-[300px] h-auto mb-2"
         alt="Company Logo"
         src={companyLogo || "/img/chronodrive_logo.png"}
       />
-      <div className="font-text-small text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--text-small-font-size)] tracking-[var(--text-small-letter-spacing)] leading-[var(--text-small-line-height)]">
-        {t("clientLogin.poweredBy")}
-      </div>
+      <div className="text-[#475569] text-sm">{t("clientLogin.poweredBy")}</div>
     </div>
   );
 };
 
-const GreetingSection = () => {
+const GreetingSection = ({
+  isForgotPassword,
+}: {
+  isForgotPassword: boolean;
+}) => {
   const { t } = useTranslation();
   return (
     <div className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-XS)]">
-      <h1 className="font-heading-h1 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h1-font-size)] tracking-[var(--heading-h1-letter-spacing)] leading-[var(--heading-h1-line-height)] mt-[-1.00px]">
-        {t("clientLogin.greeting")}
+      <h1 className="font-heading-h1 text-[#475569] text-[32px] font-medium leading-[40px] tracking-[-0.4px]">
+        {isForgotPassword
+          ? t("forgotPassword.title")
+          : t("clientLogin.greeting")}
       </h1>
     </div>
   );
 };
 
-const InputSection = ({
+const LoginInputSection = ({
   email,
   setEmail,
   password,
   setPassword,
   onSubmit,
   isLoading,
+  onForgotPasswordClick,
 }: {
   email: string;
   setEmail: (value: string) => void;
@@ -49,6 +59,7 @@ const InputSection = ({
   setPassword: (value: string) => void;
   onSubmit: (e: React.FormEvent) => void;
   isLoading: boolean;
+  onForgotPasswordClick: () => void;
 }) => {
   const { t } = useTranslation();
   return (
@@ -72,17 +83,18 @@ const InputSection = ({
         className="flex items-center justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] w-full bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)] border border-solid border-[color:var(--1-tokens-color-modes-input-primary-default-border)] font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)]"
       />
       <div className="w-full flex justify-end">
-        <a
-          href="/forgot-password"
+        <button
+          type="button"
+          onClick={onForgotPasswordClick}
           className="text-[#6B7280] hover:text-[#4B5563] text-sm"
         >
           {t("clientLogin.forgotPassword")}
-        </a>
+        </button>
       </div>
       <Button
         type="submit"
         disabled={isLoading}
-        className="w-full py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] bg-[#00b85b] rounded-[var(--2-tokens-screen-modes-button-border-radius)] border border-solid border-[#1a8563] font-label-medium text-[color:var(--1-tokens-color-modes-button-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)]"
+        className="w-full py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] bg-[#00b85b] hover:bg-[#009e4f] transition-colors duration-200 rounded-[var(--2-tokens-screen-modes-button-border-radius)] font-label-medium text-[color:var(--1-tokens-color-modes-button-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] disabled:opacity-70 disabled:cursor-not-allowed"
       >
         {isLoading ? (
           <div className="flex items-center justify-center">
@@ -97,21 +109,75 @@ const InputSection = ({
   );
 };
 
+const ForgotPasswordInputSection = ({
+  email,
+  setEmail,
+  onSubmit,
+  isLoading,
+  onBackToLogin,
+}: {
+  email: string;
+  setEmail: (value: string) => void;
+  onSubmit: (e: React.FormEvent) => void;
+  isLoading: boolean;
+  onBackToLogin: () => void;
+}) => {
+  const { t } = useTranslation();
+  return (
+    <form
+      onSubmit={onSubmit}
+      className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full"
+    >
+      <Input
+        type="email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder={t("clientLogin.email")}
+        className="flex items-center justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] w-full bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)] border border-solid border-[color:var(--1-tokens-color-modes-input-primary-default-border)] font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)]"
+      />
+      <div className="w-full flex justify-end">
+        <button
+          type="button"
+          onClick={onBackToLogin}
+          className="text-[#6B7280] hover:text-[#4B5563] text-sm"
+        >
+          {t("forgotPassword.backToLogin")}
+        </button>
+      </div>
+      <Button
+        type="submit"
+        disabled={isLoading || !email}
+        className="w-full py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] bg-[#00b85b] hover:bg-[#009e4f] transition-colors duration-200 rounded-[var(--2-tokens-screen-modes-button-border-radius)] font-label-medium text-[color:var(--1-tokens-color-modes-button-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] disabled:opacity-70 disabled:cursor-not-allowed"
+      >
+        {isLoading ? (
+          <div className="flex items-center justify-center">
+            <Loader size="sm" className="mr-2" />
+            {t("common.loading")}
+          </div>
+        ) : (
+          t("forgotPassword.sendResetLink")
+        )}
+      </Button>
+    </form>
+  );
+};
+
 export default function ClientLogin() {
+  const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { isLoading, error, company, companyLogo } = useAppSelector(
-    (state) => state.auth
-  );
+  const { isLoading, error, company, companyLogo, forgotPasswordEmailSent } =
+    useAppSelector((state) => state.auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const dnsPrefix = getHost();
 
   useEffect(() => {
     dispatch(loginPage(dnsPrefix));
   }, [dispatch, dnsPrefix]);
 
-  const handleSubmit = async (e?: React.FormEvent) => {
+  const handleLoginSubmit = async (e?: React.FormEvent) => {
     if (e) {
       e.preventDefault();
     }
@@ -126,24 +192,53 @@ export default function ClientLogin() {
     }
   };
 
+  const handleForgotPasswordSubmit = async (e?: React.FormEvent) => {
+    if (e) {
+      e.preventDefault();
+    }
+    if (!dnsPrefix || !email) return;
+
+    try {
+      await dispatch(forgotPassword({ dnsPrefix, email })).unwrap();
+    } catch (error) {
+      console.error("Forgot password failed:", error);
+    }
+  };
+
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
       <Card className="w-[400px] bg-white rounded-[var(--2-tokens-screen-modes-button-border-radius)]">
         <CardContent className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-XL)] pt-[var(--2-tokens-screen-modes-common-spacing-XL)] pr-[var(--2-tokens-screen-modes-common-spacing-l)] pb-[var(--2-tokens-screen-modes-common-spacing-XL)] pl-[var(--2-tokens-screen-modes-common-spacing-l)]">
           <LogoSection companyLogo={companyLogo} />
           <div className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-2xl)] w-full">
-            <GreetingSection />
-            <InputSection
-              email={email}
-              setEmail={setEmail}
-              password={password}
-              setPassword={setPassword}
-              onSubmit={handleSubmit}
-              isLoading={isLoading}
-            />
+            <GreetingSection isForgotPassword={isForgotPassword} />
+            {isForgotPassword ? (
+              <ForgotPasswordInputSection
+                email={email}
+                setEmail={setEmail}
+                onSubmit={handleForgotPasswordSubmit}
+                isLoading={isLoading}
+                onBackToLogin={() => setIsForgotPassword(false)}
+              />
+            ) : (
+              <LoginInputSection
+                email={email}
+                setEmail={setEmail}
+                password={password}
+                setPassword={setPassword}
+                onSubmit={handleLoginSubmit}
+                isLoading={isLoading}
+                onForgotPasswordClick={() => setIsForgotPassword(true)}
+              />
+            )}
             {error && (
               <div className="text-red-500 text-sm w-full text-center">
                 {error}
+              </div>
+            )}
+            {forgotPasswordEmailSent && isForgotPassword && (
+              <div className="text-green-500 text-sm w-full text-center">
+                {t("forgotPassword.emailSent")}
               </div>
             )}
           </div>

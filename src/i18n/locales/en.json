@@ -361,7 +361,8 @@
     "addToCart": "Add to cart",
     "decreaseQuantity": "Decrease quantity",
     "increaseQuantity": "Increase quantity",
-    "quantityInCart": "Quantity in cart: {{quantity}}"
+    "quantityInCart": "Quantity in cart: {{quantity}}",
+    "cartControls": "Cart Controls"
   },
   "addProduct": {
     "step1": {
@@ -923,5 +924,25 @@
     "success": {
       "created": "Password created successfully"
     }
+  },
+  "forgotPassword": {
+    "title": "Forgot Password",
+    "sendResetLink": "Send Reset Link",
+    "backToLogin": "Login",
+    "emailSent": "A reset link has been sent to your email address"
+  },
+  "exportCSV": {
+    "title": "Export Products",
+    "export": "Export"
+  },
+  "userSidebar": {
+    "messages": {
+      "published": "User published successfully",
+      "publishError": "Failed to publish user"
+    }
+  },
+  "userTable": {
+    "noUsers": "No Users Found",
+    "emptyMessage": "There are no users in your list yet. Add your first user to get started."
   }
 }
