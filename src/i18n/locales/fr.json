@@ -933,7 +933,7 @@
     }
   },
   "createPassword": {
-    "welcome": "Créez votre mot de passe",
+    "welcome": "créer un nouveau mot de passe",
     "instruction": "Veuillez créer un mot de passe sécurisé pour votre compte",
     "newPassword": "Nouveau mot de passe",
     "confirmPassword": "Confirmer le mot de passe",

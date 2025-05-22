@@ -900,7 +900,7 @@
     }
   },
   "createPassword": {
-    "welcome": "Create Your Password",
+    "welcome": "Create a new password",
     "instruction": "Please create a strong password for your account",
     "newPassword": "New Password",
     "confirmPassword": "Confirm Password",
