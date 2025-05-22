@@ -299,7 +299,7 @@ const OrderInfo = ({
 
 const OrderDetailsCard = ({ order }: { order: any }) => {
   const { t } = useTranslation();
-  console.log({ order });
+
   if (!order) return null;
 
   return (

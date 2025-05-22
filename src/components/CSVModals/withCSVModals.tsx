@@ -86,7 +86,6 @@ export const withCSVModals = <P extends object>(
           formData
         );
 
-        console.log("Import response:", response);
         await dispatch(fetchAllStores(selectedCompany?.dns || ""));
         setIsImportModalOpen(false);
         return response;

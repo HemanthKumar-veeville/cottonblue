@@ -402,7 +402,7 @@ const ClientForm = () => {
 
   // Get prefill data from location state if it exists
   const prefillData = location.state || {};
-  console.log({ prefillData });
+
   const isEditMode = prefillData.is_edit_mode || false;
 
   const [formData, setFormData] = useState({

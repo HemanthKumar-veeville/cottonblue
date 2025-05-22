@@ -32,15 +32,8 @@ export const createTicket = createAsyncThunk(
       ticket_title: data.title,
       ticket_description: data.description
     });
-    // Transform the API response to match our Ticket interface
-    return {
-      id: response.ticket_id || response.id,
-      title: response.ticket_title || response.title,
-      status: response.ticket_status || response.status || TicketStatus.OPEN,
-      description: response.ticket_description || response.description,
-      createdAt: new Date(response.created_at || response.createdAt),
-      updatedAt: new Date(response.updated_at || response.updatedAt)
-    };
+    
+    return response;
   }
 );
 
@@ -102,7 +95,6 @@ const ticketSlice = createSlice({
       })
       .addCase(createTicket.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        state.tickets.push(action.payload);
       })
       .addCase(createTicket.rejected, (state, action) => {
         state.status = 'failed';

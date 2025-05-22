@@ -132,7 +132,7 @@ export const getOrder = createAsyncThunk(
     order_id: string;
   }) => {
     const response = await cartService.getOrder(dns_prefix, store_id, order_id);
-    console.log({ response });
+    
     return response.data;
   }
 );

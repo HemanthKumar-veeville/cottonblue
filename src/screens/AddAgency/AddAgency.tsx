@@ -181,7 +181,7 @@ export default function AddAgency() {
 
   // Check if we're in edit mode
   const isEditMode = location.pathname.includes("/edit");
-  console.log({ isEditMode, id });
+
   const initialFormData: FormData = {
     company_id: selectedCompany?.id || "",
     store_name: "",
@@ -280,8 +280,6 @@ export default function AddAgency() {
           : null,
       };
 
-      console.log("Submitting data:", submitData);
-
       if (isEditMode && id) {
         await dispatch(
           modifyStore({
@@ -299,7 +297,6 @@ export default function AddAgency() {
           },
         });
       } else {
-        console.log("came here");
         await dispatch(
           registerStore({
             dnsPrefix: selectedCompany.dns || "",
@@ -331,7 +328,7 @@ export default function AddAgency() {
       );
     }
   };
-  console.log({ error });
+
   if (loading) {
     return <Skeleton variant="form" />;
   }

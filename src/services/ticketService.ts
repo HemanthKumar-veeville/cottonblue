@@ -3,7 +3,7 @@ import { axiosInstance } from '../lib/axios';
 export const ticketService = {
   createTicket: async (dnsPrefix: string, data: { ticket_title: string; ticket_description: string }) => {
     const formData = new FormData();
-    console.log({ dnsPrefix, data });
+    
     formData.append('ticket_title', data.ticket_title);
     formData.append('ticket_description', data.ticket_description);
     

@@ -229,7 +229,7 @@ const ProductDetails = () => {
   const [productsWithSelection, setProductsWithSelection] = useState<
     ProductWithSelection[]
   >([]);
-  console.log(linkedProducts);
+
   useEffect(() => {
     if (selectedCompany?.dns) {
       dispatch(fetchAllProducts(selectedCompany.dns));

@@ -67,7 +67,6 @@ export function OrdersSection({
 
   const handleExportKPI = () => {
     // TODO: Implement export functionality
-    console.log("Exporting KPI for", selectedMonth);
   };
 
   return (

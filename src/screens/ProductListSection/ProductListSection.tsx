@@ -48,7 +48,6 @@ export const ProductListSection = (): JSX.Element => {
       );
 
       if (createProduct.fulfilled.match(resultAction)) {
-        console.log("API Response:", resultAction.payload);
         toast.success(t("productSidebar.messages.published"));
       } else {
         throw new Error(

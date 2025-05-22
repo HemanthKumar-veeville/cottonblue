@@ -357,7 +357,6 @@ export const ProductSidebarSection = ({
 
           if (getProductById.fulfilled.match(resultAction)) {
             const product = resultAction.payload?.product;
-            console.log("Product data received:", product); // Debug log
 
             // Determine if product is sold by unit or carton
             const isSoldByUnit = product.pack_quantity === 1;
@@ -396,7 +395,6 @@ export const ProductSidebarSection = ({
               product_image: product.product_image || "",
             });
 
-            console.log("Mapped form data:", formData); // Debug log
             reset(formData);
           }
         } catch (error) {
@@ -527,7 +525,7 @@ export const ProductSidebarSection = ({
           }) as any
         ).unwrap();
         const productId = resultAction?.product_id;
-        console.log({ productId, resultAction });
+
         if (productId) {
           toast.success(t("productSidebar.messages.updateSuccess"));
           navigate(`/products/add-variant/${productId}`);
@@ -545,7 +543,7 @@ export const ProductSidebarSection = ({
           }) as any
         ).unwrap();
         const productId = resultAction?.product_id;
-        console.log({ productId });
+
         if (productId) {
           toast.success(t("productSidebar.messages.createSuccess"));
           navigate(`/products/add-variant/${productId}`);

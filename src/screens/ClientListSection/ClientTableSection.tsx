@@ -46,22 +46,6 @@ export const ClientTableSection = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedClients, setSelectedClients] = useState<number[]>([]);
 
-  // Debug: Log the props received by this component
-  useEffect(() => {
-    console.log("ClientTableSection received companies:", companies);
-    console.log("ClientTableSection companies type:", typeof companies);
-    console.log(
-      "ClientTableSection is companies an array?",
-      Array.isArray(companies)
-    );
-    if (Array.isArray(companies)) {
-      console.log("ClientTableSection number of companies:", companies.length);
-      if (companies.length > 0) {
-        console.log("First company:", companies[0]);
-      }
-    }
-  }, [companies]);
-
   // Ensure companies is always an array
   const companiesArray = Array.isArray(companies) ? companies : [];
 
@@ -78,24 +62,12 @@ export const ClientTableSection = ({
       client.city?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Debug: Log the filtered companies
-  useEffect(() => {
-    console.log("Filtered companies:", filteredCompanies);
-    console.log("Number of filtered companies:", filteredCompanies.length);
-  }, [filteredCompanies]);
-
   // Pagination logic
   const itemsPerPage = 25;
   const totalPages = Math.ceil(filteredCompanies.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentCompanies = filteredCompanies.slice(startIndex, endIndex);
-
-  // Debug: Log the current companies for pagination
-  useEffect(() => {
-    console.log("Current companies for pagination:", currentCompanies);
-    console.log("Number of current companies:", currentCompanies.length);
-  }, [currentCompanies]);
 
   // Handle checkbox selection
   const handleSelectAll = (checked: boolean) => {

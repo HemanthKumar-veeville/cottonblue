@@ -87,7 +87,7 @@ export const modifyStore = createAsyncThunk(
       const response = await agencyService.modifyStore(dnsPrefix, storeId, formData);
       return response;
     } catch (error: any) {
-      console.log({ error });
+      
       return rejectWithValue(error.response?.data?.message || 'Failed to modify store');
     }
   }

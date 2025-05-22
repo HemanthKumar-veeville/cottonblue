@@ -47,7 +47,7 @@ const TicketFormSkeleton = () => (
 );
 
 const getStatusColor = (status: string) => {
-  switch (status.toLowerCase()) {
+  switch (status?.toLowerCase()) {
     case "open":
       return "border-blue-200 text-blue-700 bg-blue-50/50 hover:bg-blue-100/50";
     case "in_progress":
@@ -86,6 +86,7 @@ const TicketCard = ({
   isUpdating?: boolean;
 }) => {
   const { t } = useTranslation();
+
   return (
     <motion.div
       layout
@@ -110,7 +111,9 @@ const TicketCard = ({
               </p>
               <p className="font-label-smaller font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-smaller-font-size)] tracking-[var(--label-smaller-letter-spacing)] leading-[var(--label-smaller-line-height)]">
                 {t("clientSupport.ticket.status")}:{" "}
-                <Badge className={`${getStatusColor(ticket?.ticket_status)} border`}>
+                <Badge
+                  className={`${getStatusColor(ticket?.ticket_status)} border`}
+                >
                   {formatStatus(ticket?.ticket_status)}
                 </Badge>
               </p>

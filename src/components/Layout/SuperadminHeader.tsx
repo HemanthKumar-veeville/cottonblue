@@ -116,7 +116,7 @@ export const SuperadminHeader = (): JSX.Element => {
       name: store.name,
     })
   );
-  console.log({ storeList });
+
   const companyList =
     companies?.companies?.map((company) => ({
       id: company.id,

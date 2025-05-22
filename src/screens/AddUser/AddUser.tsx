@@ -93,7 +93,7 @@ const LabeledSelect = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectedStores = options?.filter((store) => values?.includes(store.id));
-  console.log({ selectedStores, values, options });
+
   const toggleStore = (storeId: number) => {
     const newValues = values?.includes(storeId)
       ? values?.filter((id) => id !== storeId)
@@ -200,7 +200,7 @@ export default function AddUser() {
 
   // Check if we're in edit mode
   const isEditMode = location.pathname.includes("/edit");
-  console.log({ stores });
+
   const initialFormData: FormData = {
     firstname: "",
     lastname: "",
@@ -263,7 +263,7 @@ export default function AddUser() {
       formData.store_ids.length === 0
     ) {
       toast.error("Please fill in all required fields");
-      console.log({ formData });
+
       return;
     }
 

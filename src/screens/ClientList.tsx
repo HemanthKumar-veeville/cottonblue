@@ -32,16 +32,6 @@ export const ClientList = (): JSX.Element => {
     dispatch(getAllCompanies());
   }, [dispatch]);
 
-  // Debug: Log the companies data
-  useEffect(() => {
-    console.log("Companies from Redux store:", companies);
-    console.log("Companies type:", typeof companies);
-    console.log("Is companies an array?", Array.isArray(companies));
-    if (Array.isArray(companies)) {
-      console.log("Number of companies:", companies.length);
-    }
-  }, [companies]);
-
   const handleSearch = (term: string) => {
     setSearchTerm(term);
   };

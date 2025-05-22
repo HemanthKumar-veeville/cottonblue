@@ -146,7 +146,6 @@ export function BudgetSection({
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-  console.log({ budgetData });
 
   if (dashboardLoading) {
     return <BudgetSectionSkeleton />;

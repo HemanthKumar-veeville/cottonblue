@@ -49,7 +49,6 @@ export const UserListSection = (): JSX.Element => {
       );
 
       if (registerUser.fulfilled.match(resultAction)) {
-        console.log("API Response:", resultAction.payload);
         toast.success(t("userSidebar.messages.published"));
       } else {
         throw new Error(

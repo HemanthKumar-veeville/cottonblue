@@ -56,7 +56,7 @@ function App() {
   const isAdminDomain = isAdminHostname();
   const dnsPrefix = getHost();
   const dispatch = useAppDispatch();
-  console.log({ isAdminDomain, dnsPrefix });
+
   useEffect(() => {
     // Only fetch admin user data if we're on admin domain
     if (isAdminDomain) {

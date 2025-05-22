@@ -47,7 +47,7 @@ export const productService = {
   createProduct: async (dnsPrefix: string, data: CreateProductData | FormData) => {
     // If data is already FormData, use it directly
     const formData = data instanceof FormData ? data : new FormData();
-    console.log({data})
+    
     // Only convert to FormData if the input is not already FormData
     if (!(data instanceof FormData)) {
       Object.entries(data).forEach(([key, value]) => {

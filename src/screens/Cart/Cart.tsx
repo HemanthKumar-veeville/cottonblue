@@ -317,8 +317,6 @@ export default function CartContainer(): JSX.Element {
   const dnsPrefix = getHost();
   const { selectedStore } = useAppSelector((state) => state.agency);
 
-  console.log({ store_details });
-
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     firstName: "",
     lastName: "",
@@ -395,7 +393,6 @@ export default function CartContainer(): JSX.Element {
   };
 
   const handleValidateOrder = async () => {
-    console.log("here");
     try {
       if (!dnsPrefix || !selectedStore) {
         toast.error(t("cart.error.missingStoreInfo"));

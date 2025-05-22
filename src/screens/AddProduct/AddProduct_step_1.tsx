@@ -348,7 +348,7 @@ const ProductDetails = () => {
           productIds,
         })
       ).unwrap();
-      console.log({ response });
+
       if (response?.product_id) {
         const productId = id;
         toast.success(t("addProduct.success.storesAllocated"));

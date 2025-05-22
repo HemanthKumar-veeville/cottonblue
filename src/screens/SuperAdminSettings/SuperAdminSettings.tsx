@@ -64,7 +64,6 @@ function SuperAdminSettings() {
     setIsSubmitting(true);
     try {
       // TODO: Implement API call to save settings
-      console.log("Saving settings:", formData);
     } catch (error) {
       console.error("Error saving settings:", error);
     } finally {

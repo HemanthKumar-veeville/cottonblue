@@ -41,7 +41,7 @@ export const AgenciesList = (): JSX.Element => {
 
   useEffect(() => {
     // Dispatch the fetchAllStores action to get agencies data
-    console.log("selectedCompany", selectedCompany);
+
     if (selectedCompany?.dns) {
       dispatch(fetchAllStores(selectedCompany.dns));
     }

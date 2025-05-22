@@ -115,7 +115,6 @@ export const userService = {
   modifyUser: async (dnsPrefix: string, userId: string | number, data: UserModificationData) => {
     try {
 
-      console.log( data );
       // Validate that at least one field is provided
       if (Object.keys(data).length === 0) {
         throw new Error('At least one field must be provided for modification');

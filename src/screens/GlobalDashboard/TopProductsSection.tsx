@@ -239,12 +239,12 @@ const TopProductsSection: React.FC = () => {
     getStoredValue(TIMEFRAME_KEY, "Monthly") as TimeframeOption
   );
   const [selectedPeriod, setSelectedPeriod] = useState<string>(() => {
-    return  getDefaultPeriodValue("Monthly");
+    return getDefaultPeriodValue("Monthly");
   });
 
   const { summary } = useSelector((state: RootState) => state.dashboard);
   const { selectedCompany } = useSelector((state: RootState) => state.client);
-  console.log({ summary });
+
   const dns_prefix = selectedCompany?.dns ?? getHost();
 
   useEffect(() => {

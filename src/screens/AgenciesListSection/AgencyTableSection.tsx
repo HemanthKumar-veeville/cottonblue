@@ -62,21 +62,6 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAgencies, setSelectedAgencies] = useState<number[]>([]);
   const { selectedCompany } = useAppSelector((state) => state.client);
-  // Debug: Log the props received by this component
-  useEffect(() => {
-    console.log("AgencyTableSection received agencies:", agencies);
-    console.log("AgencyTableSection agencies type:", typeof agencies);
-    console.log(
-      "AgencyTableSection is agencies an array?",
-      Array.isArray(agencies)
-    );
-    if (Array.isArray(agencies)) {
-      console.log("AgencyTableSection number of agencies:", agencies.length);
-      if (agencies.length > 0) {
-        console.log("First agency:", agencies[0]);
-      }
-    }
-  }, [agencies]);
 
   // Ensure agencies is always an array
   const agenciesArray = Array.isArray(agencies) ? agencies : [];
@@ -96,24 +81,12 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
       agency.postal_code?.includes(searchTerm)
   );
 
-  // Debug: Log the filtered agencies
-  useEffect(() => {
-    console.log("Filtered agencies:", filteredAgencies);
-    console.log("Number of filtered agencies:", filteredAgencies.length);
-  }, [filteredAgencies]);
-
   // Pagination logic
   const itemsPerPage = 5;
   const totalPages = Math.ceil(filteredAgencies.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentAgencies = filteredAgencies.slice(startIndex, endIndex);
-
-  // Debug: Log the current agencies for pagination
-  useEffect(() => {
-    console.log("Current agencies for pagination:", currentAgencies);
-    console.log("Number of current agencies:", currentAgencies.length);
-  }, [currentAgencies]);
 
   // Handle checkbox selection
   const handleSelectAll = (checked: boolean) => {
