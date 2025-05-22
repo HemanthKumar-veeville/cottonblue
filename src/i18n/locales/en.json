@@ -117,7 +117,9 @@
       "packQuantity": "Pack Quantity",
       "availablePacks": "Available Packs",
       "priceOfPack": "Price of Pack",
-      "status": "Status"
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive"
     },
     "pagination": {
       "previous": "Previous",

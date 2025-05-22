@@ -214,7 +214,9 @@ export const ProductTableSection = (): JSX.Element => {
                       <Badge
                         variant={product.is_active ? "active" : "inactive"}
                       >
-                        {product.is_active ? "Active" : "Inactive"}
+                        {product.is_active
+                          ? t("productList.table.active")
+                          : t("productList.table.inactive")}
                       </Badge>
                     </TableCell>
                     <TableCell className="w-[15px] text-left align-middle">

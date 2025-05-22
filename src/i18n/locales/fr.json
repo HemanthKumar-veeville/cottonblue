@@ -118,7 +118,9 @@
       "packQuantity": "Quantité par lot",
       "availablePacks": "Lots disponibles",
       "priceOfPack": "Prix du lot",
-      "status": "Statut"
+      "status": "Statut",
+      "active": "Actif",
+      "inactive": "Inactif"
     },
     "pagination": {
       "previous": "Précédent",
