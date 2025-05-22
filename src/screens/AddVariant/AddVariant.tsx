@@ -411,7 +411,7 @@ const ProductDetails = () => {
                     <div className="grid grid-cols-2 md:grid-cols-6 gap-3">
                       <div className="flex flex-col p-2 bg-gray-50 rounded-md">
                         <span className="text-xs font-medium text-gray-500">
-                          Size
+                          {t("clientProduct.size")}
                         </span>
                         <span className="text-sm font-semibold text-[#07515f]">
                           {product?.size}
@@ -420,7 +420,7 @@ const ProductDetails = () => {
 
                       <div className="flex flex-col p-2 bg-gray-50 rounded-md">
                         <span className="text-xs font-medium text-gray-500">
-                          Suitable For
+                          {t("clientProduct.suitableFor")}
                         </span>
                         <span className="text-sm font-semibold text-[#07515f]">
                           {product?.suitable_for}
@@ -429,25 +429,29 @@ const ProductDetails = () => {
 
                       <div className="flex flex-col p-2 bg-gray-50 rounded-md">
                         <span className="text-xs font-medium text-gray-500">
-                          Pack Qty
+                          {t("clientProduct.packQuantity")}
                         </span>
                         <span className="text-sm font-semibold text-[#07515f]">
-                          {product?.pack_quantity} units
+                          {product?.pack_quantity}{" "}
+                          {product?.pack_quantity === 1
+                            ? t("productDetails.values.unit")
+                            : t("productDetails.values.units")}
                         </span>
                       </div>
 
                       <div className="flex flex-col p-2 bg-gray-50 rounded-md">
                         <span className="text-xs font-medium text-gray-500">
-                          Price/Pack
+                          {t("clientProduct.priceOfPack")}
                         </span>
                         <span className="text-sm font-semibold text-[#07515f]">
-                          ${product?.price_of_pack?.toFixed(2)}
+                          {t("productDetails.values.currency")}
+                          {product?.price_of_pack?.toFixed(2)}
                         </span>
                       </div>
 
                       <div className="flex flex-col p-2 bg-gray-50 rounded-md">
                         <span className="text-xs font-medium text-gray-500">
-                          Total Packs
+                          {t("clientProduct.totalPacks")}
                         </span>
                         <span className="text-sm font-semibold text-[#07515f]">
                           {product?.total_packs}
@@ -456,7 +460,7 @@ const ProductDetails = () => {
 
                       <div className="flex flex-col p-2 bg-gray-50 rounded-md">
                         <span className="text-xs font-medium text-gray-500">
-                          Available
+                          {t("clientProduct.availablePacks")}
                         </span>
                         <span className="text-sm font-semibold text-[#07515f]">
                           {product?.available_packs}
@@ -495,7 +499,7 @@ const ProductDetails = () => {
                 <div className="flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5 whitespace-nowrap">
-                    Publishing...
+                    {t("common.loading")}
                   </span>
                 </div>
               ) : (

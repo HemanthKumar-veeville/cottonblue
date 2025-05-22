@@ -18,6 +18,7 @@
     "month": "Month",
     "year": "Year",
     "email": "Email",
+    "units": "units",
     "months": {
       "january": "January",
       "february": "February",
@@ -581,6 +582,13 @@
       "totalStock": "Total Stock",
       "packQuantity": "Pack Quantity",
       "suitableFor": "Suitable For"
+    },
+    "values": {
+      "free": "Free",
+      "general": "General",
+      "unit": "unit",
+      "units": "units",
+      "currency": "$"
     },
     "actions": {
       "modify": "Modify Product",

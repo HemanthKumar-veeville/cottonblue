@@ -18,6 +18,7 @@
     "month": "Mois",
     "year": "Année",
     "email": "Email",
+    "units": "unités",
     "months": {
       "january": "Janvier",
       "february": "Février",
@@ -47,7 +48,8 @@
       "list": "Liste des produits",
       "add": "Ajouter un produit",
       "stock": "Gérer le stock",
-      "carousel": "Carrousel d'accueil"
+      "carousel": "Carrousel d'accueil",
+      "umbrella": "Parapluie"
     },
     "customers": {
       "title": "Clients",
@@ -107,7 +109,7 @@
       "category": "Catégorie",
       "size": "Taille",
       "soldBy": "Vendu par",
-      "price": "Prix",
+      "price": "Prix par lot",
       "details": "Détails",
       "stock": "Stock",
       "availableRegion": "Région disponible",
@@ -383,9 +385,9 @@
     "variants": {
       "title": "Variantes du produit",
       "size": "Taille",
-      "sku": "Référence (SKU)",
-      "price": "Prix ({{currency}})",
-      "stock": "Stock",
+      "sku": "Référence",
+      "price": "Prix par lot ({{currency}})",
+      "stock": "Total des lots",
       "active": "Activer",
       "sizePlaceholder": "Sélectionner la taille",
       "skuPlaceholder": "Entrer la référence",
@@ -607,12 +609,19 @@
       "category": "Catégorie",
       "sizes": "Tailles disponibles",
       "soldBy": "Vendu par",
-      "price": "Prix",
+      "price": "Prix par lot",
       "stock": "Stock disponible",
       "availableStock": "Stock disponible",
       "totalStock": "Stock total",
       "packQuantity": "Quantité par pack",
       "suitableFor": "Convient à"
+    },
+    "values": {
+      "free": "Gratuit",
+      "general": "Général",
+      "unit": "unité",
+      "units": "unités",
+      "currency": "€"
     },
     "actions": {
       "modify": "Modifier le produit",
@@ -933,7 +942,7 @@
     }
   },
   "createPassword": {
-    "welcome": "créer un nouveau mot de passe",
+    "welcome": "créer un nouveau mot de passe",
     "instruction": "Veuillez créer un mot de passe sécurisé pour votre compte",
     "newPassword": "Nouveau mot de passe",
     "confirmPassword": "Confirmer le mot de passe",
