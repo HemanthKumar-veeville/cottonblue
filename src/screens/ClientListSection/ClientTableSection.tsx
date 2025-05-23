@@ -103,7 +103,7 @@ export const ClientTableSection = ({
   };
 
   return (
-    <section className="flex flex-col h-screen">
+    <section className="flex flex-col h-full">
       <div className="flex-grow overflow-auto pb-24">
         <div className="w-full">
           {loading ? (

@@ -245,11 +245,12 @@ export default function Tickets(): JSX.Element {
     (state: RootState) => state.ticket
   );
   const isLoading = status === "loading";
+  const { adminMode } = useAppSelector((state: RootState) => state.auth);
   const fetchTicketsData = async () => {
     try {
       await dispatch(
         fetchTickets({
-          dnsPrefix: dns,
+          dnsPrefix: adminMode ? "admin" : dns,
           ticketStatus: statusFilter === "all" ? undefined : statusFilter,
         })
       ).unwrap();

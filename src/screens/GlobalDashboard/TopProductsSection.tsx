@@ -246,12 +246,13 @@ const TopProductsSection: React.FC = () => {
   const { selectedCompany } = useSelector((state: RootState) => state.client);
 
   const dns_prefix = selectedCompany?.dns ?? getHost();
+  const { adminMode } = useSelector((state: RootState) => state.auth);
 
   useEffect(() => {
     if (!summary) {
       dispatch(
         fetchDashboard({
-          dns_prefix: dns_prefix || "admin",
+          dns_prefix: adminMode ? "admin" : dns_prefix || "admin",
           filter_by: selectedTimeframe.toLowerCase(),
           filter_value: selectedPeriod,
         })

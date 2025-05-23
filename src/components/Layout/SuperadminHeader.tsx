@@ -126,6 +126,7 @@ export const SuperadminHeader = (): JSX.Element => {
 
   useEffect(() => {
     dispatch(getAllCompanies());
+    dispatch(setAdminMode(true));
   }, [dispatch]);
 
   const handleTabClick = (tabId: number) => {
