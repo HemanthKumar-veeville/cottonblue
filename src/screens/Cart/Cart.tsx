@@ -152,7 +152,7 @@ const ProductRow = ({
             )}
           </div>
           <span className="font-text-medium text-black">
-            {product.product_name}
+            {`${product?.product_name} - ${product?.suitable_for} - ${product?.size}`}
           </span>
         </div>
       </TableCell>
@@ -195,61 +195,45 @@ const ProductRow = ({
 const AddressSection = ({
   title,
   address,
-  onUpdate,
 }: {
   title: string;
   address: ShippingAddress | BillingAddress;
-  onUpdate: (field: string, value: string) => void;
 }) => {
   const { t } = useTranslation();
   return (
-    <div className="flex flex-col gap-4">
-      <h2 className="text-[length:var(--heading-h5-font-size)] font-heading-h5 font-[number:var(--heading-h5-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h5-letter-spacing)] leading-[var(--heading-h5-line-height)]">
-        {t(title)}
-      </h2>
-      <div className="flex flex-col gap-4">
-        {"firstName" in address && (
-          <div className="flex gap-2">
-            <Input
-              className="flex-1 bg-white border-[#e0e0e0] hover:border-[#00b85b] focus:border-[#00b85b] transition-colors duration-200"
-              placeholder={t("cart.shipping.firstName")}
-              value={address.firstName}
-              onChange={(e) => onUpdate("firstName", e.target.value)}
-            />
-            <Input
-              className="flex-1 bg-white border-[#e0e0e0] hover:border-[#00b85b] focus:border-[#00b85b] transition-colors duration-200"
-              placeholder={t("cart.shipping.lastName")}
-              value={address.lastName}
-              onChange={(e) => onUpdate("lastName", e.target.value)}
-            />
-          </div>
-        )}
-        <Input
-          className="bg-white border-[#e0e0e0] hover:border-[#00b85b] focus:border-[#00b85b] transition-colors duration-200"
-          placeholder={t("cart.address.street")}
-          value={address.street}
-          onChange={(e) => onUpdate("street", e.target.value)}
-        />
-        <Input
-          className="bg-white border-[#e0e0e0] hover:border-[#00b85b] focus:border-[#00b85b] transition-colors duration-200"
-          placeholder={t("cart.address.city")}
-          value={address.city}
-          onChange={(e) => onUpdate("city", e.target.value)}
-        />
-        <Input
-          className="bg-white border-[#e0e0e0] hover:border-[#00b85b] focus:border-[#00b85b] transition-colors duration-200"
-          placeholder={t("cart.address.country")}
-          value={address.country}
-          onChange={(e) => onUpdate("country", e.target.value)}
-        />
-        <Input
-          className="bg-white border-[#e0e0e0] hover:border-[#00b85b] focus:border-[#00b85b] transition-colors duration-200"
-          placeholder={t("cart.address.phone")}
-          value={address.phone}
-          onChange={(e) => onUpdate("phone", e.target.value)}
-        />
+    <section className="flex flex-col items-start gap-2 w-full">
+      {title && (
+        <h2 className="font-heading-h5 font-bold text-[#1e2324] text-lg tracking-wide leading-tight">
+          {t(title)}
+        </h2>
+      )}
+      <div className="flex flex-col items-start gap-2 w-full">
+        <p className="font-text-small font-medium text-gray-700 text-sm tracking-wide leading-tight">
+          {title && "name" in address && address.name && (
+            <>
+              {address.name}
+              <br />
+            </>
+          )}
+          {title &&
+            "firstName" in address &&
+            address.firstName &&
+            address.lastName && (
+              <>
+                {`${address.firstName} ${address.lastName}`}
+                <br />
+              </>
+            )}
+          {address.street}
+          <br />
+          {address.city}
+          <br />
+          {address.country}
+          <br />
+          {address.phone}
+        </p>
       </div>
-    </div>
+    </section>
   );
 };
 
@@ -465,7 +449,7 @@ export default function CartContainer(): JSX.Element {
       </div>
 
       <div className="flex gap-6 flex-1">
-        <Card className="flex-1 p-0 border-0 rounded-lg overflow-hidden">
+        <Card className="flex-[2] p-0 border-0 rounded-lg overflow-hidden">
           <CardContent className="p-0 h-full flex flex-col">
             <div className="h-full flex flex-col">
               <div className="bg-[#eaf8e7] rounded-md">
@@ -520,55 +504,76 @@ export default function CartContainer(): JSX.Element {
           </CardContent>
         </Card>
 
-        <Card className="flex-1 bg-[color:var(--1-tokens-color-modes-background-primary)] rounded-lg">
-          <CardContent className="flex flex-col gap-8 p-6 h-full">
-            <div className="flex flex-col gap-4 flex-1">
-              <div className="flex flex-col gap-8">
-                <AddressSection
-                  title="cart.shipping.title"
-                  address={shippingAddress}
-                  onUpdate={handleShippingUpdate}
-                />
+        <Card className="w-[400px] bg-[color:var(--1-tokens-color-modes-background-primary)] rounded-lg">
+          <CardContent className="flex flex-col gap-8 pt-6 h-full">
+            <div className="flex flex-col items-start gap-4 w-full">
+              <div className="flex flex-col items-start w-full gap-4">
+                <section className="flex flex-col items-start gap-4 w-full">
+                  <h2 className="font-heading-h5 font-bold text-[#1e2324] text-lg tracking-wide leading-tight">
+                    {t("cart.shipping.title")}
+                  </h2>
+                  <div className="flex items-start gap-2 w-full">
+                    <Input
+                      className="flex-1 bg-gray-100 border-gray-300 text-gray-500"
+                      placeholder={t("cart.shipping.firstName")}
+                      value={shippingAddress.firstName}
+                      onChange={(e) =>
+                        handleShippingUpdate("firstName", e.target.value)
+                      }
+                    />
+                    <Input
+                      className="flex-1 bg-gray-100 border-gray-300 text-gray-500"
+                      placeholder={t("cart.shipping.lastName")}
+                      value={shippingAddress.lastName}
+                      onChange={(e) =>
+                        handleShippingUpdate("lastName", e.target.value)
+                      }
+                    />
+                  </div>
+                </section>
+                <AddressSection address={shippingAddress} />
                 <AddressSection
                   title="cart.billing.title"
                   address={billingAddress}
-                  onUpdate={handleBillingUpdate}
                 />
               </div>
 
-              <div className="flex flex-col gap-2">
-                <h2 className="text-[length:var(--heading-h5-font-size)] font-heading-h5 font-[number:var(--heading-h5-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h5-letter-spacing)] leading-[var(--heading-h5-line-height)]">
+              <section className="flex flex-col items-start gap-2 w-full">
+                <h2 className="font-heading-h5 font-bold text-[#1e2324] text-lg tracking-wide leading-tight">
                   {t("cart.validation.title")}
                 </h2>
-                <Input
-                  className="bg-[#f5f5f5] border-[#e0e0e0] text-[#666] cursor-not-allowed"
-                  value={userEmail}
-                  disabled
-                />
-              </div>
+                <div className="flex items-start gap-2 w-full">
+                  <Input
+                    className="flex-1 bg-gray-200 border-gray-300 text-gray-500"
+                    value={userEmail}
+                    disabled
+                  />
+                </div>
+              </section>
 
-              <div className="flex flex-col gap-4 flex-1">
-                <h2 className="text-[length:var(--heading-h5-font-size)] font-heading-h5 font-[number:var(--heading-h5-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h5-letter-spacing)] leading-[var(--heading-h5-line-height)]">
-                  {t("cart.comments.title")}
-                </h2>
+              <section className="flex flex-col items-start gap-4 w-full flex-1">
+                <div className="flex flex-col items-start gap-1 w-full">
+                  <h2 className="font-heading-h5 font-bold text-[#1e2324] text-lg tracking-wide leading-tight">
+                    {t("cart.comments.title")}
+                  </h2>
+                </div>
                 <Textarea
-                  className="flex-1 bg-white border-[#e0e0e0] hover:border-[#00b85b] focus:border-[#00b85b] transition-colors duration-200"
+                  className="w-full bg-gray-100 border-gray-300 text-gray-600 text-xs"
                   value={comments}
                   onChange={(e) => setComments(e.target.value)}
                 />
-              </div>
+              </section>
             </div>
-            <div className="flex justify-end">
-              <Button
-                className="w-full bg-[#00b85b] hover:bg-[#00a050] border border-[#1a8563] text-white font-medium transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={items.length === 0 || loading}
-                onClick={handleValidateOrder}
-              >
-                {loading
-                  ? t("cart.buttons.processing")
-                  : t("cart.buttons.validateOrder")}
-              </Button>
-            </div>
+
+            <Button
+              className="w-full py-2 px-4 bg-[#00b85b] text-white rounded-[var(--2-tokens-screen-modes-button-border-radius)] hover:bg-[#00b85b]/90 disabled:opacity-70 disabled:cursor-not-allowed"
+              disabled={items.length === 0 || loading}
+              onClick={handleValidateOrder}
+            >
+              {loading
+                ? t("cart.buttons.processing")
+                : t("cart.buttons.validateOrder")}
+            </Button>
           </CardContent>
         </Card>
       </div>

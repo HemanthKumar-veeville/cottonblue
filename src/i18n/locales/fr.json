@@ -405,7 +405,7 @@
     "table": {
       "product": "Produit",
       "ref": "Réf.",
-      "unitPrice": "Prix unitaire",
+      "unitPrice": "Prix par lot",
       "quantity": "Quantité",
       "total": "Total"
     },
@@ -557,7 +557,7 @@
       "table": {
         "product": "Produit",
         "ref": "Réf.",
-        "unitPrice": "Prix unitaire",
+        "unitPrice": "Prix par lot",
         "quantity": "Quantité",
         "total": "Total"
       }

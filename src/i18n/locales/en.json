@@ -393,7 +393,7 @@
     "table": {
       "product": "Product",
       "ref": "Ref.",
-      "unitPrice": "Unit price",
+      "unitPrice": "Pack price",
       "quantity": "Quantity",
       "total": "Total"
     },
