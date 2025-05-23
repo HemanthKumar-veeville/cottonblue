@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 import { BudgetData } from "./ClientAdminDashboard";
 import { useNavigate } from "react-router-dom";
 import EmptyState from "../../components/EmptyState";
+import { formatCurrency } from "../../lib/utils";
 
 export const BudgetSectionSkeleton = () => (
   <div className="flex gap-6 w-full animate-pulse">
@@ -163,16 +164,6 @@ export function BudgetSection({
 
   const handleOrderClick = (order: Order) => {
     navigate(`/validate-order/${order.store_id}/${order.id}`);
-  };
-
-  const formatCurrency = (value: number) => {
-    if (value === "-") {
-      return "-";
-    }
-    return new Intl.NumberFormat("fr-FR", {
-      style: "currency",
-      currency: "EUR",
-    }).format(value);
   };
 
   return (

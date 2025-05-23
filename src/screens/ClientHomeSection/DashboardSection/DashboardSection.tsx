@@ -291,7 +291,9 @@ const ProductCard = ({ product }: { product: Product }) => {
 
             {/* Product Name with Truncation */}
             <div className="font-medium text-[color:var(--1-tokens-color-modes-input-primary-default-text)] text-base tracking-[0] leading-[22.4px] line-clamp-2 min-h-[44px]">
-              {product.name || "N/A"}
+              {product?.size?.toLowerCase() !== "free"
+                ? `${product?.name} - ${product?.size}`
+                : product?.name}
             </div>
 
             {/* Available Packs with Icon */}
