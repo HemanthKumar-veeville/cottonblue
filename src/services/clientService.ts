@@ -47,20 +47,16 @@ export const clientService = {
     formData.append('postal_code', data.postal_code);
     formData.append('phone_number', data.phone_number);
     formData.append('logo', data.logo);
-    formData.append('color_code', data.color_code);
+    formData.append('bg_color_code', data.bg_color_code);
+    formData.append('text_color_code', data.text_color_code);
     formData.append('dns_prefix', data.dns_prefix);
     formData.append('Admin_email', data.Admin_email);
     formData.append('Admin_password', data.Admin_password);
+    formData.append('Admin_mobile', data.Admin_mobile);
     
     // Add optional fields with default values if not provided
     formData.append('Admin_fname', data.Admin_fname || 'Admin');
     formData.append('Admin_lname', data.Admin_lname || data.company_name);
-    formData.append('order_limit_enabled', data.order_limit_enabled);
-    formData.append('order_limit_period', data.order_limit_period);
-    formData.append('order_limit_value', data.order_limit_value);
-    formData.append('budget_limit_enabled', data.budget_limit_enabled);
-    formData.append('budget_limit_period', data.budget_limit_period);
-    formData.append('budget_limit_value', data.budget_limit_value);
     
     // Make API request to register client
     return axiosInstance.post(`/${data.dns_prefix}/client/register`, formData, {

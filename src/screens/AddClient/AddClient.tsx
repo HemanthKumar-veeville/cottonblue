@@ -404,21 +404,21 @@ const ClientForm = () => {
   const prefillData = location.state || {};
 
   const isEditMode = prefillData.is_edit_mode || false;
-
+  console.log({ prefillData });
   const [formData, setFormData] = useState({
     ...initialFormData,
     name: prefillData.name || "",
     url: prefillData.url || "",
     brandColors: {
-      background: prefillData.color_code || "#324b6b",
-      text: prefillData.text_color || "#ffffff",
+      background: prefillData.bg_color_code,
+      text: prefillData.text_color_code,
     },
     location: {
       category: prefillData.category || "Agency",
       postalCode: prefillData.postal_code || "",
       city: prefillData.city || "",
       address: prefillData.address || "",
-      addressComment: prefillData.address_comment || "",
+      addressComment: prefillData.address || "",
     },
     passwords: {
       admin: prefillData.admin_password || "",
@@ -426,13 +426,20 @@ const ClientForm = () => {
     },
     validation: {
       email: prefillData.validation_email || "",
-      adminMobile: prefillData.admin_mobile || "",
+      adminMobile: prefillData.phone_number || "",
     },
   });
 
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Set logo preview in edit mode
+  useEffect(() => {
+    if (isEditMode && prefillData.logo) {
+      setLogoPreview(prefillData.logo);
+    }
+  }, [isEditMode, prefillData.logo]);
 
   // Reset state when component unmounts
   useEffect(() => {
@@ -537,7 +544,7 @@ const ClientForm = () => {
     );
 
     // Check for logo separately since it's not a string value
-    if (!logoFile) {
+    if (!logoFile && !isEditMode) {
       toast.error(t("addClient.messages.requiredFields"), {
         duration: 6000,
         position: "top-right",
@@ -568,13 +575,16 @@ const ClientForm = () => {
       city: formData.location.city,
       postal_code: formData.location.postalCode,
       phone_number: formData.validation.adminMobile,
-      logo: logoFile || new File([], "empty.png"),
+      logo: isEditMode
+        ? logoFile || undefined // In edit mode, only send if new logo selected
+        : logoFile || new File([], "empty.png"), // In create mode, always send a file
       bg_color_code: formData.brandColors.background,
       text_color_code: formData.brandColors.text,
       dns_prefix: formData.name.toLowerCase().replace(/\s+/g, "-"),
       Admin_email: formData.validation.email,
       Admin_password: formData.passwords.admin,
       Admin_mobile: formData.validation.adminMobile,
+      color_code: formData.brandColors.background, // Add this for API compatibility
     };
 
     if (isEditMode) {
@@ -588,7 +598,11 @@ const ClientForm = () => {
       );
     } else {
       // For create mode, dispatch registerClient action
-      dispatch(registerClient(clientData));
+      const registrationData = {
+        ...clientData,
+        logo: logoFile || new File([], "empty.png"), // Ensure logo is always a File for registration
+      };
+      dispatch(registerClient(registrationData));
     }
   };
 

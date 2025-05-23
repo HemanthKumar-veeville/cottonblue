@@ -224,18 +224,24 @@ const ActionsBox = () => {
   const dispatch = useAppDispatch();
   const { companyDetails } = useAppSelector((state) => state.client);
   const [isLoading, setIsLoading] = useState(false);
+  const company = companyDetails?.company;
 
   const handleModify = () => {
     // Prepare the data to be passed to the AddClient component
+
     const prefillData = {
-      name: companyDetails?.company?.name || "",
-      city: companyDetails?.company?.city || "",
-      address: companyDetails?.company?.company_address || "",
-      postal_code: companyDetails?.company?.postal_code || "",
-      color_code: companyDetails?.company?.color_code || "",
-      dns_prefix: companyDetails?.company?.dns_prefix || "",
-      company_id: companyDetails?.company?.id || "",
+      name: company?.name || "",
+      city: company?.city || "",
+      address: company?.address || "",
+      postal_code: company?.postal_code || "",
+      bg_color_code: company?.bg_color_code || "",
+      text_color_code: company?.text_color_code || "",
+      dns_prefix: company?.dns_prefix || "",
+      company_id: company?.id || "",
       is_edit_mode: true,
+      is_active: company?.is_active || false,
+      logo: company?.logo || "",
+      phone_number: company?.phone_number || "",
     };
 
     navigate("/customers/edit", { state: prefillData });
