@@ -9,11 +9,13 @@ export interface ClientRegistrationData {
   phone_number: string;
   logo: File;
   color_code: string;
+  bg_color_code: string;
+  text_color_code: string;
   dns_prefix: string;
   Admin_email: string;
-  Admin_password: string;
-  Admin_fname?: string; // Optional, defaults to "Admin"
-  Admin_lname?: string; // Optional, defaults to company_name
+  Admin_first_name: string;
+  Admin_last_name: string;
+  Admin_mobile: string;
 }
 
 // Interface for carousel creation data
@@ -51,12 +53,10 @@ export const clientService = {
     formData.append('text_color_code', data.text_color_code);
     formData.append('dns_prefix', data.dns_prefix);
     formData.append('Admin_email', data.Admin_email);
-    formData.append('Admin_password', data.Admin_password);
+    formData.append('Admin_fname', data.Admin_first_name);
+    formData.append('Admin_lname', data.Admin_last_name);
     formData.append('Admin_mobile', data.Admin_mobile);
-    
-    // Add optional fields with default values if not provided
-    formData.append('Admin_fname', data.Admin_fname || 'Admin');
-    formData.append('Admin_lname', data.Admin_lname || data.company_name);
+    formData.append('Admin_password', "Admin@123");
     
     // Make API request to register client
     return axiosInstance.post(`/${data.dns_prefix}/client/register`, formData, {

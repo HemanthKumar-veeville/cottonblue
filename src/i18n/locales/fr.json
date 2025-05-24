@@ -876,6 +876,7 @@
     },
     "fields": {
       "client": "Client",
+      "clientPlaceholder": "Entrez le nom du client",
       "brandLogo": "Logo de la marque",
       "brandColor": "Couleur de la marque",
       "background": "Arrière-plan",
@@ -887,8 +888,11 @@
       "locationDescription": "Pour créer le client, vous devez fournir au moins une localisation.",
       "clientCategory": "Catégorie du client",
       "postalCode": "Code postal",
+      "postalCodePlaceholder": "Entrez le code postal",
       "city": "Ville",
+      "cityPlaceholder": "Entrez le nom de la ville",
       "address": "Adresse",
+      "addressPlaceholder": "Entrez l'adresse",
       "addressComment": "Commentaire sur l'adresse",
       "addressCommentPlaceholder": "Exemple : Numéro de bâtiment 2",
       "orderLimit": "Limite de commande",
@@ -898,7 +902,9 @@
       "adminPassword": "Mot de passe ADMIN",
       "clientPassword": "Mot de passe CLIENT",
       "adminMobile": "Téléphone ADMIN",
-      "validationEmail": "Email de validation N+1"
+      "phonePlaceholder": "Entrez le numéro de téléphone",
+      "validationEmail": "Email de validation N+1",
+      "emailPlaceholder": "Entrez l'adresse email"
     },
     "buttons": {
       "login": "Connexion",
@@ -988,5 +994,51 @@
   "userTable": {
     "noUsers": "Aucun utilisateur trouvé",
     "emptyMessage": "Il n'y a pas encore d'utilisateurs dans votre liste. Ajoutez votre premier utilisateur pour commencer."
+  },
+  "companyDetails": {
+    "header": "Détails de l'entreprise",
+    "info": {
+      "id": "ID",
+      "name": "Nom",
+      "city": "Ville",
+      "address": "Adresse",
+      "phoneNumber": "Numéro de téléphone",
+      "dnsPrefix": "Préfixe DNS",
+      "postalCode": "Code postal",
+      "createdAt": "Créé le",
+      "updatedAt": "Mis à jour le",
+      "colors": "Couleurs du thème",
+      "background": "Couleur de fond",
+      "text": "Couleur du texte"
+    },
+    "actions": {
+      "modify": "Modifier l'entreprise",
+      "activate": "Activer l'entreprise",
+      "deactivate": "Désactiver l'entreprise"
+    },
+    "error": {
+      "notFound": "Entreprise non trouvée",
+      "loadError": "Erreur lors du chargement des données de l'entreprise"
+    },
+    "orders": {
+      "title": "Commandes de l'entreprise",
+      "empty": {
+        "title": "Aucune commande trouvée",
+        "description": "Cette entreprise n'a pas encore passé de commande. Les commandes apparaîtront ici une fois qu'elle commencera à effectuer des achats."
+      },
+      "table": {
+        "orderId": "ID Commande",
+        "date": "Date",
+        "totalPrice": "Prix total",
+        "status": "Statut",
+        "invoice": "Facture",
+        "details": "Détails"
+      },
+      "status": {
+        "delivered": "Livrée",
+        "inProgress": "En cours",
+        "cancelled": "Annulée"
+      }
+    }
   }
 }

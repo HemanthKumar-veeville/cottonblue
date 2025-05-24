@@ -842,6 +842,7 @@
     },
     "fields": {
       "client": "Client",
+      "clientPlaceholder": "Enter client name",
       "brandLogo": "Brand logo",
       "brandColor": "Brand colour",
       "background": "Background",
@@ -853,8 +854,11 @@
       "locationDescription": "To create the client, you must provide at least one location.",
       "clientCategory": "Client Category",
       "postalCode": "Postal code",
+      "postalCodePlaceholder": "Enter postal code",
       "city": "City",
+      "cityPlaceholder": "Enter city name",
       "address": "Address",
+      "addressPlaceholder": "Enter street address",
       "addressComment": "Address comment",
       "addressCommentPlaceholder": "Example: Building number 2",
       "orderLimit": "Order limit",
@@ -864,7 +868,9 @@
       "adminPassword": "ADMIN password",
       "clientPassword": "CLIENT password",
       "adminMobile": "Admin mobile",
-      "validationEmail": "Admin email"
+      "phonePlaceholder": "Enter phone number",
+      "validationEmail": "Admin email",
+      "emailPlaceholder": "Enter email address"
     },
     "buttons": {
       "login": "Login",
@@ -954,5 +960,51 @@
   "userTable": {
     "noUsers": "No Users Found",
     "emptyMessage": "There are no users in your list yet. Add your first user to get started."
+  },
+  "companyDetails": {
+    "header": "Company Details",
+    "info": {
+      "id": "ID",
+      "name": "Name",
+      "city": "City",
+      "address": "Address",
+      "phoneNumber": "Phone Number",
+      "dnsPrefix": "DNS Prefix",
+      "postalCode": "Postal Code",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At",
+      "colors": "Theme Colors",
+      "background": "Background Color",
+      "text": "Text Color"
+    },
+    "actions": {
+      "modify": "Modify Company",
+      "activate": "Activate Company",
+      "deactivate": "Deactivate Company"
+    },
+    "error": {
+      "notFound": "Company not found",
+      "loadError": "Error loading company data"
+    },
+    "orders": {
+      "title": "Company Orders",
+      "empty": {
+        "title": "No Orders Found",
+        "description": "This company hasn't placed any orders yet. Orders will appear here once they start making purchases."
+      },
+      "table": {
+        "orderId": "Order ID",
+        "date": "Date",
+        "totalPrice": "Total Price",
+        "status": "Status",
+        "invoice": "Invoice",
+        "details": "Details"
+      },
+      "status": {
+        "delivered": "Delivered",
+        "inProgress": "In Progress",
+        "cancelled": "Cancelled"
+      }
+    }
   }
 }

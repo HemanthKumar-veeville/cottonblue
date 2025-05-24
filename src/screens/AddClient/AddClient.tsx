@@ -10,11 +10,21 @@ import {
 } from "../../components/ui/select";
 import { Separator } from "../../components/ui/separator";
 import { Textarea } from "../../components/ui/textarea";
-import { PlusCircle, Upload, User, Palette } from "lucide-react";
-import React, { useState, useRef, useEffect } from "react";
+import {
+  PlusCircle,
+  Upload,
+  User,
+  Palette,
+  MapPin,
+  Mail,
+  Phone,
+} from "lucide-react";
+import React, { useState, useRef, useEffect, useCallback } from "react";
 import { HexColorPicker } from "react-colorful";
 import { useNavigate, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
 
 import { cn } from "../../lib/utils";
 import { useDispatch, useSelector } from "react-redux";
@@ -43,7 +53,6 @@ const initialFormData = {
     addressComment: "",
   },
   passwords: {
-    admin: "",
     client: "",
   },
   validation: {
@@ -391,6 +400,42 @@ const ColorPaletteRecommendation = ({
   );
 };
 
+// Add this function before the ClientForm component
+const getModifiedFields = (currentData: any, initialData: any) => {
+  const modifiedFields: any = {};
+
+  // Helper function to check if a value has changed
+  const hasValueChanged = (current: any, initial: any) => {
+    // Special handling for postal code
+    if (typeof current === "string" && current.includes("postal_code")) {
+      const currentValue = String(current || "").trim();
+      const initialValue = String(initial || "").trim();
+      return currentValue !== initialValue;
+    }
+
+    if (current instanceof File) return true;
+    if (typeof current === "object" && current !== null) {
+      return JSON.stringify(current) !== JSON.stringify(initial);
+    }
+
+    // Convert to string for comparison if either is a number
+    if (typeof current === "number" || typeof initial === "number") {
+      return String(current).trim() !== String(initial).trim();
+    }
+
+    return current !== initial;
+  };
+
+  // Compare and collect modified fields
+  Object.entries(currentData).forEach(([key, value]) => {
+    if (hasValueChanged(value, initialData[key])) {
+      modifiedFields[key] = value;
+    }
+  });
+
+  return modifiedFields;
+};
+
 const ClientForm = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -402,16 +447,16 @@ const ClientForm = () => {
 
   // Get prefill data from location state if it exists
   const prefillData = location.state || {};
-
   const isEditMode = prefillData.is_edit_mode || false;
-  console.log({ prefillData });
-  const [formData, setFormData] = useState({
-    ...initialFormData,
+
+  // Store initial form data for comparison
+  const initialFormState = {
     name: prefillData.name || "",
     url: prefillData.url || "",
+    logo: prefillData.logo || "",
     brandColors: {
-      background: prefillData.bg_color_code,
-      text: prefillData.text_color_code,
+      background: prefillData.bg_color_code || "#324b6b",
+      text: prefillData.text_color_code || "#ffffff",
     },
     location: {
       category: prefillData.category || "Agency",
@@ -420,19 +465,91 @@ const ClientForm = () => {
       address: prefillData.address || "",
       addressComment: prefillData.address || "",
     },
-    passwords: {
-      admin: prefillData.admin_password || "",
-      client: prefillData.client_password || "",
-    },
     validation: {
-      email: prefillData.validation_email || "",
+      email: prefillData.email || "",
       adminMobile: prefillData.phone_number || "",
     },
-  });
+  };
 
+  const [formData, setFormData] = useState(initialFormState);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Function to check if form data has changed
+  const hasFormDataChanged = useCallback(() => {
+    if (!isEditMode) return true;
+
+    // Check if logo has changed
+    if (logoFile !== null) return true;
+
+    // Compare each field with initial state
+    const isChanged = (current: any, initial: any): boolean => {
+      // Handle null/undefined cases
+      if (current === null || initial === null) {
+        return current !== initial;
+      }
+
+      // Handle different types
+      if (typeof current !== typeof initial) {
+        // Special case for number/string comparison (for postal code)
+        if (
+          (typeof current === "number" && typeof initial === "string") ||
+          (typeof current === "string" && typeof initial === "number")
+        ) {
+          return String(current) !== String(initial);
+        }
+        return true;
+      }
+
+      // Handle primitive types
+      if (typeof current !== "object") {
+        // Convert to string for comparison if either is a number (for postal code)
+        if (typeof current === "number" || typeof initial === "number") {
+          return String(current).trim() !== String(initial).trim();
+        }
+        return current !== initial;
+      }
+
+      // Handle arrays
+      if (Array.isArray(current)) {
+        if (!Array.isArray(initial) || current.length !== initial.length) {
+          return true;
+        }
+        return current.some((item, index) => isChanged(item, initial[index]));
+      }
+
+      const currentKeys = Object.keys(current);
+      const initialKeys = Object.keys(initial);
+
+      if (currentKeys.length !== initialKeys.length) {
+        return true;
+      }
+
+      return currentKeys.some((key) => {
+        // Skip empty string to undefined/null comparison
+        if (
+          (current[key] === "" &&
+            (initial[key] === undefined || initial[key] === null)) ||
+          ((current[key] === undefined || current[key] === null) &&
+            initial[key] === "")
+        ) {
+          return false;
+        }
+
+        // Special handling for postal code
+        if (key === "postalCode") {
+          const currentValue = String(current[key] || "").trim();
+          const initialValue = String(initial[key] || "").trim();
+          return currentValue !== initialValue;
+        }
+
+        return isChanged(current[key], initial[key]);
+      });
+    };
+
+    return isChanged(formData, initialFormState);
+  }, [formData, logoFile, isEditMode, initialFormState]);
 
   // Set logo preview in edit mode
   useEffect(() => {
@@ -504,6 +621,35 @@ const ClientForm = () => {
     }));
   };
 
+  // Update phone input styles
+  const phoneInputStyles = {
+    container: {
+      width: "100%",
+      marginTop: "8px",
+    },
+    inputStyle: {
+      width: "100%",
+      height: "40px",
+      fontSize: "16px",
+      paddingLeft: "48px",
+      borderRadius: "6px",
+      border: "1px solid #e2e8f0",
+      backgroundColor: "white",
+      fontFamily: "inherit",
+    },
+    buttonStyle: {
+      border: "1px solid #e2e8f0",
+      borderRadius: "6px 0 0 6px",
+      backgroundColor: "white",
+    },
+    dropdownStyle: {
+      width: "300px",
+      maxHeight: "300px",
+      borderRadius: "6px",
+      border: "1px solid #e2e8f0",
+    },
+  };
+
   const handleNext = async () => {
     // Validate required fields
     const requiredFields = [
@@ -518,23 +664,26 @@ const ClientForm = () => {
         value: formData.location.postalCode,
         name: t("addClient.fields.postalCode"),
       },
-      {
-        value: formData.passwords.admin,
-        name: t("addClient.fields.adminPassword"),
-      },
-      {
-        value: formData.validation.email,
-        name: t("addClient.fields.validationEmail"),
-      },
+      ...(!isEditMode
+        ? [
+            {
+              value: formData.validation.email,
+              name: t("addClient.fields.validationEmail"),
+            },
+          ]
+        : []),
       {
         value: formData.validation.adminMobile,
         name: t("addClient.fields.adminMobile"),
       },
       {
-        value: formData.brandColors.background,
+        value: formData.brandColors.background || "#324b6b",
         name: t("addClient.fields.background"),
       },
-      { value: formData.brandColors.text, name: t("addClient.fields.text") },
+      {
+        value: formData.brandColors.text || "#ffffff",
+        name: t("addClient.fields.text"),
+      },
     ];
 
     const missingFields = requiredFields?.filter(
@@ -544,7 +693,7 @@ const ClientForm = () => {
     );
 
     // Check for logo separately since it's not a string value
-    if (!logoFile && !isEditMode) {
+    if (!logoFile && !isEditMode && !formData.logo) {
       toast.error(t("addClient.messages.requiredFields"), {
         duration: 6000,
         position: "top-right",
@@ -576,33 +725,80 @@ const ClientForm = () => {
       postal_code: formData.location.postalCode,
       phone_number: formData.validation.adminMobile,
       logo: isEditMode
-        ? logoFile || undefined // In edit mode, only send if new logo selected
-        : logoFile || new File([], "empty.png"), // In create mode, always send a file
-      bg_color_code: formData.brandColors.background,
-      text_color_code: formData.brandColors.text,
+        ? formData.logo || undefined
+        : logoFile || new File([], "empty.png"),
+      bg_color_code: formData.brandColors.background || "#324b6b",
+      text_color_code: formData.brandColors.text || "#ffffff",
       dns_prefix: formData.name.toLowerCase().replace(/\s+/g, "-"),
       Admin_email: formData.validation.email,
-      Admin_password: formData.passwords.admin,
       Admin_mobile: formData.validation.adminMobile,
-      color_code: formData.brandColors.background, // Add this for API compatibility
+      color_code: formData.brandColors.background || "#324b6b",
     };
 
     if (isEditMode) {
-      // For edit mode, dispatch modifyCompany action
+      // Only proceed if there are actual changes
+      if (!hasFormDataChanged()) {
+        console.log("No changes detected, skipping API call");
+        // Show a message to user using toast.error instead of toast.info
+        toast.error(t("addClient.messages.noChanges") || "No changes to save", {
+          duration: 3000,
+          position: "top-right",
+          style: {
+            background: "#64748B", // Using a neutral color for this message
+            color: "#fff",
+          },
+        });
+        return;
+      }
+
+      // Create initial data object in the same structure as clientData
+      const initialClientData = {
+        company_name: prefillData.name || "",
+        company_address: prefillData.address || "",
+        city: prefillData.city || "",
+        postal_code: prefillData.postal_code || "",
+        phone_number: prefillData.phone_number || "",
+        logo: prefillData.logo || undefined,
+        bg_color_code: prefillData.bg_color_code || "",
+        text_color_code: prefillData.text_color_code || "",
+        dns_prefix: prefillData.dns_prefix || "",
+        Admin_email: prefillData.email || "",
+        Admin_mobile: prefillData.phone_number || "",
+        color_code: prefillData.bg_color_code || "",
+      };
+
+      // Get only modified fields
+      const modifiedData = getModifiedFields(clientData, initialClientData);
+
+      // Add logo only if a new file was selected
+      if (logoFile) {
+        modifiedData.logo = logoFile;
+      }
+
+      // Double check if there are actually modified fields
+      if (Object.keys(modifiedData).length === 0) {
+        console.log("No modified fields found after comparison");
+        return;
+      }
+
+      // Dispatch only if we have modifications
       dispatch(
         modifyCompany({
           dns_prefix: prefillData.dns_prefix,
           company_id: prefillData.company_id,
-          data: clientData,
+          data: modifiedData,
         })
       );
     } else {
       // For create mode, dispatch registerClient action
-      const registrationData = {
-        ...clientData,
-        logo: logoFile || new File([], "empty.png"), // Ensure logo is always a File for registration
-      };
-      dispatch(registerClient(registrationData));
+      dispatch(
+        registerClient({
+          ...clientData,
+          // Add required fields for ClientRegistrationData type
+          Admin_first_name: formData.name,
+          Admin_last_name: "Admin",
+        })
+      );
     }
   };
 
@@ -622,6 +818,10 @@ const ClientForm = () => {
                 <Input
                   className="pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
                   defaultValue={formData.name}
+                  placeholder={
+                    t("addClient.fields.clientPlaceholder") ||
+                    "Enter client name"
+                  }
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
@@ -693,7 +893,7 @@ const ClientForm = () => {
                 <div className="flex items-center justify-between gap-6">
                   <div className="flex items-center gap-6">
                     <ColorPicker
-                      color={formData.brandColors.background}
+                      color={formData.brandColors.background || "#324b6b"}
                       onChange={(color) =>
                         handleColorChange("background", color)
                       }
@@ -701,7 +901,7 @@ const ClientForm = () => {
                       required
                     />
                     <ColorPicker
-                      color={formData.brandColors.text}
+                      color={formData.brandColors.text || "#ffffff"}
                       onChange={(color) => handleColorChange("text", color)}
                       label={t("addClient.fields.text")}
                       required
@@ -711,8 +911,8 @@ const ClientForm = () => {
                   <div className="flex items-center gap-4">
                     {(() => {
                       const contrastRatio = calculateContrastRatio(
-                        formData.brandColors.background,
-                        formData.brandColors.text
+                        formData.brandColors.background || "#324b6b",
+                        formData.brandColors.text || "#ffffff"
                       );
                       return (
                         <>
@@ -749,8 +949,8 @@ const ClientForm = () => {
               <Button
                 className="w-[352px] border font-text-medium text-[16px] leading-[24px]"
                 style={{
-                  backgroundColor: formData.brandColors.background,
-                  color: formData.brandColors.text,
+                  backgroundColor: formData.brandColors.background || "#324b6b",
+                  color: formData.brandColors.text || "#ffffff",
                   borderColor: "transparent",
                 }}
               >
@@ -760,8 +960,8 @@ const ClientForm = () => {
                 variant="secondary"
                 className="w-fit rounded-md font-text-medium text-[16px] leading-[24px]"
                 style={{
-                  backgroundColor: formData.brandColors.background,
-                  color: formData.brandColors.text,
+                  backgroundColor: formData.brandColors.background || "#324b6b",
+                  color: formData.brandColors.text || "#ffffff",
                   borderColor: "transparent",
                 }}
               >
@@ -820,48 +1020,91 @@ const ClientForm = () => {
 
                 <div className="flex flex-col gap-6">
                   <div className="flex gap-4">
-                    <LabeledInput
-                      label={t("addClient.fields.postalCode")}
-                      defaultValue={formData.location.postalCode}
-                      onChange={(value) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          location: { ...prev.location, postalCode: value },
-                        }))
-                      }
-                      required
-                    />
-                    <LabeledInput
-                      label={t("addClient.fields.city")}
-                      defaultValue={formData.location.city}
-                      onChange={(value) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          location: { ...prev.location, city: value },
-                        }))
-                      }
-                      required
-                    />
+                    <div className="relative w-full">
+                      <Input
+                        className="pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
+                        defaultValue={formData.location.postalCode}
+                        placeholder={
+                          t("addClient.fields.postalCodePlaceholder") ||
+                          "Enter postal code"
+                        }
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            location: {
+                              ...prev.location,
+                              postalCode: e.target.value,
+                            },
+                          }))
+                        }
+                        required
+                      />
+                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
+                      <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
+                        {t("addClient.fields.postalCode")}
+                        <span className="text-red-500 ml-1">*</span>
+                      </span>
+                    </div>
+                    <div className="relative w-full">
+                      <Input
+                        className="pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
+                        defaultValue={formData.location.city}
+                        placeholder={
+                          t("addClient.fields.cityPlaceholder") ||
+                          "Enter city name"
+                        }
+                        onChange={(e) =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            location: {
+                              ...prev.location,
+                              city: e.target.value,
+                            },
+                          }))
+                        }
+                        required
+                      />
+                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
+                      <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
+                        {t("addClient.fields.city")}
+                        <span className="text-red-500 ml-1">*</span>
+                      </span>
+                    </div>
                   </div>
 
-                  <LabeledInput
-                    label={t("addClient.fields.address")}
-                    defaultValue={formData.location.address}
-                    onChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        location: { ...prev.location, address: value },
-                      }))
-                    }
-                    required
-                  />
+                  <div className="relative w-full">
+                    <Input
+                      className="pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
+                      defaultValue={formData.location.address}
+                      placeholder={
+                        t("addClient.fields.addressPlaceholder") ||
+                        "Enter street address"
+                      }
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          location: {
+                            ...prev.location,
+                            address: e.target.value,
+                          },
+                        }))
+                      }
+                      required
+                    />
+                    <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
+                    <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
+                      {t("addClient.fields.address")}
+                      <span className="text-red-500 ml-1">*</span>
+                    </span>
+                  </div>
 
                   <div className="relative w-full">
                     <Textarea
-                      className="min-h-[100px] font-text-medium text-[16px] leading-[24px]"
-                      placeholder={t(
-                        "addClient.fields.addressCommentPlaceholder"
-                      )}
+                      className="min-h-[100px] pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
+                      placeholder={
+                        t("addClient.fields.addressCommentPlaceholder") ||
+                        "Additional address details (optional)"
+                      }
                       defaultValue={formData.location.addressComment}
                       onChange={(e) =>
                         setFormData((prev) => ({
@@ -873,6 +1116,7 @@ const ClientForm = () => {
                         }))
                       }
                     />
+                    <MapPin className="absolute left-3 top-6 w-4 h-4" />
                     <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
                       {t("addClient.fields.addressComment")}
                     </span>
@@ -880,44 +1124,86 @@ const ClientForm = () => {
                 </div>
               </div>
 
-              <div className="h-0.5 bg-gray-300 rounded-full" />
-
               <div className="flex flex-col gap-6">
-                <LabeledInput
-                  label={t("addClient.fields.validationEmail")}
-                  defaultValue={formData.validation.email}
-                  onChange={(value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      validation: { ...prev.validation, email: value },
-                    }))
-                  }
-                  required
-                />
-                <LabeledInput
-                  label={t("addClient.fields.adminPassword")}
-                  defaultValue={formData.passwords.admin}
-                  type="password"
-                  onChange={(value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      passwords: { ...prev.passwords, admin: value },
-                    }))
-                  }
-                  required
-                />
-                <LabeledInput
-                  label={t("addClient.fields.adminMobile")}
-                  defaultValue={formData.validation.adminMobile}
-                  type="tel"
-                  onChange={(value) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      validation: { ...prev.validation, adminMobile: value },
-                    }))
-                  }
-                  required
-                />
+                {!isEditMode && (
+                  <div className="relative w-full">
+                    <Input
+                      type="email"
+                      className="pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
+                      defaultValue={formData.validation.email}
+                      placeholder={
+                        t("addClient.fields.emailPlaceholder") ||
+                        "Enter email address"
+                      }
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          validation: {
+                            ...prev.validation,
+                            email: e.target.value,
+                          },
+                        }))
+                      }
+                      required
+                    />
+                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
+                    <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
+                      {t("addClient.fields.validationEmail")}
+                      <span className="text-red-500 ml-1">*</span>
+                    </span>
+                  </div>
+                )}
+                <div className="relative w-full pt-2">
+                  <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white z-10">
+                    {t("addClient.fields.adminMobile")}
+                    <span className="text-red-500 ml-1">*</span>
+                  </span>
+                  <div className="relative">
+                    <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 z-10" />
+                    <PhoneInput
+                      country={"fr"}
+                      preferredCountries={["fr", "de", "gb", "it", "es"]}
+                      value={formData.validation.adminMobile}
+                      placeholder={
+                        t("addClient.fields.phonePlaceholder") ||
+                        "Enter phone number"
+                      }
+                      onChange={(phone) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          validation: {
+                            ...prev.validation,
+                            adminMobile: phone,
+                          },
+                        }))
+                      }
+                      containerStyle={phoneInputStyles.container}
+                      inputStyle={{
+                        ...phoneInputStyles.inputStyle,
+                        paddingLeft: "48px",
+                      }}
+                      buttonStyle={{
+                        ...phoneInputStyles.buttonStyle,
+                        display: "none",
+                      }}
+                      dropdownStyle={phoneInputStyles.dropdownStyle}
+                      enableSearch={true}
+                      searchPlaceholder="Search country..."
+                      searchStyle={{
+                        width: "100%",
+                        height: "36px",
+                        borderRadius: "4px",
+                        border: "1px solid #e2e8f0",
+                        padding: "0 10px",
+                        marginTop: "5px",
+                      }}
+                      inputProps={{
+                        required: true,
+                        name: "phone",
+                      }}
+                    />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -936,7 +1222,7 @@ const ClientForm = () => {
                 loading && "animate-pulse"
               )}
               onClick={handleNext}
-              disabled={loading}
+              disabled={loading || (isEditMode && !hasFormDataChanged())}
             >
               {loading ? (
                 <div className="flex items-center justify-center">
