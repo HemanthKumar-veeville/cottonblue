@@ -18,6 +18,7 @@ import {
   MapPin,
   Mail,
   Phone,
+  ArrowLeft,
 } from "lucide-react";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { HexColorPicker } from "react-colorful";
@@ -805,6 +806,12 @@ const ClientForm = () => {
   return (
     <div className="flex flex-col min-h-[854px] gap-8 p-6 bg-white rounded-lg overflow-hidden relative">
       <header className="inline-flex items-center gap-2">
+        {isEditMode && (
+          <ArrowLeft
+            onClick={() => navigate(`/customers/${prefillData.dns_prefix}`)}
+            className="w-5 h-5 text-[#07515f] cursor-pointer hover:text-[#064a56] transition-colors duration-200"
+          />
+        )}
         <h1 className="font-heading-h3 text-[20px] font-bold leading-[28px] text-[#475569]">
           {isEditMode ? t("addClient.title.edit") : t("addClient.title.add")}
         </h1>
