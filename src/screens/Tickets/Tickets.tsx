@@ -128,7 +128,7 @@ const TicketCard: React.FC<TicketCardProps> = ({
             ) : (
               <motion.div
                 className="w-[var(--2-tokens-screen-modes-common-spacing-l)] h-6 rounded-[35px] border-2 border-dashed border-green-600 shrink-0 cursor-pointer hover:border-green-700 transition-colors duration-200"
-                onClick={(e: React.MouseEvent) => onCheckboxClick(ticket, e)}
+                // onClick={(e: React.MouseEvent) => onCheckboxClick(ticket, e)}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.95 }}
               />
