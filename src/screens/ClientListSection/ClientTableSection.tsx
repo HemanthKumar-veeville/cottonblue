@@ -18,15 +18,12 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
 import { Users } from "lucide-react";
-
-// Pagination data
-const paginationItems = [1, 2, 3, 4, 5];
 
 interface ClientTableSectionProps {
   companies: any[];
@@ -96,6 +93,15 @@ export const ClientTableSection = ({
     const date = new Date(dateString);
     return date.toLocaleDateString();
   };
+
+  // Replace the pagination generation code with this simpler version
+  const paginationItems = useMemo(() => {
+    const items = [];
+    for (let i = 1; i <= totalPages; i++) {
+      items.push(i);
+    }
+    return items;
+  }, [totalPages]);
 
   // Handle view details click
   const handleViewDetails = (clientId: number) => {
@@ -251,15 +257,18 @@ export const ClientTableSection = ({
             <Pagination className="flex items-center justify-between w-full mx-auto">
               <PaginationPrevious
                 href="#"
-                className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
-                onClick={(e: React.MouseEvent) => {
-                  e.preventDefault();
-                  if (currentPage > 1) handlePageChange(currentPage - 1);
-                }}
-                disabled={currentPage === 1}
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium ${
+                  currentPage === 1 || totalPages === 1
+                    ? "text-gray-400 cursor-not-allowed hover:text-gray-400"
+                    : "text-black hover:text-black"
+                }`}
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1 || totalPages === 1}
               >
                 <img
-                  className="w-6 h-6"
+                  className={`w-6 h-6 ${
+                    currentPage === 1 || totalPages === 1 ? "opacity-50" : ""
+                  }`}
                   alt="Arrow left"
                   src="/img/arrow-left-sm.svg"
                 />
@@ -267,10 +276,7 @@ export const ClientTableSection = ({
               </PaginationPrevious>
 
               <PaginationContent className="flex items-center gap-3">
-                {Array.from(
-                  { length: Math.min(5, totalPages) },
-                  (_, i) => i + 1
-                ).map((page) => (
+                {paginationItems.map((page) => (
                   <PaginationItem key={page}>
                     <PaginationLink
                       href="#"
@@ -279,10 +285,7 @@ export const ClientTableSection = ({
                           ? "bg-cyan-100 font-bold text-[#1e2324]"
                           : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
                       }`}
-                      onClick={(e: React.MouseEvent) => {
-                        e.preventDefault();
-                        handlePageChange(page);
-                      }}
+                      onClick={() => setCurrentPage(page)}
                     >
                       {page}
                     </PaginationLink>
@@ -295,10 +298,7 @@ export const ClientTableSection = ({
                       <PaginationLink
                         href="#"
                         className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                        onClick={(e: React.MouseEvent) => {
-                          e.preventDefault();
-                          handlePageChange(totalPages);
-                        }}
+                        onClick={() => setCurrentPage(totalPages)}
                       >
                         {totalPages}
                       </PaginationLink>
@@ -309,17 +309,23 @@ export const ClientTableSection = ({
 
               <PaginationNext
                 href="#"
-                className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px]"
-                onClick={(e: React.MouseEvent) => {
-                  e.preventDefault();
-                  if (currentPage < totalPages)
-                    handlePageChange(currentPage + 1);
-                }}
-                disabled={currentPage === totalPages}
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium ${
+                  currentPage === totalPages || totalPages === 1
+                    ? "text-gray-400 cursor-not-allowed hover:text-gray-400"
+                    : "text-black hover:text-black"
+                }`}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
+                disabled={currentPage === totalPages || totalPages === 1}
               >
                 {t("clientTable.pagination.next")}
                 <img
-                  className="w-6 h-6 rotate-180"
+                  className={`w-6 h-6 rotate-180 ${
+                    currentPage === totalPages || totalPages === 1
+                      ? "opacity-50"
+                      : ""
+                  }`}
                   alt="Arrow right"
                   src="/img/arrow-left-sm-1.svg"
                 />
