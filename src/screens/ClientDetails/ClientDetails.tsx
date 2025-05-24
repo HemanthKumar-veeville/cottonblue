@@ -212,14 +212,9 @@ const CompanyInfo = ({ company }: { company: Company }) => {
       value: company?.name ?? "Not Available",
     },
     {
-      icon: <MapPin className="w-4 h-4" />,
-      label: t("companyDetails.info.city"),
-      value: company?.city ?? "Not Available",
-    },
-    {
-      icon: <MapPin className="w-4 h-4" />,
-      label: t("companyDetails.info.address"),
-      value: company?.address ?? "Not Available",
+      icon: <Mail className="w-4 h-4" />,
+      label: t("companyDetails.info.dnsPrefix"),
+      value: company?.dns_prefix ?? "Not Available",
     },
     {
       icon: <Phone className="w-4 h-4" />,
@@ -227,9 +222,9 @@ const CompanyInfo = ({ company }: { company: Company }) => {
       value: company?.phone_number ?? "Not Available",
     },
     {
-      icon: <Mail className="w-4 h-4" />,
-      label: t("companyDetails.info.dnsPrefix"),
-      value: company?.dns_prefix ?? "Not Available",
+      icon: <MapPin className="w-4 h-4" />,
+      label: t("companyDetails.info.city"),
+      value: company?.city ?? "Not Available",
     },
     {
       icon: <MapPin className="w-4 h-4" />,
@@ -237,14 +232,9 @@ const CompanyInfo = ({ company }: { company: Company }) => {
       value: company?.postal_code?.toString() ?? "Not Available",
     },
     {
-      icon: <Calendar className="w-4 h-4" />,
-      label: t("companyDetails.info.createdAt"),
-      value: formatDate(company?.created_at),
-    },
-    {
-      icon: <Calendar className="w-4 h-4" />,
-      label: t("companyDetails.info.updatedAt"),
-      value: formatDate(company?.updated_at),
+      icon: <MapPin className="w-4 h-4" />,
+      label: t("companyDetails.info.address"),
+      value: company?.address ?? "Not Available",
     },
   ];
 
