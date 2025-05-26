@@ -56,7 +56,6 @@ export const clientService = {
     formData.append('Admin_fname', data.Admin_first_name);
     formData.append('Admin_lname', data.Admin_last_name);
     formData.append('Admin_mobile', data.Admin_mobile);
-    formData.append('Admin_password', "Admin@123");
     
     // Make API request to register client
     return axiosInstance.post(`/${data.dns_prefix}/client/register`, formData, {
