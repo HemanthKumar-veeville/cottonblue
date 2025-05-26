@@ -22,7 +22,7 @@ const ClientDashboard: React.FC = () => {
       <SectionWrapper>
         {loading ? (
           <>
-            <TopProductsSkeleton />
+            <TopProductsSection />
             <TopClientsSkeleton />
             <StatsSkeleton />
             <DashboardSectionSkeleton />

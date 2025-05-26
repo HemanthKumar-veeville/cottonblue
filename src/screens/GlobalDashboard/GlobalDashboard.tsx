@@ -23,7 +23,7 @@ const GlobalDashboard: React.FC = () => {
       <SectionWrapper>
         {loading ? (
           <>
-            <TopProductsSkeleton />
+            <TopProductsSection />
             <TopClientsSkeleton />
             <StatsSkeleton />
             <DashboardSectionSkeleton />
