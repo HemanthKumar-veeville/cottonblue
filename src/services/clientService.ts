@@ -16,6 +16,7 @@ export interface ClientRegistrationData {
   Admin_first_name: string;
   Admin_last_name: string;
   Admin_mobile: string;
+  email: string;
 }
 
 // Interface for carousel creation data
@@ -56,7 +57,9 @@ export const clientService = {
     formData.append('Admin_fname', data.Admin_first_name);
     formData.append('Admin_lname', data.Admin_last_name);
     formData.append('Admin_mobile', data.Admin_mobile);
+    formData.append('email', data.email);
     
+
     // Make API request to register client
     return axiosInstance.post(`/${data.dns_prefix}/client/register`, formData, {
       headers: {

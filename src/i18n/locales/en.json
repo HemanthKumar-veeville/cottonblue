@@ -867,10 +867,12 @@
       "per": "Per",
       "adminPassword": "ADMIN password",
       "clientPassword": "CLIENT password",
-      "adminMobile": "Admin mobile",
+      "adminMobile": "Client mobile",
+      "adminEmail": "Client email",
       "phonePlaceholder": "Enter phone number",
       "validationEmail": "Admin email",
-      "emailPlaceholder": "Enter email address"
+      "emailPlaceholder": "Enter email address",
+      "clientEmailPlaceholder": "Enter client email address"
     },
     "buttons": {
       "login": "Login",
@@ -966,6 +968,7 @@
     "info": {
       "id": "ID",
       "name": "Name",
+      "email": "Email",
       "city": "City",
       "address": "Address",
       "phoneNumber": "Phone Number",

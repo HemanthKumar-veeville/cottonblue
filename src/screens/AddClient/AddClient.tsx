@@ -469,6 +469,7 @@ const ClientForm = () => {
     validation: {
       email: prefillData.email || "",
       adminMobile: prefillData.phone_number || "",
+      clientEmail: prefillData.email || "",
     },
   };
 
@@ -678,6 +679,10 @@ const ClientForm = () => {
         name: t("addClient.fields.adminMobile"),
       },
       {
+        value: formData.validation.clientEmail,
+        name: t("addClient.fields.clientEmail"),
+      },
+      {
         value: formData.brandColors.background || "#324b6b",
         name: t("addClient.fields.background"),
       },
@@ -733,6 +738,7 @@ const ClientForm = () => {
       dns_prefix: formData.name.toLowerCase().replace(/\s+/g, "-"),
       Admin_email: formData.validation.email,
       Admin_mobile: formData.validation.adminMobile,
+      email: formData.validation.clientEmail,
       color_code: formData.brandColors.background || "#324b6b",
     };
 
@@ -766,6 +772,7 @@ const ClientForm = () => {
         Admin_email: prefillData.email || "",
         Admin_mobile: prefillData.phone_number || "",
         color_code: prefillData.bg_color_code || "",
+        email: prefillData.email || "",
       };
 
       // Get only modified fields
@@ -1210,6 +1217,32 @@ const ClientForm = () => {
                       }}
                     />
                   </div>
+                </div>
+                <div className="relative w-full">
+                  <Input
+                    type="email"
+                    className="pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
+                    defaultValue={formData.validation.clientEmail}
+                    placeholder={
+                      t("addClient.fields.clientEmailPlaceholder") ||
+                      "Enter client email address"
+                    }
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        validation: {
+                          ...prev.validation,
+                          clientEmail: e.target.value,
+                        },
+                      }))
+                    }
+                    required
+                  />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
+                  <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
+                    {t("addClient.fields.adminEmail")}
+                    <span className="text-red-500 ml-1">*</span>
+                  </span>
                 </div>
               </div>
             </div>

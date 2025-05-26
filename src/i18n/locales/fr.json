@@ -901,10 +901,12 @@
       "per": "Par",
       "adminPassword": "Mot de passe ADMIN",
       "clientPassword": "Mot de passe CLIENT",
-      "adminMobile": "Téléphone ADMIN",
+      "adminMobile": "Téléphone Client",
+      "adminEmail": "Email Client",
       "phonePlaceholder": "Entrez le numéro de téléphone",
       "validationEmail": "Email de validation N+1",
-      "emailPlaceholder": "Entrez l'adresse email"
+      "emailPlaceholder": "Entrez l'adresse email",
+      "clientEmailPlaceholder": "Entrez l'adresse email du client"
     },
     "buttons": {
       "login": "Connexion",
@@ -1001,6 +1003,7 @@
       "id": "ID",
       "name": "Nom",
       "city": "Ville",
+      "email": "Email",
       "address": "Adresse",
       "phoneNumber": "Numéro de téléphone",
       "dnsPrefix": "Préfixe DNS",

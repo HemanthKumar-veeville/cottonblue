@@ -56,6 +56,7 @@ interface Company {
   color_code: string;
   bg_color_code: string;
   text_color_code: string;
+  email: string;
 }
 
 interface AgencyStatistics {
@@ -217,6 +218,11 @@ const CompanyInfo = ({ company }: { company: Company }) => {
       value: company?.dns_prefix ?? "Not Available",
     },
     {
+      icon: <Mail className="w-4 h-4" />,
+      label: t("companyDetails.info.email"),
+      value: company?.email ?? "Not Available",
+    },
+    {
       icon: <Phone className="w-4 h-4" />,
       label: t("companyDetails.info.phoneNumber"),
       value: company?.phone_number ?? "Not Available",
@@ -338,6 +344,7 @@ const CompanyActions = () => {
       is_active: company?.is_active || false,
       logo: company?.logo || "",
       phone_number: company?.phone_number || "",
+      email: company?.email || "",
     };
 
     navigate("/customers/edit", { state: prefillData });
