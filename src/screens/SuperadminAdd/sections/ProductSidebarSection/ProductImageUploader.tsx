@@ -94,12 +94,14 @@ export const ProductImageUploader: React.FC<ProductImageUploaderProps> = ({
       />
 
       {imageUrl ? (
-        <div className="relative w-full h-full group">
-          <img
-            src={imageUrl}
-            alt="Uploaded"
-            className="w-full h-full object-cover rounded-lg"
-          />
+        <div className="relative w-full h-full flex items-center justify-center bg-gray-50">
+          <div className="w-full h-full flex items-center justify-center">
+            <img
+              src={imageUrl}
+              alt="Uploaded"
+              className="max-w-full max-h-full w-auto h-auto object-contain"
+            />
+          </div>
           <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <Button
               variant="outline"
