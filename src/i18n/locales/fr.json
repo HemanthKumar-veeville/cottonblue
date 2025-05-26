@@ -120,7 +120,12 @@
       "priceOfPack": "Prix du lot",
       "status": "Statut",
       "active": "Actif",
-      "inactive": "Inactif"
+      "inactive": "Inactif",
+      "actions": {
+        "edit": "Modifier",
+        "activate": "Activer",
+        "deactivate": "Désactiver"
+      }
     },
     "pagination": {
       "previous": "Précédent",
@@ -704,7 +709,10 @@
       "inactive": "Inactif"
     },
     "actions": {
-      "viewDetails": "Voir détails"
+      "viewDetails": "Voir détails",
+      "edit": "Modifier",
+      "activate": "Activer",
+      "deactivate": "Désactiver"
     },
     "noClients": "Aucun client trouvé",
     "emptyMessage": "Il n'y a pas encore de clients dans votre liste. Ajoutez votre premier client pour commencer.",
@@ -804,7 +812,10 @@
     "actions": {
       "create": "Créer",
       "importCsv": "Importer CSV",
-      "exportCsv": "Exporter CSV"
+      "exportCsv": "Exporter CSV",
+      "edit": "Modifier",
+      "activate": "Activer",
+      "deactivate": "Désactiver"
     },
     "table": {
       "name": "Nom",

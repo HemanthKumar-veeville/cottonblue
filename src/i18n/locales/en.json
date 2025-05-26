@@ -119,7 +119,12 @@
       "priceOfPack": "Price of Pack",
       "status": "Status",
       "active": "Active",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "actions": {
+        "edit": "Edit",
+        "activate": "Activate",
+        "deactivate": "Deactivate"
+      }
     },
     "pagination": {
       "previous": "Previous",
@@ -670,7 +675,10 @@
       "inactive": "Inactive"
     },
     "actions": {
-      "viewDetails": "View Details"
+      "viewDetails": "View Details",
+      "edit": "Edit",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
     },
     "noClients": "No Clients Found",
     "emptyMessage": "There are no clients in your list yet. Add your first client to get started.",
@@ -770,7 +778,10 @@
     "actions": {
       "create": "Create",
       "importCsv": "Import CSV",
-      "exportCsv": "Export CSV"
+      "exportCsv": "Export CSV",
+      "edit": "Edit",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
     },
     "table": {
       "name": "Name",

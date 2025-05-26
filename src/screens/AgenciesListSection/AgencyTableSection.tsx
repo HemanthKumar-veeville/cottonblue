@@ -18,13 +18,13 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAppSelector } from "../../store/store";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
-import { Store } from "lucide-react";
+import { Store, MoreVertical, Eye, Edit, Power } from "lucide-react";
 
 // Pagination data
 const paginationItems = [1, 2, 3, 4, 5];
@@ -62,6 +62,9 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAgencies, setSelectedAgencies] = useState<number[]>([]);
   const { selectedCompany } = useAppSelector((state) => state.client);
+  const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>({});
 
   // Ensure agencies is always an array
   const agenciesArray = Array.isArray(agencies) ? agencies : [];
@@ -114,8 +117,51 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
     return date.toLocaleDateString();
   };
 
+  // Calculate dropdown position
+  const getDropdownPosition = (buttonElement: HTMLButtonElement | null) => {
+    if (!buttonElement) return {};
+    const rect = buttonElement.getBoundingClientRect();
+    return {
+      top: `${rect.bottom + 8}px`,
+      right: `${window.innerWidth - rect.right}px`,
+    };
+  };
+
+  // Add click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setActiveDropdown(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle actions
   const handleViewDetails = (agencyId: number) => {
     navigate(`/customers/${selectedCompany?.dns}/agencies/${agencyId}`);
+    setActiveDropdown(null);
+  };
+
+  const handleEdit = (agencyId: number) => {
+    navigate(`/customers/${selectedCompany?.dns}/agencies/${agencyId}/edit`);
+    setActiveDropdown(null);
+  };
+
+  const handleToggleActive = (agencyId: number, currentStatus: boolean) => {
+    // TODO: Implement toggle active status
+    console.log(
+      "Toggle active status for agency:",
+      agencyId,
+      "to:",
+      !currentStatus
+    );
+    setActiveDropdown(null);
   };
 
   if (loading) {
@@ -248,13 +294,95 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                         {formatDate(agency.created_at)}
                       </TableCell>
                       <TableCell className="w-[145px] text-center">
-                        <Button
-                          variant="link"
-                          className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
-                          onClick={() => handleViewDetails(agency.id)}
+                        <div
+                          className="relative inline-flex items-center"
+                          ref={dropdownRef}
                         >
-                          {t("clientTable.actions.viewDetails")}
-                        </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            ref={(el) => (buttonRefs.current[agency.id] = el)}
+                            className={`h-8 w-8 hover:bg-gray-100 rounded-full transition-colors duration-200 ${
+                              activeDropdown === agency.id ? "bg-gray-100" : ""
+                            }`}
+                            onClick={() =>
+                              setActiveDropdown(
+                                activeDropdown === agency.id ? null : agency.id
+                              )
+                            }
+                            aria-expanded={activeDropdown === agency.id}
+                            aria-haspopup="true"
+                            aria-label="Open actions menu"
+                          >
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+
+                          {activeDropdown === agency.id && (
+                            <div
+                              className="fixed w-44 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-[9999] transform opacity-100 scale-100 transition-all duration-200 ease-out origin-top-right"
+                              role="menu"
+                              aria-orientation="vertical"
+                              aria-labelledby="actions-menu"
+                              style={{
+                                position: "fixed",
+                                zIndex: 9999,
+                                ...getDropdownPosition(
+                                  buttonRefs.current[agency.id]
+                                ),
+                              }}
+                            >
+                              <div className="py-1 divide-y divide-gray-100">
+                                <button
+                                  className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 group"
+                                  onClick={() => handleViewDetails(agency.id)}
+                                  role="menuitem"
+                                >
+                                  <Eye className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-600" />
+                                  <span className="font-medium">
+                                    {t("clientTable.actions.viewDetails")}
+                                  </span>
+                                </button>
+                                <button
+                                  className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 group"
+                                  onClick={() => handleEdit(agency.id)}
+                                  role="menuitem"
+                                >
+                                  <Edit className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-600" />
+                                  <span className="font-medium">
+                                    {t("clientTable.actions.edit")}
+                                  </span>
+                                </button>
+                                <button
+                                  className={`flex items-center w-full px-4 py-3 text-sm transition-colors duration-150 group ${
+                                    agency.is_active
+                                      ? "text-red-600 hover:bg-red-50"
+                                      : "text-green-600 hover:bg-green-50"
+                                  }`}
+                                  onClick={() =>
+                                    handleToggleActive(
+                                      agency.id,
+                                      agency.is_active
+                                    )
+                                  }
+                                  role="menuitem"
+                                >
+                                  <Power
+                                    className={`mr-3 h-4 w-4 ${
+                                      agency.is_active
+                                        ? "text-red-400 group-hover:text-red-600"
+                                        : "text-green-400 group-hover:text-green-600"
+                                    }`}
+                                  />
+                                  <span className="font-medium">
+                                    {agency.is_active
+                                      ? t("clientTable.actions.deactivate")
+                                      : t("clientTable.actions.activate")}
+                                  </span>
+                                </button>
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </TableCell>
                     </TableRow>
                   ))

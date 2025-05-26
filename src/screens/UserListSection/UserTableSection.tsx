@@ -18,14 +18,14 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { useTranslation } from "react-i18next";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { useAppSelector } from "../../store/store";
 import type { User } from "../../store/features/userSlice";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
-import { Users } from "lucide-react";
+import { Users, MoreVertical, Eye, Edit, Power } from "lucide-react";
 
 interface UserData {
   firstname: string;
@@ -47,8 +47,21 @@ export const UserTableSection = (): JSX.Element => {
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
+  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
 
   const ITEMS_PER_PAGE = 5;
+
+  // Calculate dropdown position
+  const getDropdownPosition = (buttonElement: HTMLButtonElement | null) => {
+    if (!buttonElement) return { top: 0, right: 0 };
+    const rect = buttonElement.getBoundingClientRect();
+    return {
+      top: rect.bottom + 8,
+      right: window.innerWidth - rect.right,
+    };
+  };
 
   // Calculate total pages
   const totalPages = Math.ceil(userList.length / ITEMS_PER_PAGE);
@@ -89,10 +102,47 @@ export const UserTableSection = (): JSX.Element => {
     return items;
   }, [totalPages]);
 
+  // Add click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        setActiveDropdown(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Handle actions
+  const handleViewDetails = (userId: string) => {
+    navigate(`/users/${encodeURIComponent(userId)}`);
+    setActiveDropdown(null);
+  };
+
+  const handleEdit = (userId: string) => {
+    navigate(`/users/${encodeURIComponent(userId)}/edit`);
+    setActiveDropdown(null);
+  };
+
+  const handleToggleActive = (userId: string, currentStatus: boolean) => {
+    // TODO: Implement toggle active status
+    console.log(
+      "Toggle active status for user:",
+      userId,
+      "to:",
+      !currentStatus
+    );
+    setActiveDropdown(null);
+  };
+
   return (
     <section className="flex flex-col h-full">
       <div className="flex-grow overflow-auto pb-24">
-        <div className="w-full">
+        <div className="w-full relative">
           {loading ? (
             <Skeleton variant="table" />
           ) : error ? (
@@ -165,15 +215,95 @@ export const UserTableSection = (): JSX.Element => {
                       {user.store_ids?.length || 0} stores
                     </TableCell>
                     <TableCell className="w-[145px] text-left">
-                      <Button
-                        variant="link"
-                        onClick={() =>
-                          navigate(`/users/${encodeURIComponent(user.user_id)}`)
-                        }
-                        className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
-                      >
-                        {t("userList.table.details")}
-                      </Button>
+                      <div className="relative inline-flex items-center">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          ref={(el) => (buttonRefs.current[user.email] = el)}
+                          className={`h-8 w-8 hover:bg-gray-100 rounded-full transition-colors duration-200 ${
+                            activeDropdown === user.user_id ? "bg-gray-100" : ""
+                          }`}
+                          onClick={() =>
+                            setActiveDropdown(
+                              activeDropdown === user.user_id
+                                ? null
+                                : user.user_id
+                            )
+                          }
+                          aria-expanded={activeDropdown === user.user_id}
+                          aria-haspopup="true"
+                          aria-label="Open actions menu"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+
+                        {activeDropdown === user.user_id && (
+                          <div
+                            ref={dropdownRef}
+                            className="fixed w-44 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-[9999] transform opacity-100 scale-100 transition-all duration-200 ease-out origin-top-right"
+                            role="menu"
+                            aria-orientation="vertical"
+                            aria-labelledby="actions-menu"
+                            style={{
+                              position: "fixed",
+                              zIndex: 9999,
+                              ...getDropdownPosition(
+                                buttonRefs.current[user.email]
+                              ),
+                            }}
+                          >
+                            <div className="py-1 divide-y divide-gray-100">
+                              <button
+                                className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 group"
+                                onClick={() => handleViewDetails(user.user_id)}
+                                role="menuitem"
+                              >
+                                <Eye className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-600" />
+                                <span className="font-medium">
+                                  {t("userList.table.details")}
+                                </span>
+                              </button>
+                              <button
+                                className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 group"
+                                onClick={() => handleEdit(user.user_id)}
+                                role="menuitem"
+                              >
+                                <Edit className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-600" />
+                                <span className="font-medium">
+                                  {t("userList.actions.edit")}
+                                </span>
+                              </button>
+                              <button
+                                className={`flex items-center w-full px-4 py-3 text-sm transition-colors duration-150 group ${
+                                  user.is_active
+                                    ? "text-red-600 hover:bg-red-50"
+                                    : "text-green-600 hover:bg-green-50"
+                                }`}
+                                onClick={() =>
+                                  handleToggleActive(
+                                    user.user_id,
+                                    user.is_active
+                                  )
+                                }
+                                role="menuitem"
+                              >
+                                <Power
+                                  className={`mr-3 h-4 w-4 ${
+                                    user.is_active
+                                      ? "text-red-400 group-hover:text-red-600"
+                                      : "text-green-400 group-hover:text-green-600"
+                                  }`}
+                                />
+                                <span className="font-medium">
+                                  {user.is_active
+                                    ? t("userList.actions.deactivate")
+                                    : t("userList.actions.activate")}
+                                </span>
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
