@@ -97,12 +97,63 @@ const getTimeframeLabel = (value: string): string => {
 };
 
 const getWeekLabel = (value: string): string => {
-  return `Week ${value}`;
+  const currentYear = new Date().getFullYear();
+  const weekNumber = parseInt(value);
+
+  // Create a date for January 1st of current year
+  const yearStart = new Date(currentYear, 0, 1);
+
+  // Calculate the first day of the week (adding (weekNumber - 1) weeks to yearStart)
+  const weekStart = new Date(yearStart);
+  weekStart.setDate(yearStart.getDate() + (weekNumber - 1) * 7);
+
+  // Calculate the last day of the week
+  const weekEnd = new Date(weekStart);
+  weekEnd.setDate(weekStart.getDate() + 6);
+
+  // Format the dates with fixed width
+  const formatDate = (date: Date) => {
+    const month = date.toLocaleString("default", { month: "short" });
+    const day = String(date.getDate()).padStart(2, "0");
+    // Ensure exact spacing: 3 chars for month + 1 space + 2 chars for day = 6 chars total
+    return `${month.substring(0, 3)} ${day}`;
+  };
+
+  // Pad the week number to ensure consistent width
+  const paddedWeek = String(value).padStart(2, "0");
+  // Use a consistent number of spaces between components
+  return `Week ${paddedWeek}  (${formatDate(weekStart)} - ${formatDate(
+    weekEnd
+  )})`;
 };
 
 const getQuarterLabel = (value: string): string => {
   const currentYear = new Date().getFullYear();
-  return `Q${value} ${currentYear}`;
+  const quarterNumber = parseInt(value);
+
+  // Define quarter start and end months
+  const startMonth = (quarterNumber - 1) * 3;
+  const endMonth = startMonth + 2;
+
+  // Get month names
+  const startDate = new Date(currentYear, startMonth, 1);
+  const endDate = new Date(currentYear, endMonth, 1);
+
+  // Format the months with fixed width
+  const formatMonth = (date: Date) => {
+    return date.toLocaleString("default", { month: "short" }).substring(0, 3);
+  };
+
+  // Pad quarter number for consistency
+  const paddedQuarter = String(value).padStart(2, "0");
+
+  return `Q${paddedQuarter}  (${formatMonth(startDate)} - ${formatMonth(
+    endDate
+  )})`;
+};
+
+const getYearLabel = (value: string): string => {
+  return value;
 };
 
 const getDisplayLabel = (
@@ -116,6 +167,8 @@ const getDisplayLabel = (
       return getWeekLabel(option);
     case "Quarterly":
       return getQuarterLabel(option);
+    case "Yearly":
+      return getYearLabel(option);
     default:
       return option;
   }
@@ -146,10 +199,10 @@ const TimeframeSelect: React.FC<TimeframeSelectProps> = ({
         <SelectTrigger className="w-[180px] h-10 rounded-md border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] transition-all duration-200 px-4">
           <SelectValue
             placeholder={t("dashboard.timeframes.selectTimeframe")}
-            className="text-[#475569] text-sm font-medium"
+            className="text-[#475569] text-sm font-medium truncate"
           />
         </SelectTrigger>
-        <SelectContent className="rounded-md border-[#E2E8F0] shadow-md">
+        <SelectContent className="rounded-md border-[#E2E8F0] shadow-md min-w-[180px]">
           {timeframeOptions.map((option) => (
             <SelectItem
               key={option}
@@ -179,17 +232,17 @@ const PeriodSelect: React.FC<PeriodSelectProps> = ({
         <SelectTrigger className="w-[240px] h-10 rounded-md border-[#E2E8F0] bg-white hover:bg-[#F8FAFC] transition-all duration-200 px-4">
           <SelectValue
             placeholder={t("dashboard.timeframes.selectPeriod")}
-            className="text-[#475569] text-sm font-medium"
+            className="text-[#475569] text-sm font-medium truncate font-mono"
           >
             {getDisplayLabel(value, timeframe)}
           </SelectValue>
         </SelectTrigger>
-        <SelectContent className="rounded-md border-[#E2E8F0] shadow-md">
+        <SelectContent className="rounded-md border-[#E2E8F0] shadow-md min-w-[320px] max-h-[300px]">
           {options.map((option) => (
             <SelectItem
               key={option}
               value={option}
-              className="text-sm font-medium text-[#475569] hover:bg-[#F8FAFC] hover:text-[#07515F] transition-all duration-200 cursor-pointer px-4 py-2"
+              className="text-sm font-medium text-[#475569] hover:bg-[#F8FAFC] hover:text-[#07515F] transition-all duration-200 cursor-pointer px-4 py-2 font-mono"
             >
               {getDisplayLabel(option, timeframe)}
             </SelectItem>
@@ -239,7 +292,11 @@ const TopProductsSection: React.FC = () => {
     getStoredValue(TIMEFRAME_KEY, "Monthly") as TimeframeOption
   );
   const [selectedPeriod, setSelectedPeriod] = useState<string>(() => {
-    return getDefaultPeriodValue("Monthly");
+    const storedTimeframe = getStoredValue(
+      TIMEFRAME_KEY,
+      "Monthly"
+    ) as TimeframeOption;
+    return getDefaultPeriodValue(storedTimeframe);
   });
 
   const { summary } = useSelector((state: RootState) => state.dashboard);
@@ -265,6 +322,7 @@ const TopProductsSection: React.FC = () => {
     setSelectedTimeframe(timeframe);
     localStorage.setItem(TIMEFRAME_KEY, timeframe);
 
+    // Get the default period value for the newly selected timeframe
     const newPeriodValue = getDefaultPeriodValue(timeframe);
     setSelectedPeriod(newPeriodValue);
     localStorage.setItem(PERIOD_KEY, newPeriodValue);
