@@ -697,11 +697,14 @@
     "columns": {
       "id": "ID",
       "name": "Nom",
+      "email": "Email",
       "phone": "Téléphone",
       "city": "Ville",
       "address": "Adresse",
+      "postalCode": "Code postal",
+      "dnsPrefix": "Préfixe DNS",
+      "branding": "Couleurs du thème",
       "status": "Statut",
-      "createdAt": "Créé le",
       "actions": "Actions"
     },
     "status": {

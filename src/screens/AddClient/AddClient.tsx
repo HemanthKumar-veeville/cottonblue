@@ -1167,8 +1167,8 @@ const ClientForm = () => {
                     </span>
                   </div>
                 )}
-                <div className="relative w-full pt-2">
-                  <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white z-10">
+                <div className="relative w-full">
+                  <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
                     {t("addClient.fields.adminMobile")}
                     <span className="text-red-500 ml-1">*</span>
                   </span>

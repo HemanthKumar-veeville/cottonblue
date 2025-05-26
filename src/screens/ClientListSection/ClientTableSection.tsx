@@ -207,28 +207,31 @@ export const ClientTableSection = ({
                       />
                     </div>
                   </TableHead>
-                  <TableHead className="w-[77px] text-left text-[#1e2324] font-text-small">
+                  <TableHead className="w-[60px] text-left text-[#1e2324] font-text-small">
                     {t("clientTable.columns.id")}
                   </TableHead>
-                  <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                  <TableHead className="w-[200px] text-left text-[#1e2324] font-text-small">
                     {t("clientTable.columns.name")}
                   </TableHead>
-                  <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                  <TableHead className="w-[200px] text-left text-[#1e2324] font-text-small">
+                    {t("clientTable.columns.email")}
+                  </TableHead>
+                  <TableHead className="w-[130px] text-left text-[#1e2324] font-text-small">
                     {t("clientTable.columns.phone")}
                   </TableHead>
-                  <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                  <TableHead className="w-[120px] text-left text-[#1e2324] font-text-small">
                     {t("clientTable.columns.city")}
                   </TableHead>
-                  <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
-                    {t("clientTable.columns.address")}
+                  <TableHead className="w-[150px] text-left text-[#1e2324] font-text-small">
+                    {t("clientTable.columns.dnsPrefix")}
                   </TableHead>
-                  <TableHead className="w-[100px] text-left text-[#1e2324] font-text-small">
+                  <TableHead className="w-[100px] text-center text-[#1e2324] font-text-small">
+                    {t("clientTable.columns.branding")}
+                  </TableHead>
+                  <TableHead className="w-[100px] text-center text-[#1e2324] font-text-small">
                     {t("clientTable.columns.status")}
                   </TableHead>
-                  <TableHead className="w-[120px] text-left text-[#1e2324] font-text-small">
-                    {t("clientTable.columns.createdAt")}
-                  </TableHead>
-                  <TableHead className="w-[145px] text-center text-[#1e2324] font-text-small">
+                  <TableHead className="w-[100px] text-center text-[#1e2324] font-text-small">
                     {t("clientTable.columns.actions")}
                   </TableHead>
                 </TableRow>
@@ -253,24 +256,41 @@ export const ClientTableSection = ({
                           />
                         </div>
                       </TableCell>
-                      <TableCell className="w-[77px] text-left font-text-smaller text-coolgray-100">
+                      <TableCell className="w-[60px] text-left font-text-smaller text-coolgray-100">
                         {client.id}
                       </TableCell>
-                      <TableCell className="w-[145px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
+                      <TableCell className="w-[200px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
                         {client.name}
                       </TableCell>
-                      <TableCell className="w-[145px] text-left font-text-smaller text-black">
+                      <TableCell className="w-[200px] text-left font-text-smaller text-black">
+                        {client.email || "-"}
+                      </TableCell>
+                      <TableCell className="w-[130px] text-left font-text-smaller text-black">
                         {client.phone_number}
                       </TableCell>
-                      <TableCell className="w-[145px] text-left font-text-smaller text-black">
+                      <TableCell className="w-[120px] text-left font-text-smaller text-black">
                         {client.city}
                       </TableCell>
-                      <TableCell className="w-[145px] text-left font-text-smaller text-black">
-                        {client.address}
+                      <TableCell className="w-[150px] text-left font-text-smaller text-black">
+                        {client.dns_prefix}
                       </TableCell>
-                      <TableCell className="w-[100px] text-left">
+                      <TableCell className="w-[100px] text-center">
+                        <div className="flex items-center justify-center gap-2">
+                          <div
+                            className="w-6 h-6 rounded-sm border"
+                            style={{ backgroundColor: client.bg_color_code }}
+                            title={`Background: ${client.bg_color_code}`}
+                          />
+                          <div
+                            className="w-6 h-6 rounded-sm border"
+                            style={{ backgroundColor: client.text_color_code }}
+                            title={`Text: ${client.text_color_code}`}
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell className="w-[100px] text-center">
                         <span
-                          className={`px-2 py-1 rounded-full text-sm ${
+                          className={`inline-flex px-2 py-1 rounded-full text-sm ${
                             client.is_active
                               ? "bg-green-100 text-green-800"
                               : "bg-red-100 text-red-800"
@@ -281,10 +301,7 @@ export const ClientTableSection = ({
                             : t("clientTable.status.inactive")}
                         </span>
                       </TableCell>
-                      <TableCell className="w-[120px] text-left font-text-smaller text-black">
-                        {formatDate(client.created_at)}
-                      </TableCell>
-                      <TableCell className="w-[145px] text-center">
+                      <TableCell className="w-[100px] text-center">
                         <div
                           className="relative inline-flex items-center"
                           ref={dropdownRef}

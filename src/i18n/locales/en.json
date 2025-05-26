@@ -663,11 +663,14 @@
     "columns": {
       "id": "ID",
       "name": "Name",
+      "email": "Email",
       "phone": "Phone",
       "city": "City",
       "address": "Address",
+      "postalCode": "Postal Code",
+      "dnsPrefix": "DNS Prefix",
+      "branding": "Theme Colors",
       "status": "Status",
-      "createdAt": "Created At",
       "actions": "Actions"
     },
     "status": {
