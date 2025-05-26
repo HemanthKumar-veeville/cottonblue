@@ -387,73 +387,75 @@ export const ProductTableSection = (): JSX.Element => {
         </div>
       </div>
 
-      <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
-        <div className="px-6 max-w-[calc(100%-2rem)]">
-          <Pagination className="flex items-center justify-between w-full mx-auto">
-            <PaginationPrevious
-              href="#"
-              className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
-              onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-            >
-              <img
-                className="w-6 h-6"
-                alt="Arrow left"
-                src="/img/arrow-left-sm.svg"
-              />
-              {t("productList.pagination.previous")}
-            </PaginationPrevious>
+      {currentProducts.length > 0 && (
+        <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
+          <div className="px-6 max-w-[calc(100%-2rem)]">
+            <Pagination className="flex items-center justify-between w-full mx-auto">
+              <PaginationPrevious
+                href="#"
+                className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                <img
+                  className="w-6 h-6"
+                  alt="Arrow left"
+                  src="/img/arrow-left-sm.svg"
+                />
+                {t("productList.pagination.previous")}
+              </PaginationPrevious>
 
-            <PaginationContent className="flex items-center gap-3">
-              {paginationItems.map((page) => (
-                <PaginationItem key={page}>
-                  <PaginationLink
-                    href="#"
-                    className={`flex items-center justify-center w-9 h-9 rounded ${
-                      page === currentPage
-                        ? "bg-cyan-100 font-bold text-[#1e2324]"
-                        : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                    }`}
-                    onClick={() => setCurrentPage(page)}
-                  >
-                    {page}
-                  </PaginationLink>
-                </PaginationItem>
-              ))}
-              {totalPages > 5 && (
-                <>
-                  <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
-                  <PaginationItem>
+              <PaginationContent className="flex items-center gap-3">
+                {paginationItems.map((page) => (
+                  <PaginationItem key={page}>
                     <PaginationLink
                       href="#"
-                      className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                      onClick={() => setCurrentPage(totalPages)}
+                      className={`flex items-center justify-center w-9 h-9 rounded ${
+                        page === currentPage
+                          ? "bg-cyan-100 font-bold text-[#1e2324]"
+                          : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                      }`}
+                      onClick={() => setCurrentPage(page)}
                     >
-                      {totalPages}
+                      {page}
                     </PaginationLink>
                   </PaginationItem>
-                </>
-              )}
-            </PaginationContent>
+                ))}
+                {totalPages > 5 && (
+                  <>
+                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        onClick={() => setCurrentPage(totalPages)}
+                      >
+                        {totalPages}
+                      </PaginationLink>
+                    </PaginationItem>
+                  </>
+                )}
+              </PaginationContent>
 
-            <PaginationNext
-              href="#"
-              className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px]"
-              onClick={() =>
-                setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-              }
-              disabled={currentPage === totalPages}
-            >
-              {t("productList.pagination.next")}
-              <img
-                className="w-6 h-6 rotate-180"
-                alt="Arrow right"
-                src="/img/arrow-left-sm-1.svg"
-              />
-            </PaginationNext>
-          </Pagination>
+              <PaginationNext
+                href="#"
+                className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px]"
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
+                disabled={currentPage === totalPages}
+              >
+                {t("productList.pagination.next")}
+                <img
+                  className="w-6 h-6 rotate-180"
+                  alt="Arrow right"
+                  src="/img/arrow-left-sm-1.svg"
+                />
+              </PaginationNext>
+            </Pagination>
+          </div>
         </div>
-      </div>
+      )}
     </section>
   );
 };
