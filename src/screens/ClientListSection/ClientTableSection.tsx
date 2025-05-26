@@ -45,6 +45,7 @@ export const ClientTableSection = ({
   const [selectedClients, setSelectedClients] = useState<number[]>([]);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>({});
 
   // Ensure companies is always an array
@@ -108,8 +109,9 @@ export const ClientTableSection = ({
   }, [totalPages]);
 
   // Handle actions
-  const handleViewDetails = (clientId: number) => {
-    navigate(`/customers/${clientId}`);
+  const handleViewDetails = (dnsPrefix: string) => {
+    console.log("View details for client:", dnsPrefix);
+    navigate(`/customers/${dnsPrefix}`);
     setActiveDropdown(null);
   };
 
@@ -144,7 +146,9 @@ export const ClientTableSection = ({
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(event.target as Node) &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
       ) {
         setActiveDropdown(null);
       }
@@ -306,6 +310,7 @@ export const ClientTableSection = ({
 
                           {activeDropdown === client.id && (
                             <div
+                              ref={menuRef}
                               className="fixed w-44 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-[9999] transform opacity-100 scale-100 transition-all duration-200 ease-out origin-top-right"
                               role="menu"
                               aria-orientation="vertical"
@@ -321,7 +326,10 @@ export const ClientTableSection = ({
                               <div className="py-1 divide-y divide-gray-100">
                                 <button
                                   className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 group"
-                                  onClick={() => handleViewDetails(client.id)}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleViewDetails(client.dns_prefix);
+                                  }}
                                   role="menuitem"
                                 >
                                   <Eye className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-600" />

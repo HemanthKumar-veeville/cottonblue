@@ -38,6 +38,7 @@ export const ProductTableSection = (): JSX.Element => {
   const [selectAll, setSelectAll] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>({});
 
   const ITEMS_PER_PAGE = 25;
@@ -66,7 +67,9 @@ export const ProductTableSection = (): JSX.Element => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
         dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
+        !dropdownRef.current.contains(event.target as Node) &&
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
       ) {
         setActiveDropdown(null);
       }
@@ -303,6 +306,7 @@ export const ProductTableSection = (): JSX.Element => {
 
                         {activeDropdown === product.id && (
                           <div
+                            ref={menuRef}
                             className="fixed w-44 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-[9999] transform opacity-100 scale-100 transition-all duration-200 ease-out origin-top-right"
                             role="menu"
                             aria-orientation="vertical"
@@ -318,7 +322,10 @@ export const ProductTableSection = (): JSX.Element => {
                             <div className="py-1 divide-y divide-gray-100">
                               <button
                                 className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 group"
-                                onClick={() => handleViewDetails(product.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleViewDetails(product.id);
+                                }}
                                 role="menuitem"
                               >
                                 <Eye className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-600" />
@@ -328,7 +335,10 @@ export const ProductTableSection = (): JSX.Element => {
                               </button>
                               <button
                                 className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 group"
-                                onClick={() => handleEdit(product.id)}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleEdit(product.id);
+                                }}
                                 role="menuitem"
                               >
                                 <Edit className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-600" />
@@ -342,12 +352,13 @@ export const ProductTableSection = (): JSX.Element => {
                                     ? "text-red-600 hover:bg-red-50"
                                     : "text-green-600 hover:bg-green-50"
                                 }`}
-                                onClick={() =>
+                                onClick={(e) => {
+                                  e.stopPropagation();
                                   handleToggleActive(
                                     product.id,
                                     product.is_active
-                                  )
-                                }
+                                  );
+                                }}
                                 role="menuitem"
                               >
                                 <Power
