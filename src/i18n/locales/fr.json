@@ -1085,15 +1085,14 @@
       }
     },
     "columns": {
-      "id": "ID",
       "orderId": "ID Commande",
       "date": "Date",
-      "client": "Client",
-      "quantity": "Quantité",
+      "store": "Magasin",
       "status": "Statut",
       "actions": "Actions"
     },
     "status": {
+      "confirmed": "Confirmée",
       "pending": "En attente",
       "prepared": "Préparée",
       "completed": "Terminée",

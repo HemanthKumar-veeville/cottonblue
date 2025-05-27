@@ -2,11 +2,9 @@ import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { RootState, useAppSelector } from "../../store/store";
 import { AppDispatch } from "../../store/store";
-import { Product } from "../../store/features/productSlice";
-import { fetchAllProducts } from "../../store/features/productSlice";
 import { WarehouseListSection } from "./WarehouseListSection/WarehouseListSection";
 import { WarehouseTableSection } from "./WarehouseListSection/WarehouseTableSection";
-
+import { getAllCompanyOrders } from "../../store/features/cartSlice";
 interface Order {
   id: string;
   date: string;
@@ -22,16 +20,19 @@ interface OrdersResponse {
 
 export const Warehouse = (): JSX.Element => {
   const dispatch = useDispatch<AppDispatch>();
-  const { products, loading, error } = useSelector(
-    (state: RootState) => state.product
+  const { orders, loading, error } = useSelector(
+    (state: RootState) => state.cart
   );
+  console.log({ orders });
+  const { adminMode } = useSelector((state: RootState) => state.auth);
+
   const [searchTerm, setSearchTerm] = useState("");
   const { selectedCompany } = useAppSelector((state) => state.client);
-  const dnsPrefix = selectedCompany?.dns || "admin";
+  const dnsPrefix = adminMode ? "admin" : selectedCompany?.dns || "admin";
 
   useEffect(() => {
     if (dnsPrefix) {
-      dispatch(fetchAllProducts(dnsPrefix));
+      dispatch(getAllCompanyOrders({ dns_prefix: dnsPrefix }));
     }
   }, [dispatch, dnsPrefix]);
 
@@ -39,29 +40,11 @@ export const Warehouse = (): JSX.Element => {
     setSearchTerm(term);
   };
 
-  // Mock orders data (this should come from your actual data source)
-  const ordersData = [
-    {
-      id: "#CMD-00125",
-      date: "18/05/2025",
-      client: "Chronodrive - Lille",
-      quantity: 2,
-      status: "Pending",
-    },
-    {
-      id: "#CMD-00345",
-      date: "31/01/2025",
-      client: "Dassault System - Seclin",
-      quantity: 10,
-      status: "Prepared",
-    },
-  ];
-
   return (
     <main className="flex flex-col w-full gap-8 p-6 bg-white rounded-lg overflow-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
       <WarehouseListSection onSearch={handleSearch} />
       <WarehouseTableSection
-        orders={ordersData}
+        orders={Array.isArray(orders) ? orders : orders?.orders || []}
         loading={loading}
         error={error}
         searchTerm={searchTerm}

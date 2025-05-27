@@ -1051,15 +1051,14 @@
       }
     },
     "columns": {
-      "id": "ID",
       "orderId": "Order ID",
       "date": "Date",
-      "client": "Client",
-      "quantity": "Quantity",
+      "store": "Store",
       "status": "Status",
       "actions": "Actions"
     },
     "status": {
+      "confirmed": "Confirmed",
       "pending": "Pending",
       "prepared": "Prepared",
       "completed": "Completed",
