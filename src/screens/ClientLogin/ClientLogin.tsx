@@ -64,6 +64,8 @@ const LoginInputSection = ({
   const { companyColor, companyTextColor } = useAppSelector(
     (state) => state.auth
   );
+
+  console.log(companyColor, companyTextColor);
   const { t } = useTranslation();
   return (
     <form
