@@ -16,7 +16,11 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../../../store/features/authSlice";
-import { RootState, AppDispatch } from "../../../../store/store";
+import {
+  RootState,
+  AppDispatch,
+  useAppSelector,
+} from "../../../../store/store";
 import { isWarehouseHostname } from "../../../../utils/hostUtils";
 interface NavItem {
   icon: JSX.Element;
@@ -92,6 +96,9 @@ export const SuperadminSidebarSection = ({
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const { companyColor, companyTextColor, companyLogo } = useAppSelector(
+    (state) => state.auth
+  );
   const company = useSelector((state: RootState) => state.auth.company);
   const isWarehouse = isWarehouseHostname();
   const handleLogout = async () => {
@@ -254,9 +261,9 @@ export const SuperadminSidebarSection = ({
       <div className="flex flex-col items-start justify-center w-full">
         <div className="inline-flex flex-col items-end">
           <img
-            className="w-[183px] h-[33px]"
+            className="w-[100px] h-[40px] object-contain"
             alt="Logo"
-            src="/img/image-280.png"
+            src={companyLogo || "/img/image-280.png"}
           />
           <span className="font-text-small text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--text-small-font-size)] tracking-[var(--text-small-letter-spacing)] leading-[var(--text-small-line-height)] whitespace-nowrap">
             {t("sidebar.admin")}
