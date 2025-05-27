@@ -261,7 +261,7 @@ export const SuperadminSidebarSection = ({
       <div className="flex flex-col items-start justify-center w-full">
         <div className="inline-flex flex-col items-end">
           <img
-            className="w-[100px] h-[40px] object-contain"
+            className="w-40 object-contain"
             alt="Logo"
             src={companyLogo || "/img/image-280.png"}
           />
