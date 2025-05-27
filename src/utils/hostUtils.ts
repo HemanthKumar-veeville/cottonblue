@@ -6,7 +6,7 @@ export const isAdminHostname = (): boolean => {
 
 export const isWarehouseHostname = (): boolean => {
   const hostname = window.location.hostname;
-  return hostname.startsWith('warehouse.') || hostname === 'localhost';
+  return hostname.startsWith('sedis.') || hostname === 'localhost';
 };
 
 export const getHost = (): string => {
