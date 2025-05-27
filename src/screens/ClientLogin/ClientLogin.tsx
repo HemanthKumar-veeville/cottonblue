@@ -61,6 +61,9 @@ const LoginInputSection = ({
   isLoading: boolean;
   onForgotPasswordClick: () => void;
 }) => {
+  const { companyColor, companyTextColor } = useAppSelector(
+    (state) => state.auth
+  );
   const { t } = useTranslation();
   return (
     <form
@@ -94,7 +97,13 @@ const LoginInputSection = ({
       <Button
         type="submit"
         disabled={isLoading}
-        className="w-full py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] bg-[#00b85b] hover:bg-[#009e4f] transition-colors duration-200 rounded-[var(--2-tokens-screen-modes-button-border-radius)] font-label-medium text-[color:var(--1-tokens-color-modes-button-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] disabled:opacity-70 disabled:cursor-not-allowed"
+        className={`w-full py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] bg-[${
+          companyColor || "#00b85b"
+        }] hover:bg-[${
+          companyColor || "#009e4f"
+        }] transition-colors duration-200 rounded-[var(--2-tokens-screen-modes-button-border-radius)] font-label-medium text-[${
+          companyTextColor || "#fff"
+        }] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] disabled:opacity-70 disabled:cursor-not-allowed`}
       >
         {isLoading ? (
           <div className="flex items-center justify-center">
@@ -166,8 +175,15 @@ export default function ClientLogin() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { isLoading, error, company, companyLogo, forgotPasswordEmailSent } =
-    useAppSelector((state) => state.auth);
+  const {
+    isLoading,
+    error,
+    company,
+    companyLogo,
+    forgotPasswordEmailSent,
+    companyColor,
+    companyTextColor,
+  } = useAppSelector((state) => state.auth);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isForgotPassword, setIsForgotPassword] = useState(false);
