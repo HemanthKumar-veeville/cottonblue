@@ -87,6 +87,11 @@
       "ordersWillAppearHere": "New orders that need validation will appear here",
       "search": "Search",
       "averageCart": "Average Cart"
+    },
+    "warehouse": {
+      "title": "Warehouse",
+      "manage": "Manage Warehouse",
+      "orders": "Warehouse Orders"
     }
   },
   "productList": {
@@ -1023,5 +1028,52 @@
         "cancelled": "Cancelled"
       }
     }
+  },
+  "warehouse": {
+    "title": "Manage Warehouse",
+    "search": {
+      "placeholder": "Search for an Order"
+    },
+    "actions": {
+      "addOrder": "Add Order",
+      "viewDetails": "View Details",
+      "edit": "Edit",
+      "prepare": "Prepare Order",
+      "complete": "Complete Order",
+      "clearSearch": "Clear Search",
+      "dropdown": {
+        "open": "Open actions menu",
+        "view": "View Details",
+        "edit": "Edit Order",
+        "prepare": "Prepare Order",
+        "complete": "Complete Order",
+        "cancel": "Cancel Order"
+      }
+    },
+    "columns": {
+      "id": "ID",
+      "date": "Date",
+      "client": "Client",
+      "quantity": "Quantity",
+      "status": "Status",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "Pending",
+      "prepared": "Prepared",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "pagination": {
+      "previous": "Previous",
+      "next": "Next",
+      "page": "Page {{number}}"
+    },
+    "noOrders": "No Orders Found",
+    "noSearchResults": "No orders match your search criteria.",
+    "emptyMessage": "There are no orders in your list yet. Add your first order to get started.",
+    "clearSearch": "Clear Search",
+    "selectAll": "Select all orders",
+    "selected": "{{count}} orders selected"
   }
 }

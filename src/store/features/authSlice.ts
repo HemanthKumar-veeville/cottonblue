@@ -4,6 +4,7 @@ import { authService } from '../../services/authService';
 interface AuthState {
   company: string | null;
   companyColor: string | null;
+  companyTextColor: string | null;
   companyLogo: string | null;
   isLoading: boolean;
   error: string | null;
@@ -19,6 +20,7 @@ interface AuthState {
 const initialState: AuthState = {
   company: null,
   companyColor: null,
+  companyTextColor: null,
   companyLogo: null,
   isLoading: false,
   error: null,
@@ -140,7 +142,8 @@ const authSlice = createSlice({
       .addCase(loginPage.fulfilled, (state, action) => {
         state.isLoading = false;
         state.company = action.payload.company;
-        state.companyColor = action.payload.company_color;
+        state.companyColor = action.payload.company_bg_color;
+        state.companyTextColor = action.payload.company_text_color;
         state.companyLogo = action.payload.company_logo;
       })
       .addCase(loginPage.rejected, (state, action) => {

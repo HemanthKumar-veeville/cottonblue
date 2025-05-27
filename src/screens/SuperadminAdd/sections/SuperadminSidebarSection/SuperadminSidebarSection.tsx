@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../../../store/features/authSlice";
 import { RootState, AppDispatch } from "../../../../store/store";
-
+import { isWarehouseHostname } from "../../../../utils/hostUtils";
 interface NavItem {
   icon: JSX.Element;
   label: string;
@@ -93,7 +93,7 @@ export const SuperadminSidebarSection = ({
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const company = useSelector((state: RootState) => state.auth.company);
-
+  const isWarehouse = isWarehouseHostname();
   const handleLogout = async () => {
     try {
       if (company) {
@@ -216,6 +216,19 @@ export const SuperadminSidebarSection = ({
     },
   ];
 
+  const warehouseNavigationSections: NavSection[] = [
+    {
+      title: t("sidebar.products.title"),
+      items: [
+        {
+          icon: <HomeIcon className="w-4 h-4" />,
+          label: t("sidebar.dashboard"),
+          path: "/warehouse",
+        },
+      ],
+    },
+  ];
+
   const footerNavItems: NavItem[] = [
     {
       icon: <SettingsIcon className="w-4 h-4" />,
@@ -230,7 +243,9 @@ export const SuperadminSidebarSection = ({
     },
   ];
 
-  const navigationSections = isAdminMode
+  const navigationSections = isWarehouse
+    ? warehouseNavigationSections
+    : isAdminMode
     ? adminNavigationSections
     : clientNavigationSections;
 

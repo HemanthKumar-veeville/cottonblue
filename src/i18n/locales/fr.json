@@ -88,6 +88,11 @@
       "ordersWillAppearHere": "Les nouvelles commandes à valider apparaîtront ici",
       "search": "Rechercher",
       "averageCart": "Panier moyen"
+    },
+    "warehouse": {
+      "title": "Entrepôt",
+      "manage": "Gérer l'entrepôt",
+      "orders": "Commandes d'entrepôt"
     }
   },
   "productList": {
@@ -1057,5 +1062,52 @@
         "cancelled": "Annulée"
       }
     }
+  },
+  "warehouse": {
+    "title": "Gérer l'entrepôt",
+    "search": {
+      "placeholder": "Rechercher une commande"
+    },
+    "actions": {
+      "addOrder": "Ajouter une commande",
+      "viewDetails": "Voir les détails",
+      "edit": "Modifier",
+      "prepare": "Préparer la commande",
+      "complete": "Terminer la commande",
+      "clearSearch": "Effacer la recherche",
+      "dropdown": {
+        "open": "Ouvrir le menu d'actions",
+        "view": "Voir les détails",
+        "edit": "Modifier la commande",
+        "prepare": "Préparer la commande",
+        "complete": "Terminer la commande",
+        "cancel": "Annuler la commande"
+      }
+    },
+    "columns": {
+      "id": "ID",
+      "date": "Date",
+      "client": "Client",
+      "quantity": "Quantité",
+      "status": "Statut",
+      "actions": "Actions"
+    },
+    "status": {
+      "pending": "En attente",
+      "prepared": "Préparée",
+      "completed": "Terminée",
+      "cancelled": "Annulée"
+    },
+    "pagination": {
+      "previous": "Précédent",
+      "next": "Suivant",
+      "page": "Page {{number}}"
+    },
+    "noOrders": "Aucune commande trouvée",
+    "noSearchResults": "Aucune commande ne correspond à vos critères de recherche.",
+    "emptyMessage": "Il n'y a pas encore de commandes dans votre liste. Ajoutez votre première commande pour commencer.",
+    "clearSearch": "Effacer la recherche",
+    "selectAll": "Sélectionner toutes les commandes",
+    "selected": "{{count}} commandes sélectionnées"
   }
 }

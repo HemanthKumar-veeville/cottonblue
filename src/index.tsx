@@ -33,7 +33,7 @@ import History from "./screens/History/History";
 import OrderDetails from "./screens/OrderDetails/OrderDetails";
 import ClientSupport from "./screens/ClientSupport/ClientSupport";
 import ClientLogin from "./screens/ClientLogin/ClientLogin";
-import { isAdminHostname } from "./utils/hostUtils";
+import { isAdminHostname, isWarehouseHostname } from "./utils/hostUtils";
 import ProductDetails from "./screens/ProductDetails/ProductDetails";
 import { getHost } from "./utils/hostUtils";
 import AddUser from "./screens/AddUser/AddUser";
@@ -50,10 +50,12 @@ import { ClientDashboard } from "./screens/ClientDashboard/ClientDashboard";
 import LinkProducts from "./screens/LinkProducts/LinkProducts";
 import AddVariant from "./screens/AddVariant/AddVariant";
 import CreatePassword from "./screens/CreatePassword/CreatePassword";
+import { Warehouse } from "./screens/Warehouse/Warehouse";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
   const isAdminDomain = isAdminHostname();
+  const isWarehouse = isWarehouseHostname();
   const dnsPrefix = getHost();
   const dispatch = useAppDispatch();
 
@@ -90,7 +92,19 @@ function App() {
       />
       <GlobalLoader />
       <Routes>
-        {isAdminDomain ? (
+        {isWarehouse ? (
+          isLoggedIn ? (
+            // Warehouse routes - only accessible when logged in
+            <Route path="/" element={<SuperadminLayout />}>
+              <Route index element={<Navigate to="/warehouse" replace />} />
+              <Route path="warehouse" element={<Warehouse />} />
+              <Route path="*" element={<NotFound />} />
+            </Route>
+          ) : (
+            // Warehouse login route
+            <Route path="/" element={<LoginPage />} />
+          )
+        ) : isAdminDomain ? (
           isLoggedIn && isSuperAdmin ? (
             // Protected admin routes - only accessible when logged in as super admin
             <Route path="/" element={<SuperadminLayout />}>
@@ -130,6 +144,7 @@ function App() {
               <Route path="products/:id" element={<ProductDetails />} />
               <Route path="products/stock" element={<ComingSoon />} />
               <Route path="products/carousel" element={<Carousel />} />
+              <Route path="warehouse" element={<Warehouse />} />
               <Route path="customers" element={<ClientList />} />
               <Route path="customers/edit" element={<AddClient />} />
               <Route path="customers/add" element={<AddClient />} />
