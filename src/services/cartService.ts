@@ -155,9 +155,11 @@ export const cartService = {
    */
   getAllOrders: async (
     dns_prefix: string,
-    store_id: string
+    store_id: string,
+    status: string
   ): Promise<GetAllOrdersResponse> => {
-    return axiosInstance.get(`/${dns_prefix}/all/orders/${store_id}`);
+    const queryParams = status ? `?status=${status}` : '';
+    return axiosInstance.get(`/${dns_prefix}/all/orders/${store_id}${queryParams}`);
   },
 
   /**

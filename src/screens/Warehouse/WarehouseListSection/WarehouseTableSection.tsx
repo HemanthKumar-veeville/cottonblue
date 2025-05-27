@@ -30,6 +30,7 @@ import {
   Eye,
   ClipboardEdit,
   CheckCircle2,
+  XIcon,
 } from "lucide-react";
 
 import { Checkbox } from "../../../components/ui/checkbox";
@@ -55,6 +56,12 @@ interface WarehouseTableSectionProps {
   loading: boolean;
   error: string | null;
   searchTerm: string;
+  onStoreClick: (storeId: string, storeName: string) => void;
+  onStatusClick: (status: string | null) => void;
+  activeStoreFilter: { id: string; name: string } | null;
+  activeStatusFilter: string | null;
+  onSelectedOrdersChange: (orderIds: string[]) => void;
+  onSearchChange: (term: string) => void;
 }
 
 export const WarehouseTableSection = ({
@@ -62,31 +69,38 @@ export const WarehouseTableSection = ({
   loading,
   error,
   searchTerm,
+  onStoreClick,
+  onStatusClick,
+  activeStoreFilter,
+  activeStatusFilter,
+  onSelectedOrdersChange,
+  onSearchChange,
 }: WarehouseTableSectionProps): JSX.Element => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-  const menuRef = useRef<HTMLDivElement>(null);
-  const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
   const { selectedCompany } = useAppSelector((state) => state.client);
-  // Reset to first page when search term changes
+
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, activeStatusFilter]);
 
-  // Filter orders based on search term
-  const filteredOrders = orders?.filter(
-    (order) =>
+  // Filter orders based on search term and status
+  const filteredOrders = orders?.filter((order) => {
+    const matchesSearch =
       order.order_id
         .toString()
         .toLowerCase()
         .includes(searchTerm.toLowerCase()) ||
-      order?.store_name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      order?.store_name?.toLowerCase().includes(searchTerm.toLowerCase());
+
+    const matchesStatus =
+      !activeStatusFilter || order.order_status === activeStatusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
 
   // Pagination logic
   const itemsPerPage = 25;
@@ -102,11 +116,12 @@ export const WarehouseTableSection = ({
 
   // Handle checkbox selection
   const handleSelectOrder = (orderId: string) => {
-    setSelectedOrders((prev) =>
-      prev.includes(orderId)
-        ? prev.filter((id) => id !== orderId)
-        : [...prev, orderId]
-    );
+    const newSelectedOrders = selectedOrders.includes(orderId)
+      ? selectedOrders.filter((id) => id !== orderId)
+      : [...selectedOrders, orderId];
+
+    setSelectedOrders(newSelectedOrders);
+    onSelectedOrdersChange(newSelectedOrders);
   };
 
   // Handle select all orders on current page
@@ -114,9 +129,18 @@ export const WarehouseTableSection = ({
     const currentOrderIds = currentOrders.map((order) =>
       order.order_id.toString()
     );
-    setSelectedOrders((prev) =>
-      prev.length === currentOrderIds.length ? [] : currentOrderIds
-    );
+    const newSelectedOrders =
+      selectedOrders.length === currentOrderIds.length ? [] : currentOrderIds;
+
+    setSelectedOrders(newSelectedOrders);
+    onSelectedOrdersChange(newSelectedOrders);
+  };
+
+  // Handle status click
+  const handleStatusClick = (status: string) => {
+    onStatusClick(status);
+    setSelectedOrders([]); // Clear selections when filter changes
+    onSelectedOrdersChange([]);
   };
 
   // Format date function
@@ -134,64 +158,15 @@ export const WarehouseTableSection = ({
     return items;
   }, [totalPages]);
 
-  // Handle actions
-  const handleViewDetails = (productId: number) => {
-    navigate(`/warehouse/${productId}`);
-    setActiveDropdown(null);
+  // Simplify to just view details handler
+  const handleViewDetails = (orderId: number) => {
+    navigate(`/warehouse/${orderId}`);
   };
 
-  const handleEdit = (productId: number) => {
-    navigate(`/warehouse/${productId}/edit`);
-    setActiveDropdown(null);
-  };
-
-  const handleToggleActive = (productId: number, currentStatus: boolean) => {
-    // TODO: Implement toggle active status
-    console.log(
-      "Toggle active status for product:",
-      productId,
-      "to:",
-      !currentStatus
-    );
-    setActiveDropdown(null);
-  };
-
-  // Handle click outside to close dropdown
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node) &&
-        menuRef.current &&
-        !menuRef.current.contains(event.target as Node)
-      ) {
-        setActiveDropdown(null);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Reset active dropdown when page changes
-  useEffect(() => {
-    setActiveDropdown(null);
-  }, [currentPage]);
-
-  // Toggle dropdown
-  const handleToggleDropdown = (orderId: string, event: React.MouseEvent) => {
-    event.stopPropagation();
-    setActiveDropdown(activeDropdown === orderId ? null : orderId);
-  };
-
-  // Calculate dropdown position
-  const getDropdownPosition = (buttonElement: HTMLButtonElement | null) => {
-    if (!buttonElement) return {};
-    const rect = buttonElement.getBoundingClientRect();
-    return {
-      top: `${rect.bottom + 8}px`,
-      right: `${window.innerWidth - rect.right}px`,
-    };
+  // Update the clear filters button click handler
+  const clearFilters = () => {
+    onStatusClick(null);
+    onSearchChange("");
   };
 
   return (
@@ -212,16 +187,13 @@ export const WarehouseTableSection = ({
                 icon={Package}
                 title={t("warehouse.noOrders")}
                 description={
-                  searchTerm
+                  searchTerm || activeStatusFilter
                     ? t("warehouse.noSearchResults")
                     : t("warehouse.emptyMessage")
                 }
               />
-              {searchTerm && (
-                <Button
-                  onClick={() => window.location.reload()}
-                  className="mt-4"
-                >
+              {(searchTerm || activeStatusFilter) && (
+                <Button onClick={clearFilters} className="mt-4">
                   {t("warehouse.clearSearch")}
                 </Button>
               )}
@@ -230,7 +202,7 @@ export const WarehouseTableSection = ({
             <Table>
               <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
                 <TableRow>
-                  <TableHead className="w-[50px] text-left text-[#1e2324] font-text-small">
+                  <TableHead className="w-[48px] px-4 py-3 text-left text-[#1e2324] font-text-small">
                     <Checkbox
                       checked={
                         currentOrders.length > 0 &&
@@ -242,19 +214,19 @@ export const WarehouseTableSection = ({
                       aria-label="Select all orders"
                     />
                   </TableHead>
-                  <TableHead className="w-[100px] text-left text-[#1e2324] font-text-small">
+                  <TableHead className="w-[120px] px-4 py-3 text-left text-[#1e2324] font-text-small">
                     {t("warehouse.columns.orderId")}
                   </TableHead>
-                  <TableHead className="w-[120px] text-left text-[#1e2324] font-text-small">
+                  <TableHead className="w-[140px] px-4 py-3 text-left text-[#1e2324] font-text-small">
                     {t("warehouse.columns.date")}
                   </TableHead>
-                  <TableHead className="w-[200px] text-left text-[#1e2324] font-text-small">
+                  <TableHead className="w-[280px] px-4 py-3 text-left text-[#1e2324] font-text-small">
                     {t("warehouse.columns.store")}
                   </TableHead>
-                  <TableHead className="w-[100px] text-center text-[#1e2324] font-text-small">
+                  <TableHead className="w-[120px] px-4 py-3 text-center text-[#1e2324] font-text-small">
                     {t("warehouse.columns.status")}
                   </TableHead>
-                  <TableHead className="w-[100px] text-center text-[#1e2324] font-text-small">
+                  <TableHead className="w-[160px] px-4 py-3 text-center text-[#1e2324] font-text-small">
                     {t("warehouse.columns.actions")}
                   </TableHead>
                 </TableRow>
@@ -263,9 +235,9 @@ export const WarehouseTableSection = ({
                 {currentOrders.map((order) => (
                   <TableRow
                     key={order.order_id}
-                    className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
+                    className="border-b border-primary-neutal-300 hover:bg-gray-50 transition-colors duration-150"
                   >
-                    <TableCell className="w-[50px] text-left">
+                    <TableCell className="w-[48px] px-4 py-3 text-left">
                       <Checkbox
                         checked={selectedOrders.includes(
                           order.order_id.toString()
@@ -276,141 +248,65 @@ export const WarehouseTableSection = ({
                         aria-label={`Select order ${order.order_id}`}
                       />
                     </TableCell>
-                    <TableCell className="w-[100px] text-left font-text-smaller text-coolgray-100">
-                      {order.order_id}
-                    </TableCell>
-                    <TableCell className="w-[120px] text-left font-text-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
-                      {new Date(order.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="w-[200px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
+                    <TableCell className="w-[120px] px-4 py-3 text-left">
                       <button
-                        onClick={() => {
-                          dispatch(
-                            getAllOrders({
-                              dns_prefix: selectedCompany?.dns || "admin",
-                              store_id: order.store_id.toString(),
-                            })
-                          );
-                        }}
-                        className="hover:underline focus:outline-none"
+                        onClick={() => handleViewDetails(order.order_id)}
+                        className="text-primary-600 hover:underline focus:outline-none font-medium"
                       >
-                        {order.store_name}
+                        #{order.order_id}
                       </button>
                     </TableCell>
-                    <TableCell className="w-[100px] text-center">
-                      <span
-                        className={`font-medium ${
-                          order.order_status === "confirmed"
-                            ? "text-green-600"
-                            : "text-orange-600"
-                        }`}
-                      >
-                        {order.order_status}
-                      </span>
+                    <TableCell className="w-[140px] px-4 py-3 text-left text-gray-600">
+                      {new Date(order.created_at).toLocaleDateString()}
                     </TableCell>
-                    <TableCell className="w-[100px] text-center">
-                      <div
-                        className="relative inline-flex items-center"
-                        ref={dropdownRef}
-                      >
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          ref={(el) =>
-                            (buttonRefs.current[order.order_id.toString()] = el)
+                    <TableCell className="w-[280px] px-4 py-3 text-left">
+                      {activeStoreFilter ? (
+                        <span className="text-gray-900 font-medium">
+                          {activeStoreFilter.name}
+                        </span>
+                      ) : (
+                        <button
+                          onClick={() =>
+                            onStoreClick(
+                              order.store_id.toString(),
+                              order.store_name
+                            )
                           }
-                          className={`h-8 w-8 hover:bg-gray-100 rounded-full transition-colors duration-200 ${
-                            activeDropdown === order.order_id.toString()
-                              ? "bg-gray-100"
-                              : ""
-                          }`}
-                          onClick={(e) =>
-                            handleToggleDropdown(order.order_id.toString(), e)
-                          }
-                          aria-expanded={
-                            activeDropdown === order.order_id.toString()
-                          }
-                          aria-haspopup="true"
-                          aria-label={t("warehouse.actions.dropdown.open")}
+                          className="text-primary-600 hover:underline focus:outline-none font-medium"
                         >
-                          <MoreVertical className="h-4 w-4" />
-                        </Button>
-
-                        {activeDropdown === order.order_id.toString() && (
-                          <div
-                            ref={menuRef}
-                            className="fixed w-44 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-[9999] transform opacity-100 scale-100 transition-all duration-200 ease-out origin-top-right"
-                            role="menu"
-                            aria-orientation="vertical"
-                            aria-labelledby="actions-menu"
-                            style={{
-                              position: "fixed",
-                              zIndex: 9999,
-                              ...getDropdownPosition(
-                                buttonRefs.current[order.order_id.toString()]
-                              ),
-                            }}
-                          >
-                            <div className="py-1 divide-y divide-gray-100">
-                              <button
-                                className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 group"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleViewDetails(
-                                    order.order_items[0].product_id
-                                  );
-                                }}
-                                role="menuitem"
-                              >
-                                <Eye className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-600" />
-                                <span className="font-medium">
-                                  {t("warehouse.actions.dropdown.view")}
-                                </span>
-                              </button>
-                              <button
-                                className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 group"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleEdit(order.order_items[0].product_id);
-                                }}
-                                role="menuitem"
-                              >
-                                <ClipboardEdit className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-600" />
-                                <span className="font-medium">
-                                  {t("warehouse.actions.dropdown.edit")}
-                                </span>
-                              </button>
-                              <button
-                                className={`flex items-center w-full px-4 py-3 text-sm transition-colors duration-150 group ${
-                                  order.order_status === "confirmed"
-                                    ? "text-blue-600 hover:bg-blue-50"
-                                    : "text-green-600 hover:bg-green-50"
-                                }`}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleToggleActive(
-                                    order.order_items[0].product_id,
-                                    order.order_status === "confirmed"
-                                  );
-                                }}
-                                role="menuitem"
-                              >
-                                <CheckCircle2
-                                  className={`mr-3 h-4 w-4 ${
-                                    order.order_status === "confirmed"
-                                      ? "text-blue-400 group-hover:text-blue-600"
-                                      : "text-green-400 group-hover:text-green-600"
-                                  }`}
-                                />
-                                <span className="font-medium">
-                                  {order.order_status === "confirmed"
-                                    ? t("warehouse.actions.dropdown.prepare")
-                                    : t("warehouse.actions.dropdown.complete")}
-                                </span>
-                              </button>
-                            </div>
-                          </div>
-                        )}
+                          {order.store_name}
+                        </button>
+                      )}
+                    </TableCell>
+                    <TableCell className="w-[120px] px-4 py-3">
+                      <div className="flex justify-center">
+                        <button
+                          onClick={() => handleStatusClick(order.order_status)}
+                          className={`inline-flex px-2.5 py-1 rounded-full text-sm font-medium transition-colors duration-150 ${
+                            order.order_status === "confirmed"
+                              ? activeStatusFilter === "confirmed"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-green-50 text-green-700 hover:bg-green-100"
+                              : activeStatusFilter === order.order_status
+                              ? "bg-orange-100 text-orange-800"
+                              : "bg-orange-50 text-orange-700 hover:bg-orange-100"
+                          } cursor-pointer`}
+                        >
+                          {order.order_status}
+                        </button>
+                      </div>
+                    </TableCell>
+                    <TableCell className="w-[160px] px-4 py-3">
+                      <div className="flex justify-center">
+                        <button
+                          onClick={() => handleViewDetails(order.order_id)}
+                          className="inline-flex items-center gap-2 px-4 py-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-colors duration-200"
+                        >
+                          <Eye className="h-4 w-4" />
+                          <span className="text-sm font-medium hover:underline whitespace-nowrap">
+                            {t("warehouse.actions.viewDetails")}
+                          </span>
+                        </button>
                       </div>
                     </TableCell>
                   </TableRow>

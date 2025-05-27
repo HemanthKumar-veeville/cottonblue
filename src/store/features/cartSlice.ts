@@ -110,12 +110,14 @@ export const getAllOrders = createAsyncThunk(
   'cart/getAllOrders',
   async ({ 
     dns_prefix, 
-    store_id 
+    store_id,
+    status
   }: { 
     dns_prefix: string; 
     store_id: string;
+    status?: string;
   }) => {
-    const response = await cartService.getAllOrders(dns_prefix, store_id);
+    const response = await cartService.getAllOrders(dns_prefix, store_id, status);
     return response.data;
   }
 );
