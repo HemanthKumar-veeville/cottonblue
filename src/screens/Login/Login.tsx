@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loader";
 import { useTranslation } from "react-i18next";
-import { getHost, isWarehouseHostname } from "../../utils/hostUtils";
+import { getHost } from "../../utils/hostUtils";
 
 export default function LoginPage() {
   const dispatch = useAppDispatch();
@@ -62,11 +62,7 @@ export default function LoginPage() {
             <img
               className=""
               alt="Logo"
-              src={
-                isWarehouseHostname()
-                  ? companyLogo || "/img/Logo_cb_svg.svg"
-                  : "/img/Logo_cb_svg.svg"
-              }
+              src={companyLogo || "/img/Logo_cb_svg.svg"}
             />
           </div>
         </div>
