@@ -18,6 +18,8 @@ import { fetchAllStores } from "../../store/features/agencySlice";
 import { useNavigate } from "react-router-dom";
 import { resetDashboard } from "../../store/features/dashboardSlice";
 import { setAdminMode } from "../../store/features/authSlice";
+import { isWarehouseHostname } from "../../utils/hostUtils";
+
 interface NavTabItem {
   id: number;
   name: string;
@@ -138,7 +140,9 @@ export const SuperadminHeader = (): JSX.Element => {
     }));
     setTabs(newTabs);
     setIsAdminMode(tabId === 1);
-    tabId === 1 ? navigate("/dashboard") : navigate("/client-dashboard");
+    if (!isWarehouseHostname()) {
+      tabId === 1 ? navigate("/dashboard") : navigate("/client-dashboard");
+    }
     tabId === 1 ? dispatch(setAdminMode(true)) : dispatch(setAdminMode(false));
   };
 

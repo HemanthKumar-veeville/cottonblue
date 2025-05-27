@@ -1,5 +1,4 @@
 import { Button } from "../../../components/ui/button";
-import { Checkbox } from "../../../components/ui/checkbox";
 import {
   Pagination,
   PaginationContent,
@@ -56,7 +55,6 @@ export const WarehouseTableSection = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -80,23 +78,6 @@ export const WarehouseTableSection = ({
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentOrders = filteredOrders.slice(startIndex, endIndex);
-
-  // Handle checkbox selection
-  const handleSelectAll = (checked: boolean) => {
-    if (checked) {
-      setSelectedProducts(currentOrders.map((order) => parseInt(order.id)));
-    } else {
-      setSelectedProducts([]);
-    }
-  };
-
-  const handleSelectProduct = (productId: number, checked: boolean) => {
-    if (checked) {
-      setSelectedProducts([...selectedProducts, productId]);
-    } else {
-      setSelectedProducts(selectedProducts.filter((id) => id !== productId));
-    }
-  };
 
   // Handle page change
   const handlePageChange = (page: number) => {
@@ -206,20 +187,8 @@ export const WarehouseTableSection = ({
             <Table>
               <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
                 <TableRow>
-                  <TableHead className="w-11">
-                    <div className="flex justify-start">
-                      <Checkbox
-                        className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
-                        checked={
-                          selectedProducts.length === currentOrders.length &&
-                          currentOrders.length > 0
-                        }
-                        onCheckedChange={handleSelectAll}
-                      />
-                    </div>
-                  </TableHead>
                   <TableHead className="w-[100px] text-left text-[#1e2324] font-text-small">
-                    {t("warehouse.columns.id")}
+                    {t("warehouse.columns.orderId")}
                   </TableHead>
                   <TableHead className="w-[120px] text-left text-[#1e2324] font-text-small">
                     {t("warehouse.columns.date")}
@@ -227,7 +196,7 @@ export const WarehouseTableSection = ({
                   <TableHead className="w-[200px] text-left text-[#1e2324] font-text-small">
                     {t("warehouse.columns.client")}
                   </TableHead>
-                  <TableHead className="w-[100px] text-left text-[#1e2324] font-text-small">
+                  <TableHead className="w-[100px] text-center text-[#1e2324] font-text-small">
                     {t("warehouse.columns.quantity")}
                   </TableHead>
                   <TableHead className="w-[100px] text-center text-[#1e2324] font-text-small">
@@ -244,24 +213,6 @@ export const WarehouseTableSection = ({
                     key={order.id}
                     className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
                   >
-                    <TableCell className="w-11">
-                      <div className="flex justify-start">
-                        <Checkbox
-                          className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
-                          checked={selectedProducts.includes(
-                            parseInt(order.id)
-                          )}
-                          onCheckedChange={(
-                            checked: boolean | "indeterminate"
-                          ) =>
-                            handleSelectProduct(
-                              parseInt(order.id),
-                              checked as boolean
-                            )
-                          }
-                        />
-                      </div>
-                    </TableCell>
                     <TableCell className="w-[100px] text-left font-text-smaller text-coolgray-100">
                       {order.id}
                     </TableCell>
@@ -271,21 +222,19 @@ export const WarehouseTableSection = ({
                     <TableCell className="w-[200px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
                       {order.client}
                     </TableCell>
-                    <TableCell className="w-[100px] text-left font-text-smaller text-black">
+                    <TableCell className="w-[100px] text-center font-text-smaller text-black">
                       {order.quantity}
                     </TableCell>
                     <TableCell className="w-[100px] text-center">
-                      <div className="flex justify-center">
-                        <span
-                          className={`inline-flex px-2 py-1 rounded-full text-sm ${
-                            order.status === "Pending"
-                              ? "bg-orange-100 text-orange-800"
-                              : "bg-green-100 text-green-800"
-                          }`}
-                        >
-                          {order.status}
-                        </span>
-                      </div>
+                      <span
+                        className={`font-medium ${
+                          order.status === "Pending"
+                            ? "text-orange-600"
+                            : "text-green-600"
+                        }`}
+                      >
+                        {order.status}
+                      </span>
                     </TableCell>
                     <TableCell className="w-[100px] text-center">
                       <div

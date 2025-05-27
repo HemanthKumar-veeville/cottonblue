@@ -236,7 +236,7 @@ export const SuperadminSidebarSection = ({
     },
   ];
 
-  const footerNavItems: NavItem[] = [
+  const superadminFooterNavItems: NavItem[] = [
     {
       icon: <SettingsIcon className="w-4 h-4" />,
       label: t("sidebar.settings"),
@@ -249,6 +249,19 @@ export const SuperadminSidebarSection = ({
       onClick: handleLogout,
     },
   ];
+
+  const warehouseFooterNavItems: NavItem[] = [
+    {
+      icon: <LogOutIcon className="w-4 h-4" />,
+      label: t("sidebar.logout"),
+      path: "/logout",
+      onClick: handleLogout,
+    },
+  ];
+
+  const footerNavItems = isWarehouse
+    ? warehouseFooterNavItems
+    : superadminFooterNavItems;
 
   const navigationSections = isWarehouse
     ? warehouseNavigationSections
