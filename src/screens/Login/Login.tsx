@@ -6,32 +6,26 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loader";
 import { useTranslation } from "react-i18next";
-import { getHost } from "../../utils/hostUtils";
+
 export default function LoginPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const {
-    isLoading,
-    error,
-    company,
-    companyColor,
-    companyLogo,
-    companyTextColor,
-  } = useAppSelector((state) => state.auth);
+  const { isLoading, error, company, companyColor, companyLogo } =
+    useAppSelector((state) => state.auth);
   const { t } = useTranslation();
-  const domain = getHost();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    dispatch(loginPage(domain));
+    dispatch(loginPage("admin"));
   }, [dispatch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await dispatch(login({ email, password, company: domain })).unwrap();
-      navigate("/"); // Redirect to dashboard after successful login
+      await dispatch(login({ email, password, company: "admin" })).unwrap();
+      navigate("/dashboard"); // Redirect to dashboard after successful login
       window.location.reload(); // Refresh the page
     } catch (error) {
       console.error("Login failed:", error);
@@ -42,17 +36,11 @@ export default function LoginPage() {
     <div className="flex h-screen">
       {/* Left Panel */}
       <div
-        className={`hidden md:flex md:w-2/5 bg-[${
-          companyColor || "#07515f"
-        }] flex-col items-center justify-center relative overflow-hidden`}
+        className={`hidden md:flex md:w-2/5 bg-[${"#07515f"}] flex-col items-center justify-center relative overflow-hidden`}
       >
         <div className="flex flex-col items-center justify-center w-full">
           <div className="inline-flex flex-col items-center">
-            <img
-              className=""
-              alt="Logo"
-              src={companyLogo || "/img/Logo_cb_svg.svg"}
-            />
+            <img className="" alt="Logo" src={"/img/Logo_cb_svg.svg"} />
           </div>
         </div>
       </div>
@@ -92,11 +80,7 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className={`w-full bg-[${companyColor || "#07515f"}] hover:bg-[${
-                companyColor || "#07515f"
-              }]/90 text-[${
-                companyTextColor || "#fff"
-              }] py-3 rounded-md transition-colors`}
+              className="w-full bg-[#07515f] hover:bg-[#07515f]/90 text-white py-3 rounded-md transition-colors"
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
