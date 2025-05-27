@@ -6,41 +6,64 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loader";
 import { useTranslation } from "react-i18next";
+import { getHost } from "../../utils/hostUtils";
 
 export default function LoginPage() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { isLoading, error, company, companyColor, companyLogo } =
-    useAppSelector((state) => state.auth);
+  const {
+    isLoading,
+    error,
+    company,
+    companyColor,
+    companyLogo,
+    companyTextColor,
+  } = useAppSelector((state) => state.auth);
   const { t } = useTranslation();
-
+  const domain = getHost();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    dispatch(loginPage("admin"));
+    dispatch(loginPage(domain));
   }, [dispatch]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await dispatch(login({ email, password, company: "admin" })).unwrap();
-      navigate("/dashboard"); // Redirect to dashboard after successful login
+      await dispatch(login({ email, password, company: domain })).unwrap();
+      navigate("/"); // Redirect to dashboard after successful login
       window.location.reload(); // Refresh the page
     } catch (error) {
       console.error("Login failed:", error);
     }
   };
 
+  const defaultColor = "#07515f";
+  const defaultTextColor = "#ffffff";
+
+  // Convert hex to rgba for hover effect
+  const getHoverColor = (hex: string) => {
+    const r = parseInt(hex.slice(1, 3), 16);
+    const g = parseInt(hex.slice(3, 5), 16);
+    const b = parseInt(hex.slice(5, 7), 16);
+    return `rgba(${r}, ${g}, ${b}, 0.9)`;
+  };
+
   return (
     <div className="flex h-screen">
       {/* Left Panel */}
       <div
-        className={`hidden md:flex md:w-2/5 bg-[${"#07515f"}] flex-col items-center justify-center relative overflow-hidden`}
+        className="hidden md:flex md:w-2/5 flex-col items-center justify-center relative overflow-hidden"
+        style={{ backgroundColor: companyColor || defaultColor }}
       >
         <div className="flex flex-col items-center justify-center w-full">
           <div className="inline-flex flex-col items-center">
-            <img className="" alt="Logo" src={"/img/Logo_cb_svg.svg"} />
+            <img
+              className=""
+              alt="Logo"
+              src={companyLogo || "/img/Logo_cb_svg.svg"}
+            />
           </div>
         </div>
       </div>
@@ -80,7 +103,11 @@ export default function LoginPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-[#07515f] hover:bg-[#07515f]/90 text-white py-3 rounded-md transition-colors"
+              className="w-full py-3 rounded-md transition-colors hover:opacity-90"
+              style={{
+                backgroundColor: companyColor || defaultColor,
+                color: companyTextColor || defaultTextColor,
+              }}
             >
               {isLoading ? (
                 <div className="flex items-center justify-center">
