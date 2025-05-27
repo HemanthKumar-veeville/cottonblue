@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loader";
 import { useTranslation } from "react-i18next";
-import { getHost } from "../../utils/hostUtils";
+import { getHost, isWarehouseHostname } from "../../utils/hostUtils";
 
 export default function LoginPage() {
   const dispatch = useAppDispatch();
@@ -41,7 +41,7 @@ export default function LoginPage() {
 
   const defaultColor = "#07515f";
   const defaultTextColor = "#ffffff";
-
+  const warehouse = isWarehouseHostname();
   // Convert hex to rgba for hover effect
   const getHoverColor = (hex: string) => {
     const r = parseInt(hex.slice(1, 3), 16);
@@ -55,14 +55,16 @@ export default function LoginPage() {
       {/* Left Panel */}
       <div
         className="hidden md:flex md:w-2/5 flex-col items-center justify-center relative overflow-hidden"
-        style={{ backgroundColor: companyColor || defaultColor }}
+        style={{
+          backgroundColor: warehouse ? companyColor : defaultColor,
+        }}
       >
         <div className="flex flex-col items-center justify-center w-full">
           <div className="inline-flex flex-col items-center">
             <img
               className=""
               alt="Logo"
-              src={companyLogo || "/img/Logo_cb_svg.svg"}
+              src={warehouse ? companyLogo : "/img/Logo_cb_svg.svg"}
             />
           </div>
         </div>
