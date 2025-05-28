@@ -34,14 +34,14 @@ export const OrderHistorySection = (): JSX.Element => {
   const orders = useSelector((state: any) => state.cart.orders);
   const loading = useSelector((state: any) => state.cart.loading);
 
-  const orderList = orders?.orders || [];
+  const orderList = orders || [];
 
   const handleDownloadOrders = () => {
     // Prepare data for export
     const exportData = orderList.map((order: any) => {
       // Calculate total price for the order
       const totalPrice = order.order_items.reduce(
-        (sum: number, item: any) => sum + (item.product_price * item.quantity),
+        (sum: number, item: any) => sum + item.product_price * item.quantity,
         0
       );
 
@@ -53,15 +53,15 @@ export const OrderHistorySection = (): JSX.Element => {
       // Create row data
       return {
         "Order ID": order.order_id,
-        "Date": formattedDate,
+        Date: formattedDate,
         "Store Name": order.store_name,
         "Store Address": order.store_address,
         "Total Price": totalPrice,
-        "Status": order.order_status
+        Status: order.order_status
           .split("_")
           .map((word: string) => word.charAt(0).toUpperCase() + word.slice(1))
           .join(" "),
-        "Items": order.order_items
+        Items: order.order_items
           .map((item: any) => `${item.product_name} (${item.quantity}x)`)
           .join(", "),
       };

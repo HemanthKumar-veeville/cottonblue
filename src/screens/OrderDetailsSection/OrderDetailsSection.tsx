@@ -388,7 +388,7 @@ export const OrderDetailsSection = (): JSX.Element => {
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 10; // Number of orders to show per page
 
-  const orderList = orders?.orders || [];
+  const orderList = orders || [];
   const totalPages = Math.ceil(orderList.length / ordersPerPage);
 
   // Get current orders
