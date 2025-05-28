@@ -25,6 +25,7 @@ interface OrdersResponse {
 interface StoreFilter {
   id: string;
   name: string;
+  dns_prefix: string;
 }
 
 export const Warehouse = (): JSX.Element => {
@@ -40,7 +41,7 @@ export const Warehouse = (): JSX.Element => {
   const [activeStatusFilter, setActiveStatusFilter] = useState<string | null>(
     null
   );
-  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+  const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
   const { selectedCompany } = useAppSelector((state) => state.client);
   const dnsPrefix = adminMode ? "admin" : selectedCompany?.dns || "admin";
 
@@ -49,23 +50,36 @@ export const Warehouse = (): JSX.Element => {
       if (activeStoreFilter) {
         dispatch(
           getAllOrders({
-            dns_prefix: dnsPrefix,
+            dns_prefix: activeStoreFilter?.dns_prefix || dnsPrefix,
             store_id: activeStoreFilter.id,
-            status: "confirmed",
+            status: activeStatusFilter || "confirmed",
           })
         );
       } else {
-        dispatch(getAllCompanyOrders({ dns_prefix: dnsPrefix }));
+        dispatch(
+          getAllCompanyOrders({
+            dns_prefix: dnsPrefix,
+            status: activeStatusFilter || undefined,
+          })
+        );
       }
     }
-  }, [dispatch, dnsPrefix, activeStoreFilter]);
+  }, [dispatch, dnsPrefix, activeStoreFilter, activeStatusFilter]);
 
   const handleSearch = (term: string) => {
     setSearchTerm(term);
   };
 
-  const handleStoreFilter = (storeId: string, storeName: string) => {
-    setActiveStoreFilter({ id: storeId, name: storeName });
+  const handleStoreFilter = (
+    storeId: string,
+    storeName: string,
+    dnsPrefix: string
+  ) => {
+    setActiveStoreFilter({
+      id: storeId,
+      name: storeName,
+      dns_prefix: dnsPrefix,
+    });
   };
 
   const clearStoreFilter = () => {
@@ -80,7 +94,7 @@ export const Warehouse = (): JSX.Element => {
     setActiveStatusFilter(null);
   };
 
-  const handleSelectedOrdersChange = (orderIds: string[]) => {
+  const handleSelectedOrdersChange = (orderIds: number[]) => {
     setSelectedOrders(orderIds);
   };
 

@@ -1084,6 +1084,27 @@
         "cancel": "Annuler la commande"
       }
     },
+    "popup": {
+      "orderDetails": "Détails de la commande #{{orderId}}",
+      "orderSummary": {
+        "title": "Résumé de la commande",
+        "totalItems": "Total des articles",
+        "totalQuantity": "Quantité totale",
+        "totalPrice": "Prix total"
+      },
+      "orderInfo": {
+        "title": "Informations de la commande",
+        "customer": "Client",
+        "store": "Magasin",
+        "date": "Date",
+        "status": "Statut"
+      },
+      "actions": {
+        "prepare": "Préparer la commande",
+        "complete": "Terminer la commande",
+        "cancel": "Annuler la commande"
+      }
+    },
     "columns": {
       "orderId": "ID Commande",
       "date": "Date",

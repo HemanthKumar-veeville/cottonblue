@@ -9,6 +9,10 @@ import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { AppDispatch, useAppSelector } from "../../../store/store";
+import { changeOrderStatus } from "../../../store/features/cartSlice";
+import { useParams } from "react-router-dom";
 
 interface StoreFilter {
   id: string;
@@ -21,7 +25,7 @@ interface WarehouseListSectionProps {
   activeStatusFilter: string | null;
   onClearFilter: () => void;
   onClearStatusFilter: () => void;
-  selectedOrders: string[];
+  selectedOrders: number[];
 }
 
 export const WarehouseListSection = ({
@@ -34,12 +38,39 @@ export const WarehouseListSection = ({
 }: WarehouseListSectionProps): JSX.Element => {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
+  const dispatch = useDispatch<AppDispatch>();
+  const { selectedCompany } = useAppSelector((state) => state.client);
+  const dns_prefix = selectedCompany?.dns || "admin";
 
   // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setSearchTerm(value);
     onSearch(value);
+  };
+
+  const handleProcessOrders = (orderIds: number[]) => {
+    if (dns_prefix) {
+      dispatch(
+        changeOrderStatus({
+          dns_prefix,
+          status: "processing",
+          order_ids: orderIds,
+        })
+      );
+    }
+  };
+
+  const handleShipOrders = (orderIds: number[]) => {
+    if (dns_prefix) {
+      dispatch(
+        changeOrderStatus({
+          dns_prefix,
+          status: "shipped",
+          order_ids: orderIds,
+        })
+      );
+    }
   };
 
   return (
@@ -74,6 +105,11 @@ export const WarehouseListSection = ({
                   ? "text-amber-400 border-amber-200 bg-amber-50 cursor-not-allowed opacity-75"
                   : "text-amber-600 border-amber-600 hover:bg-amber-50 hover:text-amber-600"
               }`}
+              onClick={() => {
+                if (selectedOrders.length > 0) {
+                  handleProcessOrders(selectedOrders);
+                }
+              }}
             >
               <PackageIcon className="h-4 w-4" />
               <span>Process</span>
@@ -87,6 +123,11 @@ export const WarehouseListSection = ({
                   ? "text-green-400 border-green-200 bg-green-50 cursor-not-allowed opacity-75"
                   : "text-green-600 border-green-600 hover:bg-green-50 hover:text-green-600"
               }`}
+              onClick={() => {
+                if (selectedOrders.length > 0) {
+                  handleShipOrders(selectedOrders);
+                }
+              }}
             >
               <TruckIcon className="h-4 w-4" />
               <span>Ship</span>

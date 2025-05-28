@@ -99,6 +99,12 @@ interface RefuseOrderResponse {
   order_id: string;
 }
 
+interface ChangeOrderStatusResponse {
+  success: boolean;
+  message: string;
+  updated_orders: string[];
+}
+
 export const cartService = {
   /**
    * Add a product to the cart
@@ -217,11 +223,32 @@ export const cartService = {
   /**
    * Get all orders for a company across all stores
    * @param dns_prefix DNS prefix of the company
+   * @param status Optional status filter
    * @returns Promise with list of all company orders
    */
   getAllCompanyOrders: async (
-    dns_prefix: string
+    dns_prefix: string,
+    status?: string
   ): Promise<GetAllCompanyOrdersResponse> => {
-    return axiosInstance.get(`/${dns_prefix}/all/orders`);
+    const queryParams = status ? `?status=${status}` : '';
+    return axiosInstance.get(`/${dns_prefix}/all/orders${queryParams}`);
+  },
+
+  /**
+   * Change the status of multiple orders
+   * @param dns_prefix DNS prefix of the company
+   * @param status New status to set for the orders
+   * @param order_ids Array of order IDs to update
+   * @returns Promise with status update response
+   */
+  changeOrderStatus: async (
+    dns_prefix: string,
+    status: string,
+    order_ids: string[]
+  ): Promise<ChangeOrderStatusResponse> => {
+    return axiosInstance.post(
+      `/${dns_prefix}/change-order-status/${status}`,
+      { order_ids }
+    );
   },
 };

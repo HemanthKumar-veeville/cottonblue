@@ -1050,30 +1050,26 @@
         "cancel": "Cancel Order"
       }
     },
-    "columns": {
-      "orderId": "Order ID",
-      "date": "Date",
-      "store": "Store",
-      "status": "Status",
-      "actions": "Actions"
-    },
-    "status": {
-      "confirmed": "Confirmed",
-      "pending": "Pending",
-      "prepared": "Prepared",
-      "completed": "Completed",
-      "cancelled": "Cancelled"
-    },
-    "pagination": {
-      "previous": "Previous",
-      "next": "Next",
-      "page": "Page {{number}}"
-    },
-    "noOrders": "No Orders Found",
-    "noSearchResults": "No orders match your search criteria.",
-    "emptyMessage": "There are no orders in your list yet. Add your first order to get started.",
-    "clearSearch": "Clear Search",
-    "selectAll": "Select all orders",
-    "selected": "{{count}} orders selected"
+    "popup": {
+      "orderDetails": "Order Details #{{orderId}}",
+      "orderSummary": {
+        "title": "Order Summary",
+        "totalItems": "Total Items",
+        "totalQuantity": "Total Quantity",
+        "totalPrice": "Total Price"
+      },
+      "orderInfo": {
+        "title": "Order Information",
+        "customer": "Customer",
+        "store": "Store",
+        "date": "Date",
+        "status": "Status"
+      },
+      "actions": {
+        "prepare": "Prepare Order",
+        "complete": "Complete Order",
+        "cancel": "Cancel Order"
+      }
+    }
   }
 }

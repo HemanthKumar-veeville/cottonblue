@@ -165,8 +165,24 @@ export const refuseOrder = createAsyncThunk(
 
 export const getAllCompanyOrders = createAsyncThunk(
   'cart/getAllCompanyOrders',
-  async ({ dns_prefix }: { dns_prefix: string }) => {
-    const response = await cartService.getAllCompanyOrders(dns_prefix);
+  async ({ dns_prefix, status }: { dns_prefix: string; status?: string }) => {
+    const response = await cartService.getAllCompanyOrders(dns_prefix, status);
+    return response.data;
+  }
+);
+
+export const changeOrderStatus = createAsyncThunk(
+  'cart/changeOrderStatus',
+  async ({ 
+    dns_prefix, 
+    status, 
+    order_ids 
+  }: { 
+    dns_prefix: string; 
+    status: string; 
+    order_ids: string[];
+  }) => {
+    const response = await cartService.changeOrderStatus(dns_prefix, status, order_ids);
     return response.data;
   }
 );
@@ -384,6 +400,29 @@ const cartSlice = createSlice({
       .addCase(getAllCompanyOrders.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Failed to fetch company orders';
+      });
+    builder
+      .addCase(changeOrderStatus.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(changeOrderStatus.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        console.log(action.payload);
+        state.orders = state.orders?.map((order) => {
+          if (action.payload && action.payload.order_ids && action.payload.order_ids.includes(order.order_id)) {
+            return {
+              ...order,
+              order_status: action.payload.status
+            };
+          }
+          return order;
+        });
+      })
+      .addCase(changeOrderStatus.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to change order status';
       });
   },
 });

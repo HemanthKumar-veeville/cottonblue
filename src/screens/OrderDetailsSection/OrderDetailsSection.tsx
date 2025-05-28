@@ -533,7 +533,9 @@ export const OrderDetailsSection = (): JSX.Element => {
             <PaginationPrevious
               onClick={() => handlePageChange(currentPage - 1)}
               className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px] ${
-                currentPage === 1 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                currentPage === 1
+                  ? "opacity-50 cursor-not-allowed"
+                  : "cursor-pointer"
               }`}
               disabled={currentPage === 1}
             >
@@ -560,21 +562,23 @@ export const OrderDetailsSection = (): JSX.Element => {
                       {item.page}
                     </PaginationLink>
                   </PaginationItem>
-                  {totalPages > 5 && index === generatePaginationItems().length - 1 && item.page < totalPages && (
-                    <>
-                      <PaginationItem>
-                        <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
-                      </PaginationItem>
-                      <PaginationItem>
-                        <PaginationLink
-                          onClick={() => handlePageChange(totalPages)}
-                          className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337] cursor-pointer"
-                        >
-                          {totalPages}
-                        </PaginationLink>
-                      </PaginationItem>
-                    </>
-                  )}
+                  {totalPages > 5 &&
+                    index === generatePaginationItems().length - 1 &&
+                    item.page < totalPages && (
+                      <>
+                        <PaginationItem>
+                          <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                        </PaginationItem>
+                        <PaginationItem>
+                          <PaginationLink
+                            onClick={() => handlePageChange(totalPages)}
+                            className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337] cursor-pointer"
+                          >
+                            {totalPages}
+                          </PaginationLink>
+                        </PaginationItem>
+                      </>
+                    )}
                 </React.Fragment>
               ))}
             </PaginationContent>
@@ -582,7 +586,9 @@ export const OrderDetailsSection = (): JSX.Element => {
             <PaginationNext
               onClick={() => handlePageChange(currentPage + 1)}
               className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px] ${
-                currentPage === totalPages ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                currentPage === totalPages
+                  ? "opacity-50 cursor-not-allowed"
+                  : "cursor-pointer"
               }`}
               disabled={currentPage === totalPages}
             >
