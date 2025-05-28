@@ -43,6 +43,7 @@ interface Order {
   store_address: string;
   created_at: string;
   order_status: string;
+  company_dns_prefix?: string;
   order_items: Array<{
     product_id: number;
     product_name: string;
@@ -118,10 +119,11 @@ export const WarehouseTableSection = ({
   };
 
   // Handle checkbox selection
-  const handleSelectOrder = (orderId: string) => {
-    const newSelectedOrders = selectedOrders.includes(orderId)
-      ? selectedOrders.filter((id) => id !== orderId)
-      : [...selectedOrders, orderId];
+  const handleSelectOrder = (orderId: number) => {
+    const orderIdStr = orderId.toString();
+    const newSelectedOrders = selectedOrders.includes(orderIdStr)
+      ? selectedOrders.filter((id) => id !== orderIdStr)
+      : [...selectedOrders, orderIdStr];
 
     setSelectedOrders(newSelectedOrders);
     onSelectedOrdersChange(newSelectedOrders);
@@ -132,8 +134,25 @@ export const WarehouseTableSection = ({
     const currentOrderIds = currentOrders.map((order) =>
       order.order_id.toString()
     );
-    const newSelectedOrders =
-      selectedOrders.length === currentOrderIds.length ? [] : currentOrderIds;
+
+    // If all current page orders are selected, unselect them
+    const allCurrentSelected = currentOrderIds.every((id) =>
+      selectedOrders.includes(id)
+    );
+
+    let newSelectedOrders: string[];
+    if (allCurrentSelected) {
+      // Remove current page orders from selection
+      newSelectedOrders = selectedOrders.filter(
+        (id) => !currentOrderIds.includes(id)
+      );
+    } else {
+      // Add all current page orders that aren't already selected
+      const existingSelections = selectedOrders.filter(
+        (id) => !currentOrderIds.includes(id)
+      );
+      newSelectedOrders = [...existingSelections, ...currentOrderIds];
+    }
 
     setSelectedOrders(newSelectedOrders);
     onSelectedOrdersChange(newSelectedOrders);
@@ -250,7 +269,9 @@ export const WarehouseTableSection = ({
                     >
                       <TableCell className="w-[48px] px-4 py-3 text-left">
                         <Checkbox
-                          checked={selectedOrders.includes(order.order_id)}
+                          checked={selectedOrders.includes(
+                            order.order_id.toString()
+                          )}
                           onCheckedChange={() =>
                             handleSelectOrder(order.order_id)
                           }

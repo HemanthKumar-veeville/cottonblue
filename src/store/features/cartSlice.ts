@@ -409,7 +409,6 @@ const cartSlice = createSlice({
       .addCase(changeOrderStatus.fulfilled, (state, action) => {
         state.loading = false;
         state.error = null;
-        console.log(action.payload);
         state.orders = state.orders?.map((order) => {
           if (action.payload && action.payload.order_ids && action.payload.order_ids.includes(order.order_id)) {
             return {
