@@ -64,6 +64,8 @@ interface WarehouseTableSectionProps {
   activeStatusFilter: string | null;
   onSelectedOrdersChange: (orderIds: string[]) => void;
   onSearchChange: (term: string) => void;
+  selectedOrders: string[];
+  setSelectedOrders: (orders: string[]) => void;
 }
 
 export const WarehouseTableSection = ({
@@ -77,22 +79,22 @@ export const WarehouseTableSection = ({
   activeStatusFilter,
   onSelectedOrdersChange,
   onSearchChange,
+  selectedOrders,
+  setSelectedOrders,
 }: WarehouseTableSectionProps): JSX.Element => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
-  const { selectedCompany } = useAppSelector((state) => state.client);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, activeStatusFilter]);
 
   // Filter orders based on search term and status
-  const filteredOrders = orders?.filter((order) => {
+  const searchedOrders = orders?.filter((order) => {
     const matchesSearch =
       order.order_id
         .toString()
@@ -105,6 +107,10 @@ export const WarehouseTableSection = ({
 
     return matchesSearch && matchesStatus;
   });
+
+  const filteredOrders = searchedOrders?.filter(
+    (order) => order.order_status !== "approval_pending"
+  );
 
   // Pagination logic
   const itemsPerPage = 25;
@@ -237,7 +243,9 @@ export const WarehouseTableSection = ({
                         checked={
                           currentOrders.length > 0 &&
                           currentOrders.every((order) =>
-                            selectedOrders.includes(order.order_id.toString())
+                            selectedOrders?.includes(
+                              order?.order_id?.toString()
+                            )
                           )
                         }
                         onCheckedChange={handleSelectAllOrders}
@@ -269,7 +277,7 @@ export const WarehouseTableSection = ({
                     >
                       <TableCell className="w-[48px] px-4 py-3 text-left">
                         <Checkbox
-                          checked={selectedOrders.includes(
+                          checked={selectedOrders?.includes(
                             order.order_id.toString()
                           )}
                           onCheckedChange={() =>
@@ -300,7 +308,8 @@ export const WarehouseTableSection = ({
                               onStoreClick(
                                 order.store_id.toString(),
                                 order.store_name,
-                                order.company_dns_prefix
+                                order.company_dns_prefix,
+                                order.order_status
                               )
                             }
                             className="text-primary-600 hover:underline focus:outline-none font-medium"

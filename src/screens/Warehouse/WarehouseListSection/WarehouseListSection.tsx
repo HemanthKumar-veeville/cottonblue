@@ -26,6 +26,8 @@ interface WarehouseListSectionProps {
   onClearFilter: () => void;
   onClearStatusFilter: () => void;
   selectedOrders: number[];
+  onSelectedOrdersChange: (orders: number[]) => void;
+  setSelectedOrders: (orders: number[]) => void;
 }
 
 export const WarehouseListSection = ({
@@ -35,6 +37,8 @@ export const WarehouseListSection = ({
   onClearFilter,
   onClearStatusFilter,
   selectedOrders,
+  onSelectedOrdersChange,
+  setSelectedOrders,
 }: WarehouseListSectionProps): JSX.Element => {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
@@ -55,9 +59,11 @@ export const WarehouseListSection = ({
         changeOrderStatus({
           dns_prefix,
           status: "processing",
-          order_ids: orderIds,
+          order_ids: orderIds.map((id) => parseInt(id)),
         })
       );
+      onSelectedOrdersChange([]);
+      setSelectedOrders([]);
     }
   };
 
@@ -67,9 +73,11 @@ export const WarehouseListSection = ({
         changeOrderStatus({
           dns_prefix,
           status: "shipped",
-          order_ids: orderIds,
+          order_ids: orderIds.map((id) => parseInt(id)),
         })
       );
+      onSelectedOrdersChange([]);
+      setSelectedOrders([]);
     }
   };
 

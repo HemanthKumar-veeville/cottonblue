@@ -321,7 +321,7 @@ const cartSlice = createSlice({
       })
       .addCase(getAllOrders.fulfilled, (state, action) => {
         state.loading = false;
-        state.orders = action.payload;
+        state.orders = action.payload.orders;
       })
       .addCase(getAllOrders.rejected, (state, action) => {
         state.loading = false;
@@ -413,7 +413,7 @@ const cartSlice = createSlice({
           if (action.payload && action.payload.order_ids && action.payload.order_ids.includes(order.order_id)) {
             return {
               ...order,
-              order_status: action.payload.status
+              order_status: action.payload.order_status
             };
           }
           return order;

@@ -52,7 +52,7 @@ export const Warehouse = (): JSX.Element => {
           getAllOrders({
             dns_prefix: activeStoreFilter?.dns_prefix || dnsPrefix,
             store_id: activeStoreFilter.id,
-            status: activeStatusFilter || "confirmed",
+            status: activeStatusFilter?.status,
           })
         );
       } else {
@@ -73,12 +73,14 @@ export const Warehouse = (): JSX.Element => {
   const handleStoreFilter = (
     storeId: string,
     storeName: string,
-    dnsPrefix: string
+    dnsPrefix: string,
+    status: string
   ) => {
     setActiveStoreFilter({
       id: storeId,
       name: storeName,
       dns_prefix: dnsPrefix,
+      status,
     });
   };
 
@@ -107,9 +109,11 @@ export const Warehouse = (): JSX.Element => {
         onClearFilter={clearStoreFilter}
         onClearStatusFilter={clearStatusFilter}
         selectedOrders={selectedOrders}
+        onSelectedOrdersChange={handleSelectedOrdersChange}
+        setSelectedOrders={setSelectedOrders}
       />
       <WarehouseTableSection
-        orders={Array.isArray(orders) ? orders : orders?.orders || []}
+        orders={orders || []}
         loading={loading}
         error={error}
         searchTerm={searchTerm}
@@ -119,6 +123,8 @@ export const Warehouse = (): JSX.Element => {
         activeStatusFilter={activeStatusFilter}
         onSelectedOrdersChange={handleSelectedOrdersChange}
         onSearchChange={handleSearch}
+        selectedOrders={selectedOrders}
+        setSelectedOrders={setSelectedOrders}
       />
     </main>
   );
