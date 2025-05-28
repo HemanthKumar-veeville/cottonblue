@@ -132,13 +132,6 @@ export const UserTableSection = (): JSX.Element => {
   };
 
   const handleToggleActive = (userId: string, currentStatus: boolean) => {
-    // TODO: Implement toggle active status
-    console.log(
-      "Toggle active status for user:",
-      userId,
-      "to:",
-      !currentStatus
-    );
     setActiveDropdown(null);
   };
 

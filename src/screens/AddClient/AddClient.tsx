@@ -745,7 +745,6 @@ const ClientForm = () => {
     if (isEditMode) {
       // Only proceed if there are actual changes
       if (!hasFormDataChanged()) {
-        console.log("No changes detected, skipping API call");
         // Show a message to user using toast.error instead of toast.info
         toast.error(t("addClient.messages.noChanges") || "No changes to save", {
           duration: 3000,
@@ -785,7 +784,6 @@ const ClientForm = () => {
 
       // Double check if there are actually modified fields
       if (Object.keys(modifiedData).length === 0) {
-        console.log("No modified fields found after comparison");
         return;
       }
 

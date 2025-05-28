@@ -1,7 +1,9 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../../components/ui/button";
-import { PackageIcon, TruckIcon, XIcon } from "lucide-react";
+import { Loader, PackageIcon, TruckIcon, XIcon } from "lucide-react";
+import { changeOrderStatus } from "../../../../store/features/cartSlice";
+import { useAppDispatch, useAppSelector } from "../../../../store/store";
 
 interface ActionButton {
   translationKey: string;
@@ -9,8 +11,17 @@ interface ActionButton {
   variant: "prepare" | "complete" | "cancel";
 }
 
-const ActionButtonSection = (): JSX.Element => {
+const ActionButtonSection = ({
+  orderId,
+  isLoading,
+}: {
+  orderId: number;
+  isLoading: boolean;
+}): JSX.Element => {
   const { t } = useTranslation();
+  const { selectedCompany } = useAppSelector((state) => state.client);
+  const dns_prefix = selectedCompany?.dns;
+  const dispatch = useAppDispatch();
 
   const actionButtons: ActionButton[] = [
     {
@@ -46,19 +57,49 @@ const ActionButtonSection = (): JSX.Element => {
     }
   };
 
+  const handleStatusChange = (orderIds: number[], status: string) => {
+    if (dns_prefix) {
+      dispatch(
+        changeOrderStatus({
+          dns_prefix,
+          status,
+          order_ids: orderIds.map((id) => parseInt(id)),
+        })
+      );
+    }
+  };
+
+  const handleAction = (variant: ActionButton["variant"]) => {
+    if (variant === "prepare") {
+      handleStatusChange([orderId], "processing");
+    } else if (variant === "complete") {
+      handleStatusChange([orderId], "shipped");
+    } else if (variant === "cancel") {
+      handleStatusChange([orderId], "on_hold");
+    }
+  };
+
   return (
-    <div className="flex items-center gap-3">
-      {actionButtons.map((button, index) => (
-        <Button
-          key={index}
-          variant="outline"
-          size="default"
-          className={getButtonStyles(button.variant)}
-        >
-          {button.icon}
-          <span>{t(button.translationKey)}</span>
-        </Button>
-      ))}
+    <div className="flex items-center gap-3 justify-center  mx-auto">
+      {!isLoading &&
+        actionButtons.map((button, index) => (
+          <Button
+            key={index}
+            variant="outline"
+            size="default"
+            className={getButtonStyles(button.variant)}
+            onClick={() => handleAction(button.variant)}
+            disabled={isLoading}
+          >
+            {button.icon}
+            <span>{t(button.translationKey)}</span>
+          </Button>
+        ))}
+      {isLoading && (
+        <div className="h-10">
+          <Loader size="sm" />
+        </div>
+      )}
     </div>
   );
 };

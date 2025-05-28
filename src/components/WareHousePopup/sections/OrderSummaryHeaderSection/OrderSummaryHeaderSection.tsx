@@ -56,7 +56,11 @@ const orderItems: OrderItem[] = [
   },
 ];
 
-const OrderSummaryHeaderSection = (): JSX.Element => {
+const OrderSummaryHeaderSection = ({
+  products,
+}: {
+  products: any;
+}): JSX.Element => {
   const { t } = useTranslation();
 
   const tableHeaders = [
@@ -66,6 +70,13 @@ const OrderSummaryHeaderSection = (): JSX.Element => {
     t("cart.table.quantity"),
     t("cart.table.total"),
   ];
+  products = products.map((product: any) => ({
+    product: product.product_name,
+    reference: product.product_id,
+    unitPrice: product.product_price || product.price_of_pack,
+    quantity: product.quantity,
+    total: (product.product_price || product.price_of_pack) * product.quantity,
+  }));
 
   return (
     <section className="flex flex-col gap-2.5 w-full">
@@ -73,16 +84,20 @@ const OrderSummaryHeaderSection = (): JSX.Element => {
         {t("warehouse.popup.orderSummary.title")}
       </h2>
 
-      <ScrollArea className="h-[290px] w-full">
+      <ScrollArea className="h-full w-full">
         <Table>
           <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md sticky top-0">
             <TableRow>
               {tableHeaders.map((header, index) => (
                 <TableHead
                   key={index}
-                  className={`w-[135px] h-10 text-center ${
-                    index === 4 ? "" : "whitespace-nowrap"
-                  }`}
+                  className={`h-10 ${
+                    index === 0 || index === 1
+                      ? "text-left"
+                      : index === 2 || index === 4
+                      ? "text-right"
+                      : "text-center"
+                  } ${index === 4 ? "" : "whitespace-nowrap"}`}
                 >
                   <span className="font-text-small text-1-tokens-color-modes-common-neutral-hightest">
                     {header}
@@ -92,18 +107,24 @@ const OrderSummaryHeaderSection = (): JSX.Element => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orderItems.map((item, index) => (
+            {products.map((item: any, index: number) => (
               <TableRow
                 key={index}
                 className="border-b border-primary-neutal-300"
               >
-                {Object.values(item).map((value, idx) => (
+                {Object.values(item).map((value: any, idx: number) => (
                   <TableCell
                     key={idx}
-                    className="py-[var(--2-tokens-screen-modes-common-spacing-XS)] text-center"
+                    className={`py-[var(--2-tokens-screen-modes-common-spacing-XS)] ${
+                      idx === 0 || idx === 1
+                        ? "text-left"
+                        : idx === 2 || idx === 4
+                        ? "text-right"
+                        : "text-center"
+                    }`}
                   >
                     <span className="font-text-smaller text-1-tokens-color-modes-common-neutral-hightest whitespace-nowrap">
-                      {value}
+                      {idx === 2 || idx === 4 ? `€${value}` : value}
                     </span>
                   </TableCell>
                 ))}

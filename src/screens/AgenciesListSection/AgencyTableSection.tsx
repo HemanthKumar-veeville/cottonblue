@@ -157,13 +157,6 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
   };
 
   const handleToggleActive = (agencyId: number, currentStatus: boolean) => {
-    // TODO: Implement toggle active status
-    console.log(
-      "Toggle active status for agency:",
-      agencyId,
-      "to:",
-      !currentStatus
-    );
     setActiveDropdown(null);
   };
 

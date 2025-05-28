@@ -110,7 +110,6 @@ export const ClientTableSection = ({
 
   // Handle actions
   const handleViewDetails = (dnsPrefix: string) => {
-    console.log("View details for client:", dnsPrefix);
     navigate(`/customers/${dnsPrefix}`);
     setActiveDropdown(null);
   };
@@ -121,13 +120,6 @@ export const ClientTableSection = ({
   };
 
   const handleToggleActive = (clientId: number, currentStatus: boolean) => {
-    // TODO: Implement toggle active status
-    console.log(
-      "Toggle active status for client:",
-      clientId,
-      "to:",
-      !currentStatus
-    );
     setActiveDropdown(null);
   };
 

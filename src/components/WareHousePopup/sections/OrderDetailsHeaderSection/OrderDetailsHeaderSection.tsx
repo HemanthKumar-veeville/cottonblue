@@ -31,7 +31,11 @@ const DetailItem: React.FC<{
   </div>
 );
 
-export default function OrderDetailsHeaderSection(): JSX.Element {
+export default function OrderDetailsHeaderSection({
+  order,
+}: {
+  order: any;
+}): JSX.Element {
   const { t } = useTranslation();
 
   return (
@@ -41,15 +45,15 @@ export default function OrderDetailsHeaderSection(): JSX.Element {
           <dl className="text-base font-normal">
             <DetailItem
               label={t("warehouse.popup.orderInfo.date")}
-              value={orderDetails.date}
+              value={order?.created_at}
             />
             <DetailItem
               label={t("warehouse.popup.orderInfo.customer")}
-              value={orderDetails.client}
+              value={order?.company_dns_prefix}
             />
             <DetailItem
               label={t("warehouse.popup.orderInfo.status")}
-              value={orderDetails.status}
+              value={order?.order_status}
               isStatus
             />
           </dl>

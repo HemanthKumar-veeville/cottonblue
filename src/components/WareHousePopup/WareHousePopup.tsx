@@ -16,6 +16,8 @@ interface PopupOrderProps {
   orderId: number;
   onClose: () => void;
   open: boolean;
+  order: any;
+  isLoading?: boolean;
 }
 
 const CloseButton = ({ onClose }: { onClose: () => void }) => (
@@ -50,6 +52,8 @@ export const PopupOrder = ({
   orderId,
   onClose,
   open,
+  order,
+  isLoading = false,
 }: PopupOrderProps): JSX.Element => {
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
@@ -58,11 +62,13 @@ export const PopupOrder = ({
         data-model-id="3548:17449"
       >
         <PopupOrderHeader orderId={orderId} onClose={onClose} />
-        <OrderDetailsHeaderSection />
+        <OrderDetailsHeaderSection order={order} />
         <Separator className="bg-gray-200" />
-        <OrderSummaryHeaderSection />
+        <OrderSummaryHeaderSection products={order?.order_items} />
         <Separator className="bg-gray-200" />
-        <ActionButtonSection />
+        <div className="flex justify-end">
+          <ActionButtonSection orderId={orderId} isLoading={isLoading} />
+        </div>
       </DialogContent>
     </Dialog>
   );

@@ -116,13 +116,6 @@ export const ProductTableSection = (): JSX.Element => {
   };
 
   const handleToggleActive = (productId: number, currentStatus: boolean) => {
-    // TODO: Implement toggle active status
-    console.log(
-      "Toggle active status for product:",
-      productId,
-      "to:",
-      !currentStatus
-    );
     setActiveDropdown(null);
   };
 
