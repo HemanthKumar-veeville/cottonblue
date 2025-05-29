@@ -4,6 +4,7 @@ import {
   XIcon,
   PackageIcon,
   TruckIcon,
+  XCircleIcon,
 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
@@ -81,6 +82,20 @@ export const WarehouseListSection = ({
     }
   };
 
+  const handleCancelOrders = (orderIds: number[]) => {
+    if (dns_prefix) {
+      dispatch(
+        changeOrderStatus({
+          dns_prefix,
+          status: "on_hold",
+          order_ids: orderIds.map((id) => parseInt(id)),
+        })
+      );
+      onSelectedOrdersChange([]);
+      setSelectedOrders([]);
+    }
+  };
+
   return (
     <section className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
       <header>
@@ -139,6 +154,24 @@ export const WarehouseListSection = ({
             >
               <TruckIcon className="h-4 w-4" />
               <span>Ship</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="default"
+              disabled={selectedOrders.length === 0}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
+                selectedOrders.length === 0
+                  ? "text-red-400 border-red-200 bg-red-50 cursor-not-allowed opacity-75"
+                  : "text-red-600 border-red-600 hover:bg-red-50 hover:text-red-600"
+              }`}
+              onClick={() => {
+                if (selectedOrders.length > 0) {
+                  handleCancelOrders(selectedOrders);
+                }
+              }}
+            >
+              <XCircleIcon className="h-4 w-4" />
+              <span>Cancel</span>
             </Button>
           </div>
         </div>
