@@ -47,7 +47,6 @@ const initialFormData = {
     text: "#ffffff",
   },
   location: {
-    category: "Agency",
     postalCode: "",
     city: "",
     address: "",
@@ -460,7 +459,6 @@ const ClientForm = () => {
       text: prefillData.text_color_code || "#ffffff",
     },
     location: {
-      category: prefillData.category || "Agency",
       postalCode: prefillData.postal_code || "",
       city: prefillData.city || "",
       address: prefillData.address || "",
@@ -656,10 +654,6 @@ const ClientForm = () => {
     // Validate required fields
     const requiredFields = [
       { value: formData.name, name: t("addClient.fields.client") },
-      {
-        value: formData.location.category,
-        name: t("addClient.fields.clientCategory"),
-      },
       { value: formData.location.city, name: t("addClient.fields.city") },
       { value: formData.location.address, name: t("addClient.fields.address") },
       {
@@ -995,39 +989,6 @@ const ClientForm = () => {
                   <p className="font-text-medium text-[16px] leading-[24px] text-[#475569]">
                     {t("addClient.fields.locationDescription")}
                   </p>
-                </div>
-
-                <div className="relative w-full">
-                  <Select
-                    value={formData.location.category}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        location: { ...prev.location, category: value },
-                      }))
-                    }
-                    required
-                  >
-                    <SelectTrigger
-                      className={cn(
-                        "w-full font-label-medium",
-                        "pt-4 pr-3 pb-2 pl-3 border-gray-300 min-h-[3.25rem]"
-                      )}
-                    >
-                      <SelectValue
-                        placeholder={t("addClient.fields.clientCategory")}
-                      />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Agency">Agency</SelectItem>
-                      <SelectItem value="Corporate">Corporate</SelectItem>
-                      <SelectItem value="Individual">Individual</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
-                    {t("addClient.fields.clientCategory")}
-                    <span className="text-red-500 ml-1">*</span>
-                  </span>
                 </div>
 
                 <div className="flex flex-col gap-6">
