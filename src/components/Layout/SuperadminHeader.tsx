@@ -119,7 +119,7 @@ export const SuperadminHeader = (): JSX.Element => {
     })
   );
   const pathname = useLocation().pathname;
-  console.log(pathname);
+
   const companyList =
     companies?.companies?.map((company) => ({
       id: company.id,

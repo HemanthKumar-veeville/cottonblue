@@ -46,6 +46,8 @@ interface Order {
   created_at: string;
   order_status:
     | "approval_pending"
+    | "on_hold"
+    | "processing"
     | "confirmed"
     | "refused"
     | "shipped"
@@ -84,6 +86,8 @@ const DownloadButton = ({
 const StatusText = ({ status, type }: { status: string; type: string }) => {
   const textColorClassMap: { [key: string]: string } = {
     approval_pending: "text-1-tokens-color-modes-common-warning-medium",
+    on_hold: "text-1-tokens-color-modes-common-warning-medium",
+    processing: "text-1-tokens-color-modes-common-warning-medium",
     confirmed: "text-1-tokens-color-modes-common-success-medium",
     refused: "text-1-tokens-color-modes-common-danger-medium",
     shipped: "text-1-tokens-color-modes-common-success-medium",
@@ -189,6 +193,8 @@ const OrderRow = ({
     // Status with color coding
     const statusColors = {
       approval_pending: [255, 170, 0],
+      on_hold: [255, 170, 0],
+      processing: [255, 170, 0],
       confirmed: [0, 150, 0],
       refused: [200, 0, 0],
       shipped: [0, 150, 0],
@@ -324,6 +330,8 @@ const OrderRow = ({
   const statusIcon: Record<Order["order_status"] | "default", StatusIconType> =
     {
       approval_pending: "warning",
+      on_hold: "warning",
+      processing: "warning",
       confirmed: "success",
       refused: "danger",
       shipped: "success",
@@ -406,7 +414,7 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
   const itemsPerPage = 10; // You can adjust this value as needed
 
   const orderList = orders ?? [];
-
+  console.log({ orderList });
   // Filter orders based on search query
   const filteredOrders = useMemo(() => {
     return orderList.filter((order: Order) => {
