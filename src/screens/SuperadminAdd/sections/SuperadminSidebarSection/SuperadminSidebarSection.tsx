@@ -122,6 +122,11 @@ export const SuperadminSidebarSection = ({
           label: t("sidebar.dashboard"),
           path: "/dashboard",
         },
+        {
+          icon: <PackageIcon className="w-4 h-4" />,
+          label: t("sidebar.warehouse.title"),
+          path: "/warehouse",
+        },
       ],
     },
     {
