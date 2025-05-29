@@ -135,7 +135,7 @@ export const WarehouseListSection = ({
               }}
             >
               <PackageIcon className="h-4 w-4" />
-              <span>Process</span>
+              <span>{t("warehouse.popup.actions.prepare")}</span>
             </Button>
             <Button
               variant="outline"
@@ -153,7 +153,7 @@ export const WarehouseListSection = ({
               }}
             >
               <TruckIcon className="h-4 w-4" />
-              <span>Ship</span>
+              <span>{t("warehouse.popup.actions.complete")}</span>
             </Button>
             <Button
               variant="outline"
@@ -171,7 +171,7 @@ export const WarehouseListSection = ({
               }}
             >
               <XCircleIcon className="h-4 w-4" />
-              <span>Cancel</span>
+              <span>{t("warehouse.popup.actions.cancel")}</span>
             </Button>
           </div>
         </div>
