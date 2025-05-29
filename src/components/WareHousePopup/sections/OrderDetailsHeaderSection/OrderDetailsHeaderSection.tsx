@@ -14,6 +14,14 @@ const orderDetails: OrderDetails = {
   status: "En attente",
 };
 
+// Format status function
+const formatStatus = (status: string) => {
+  return status
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+};
+
 const DetailItem: React.FC<{
   label: string;
   value: string;
@@ -26,7 +34,7 @@ const DetailItem: React.FC<{
         isStatus ? "font-bold text-orange-500" : "text-[#1e2324]"
       }`}
     >
-      {value}
+      {isStatus ? formatStatus(value) : value}
     </dd>
   </div>
 );

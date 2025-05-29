@@ -177,6 +177,14 @@ export const WarehouseTableSection = ({
     return date.toLocaleDateString();
   };
 
+  // Format status function
+  const formatStatus = (status: string) => {
+    return status
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
   // Generate pagination items
   const paginationItems = useMemo(() => {
     const items = [];
@@ -338,7 +346,7 @@ export const WarehouseTableSection = ({
                                 : "bg-orange-50 text-orange-700 hover:bg-orange-100"
                             } cursor-pointer`}
                           >
-                            {order.order_status}
+                            {formatStatus(order.order_status)}
                           </button>
                         </div>
                       </TableCell>

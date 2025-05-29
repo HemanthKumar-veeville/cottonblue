@@ -81,25 +81,19 @@ const ActionButtonSection = ({
 
   return (
     <div className="flex items-center gap-3 justify-center  mx-auto">
-      {!isLoading &&
-        actionButtons.map((button, index) => (
-          <Button
-            key={index}
-            variant="outline"
-            size="default"
-            className={getButtonStyles(button.variant)}
-            onClick={() => handleAction(button.variant)}
-            disabled={isLoading}
-          >
-            {button.icon}
-            <span>{t(button.translationKey)}</span>
-          </Button>
-        ))}
-      {isLoading && (
-        <div className="h-10">
-          <Loader size="sm" />
-        </div>
-      )}
+      {actionButtons.map((button, index) => (
+        <Button
+          key={index}
+          variant="outline"
+          size="default"
+          className={getButtonStyles(button.variant)}
+          onClick={() => handleAction(button.variant)}
+          disabled={isLoading}
+        >
+          {button.icon}
+          <span>{t(button.translationKey)}</span>
+        </Button>
+      ))}
     </div>
   );
 };
