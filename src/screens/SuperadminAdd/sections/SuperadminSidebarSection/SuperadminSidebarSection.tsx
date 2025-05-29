@@ -165,6 +165,11 @@ export const SuperadminSidebarSection = ({
           path: "/client-dashboard",
         },
         {
+          icon: <PackageIcon className="w-4 h-4" />,
+          label: t("sidebar.warehouse.title"),
+          path: "/warehouse",
+        },
+        {
           icon: <FileTextIcon className="w-4 h-4" />,
           label: t("sidebar.orderHistory"),
           path: "/order-history",

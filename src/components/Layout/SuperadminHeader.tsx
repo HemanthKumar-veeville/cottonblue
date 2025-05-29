@@ -15,7 +15,7 @@ import {
 } from "../../store/features/clientSlice";
 import { useAppSelector } from "../../store/store";
 import { fetchAllStores } from "../../store/features/agencySlice";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { resetDashboard } from "../../store/features/dashboardSlice";
 import { setAdminMode } from "../../store/features/authSlice";
 import { isWarehouseHostname } from "../../utils/hostUtils";
@@ -118,7 +118,8 @@ export const SuperadminHeader = (): JSX.Element => {
       name: store.name,
     })
   );
-
+  const pathname = useLocation().pathname;
+  console.log(pathname);
   const companyList =
     companies?.companies?.map((company) => ({
       id: company.id,
@@ -140,7 +141,7 @@ export const SuperadminHeader = (): JSX.Element => {
     }));
     setTabs(newTabs);
     setIsAdminMode(tabId === 1);
-    if (!isWarehouseHostname()) {
+    if (!isWarehouseHostname() && pathname !== "/warehouse") {
       tabId === 1 ? navigate("/dashboard") : navigate("/client-dashboard");
     }
     tabId === 1 ? dispatch(setAdminMode(true)) : dispatch(setAdminMode(false));
