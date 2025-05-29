@@ -11,6 +11,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "../../components/Skeleton";
 import { cn } from "../../lib/utils";
+import { isWarehouseHostname } from "../../utils/hostUtils";
 const ProductHeader = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -167,6 +168,11 @@ const ProductActions = () => {
   const { selectedCompany } = useAppSelector((state) => state.client);
   const { currentProduct } = useAppSelector((state) => state.product);
   const isActive = currentProduct?.product?.is_active;
+  const isWarehouse = isWarehouseHostname();
+
+  if (isWarehouse) {
+    return null;
+  }
 
   const handleEdit = () => {
     navigate(`/products/edit/${id}`);

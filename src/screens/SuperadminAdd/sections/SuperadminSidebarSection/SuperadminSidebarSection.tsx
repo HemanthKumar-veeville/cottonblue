@@ -242,6 +242,11 @@ export const SuperadminSidebarSection = ({
           label: t("sidebar.dashboard"),
           path: "/warehouse",
         },
+        {
+          icon: <BookOpenIcon className="w-4 h-4" />,
+          label: t("sidebar.products.list"),
+          path: "/products",
+        },
       ],
     },
   ];

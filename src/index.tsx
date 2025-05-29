@@ -98,6 +98,8 @@ function App() {
             <Route path="/" element={<SuperadminLayout />}>
               <Route index element={<Navigate to="/warehouse" replace />} />
               <Route path="warehouse" element={<Warehouse />} />
+              <Route path="products" element={<ProductList />} />
+              <Route path="products/:id" element={<ProductDetails />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           ) : (

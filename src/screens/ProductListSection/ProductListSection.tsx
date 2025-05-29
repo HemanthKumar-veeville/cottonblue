@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { useState, useEffect } from "react";
 import ImportCSVModal from "../../components/ImportCSVModal/ImportCSVModal";
 import { ExportCSV } from "../../components/ExportCSV/ExportCSV";
-import { useAppDispatch, useAppSelector } from "../../store/store";
+import { RootState, useAppDispatch, useAppSelector } from "../../store/store";
 import {
   createProduct,
   fetchAllProducts,
@@ -13,8 +13,13 @@ import {
 import { useNavigate } from "react-router-dom";
 import type { Product } from "../../store/features/productSlice";
 import { toast } from "sonner";
+import { useSelector } from "react-redux";
 
-export const ProductListSection = (): JSX.Element => {
+export const ProductListSection = ({
+  isWarehouse,
+}: {
+  isWarehouse: boolean;
+}): JSX.Element => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -25,14 +30,16 @@ export const ProductListSection = (): JSX.Element => {
   // Get products from Redux store
   const { products, loading, error } = useAppSelector((state) => state.product);
   const { selectedCompany } = useAppSelector((state) => state.client);
-  const productList = products?.products || [];
+  const { adminMode } = useSelector((state: RootState) => state.auth);
 
+  const productList = products?.products || [];
+  const dnsPrefix = adminMode ? "admin" : selectedCompany?.dns || "admin";
   // Fetch products on component mount
   useEffect(() => {
-    if (selectedCompany?.dns) {
-      dispatch(fetchAllProducts(selectedCompany?.dns));
+    if (dnsPrefix) {
+      dispatch(fetchAllProducts(dnsPrefix));
     }
-  }, [dispatch, selectedCompany?.dns]);
+  }, [dispatch, dnsPrefix]);
 
   const handleImport = async (file: File) => {
     try {
@@ -42,7 +49,7 @@ export const ProductListSection = (): JSX.Element => {
       // Dispatch create product action
       const resultAction = await dispatch(
         createProduct({
-          dnsPrefix: selectedCompany!.dns,
+          dnsPrefix: dnsPrefix,
           data: formData as any,
         }) as any
       );
@@ -57,7 +64,7 @@ export const ProductListSection = (): JSX.Element => {
       }
 
       // Refresh products list after successful import
-      dispatch(fetchAllProducts(selectedCompany?.dns || ""));
+      dispatch(fetchAllProducts(dnsPrefix));
     } catch (error) {
       console.error("Error importing CSV:", error);
       throw error;
@@ -89,39 +96,41 @@ export const ProductListSection = (): JSX.Element => {
           </div>
         </div>
 
-        <div className="flex items-center gap-[var(--2-tokens-screen-modes-common-spacing-m)]">
-          <Button
-            className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[#07515f] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)]"
-            onClick={handleCreateProduct}
-          >
-            <PlusIcon className="w-6 h-6" />
-            <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] [font-style:var(--label-smaller-font-style)]">
-              {t("productList.actions.create")}
-            </span>
-          </Button>
+        {!isWarehouse && (
+          <div className="flex items-center gap-[var(--2-tokens-screen-modes-common-spacing-m)]">
+            <Button
+              className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[#07515f] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)]"
+              onClick={handleCreateProduct}
+            >
+              <PlusIcon className="w-6 h-6" />
+              <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] [font-style:var(--label-smaller-font-style)]">
+                {t("productList.actions.create")}
+              </span>
+            </Button>
 
-          <Button
-            variant="outline"
-            className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
-            onClick={() => setIsImportModalOpen(true)}
-          >
-            <DownloadIcon className="w-6 h-6 text-[color:var(--1-tokens-color-modes-button-secondary-default-icon)]" />
-            <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] [font-style:var(--label-smaller-font-style)]">
-              {t("productList.actions.importCsv")}
-            </span>
-          </Button>
+            <Button
+              variant="outline"
+              className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
+              onClick={() => setIsImportModalOpen(true)}
+            >
+              <DownloadIcon className="w-6 h-6 text-[color:var(--1-tokens-color-modes-button-secondary-default-icon)]" />
+              <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] [font-style:var(--label-smaller-font-style)]">
+                {t("productList.actions.importCsv")}
+              </span>
+            </Button>
 
-          <Button
-            variant="outline"
-            className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
-            onClick={() => setIsExportModalOpen(true)}
-          >
-            <UploadIcon className="w-6 h-6 text-[color:var(--1-tokens-color-modes-button-secondary-default-icon)]" />
-            <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] [font-style:var(--label-smaller-font-style)]">
-              {t("productList.actions.exportCsv")}
-            </span>
-          </Button>
-        </div>
+            <Button
+              variant="outline"
+              className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
+              onClick={() => setIsExportModalOpen(true)}
+            >
+              <UploadIcon className="w-6 h-6 text-[color:var(--1-tokens-color-modes-button-secondary-default-icon)]" />
+              <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] [font-style:var(--label-smaller-font-style)]">
+                {t("productList.actions.exportCsv")}
+              </span>
+            </Button>
+          </div>
+        )}
       </div>
 
       <ImportCSVModal
