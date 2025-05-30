@@ -100,6 +100,7 @@ function App() {
               <Route path="warehouse" element={<Warehouse />} />
               <Route path="products" element={<ProductList />} />
               <Route path="products/:id" element={<ProductDetails />} />
+              <Route path="support" element={<ClientSupport />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           ) : (

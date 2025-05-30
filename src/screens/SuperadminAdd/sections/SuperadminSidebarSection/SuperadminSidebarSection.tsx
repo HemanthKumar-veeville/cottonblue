@@ -249,6 +249,16 @@ export const SuperadminSidebarSection = ({
         },
       ],
     },
+    {
+      title: t("sidebar.support.title"),
+      items: [
+        {
+          icon: <MessageSquareIcon className="w-4 h-4" />,
+          label: t("sidebar.support.tickets"),
+          path: "/support",
+        },
+      ],
+    },
   ];
 
   const superadminFooterNavItems: NavItem[] = [
