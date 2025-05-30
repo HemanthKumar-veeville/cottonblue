@@ -8,10 +8,20 @@ interface OrderDetails {
   status: string;
 }
 
-const orderDetails: OrderDetails = {
-  date: "18/05/2025",
-  client: "Sophie Martin",
-  status: "En attente",
+// Format date function
+const formatDate = (dateString: string) => {
+  if (!dateString) return "N/A";
+
+  try {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat("fr-FR", {
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(date);
+  } catch (error) {
+    return "Invalid Date";
+  }
 };
 
 // Format status function
@@ -26,7 +36,8 @@ const DetailItem: React.FC<{
   label: string;
   value: string;
   isStatus?: boolean;
-}> = ({ label, value, isStatus }) => (
+  isDate?: boolean;
+}> = ({ label, value, isStatus, isDate }) => (
   <div className="mb-2">
     <dt className="inline font-bold text-[#1e2324]">{label} : </dt>
     <dd
@@ -34,7 +45,7 @@ const DetailItem: React.FC<{
         isStatus ? "font-bold text-orange-500" : "text-[#1e2324]"
       }`}
     >
-      {isStatus ? formatStatus(value) : value}
+      {isStatus ? formatStatus(value) : isDate ? formatDate(value) : value}
     </dd>
   </div>
 );
@@ -54,6 +65,7 @@ export default function OrderDetailsHeaderSection({
             <DetailItem
               label={t("warehouse.popup.orderInfo.date")}
               value={order?.created_at}
+              isDate
             />
             <DetailItem
               label={t("warehouse.popup.orderInfo.customer")}

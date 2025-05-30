@@ -84,55 +84,80 @@ const OrderSummaryHeaderSection = ({
         {t("warehouse.popup.orderSummary.title")}
       </h2>
 
-      <ScrollArea className="h-full w-full">
-        <Table>
-          <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md sticky top-0">
-            <TableRow>
-              {tableHeaders.map((header, index) => (
-                <TableHead
-                  key={index}
-                  className={`h-10 ${
-                    index === 0 || index === 1
-                      ? "text-left"
-                      : index === 2 || index === 4
-                      ? "text-right"
-                      : "text-center"
-                  } ${index === 4 ? "" : "whitespace-nowrap"}`}
-                >
+      <div className="relative w-full rounded-md border">
+        <div className="sticky top-0 z-10 bg-1-tokens-color-modes-common-primary-brand-lower rounded-t-md">
+          <Table className="w-full table-fixed">
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-[30%] h-10 text-left whitespace-nowrap">
                   <span className="font-text-small text-1-tokens-color-modes-common-neutral-hightest">
-                    {header}
+                    {tableHeaders[0]}
                   </span>
                 </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {products.map((item: any, index: number) => (
-              <TableRow
-                key={index}
-                className="border-b border-primary-neutal-300"
-              >
-                {Object.values(item).map((value: any, idx: number) => (
-                  <TableCell
-                    key={idx}
-                    className={`py-[var(--2-tokens-screen-modes-common-spacing-XS)] ${
-                      idx === 0 || idx === 1
-                        ? "text-left"
-                        : idx === 2 || idx === 4
-                        ? "text-right"
-                        : "text-center"
-                    }`}
-                  >
+                <TableHead className="w-[20%] h-10 text-left whitespace-nowrap">
+                  <span className="font-text-small text-1-tokens-color-modes-common-neutral-hightest">
+                    {tableHeaders[1]}
+                  </span>
+                </TableHead>
+                <TableHead className="w-[20%] h-10 text-right whitespace-nowrap">
+                  <span className="font-text-small text-1-tokens-color-modes-common-neutral-hightest">
+                    {tableHeaders[2]}
+                  </span>
+                </TableHead>
+                <TableHead className="w-[15%] h-10 text-center whitespace-nowrap">
+                  <span className="font-text-small text-1-tokens-color-modes-common-neutral-hightest">
+                    {tableHeaders[3]}
+                  </span>
+                </TableHead>
+                <TableHead className="w-[15%] h-10 text-right">
+                  <span className="font-text-small text-1-tokens-color-modes-common-neutral-hightest">
+                    {tableHeaders[4]}
+                  </span>
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+          </Table>
+        </div>
+
+        <div className="max-h-[200px] h-full overflow-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+          <Table className="w-full table-fixed">
+            <TableBody>
+              {products.map((item: any, index: number) => (
+                <TableRow
+                  key={index}
+                  className="border-b border-primary-neutal-300"
+                >
+                  <TableCell className="w-[30%] py-[var(--2-tokens-screen-modes-common-spacing-XS)] text-left">
                     <span className="font-text-smaller text-1-tokens-color-modes-common-neutral-hightest whitespace-nowrap">
-                      {idx === 2 || idx === 4 ? `€${value}` : value}
+                      {item.product}
                     </span>
                   </TableCell>
-                ))}
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </ScrollArea>
+                  <TableCell className="w-[20%] py-[var(--2-tokens-screen-modes-common-spacing-XS)] text-left">
+                    <span className="font-text-smaller text-1-tokens-color-modes-common-neutral-hightest whitespace-nowrap">
+                      {item.reference}
+                    </span>
+                  </TableCell>
+                  <TableCell className="w-[20%] py-[var(--2-tokens-screen-modes-common-spacing-XS)] text-right">
+                    <span className="font-text-smaller text-1-tokens-color-modes-common-neutral-hightest whitespace-nowrap">
+                      €{item.unitPrice}
+                    </span>
+                  </TableCell>
+                  <TableCell className="w-[15%] py-[var(--2-tokens-screen-modes-common-spacing-XS)] text-center">
+                    <span className="font-text-smaller text-1-tokens-color-modes-common-neutral-hightest whitespace-nowrap">
+                      {item.quantity}
+                    </span>
+                  </TableCell>
+                  <TableCell className="w-[15%] py-[var(--2-tokens-screen-modes-common-spacing-XS)] text-right">
+                    <span className="font-text-smaller text-1-tokens-color-modes-common-neutral-hightest whitespace-nowrap">
+                      €{item.total}
+                    </span>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
     </section>
   );
 };
