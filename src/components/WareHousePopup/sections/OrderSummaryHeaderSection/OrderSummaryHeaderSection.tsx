@@ -64,6 +64,7 @@ const OrderSummaryHeaderSection = ({
   const { t } = useTranslation();
 
   const tableHeaders = [
+    "#",
     t("cart.table.product"),
     t("productList.table.sku"),
     t("cart.table.unitPrice"),
@@ -89,29 +90,34 @@ const OrderSummaryHeaderSection = ({
           <Table className="w-full table-fixed">
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[30%] h-10 text-left whitespace-nowrap">
+                <TableHead className="w-[5%] h-10 text-center whitespace-nowrap">
                   <span className="font-text-small text-1-tokens-color-modes-common-neutral-hightest">
                     {tableHeaders[0]}
                   </span>
                 </TableHead>
-                <TableHead className="w-[20%] h-10 text-left whitespace-nowrap">
+                <TableHead className="w-[25%] h-10 text-left whitespace-nowrap">
                   <span className="font-text-small text-1-tokens-color-modes-common-neutral-hightest">
                     {tableHeaders[1]}
                   </span>
                 </TableHead>
-                <TableHead className="w-[20%] h-10 text-right whitespace-nowrap">
+                <TableHead className="w-[20%] h-10 text-left whitespace-nowrap">
                   <span className="font-text-small text-1-tokens-color-modes-common-neutral-hightest">
                     {tableHeaders[2]}
                   </span>
                 </TableHead>
-                <TableHead className="w-[15%] h-10 text-center whitespace-nowrap">
+                <TableHead className="w-[20%] h-10 text-right whitespace-nowrap">
                   <span className="font-text-small text-1-tokens-color-modes-common-neutral-hightest">
                     {tableHeaders[3]}
                   </span>
                 </TableHead>
-                <TableHead className="w-[15%] h-10 text-right">
+                <TableHead className="w-[15%] h-10 text-center whitespace-nowrap">
                   <span className="font-text-small text-1-tokens-color-modes-common-neutral-hightest">
                     {tableHeaders[4]}
+                  </span>
+                </TableHead>
+                <TableHead className="w-[15%] h-10 text-right">
+                  <span className="font-text-small text-1-tokens-color-modes-common-neutral-hightest">
+                    {tableHeaders[5]}
                   </span>
                 </TableHead>
               </TableRow>
@@ -127,7 +133,12 @@ const OrderSummaryHeaderSection = ({
                   key={index}
                   className="border-b border-primary-neutal-300"
                 >
-                  <TableCell className="w-[30%] py-[var(--2-tokens-screen-modes-common-spacing-XS)] text-left">
+                  <TableCell className="w-[5%] py-[var(--2-tokens-screen-modes-common-spacing-XS)] text-center">
+                    <span className="font-text-smaller text-1-tokens-color-modes-common-neutral-hightest whitespace-nowrap">
+                      {index + 1}
+                    </span>
+                  </TableCell>
+                  <TableCell className="w-[25%] py-[var(--2-tokens-screen-modes-common-spacing-XS)] text-left">
                     <span className="font-text-smaller text-1-tokens-color-modes-common-neutral-hightest whitespace-nowrap">
                       {item.product}
                     </span>
