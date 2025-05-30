@@ -1,4 +1,6 @@
 import { Card, CardContent } from "../../components/ui/card";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 
 const budgetData = {
   title: "Budget du mois",
@@ -43,6 +45,13 @@ const BudgetSection = ({
 );
 
 export default function Content(): JSX.Element {
+  const { summary } = useSelector((state: RootState) => state.dashboard);
+  const dashboardData = summary?.dashboard_data;
+  const current_month_orders = dashboardData?.current_month_orders || "-";
+  const monthly_budget_limit = dashboardData?.monthly_budget_limit || "-";
+  const current_month_amount = dashboardData?.current_month_amount || "-";
+  const monthly_order_limit = dashboardData?.monthly_order_limit || "-";
+
   return (
     <Card className="p-4 shadow-shadow rounded-lg">
       <div className="flex flex-col gap-4 w-full">
@@ -55,14 +64,14 @@ export default function Content(): JSX.Element {
         <div className="flex gap-2 w-full">
           <BudgetSection
             label={budgetData.expenses.label}
-            current={budgetData.expenses.current}
-            total={budgetData.expenses.total}
+            current={current_month_amount}
+            total={monthly_budget_limit}
             textColor="text-emerald-500"
           />
           <BudgetSection
             label={budgetData.orders.label}
-            current={budgetData.orders.current}
-            total={budgetData.orders.total}
+            current={current_month_orders}
+            total={monthly_order_limit}
             textColor="text-red-500"
           />
         </div>
