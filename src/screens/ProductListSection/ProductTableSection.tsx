@@ -186,9 +186,11 @@ export const ProductTableSection = ({
                   <TableHead className="w-[175px] text-left text-[#1e2324] font-text-small">
                     {t("productList.table.availablePacks")}
                   </TableHead>
-                  <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
-                    {t("productList.table.priceOfPack")}
-                  </TableHead>
+                  {!isWarehouse && (
+                    <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                      {t("productList.table.priceOfPack")}
+                    </TableHead>
+                  )}
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
                     {t("productList.table.status")}
                   </TableHead>
@@ -257,11 +259,13 @@ export const ProductTableSection = ({
                         ? `${product.available_packs}`
                         : "Not available"}
                     </TableCell>
-                    <TableCell className="w-[145px] text-left font-text-smaller text-black align-middle">
-                      {product.price_of_pack
-                        ? `${product.price_of_pack}€`
-                        : "Not available"}
-                    </TableCell>
+                    {!isWarehouse && (
+                      <TableCell className="w-[145px] text-left font-text-smaller text-black align-middle">
+                        {product.price_of_pack
+                          ? `${product.price_of_pack}€`
+                          : "Not available"}
+                      </TableCell>
+                    )}
                     <TableCell className="w-[145px] text-left font-text-smaller text-black align-middle">
                       <Badge
                         variant={product.is_active ? "active" : "inactive"}

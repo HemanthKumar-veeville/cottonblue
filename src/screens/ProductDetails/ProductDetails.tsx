@@ -55,6 +55,7 @@ const ProductInfo = ({ product }: { product: Product }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const { selectedCompany } = useAppSelector((state) => state.client);
+  const isWarehouse = isWarehouseHostname();
   const availableSizes = [
     ...product?.linked_products,
     { size: product?.size },
@@ -70,13 +71,17 @@ const ProductInfo = ({ product }: { product: Product }) => {
       label: t("productDetails.info.suitableFor"),
       value: product?.suitable_for ?? "Not Available",
     },
-    {
-      label: t("productDetails.info.price"),
-      value: product?.price_of_pack
-        ? `${product.price_of_pack}€`
-        : "Not Available",
-      isPrice: true,
-    },
+    ...(isWarehouse
+      ? []
+      : [
+          {
+            label: t("productDetails.info.price"),
+            value: product?.price_of_pack
+              ? `${product.price_of_pack}€`
+              : "Not Available",
+            isPrice: true,
+          },
+        ]),
     {
       label: t("productDetails.info.availableStock"),
       value: product?.available_packs?.toString() ?? "Not Available",
