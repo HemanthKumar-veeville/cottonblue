@@ -20,14 +20,17 @@ import {
 } from "../../components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useState, useMemo, useEffect, useRef } from "react";
-import { useAppSelector } from "../../store/store";
+import { useAppSelector, useAppDispatch } from "../../store/store";
 import type { Product } from "../../store/features/productSlice";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
 import { Boxes, Package, MoreVertical, Eye, Edit, Power } from "lucide-react";
-
+import {
+  fetchAllProducts,
+  updateProduct,
+} from "../../store/features/productSlice";
 export const ProductTableSection = ({
   isWarehouse,
 }: {
@@ -44,11 +47,12 @@ export const ProductTableSection = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>({});
-
+  const dispatch = useAppDispatch();
   const ITEMS_PER_PAGE = 25;
 
   // Calculate total pages
   const totalPages = Math.ceil(productList.length / ITEMS_PER_PAGE);
+  const { selectedCompany } = useAppSelector((state) => state.client);
 
   // Get current page products
   const currentProducts = useMemo(() => {
@@ -115,12 +119,24 @@ export const ProductTableSection = ({
   };
 
   const handleEdit = (productId: number) => {
-    navigate(`/products/${productId}/edit`);
+    navigate(`/products/edit/${productId}`);
     setActiveDropdown(null);
   };
 
-  const handleToggleActive = (productId: number, currentStatus: boolean) => {
-    setActiveDropdown(null);
+  const handleToggleActive = async (product: any) => {
+    if (product.id && selectedCompany?.dns) {
+      await dispatch(
+        updateProduct({
+          dnsPrefix: selectedCompany.dns,
+          productId: product.id,
+          data: {
+            is_active: !product.is_active,
+          },
+        })
+      ).unwrap();
+      dispatch(fetchAllProducts(selectedCompany?.dns));
+      setActiveDropdown(null);
+    }
   };
 
   // Generate pagination items
@@ -371,10 +387,7 @@ export const ProductTableSection = ({
                                   }`}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleToggleActive(
-                                      product.id,
-                                      product.is_active
-                                    );
+                                    handleToggleActive(product);
                                   }}
                                   role="menuitem"
                                 >

@@ -25,7 +25,12 @@ import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
 import { Users, MoreVertical, Eye, Edit, Power } from "lucide-react";
 import { Dialog, DialogContent } from "../../components/ui/dialog";
-
+import {
+  getCompanyByDnsPrefix,
+  getAllCompanies,
+  modifyCompany,
+} from "../../store/features/clientSlice";
+import { useAppDispatch } from "../../store/store";
 interface ClientTableSectionProps {
   companies: any[];
   loading: boolean;
@@ -70,7 +75,7 @@ export const ClientTableSection = ({
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentCompanies = filteredCompanies.slice(startIndex, endIndex);
-
+  const dispatch = useAppDispatch();
   // Handle checkbox selection
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -114,13 +119,31 @@ export const ClientTableSection = ({
     setActiveDropdown(null);
   };
 
-  const handleEdit = (clientId: number) => {
-    navigate(`/customers/${clientId}/edit`);
+  const handleEdit = async (company_name: string) => {
+    await dispatch(getCompanyByDnsPrefix(company_name));
+
+    navigate("/customers/edit");
     setActiveDropdown(null);
   };
 
-  const handleToggleActive = (clientId: number, currentStatus: boolean) => {
-    setActiveDropdown(null);
+  const handleToggleStatus = async (company: any) => {
+    if (!company) return;
+
+    try {
+      await dispatch(
+        modifyCompany({
+          dns_prefix: company.dns_prefix,
+          company_id: company.id,
+          data: {
+            is_active: !company.is_active,
+          },
+        })
+      ).unwrap();
+      await dispatch(getAllCompanies());
+      setActiveDropdown(null);
+    } catch (error) {
+      console.error("Failed to toggle company status:", error);
+    }
   };
 
   // Calculate dropdown position
@@ -348,7 +371,7 @@ export const ClientTableSection = ({
                                 </button>
                                 <button
                                   className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 group"
-                                  onClick={() => handleEdit(client.id)}
+                                  onClick={() => handleEdit(client.dns_prefix)}
                                   role="menuitem"
                                 >
                                   <Edit className="mr-3 h-4 w-4 text-gray-400 group-hover:text-primary-600" />
@@ -362,12 +385,7 @@ export const ClientTableSection = ({
                                       ? "text-red-600 hover:bg-red-50"
                                       : "text-green-600 hover:bg-green-50"
                                   }`}
-                                  onClick={() =>
-                                    handleToggleActive(
-                                      client.id,
-                                      client.is_active
-                                    )
-                                  }
+                                  onClick={() => handleToggleStatus(client)}
                                   role="menuitem"
                                 >
                                   <Power

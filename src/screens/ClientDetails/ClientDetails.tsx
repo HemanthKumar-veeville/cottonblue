@@ -331,23 +331,7 @@ const CompanyActions = () => {
   const company = companyDetails?.company;
 
   const handleEdit = () => {
-    const prefillData = {
-      name: company?.name || "",
-      city: company?.city || "",
-      address: company?.address || "",
-      postal_code: company?.postal_code || "",
-      bg_color_code: company?.bg_color_code || "",
-      text_color_code: company?.text_color_code || "",
-      dns_prefix: company?.dns_prefix || "",
-      company_id: company?.id || "",
-      is_edit_mode: true,
-      is_active: company?.is_active || false,
-      logo: company?.logo || "",
-      phone_number: company?.phone_number || "",
-      email: company?.email || "",
-    };
-
-    navigate("/customers/edit", { state: prefillData });
+    navigate("/customers/edit");
   };
 
   const handleToggleStatus = async () => {

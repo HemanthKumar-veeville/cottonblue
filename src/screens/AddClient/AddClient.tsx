@@ -34,7 +34,7 @@ import {
   modifyCompany,
   resetState,
 } from "../../store/features/clientSlice";
-import { RootState, AppDispatch } from "../../store/store";
+import { RootState, AppDispatch, useAppSelector } from "../../store/store";
 import Loader from "../../components/Loader";
 import { useTranslation } from "react-i18next";
 
@@ -444,30 +444,29 @@ const ClientForm = () => {
     (state: RootState) => state.client
   );
   const { t } = useTranslation();
-
-  // Get prefill data from location state if it exists
-  const prefillData = location.state || {};
-  const isEditMode = prefillData.is_edit_mode || false;
+  const { companyDetails } = useAppSelector((state) => state.client);
+  const company = companyDetails?.company;
+  const isEditMode = company?.id ? true : false;
 
   // Store initial form data for comparison
   const initialFormState = {
-    name: prefillData.name || "",
-    url: prefillData.url || "",
-    logo: prefillData.logo || "",
+    name: company?.name || "",
+    url: company?.dns_prefix || "",
+    logo: company?.logo || "",
     brandColors: {
-      background: prefillData.bg_color_code || "#324b6b",
-      text: prefillData.text_color_code || "#ffffff",
+      background: company?.bg_color_code || "#324b6b",
+      text: company?.text_color_code || "#ffffff",
     },
     location: {
-      postalCode: prefillData.postal_code || "",
-      city: prefillData.city || "",
-      address: prefillData.address || "",
-      addressComment: prefillData.address || "",
+      postalCode: company?.postal_code || "",
+      city: company?.city || "",
+      address: company?.address || "",
+      addressComment: company?.address || "",
     },
     validation: {
-      email: prefillData.email || "",
-      adminMobile: prefillData.phone_number || "",
-      clientEmail: prefillData.email || "",
+      email: company?.email || "",
+      adminMobile: company?.phone_number || "",
+      clientEmail: company?.email || "",
     },
   };
 
@@ -553,10 +552,10 @@ const ClientForm = () => {
 
   // Set logo preview in edit mode
   useEffect(() => {
-    if (isEditMode && prefillData.logo) {
-      setLogoPreview(prefillData.logo);
+    if (isEditMode && company?.logo) {
+      setLogoPreview(company?.logo);
     }
-  }, [isEditMode, prefillData.logo]);
+  }, [isEditMode, company?.logo]);
 
   // Reset state when component unmounts
   useEffect(() => {
@@ -753,19 +752,19 @@ const ClientForm = () => {
 
       // Create initial data object in the same structure as clientData
       const initialClientData = {
-        company_name: prefillData.name || "",
-        company_address: prefillData.address || "",
-        city: prefillData.city || "",
-        postal_code: prefillData.postal_code || "",
-        phone_number: prefillData.phone_number || "",
-        logo: prefillData.logo || undefined,
-        bg_color_code: prefillData.bg_color_code || "",
-        text_color_code: prefillData.text_color_code || "",
-        dns_prefix: prefillData.dns_prefix || "",
-        Admin_email: prefillData.email || "",
-        Admin_mobile: prefillData.phone_number || "",
-        color_code: prefillData.bg_color_code || "",
-        email: prefillData.email || "",
+        company_name: company?.name || "",
+        company_address: company?.address || "",
+        city: company?.city || "",
+        postal_code: company?.postal_code || "",
+        phone_number: company?.phone_number || "",
+        logo: company?.logo || undefined,
+        bg_color_code: company?.bg_color_code || "",
+        text_color_code: company?.text_color_code || "",
+        dns_prefix: company?.dns_prefix || "",
+        Admin_email: company?.email || "",
+        Admin_mobile: company?.phone_number || "",
+        color_code: company?.bg_color_code || "",
+        email: company?.email || "",
       };
 
       // Get only modified fields
@@ -784,8 +783,8 @@ const ClientForm = () => {
       // Dispatch only if we have modifications
       dispatch(
         modifyCompany({
-          dns_prefix: prefillData.dns_prefix,
-          company_id: prefillData.company_id,
+          dns_prefix: company?.dns_prefix,
+          company_id: company?.id,
           data: modifiedData,
         })
       );
@@ -807,7 +806,7 @@ const ClientForm = () => {
       <header className="inline-flex items-center gap-2">
         {isEditMode && (
           <ArrowLeft
-            onClick={() => navigate(`/customers/${prefillData.dns_prefix}`)}
+            onClick={() => navigate(`/customers/${company?.dns_prefix}`)}
             className="w-5 h-5 text-[#07515f] cursor-pointer hover:text-[#064a56] transition-colors duration-200"
           />
         )}
