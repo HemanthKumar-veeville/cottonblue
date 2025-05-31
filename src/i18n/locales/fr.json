@@ -710,7 +710,9 @@
       "dnsPrefix": "Préfixe DNS",
       "branding": "Couleurs du thème",
       "status": "Statut",
-      "actions": "Actions"
+      "actions": "Actions",
+      "createdAt": "Créé le",
+      "updatedAt": "Mis à jour le"
     },
     "status": {
       "active": "Actif",
@@ -823,14 +825,19 @@
       "exportCsv": "Exporter CSV",
       "edit": "Modifier",
       "activate": "Activer",
-      "deactivate": "Désactiver"
+      "deactivate": "Désactiver",
+      "active": "Actif",
+      "inactive": "Inactif"
     },
     "table": {
       "name": "Nom",
       "email": "Email",
       "role": "Rôle",
       "stores": "Magasins",
-      "details": "Détails"
+      "details": "Détails",
+      "status": "Statut",
+      "active": "Actif",
+      "inactive": "Inactif"
     },
     "pagination": {
       "previous": "Précédent",

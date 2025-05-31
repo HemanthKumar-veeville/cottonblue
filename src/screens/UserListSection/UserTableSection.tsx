@@ -19,14 +19,13 @@ import {
 } from "../../components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useState, useMemo, useEffect, useRef } from "react";
-import { useAppSelector } from "../../store/store";
-import type { User } from "../../store/features/userSlice";
+import { useAppDispatch, useAppSelector } from "../../store/store";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
 import { Users, MoreVertical, Eye, Edit, Power } from "lucide-react";
-
+import { fetchUsers, modifyUser } from "../../store/features/userSlice";
 interface UserData {
   firstname: string;
   lastname: string;
@@ -51,7 +50,8 @@ export const UserTableSection = (): JSX.Element => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
-
+  const dispatch = useAppDispatch();
+  const { selectedCompany } = useAppSelector((state) => state.client);
   const ITEMS_PER_PAGE = 5;
 
   // Calculate dropdown position
@@ -127,12 +127,30 @@ export const UserTableSection = (): JSX.Element => {
   };
 
   const handleEdit = (userId: string) => {
-    navigate(`/users/${encodeURIComponent(userId)}/edit`);
+    navigate(`/users/edit/${userId}`);
     setActiveDropdown(null);
   };
 
-  const handleToggleActive = (userId: string, currentStatus: boolean) => {
-    setActiveDropdown(null);
+  const handleToggleActive = async (user: any) => {
+    try {
+      if (user?.user_id && selectedCompany?.dns) {
+        await dispatch(
+          modifyUser({
+            dnsPrefix: selectedCompany.dns,
+            userId: user?.user_id,
+            data: {
+              is_active: !user?.is_active,
+            },
+          })
+        ).unwrap();
+        // Refresh users list after successful import
+        await dispatch(fetchUsers({ dnsPrefix: selectedCompany?.dns || "" }));
+        setActiveDropdown(null);
+      }
+    } catch (error: any) {
+      console.error("Failed to toggle user activation:", error);
+      // You might want to show an error toast/notification here
+    }
   };
 
   return (
@@ -173,6 +191,9 @@ export const UserTableSection = (): JSX.Element => {
                     {t("userList.table.email")}
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
+                    {t("userList.table.status")}
+                  </TableHead>
+                  <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
                     {t("userList.table.role")}
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
@@ -203,6 +224,11 @@ export const UserTableSection = (): JSX.Element => {
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-smaller text-black">
                       {user.email}
+                    </TableCell>
+                    <TableCell className="w-[145px] text-left font-text-smaller text-black">
+                      {user.is_active
+                        ? t("userList.table.active")
+                        : t("userList.table.inactive")}
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-smaller text-black">
                       {user.role || "User"}
@@ -283,10 +309,7 @@ export const UserTableSection = (): JSX.Element => {
                                 }`}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleToggleActive(
-                                    user.user_id,
-                                    user.is_active
-                                  );
+                                  handleToggleActive(user);
                                 }}
                                 role="menuitem"
                               >

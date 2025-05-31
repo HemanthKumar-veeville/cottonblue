@@ -20,11 +20,12 @@ import {
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { useAppSelector } from "../../store/store";
+import { useAppDispatch, useAppSelector } from "../../store/store";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
 import { Store, MoreVertical, Eye, Edit, Power } from "lucide-react";
+import { fetchAllStores, modifyStore } from "../../store/features/agencySlice";
 
 // Pagination data
 const paginationItems = [1, 2, 3, 4, 5];
@@ -59,6 +60,7 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
 }: AgencyTableSectionProps): JSX.Element => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedAgencies, setSelectedAgencies] = useState<number[]>([]);
   const { selectedCompany } = useAppSelector((state) => state.client);
@@ -151,13 +153,41 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
     setActiveDropdown(null);
   };
 
-  const handleEdit = (agencyId: number) => {
-    navigate(`/customers/${selectedCompany?.dns}/agencies/${agencyId}/edit`);
+  const handleEdit = (agency: any) => {
+    // Prepare the data to be passed to the AddClient component
+    const prefillData = {
+      name: agency?.name || "",
+      city: agency?.city || "",
+      address: agency?.address || "",
+      postal_code: agency?.postal_code || "",
+      company_id: agency?.company_id || "",
+      is_edit_mode: true,
+    };
+
+    navigate(`/agencies/edit/${agency?.id}`, {
+      state: prefillData,
+    });
     setActiveDropdown(null);
   };
 
-  const handleToggleActive = (agencyId: number, currentStatus: boolean) => {
-    setActiveDropdown(null);
+  const handleToggleActive = async (agency: any) => {
+    if (!agency) return;
+
+    try {
+      await dispatch(
+        modifyStore({
+          dnsPrefix: selectedCompany?.dns,
+          storeId: agency?.id,
+          data: {
+            is_active: !agency?.is_active,
+          },
+        })
+      ).unwrap();
+      await dispatch(fetchAllStores(selectedCompany?.dns)).unwrap();
+      setActiveDropdown(null);
+    } catch (error) {
+      console.error("Failed to toggle store status:", error);
+    }
   };
 
   if (loading) {
@@ -346,7 +376,7 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                                   className="flex items-center w-full px-4 py-3 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150 group"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleEdit(agency.id);
+                                    handleEdit(agency);
                                   }}
                                   role="menuitem"
                                 >
@@ -363,10 +393,7 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                                   }`}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleToggleActive(
-                                      agency.id,
-                                      agency.is_active
-                                    );
+                                    handleToggleActive(agency);
                                   }}
                                   role="menuitem"
                                 >

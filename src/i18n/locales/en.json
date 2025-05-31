@@ -676,7 +676,9 @@
       "dnsPrefix": "DNS Prefix",
       "branding": "Theme Colors",
       "status": "Status",
-      "actions": "Actions"
+      "actions": "Actions",
+      "createdAt": "Created At",
+      "updatedAt": "Updated At"
     },
     "status": {
       "active": "Active",
@@ -796,7 +798,10 @@
       "email": "Email",
       "role": "Role",
       "stores": "Stores",
-      "details": "Details"
+      "details": "Details",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive"
     },
     "pagination": {
       "previous": "Previous",

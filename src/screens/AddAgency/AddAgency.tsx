@@ -457,77 +457,79 @@ export default function AddAgency() {
 
           <div className="h-0.5 bg-gray-300 rounded-full" />
 
-          <div className="flex flex-col gap-6">
-            <div className="flex gap-4">
-              <div className="flex-1">
-                <CheckboxField
-                  label={t("addAgency.limits.orderLimit")}
-                  id="orderLimit"
-                  checked={formData.limits.order.enabled}
-                  onChange={(checked) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      limits: {
-                        ...prev.limits,
-                        order: { ...prev.limits.order, enabled: checked },
-                      },
-                    }))
-                  }
-                />
+          {!isEditMode && (
+            <div className="flex flex-col gap-6">
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <CheckboxField
+                    label={t("addAgency.limits.orderLimit")}
+                    id="orderLimit"
+                    checked={formData.limits.order.enabled}
+                    onChange={(checked) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        limits: {
+                          ...prev.limits,
+                          order: { ...prev.limits.order, enabled: checked },
+                        },
+                      }))
+                    }
+                  />
+                </div>
+                <div className="flex-1">
+                  <CheckboxField
+                    label={t("addAgency.limits.budgetLimit")}
+                    id="budgetLimit"
+                    checked={formData.limits.budget.enabled}
+                    onChange={(checked) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        limits: {
+                          ...prev.limits,
+                          budget: { ...prev.limits.budget, enabled: checked },
+                        },
+                      }))
+                    }
+                  />
+                </div>
               </div>
-              <div className="flex-1">
-                <CheckboxField
-                  label={t("addAgency.limits.budgetLimit")}
-                  id="budgetLimit"
-                  checked={formData.limits.budget.enabled}
-                  onChange={(checked) =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      limits: {
-                        ...prev.limits,
-                        budget: { ...prev.limits.budget, enabled: checked },
-                      },
-                    }))
-                  }
-                />
-              </div>
-            </div>
 
-            <div className="flex gap-4">
-              <LabeledInput
-                label={t("addAgency.limits.orderLimitValue")}
-                id="orderLimitValue"
-                type="text"
-                value={formData.limits.order.value}
-                disabled={!formData.limits.order.enabled}
-                onChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    limits: {
-                      ...prev.limits,
-                      order: { ...prev.limits.order, value },
-                    },
-                  }))
-                }
-              />
-              <LabeledInput
-                label={t("addAgency.limits.budgetLimitValue")}
-                id="budgetLimitValue"
-                type="text"
-                value={formData.limits.budget.value}
-                disabled={!formData.limits.budget.enabled}
-                onChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    limits: {
-                      ...prev.limits,
-                      budget: { ...prev.limits.budget, value },
-                    },
-                  }))
-                }
-              />
+              <div className="flex gap-4">
+                <LabeledInput
+                  label={t("addAgency.limits.orderLimitValue")}
+                  id="orderLimitValue"
+                  type="text"
+                  value={formData.limits.order.value}
+                  disabled={!formData.limits.order.enabled}
+                  onChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      limits: {
+                        ...prev.limits,
+                        order: { ...prev.limits.order, value },
+                      },
+                    }))
+                  }
+                />
+                <LabeledInput
+                  label={t("addAgency.limits.budgetLimitValue")}
+                  id="budgetLimitValue"
+                  type="text"
+                  value={formData.limits.budget.value}
+                  disabled={!formData.limits.budget.enabled}
+                  onChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      limits: {
+                        ...prev.limits,
+                        budget: { ...prev.limits.budget, value },
+                      },
+                    }))
+                  }
+                />
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="flex justify-end mt-6">
             <Button
