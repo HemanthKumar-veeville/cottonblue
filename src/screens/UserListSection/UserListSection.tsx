@@ -2,14 +2,14 @@ import { DownloadIcon, PlusIcon, SearchIcon, UploadIcon } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ImportCSVModal from "../../components/ImportCSVModal/ImportCSVModal";
 import { ExportCSV } from "../../components/ExportCSV/ExportCSV";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { registerUser, fetchUsers } from "../../store/features/userSlice";
 import { useNavigate } from "react-router-dom";
-import type { User } from "../../store/features/userSlice";
 import { toast } from "sonner";
+import { UserTableSection } from "./UserTableSection";
 
 export const UserListSection = (): JSX.Element => {
   const { t } = useTranslation();
@@ -27,6 +27,31 @@ export const UserListSection = (): JSX.Element => {
   } = useAppSelector((state) => state.user);
   const { selectedCompany } = useAppSelector((state) => state.client);
   const userList = users?.users || [];
+
+  // Filter users based on search query
+  const filteredUsers = useMemo(() => {
+    if (!searchQuery.trim()) return userList;
+
+    const searchTerms = searchQuery.toLowerCase().trim().split(/\s+/);
+
+    return userList.filter((user) => {
+      const searchableFields = [
+        user.firstname,
+        user.lastname,
+        user.email,
+        user.role,
+        user.department,
+        user.phone_number,
+        user.is_active ? "active" : "inactive",
+        `${user.store_ids?.length || 0} stores`,
+      ].map((field) => String(field).toLowerCase());
+
+      // Check if all search terms match any of the fields
+      return searchTerms.every((term) =>
+        searchableFields.some((field) => field.includes(term))
+      );
+    });
+  }, [userList, searchQuery]);
 
   // Fetch users on component mount
   useEffect(() => {
@@ -124,6 +149,8 @@ export const UserListSection = (): JSX.Element => {
         </div>
       </div>
 
+      <UserTableSection filteredUsers={filteredUsers} />
+
       <ImportCSVModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
@@ -140,7 +167,7 @@ export const UserListSection = (): JSX.Element => {
       <ExportCSV
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
-        products={userList}
+        products={filteredUsers}
         sheetName="Users"
       />
     </section>

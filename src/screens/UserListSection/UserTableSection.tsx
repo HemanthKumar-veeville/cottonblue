@@ -26,23 +26,27 @@ import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
 import { Users, MoreVertical, Eye, Edit, Power } from "lucide-react";
 import { fetchUsers, modifyUser } from "../../store/features/userSlice";
+
 interface UserData {
   firstname: string;
   lastname: string;
   email: string;
   role?: string;
   store_ids: number[];
+  user_id: string;
+  is_active: boolean;
+  department?: string;
+  phone_number?: string;
 }
 
-export const UserTableSection = (): JSX.Element => {
+export const UserTableSection = ({
+  filteredUsers,
+}: {
+  filteredUsers: UserData[];
+}): JSX.Element => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const {
-    users,
-    isLoading: loading,
-    error,
-  } = useAppSelector((state) => state.user);
-  const userList = users?.users || [];
+  const { isLoading: loading, error } = useAppSelector((state) => state.user);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
@@ -65,13 +69,13 @@ export const UserTableSection = (): JSX.Element => {
   };
 
   // Calculate total pages
-  const totalPages = Math.ceil(userList.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
 
   // Get current page users
   const currentUsers = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return userList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [userList, currentPage]);
+    return filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredUsers, currentPage]);
 
   // Handle select all checkbox
   const handleSelectAll = () => {
