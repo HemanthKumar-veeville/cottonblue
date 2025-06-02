@@ -304,21 +304,45 @@ export default function Tickets(): JSX.Element {
 
   const filteredTicketsInProgress = useMemo(() => {
     return (
-      tickets?.filter(
-        (ticket: Ticket) =>
-          ticket?.ticket_status === TicketStatus.OPEN ||
-          ticket?.ticket_status === TicketStatus.IN_PROGRESS
-      ) ?? []
+      tickets?.filter((ticket: any) => {
+        if (!ticket) return false;
+        const matchesSearch =
+          searchQuery === "" ||
+          ticket.ticket_title
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          ticket.company_name
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          ticket.ticket_id.toString().includes(searchQuery);
+
+        return (
+          matchesSearch &&
+          (ticket.ticket_status === TicketStatus.OPEN ||
+            ticket.ticket_status === TicketStatus.IN_PROGRESS)
+        );
+      }) ?? []
     );
-  }, [tickets]);
+  }, [tickets, searchQuery]);
 
   const filteredTicketsClosed = useMemo(() => {
     return (
-      tickets?.filter(
-        (ticket: Ticket) => ticket?.ticket_status === TicketStatus.CLOSED
-      ) ?? []
+      tickets?.filter((ticket: any) => {
+        if (!ticket) return false;
+        const matchesSearch =
+          searchQuery === "" ||
+          ticket.ticket_title
+            .toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          ticket.company_name
+            ?.toLowerCase()
+            .includes(searchQuery.toLowerCase()) ||
+          ticket.ticket_id.toString().includes(searchQuery);
+
+        return matchesSearch && ticket.ticket_status === TicketStatus.CLOSED;
+      }) ?? []
     );
-  }, [tickets]);
+  }, [tickets, searchQuery]);
 
   return (
     <section className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-l)] p-[var(--2-tokens-screen-modes-common-spacing-l)] bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)] w-full">
