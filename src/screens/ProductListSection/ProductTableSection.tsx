@@ -33,8 +33,10 @@ import {
 } from "../../store/features/productSlice";
 export const ProductTableSection = ({
   isWarehouse,
+  searchQuery,
 }: {
   isWarehouse: boolean;
+  searchQuery: string;
 }): JSX.Element => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -50,15 +52,33 @@ export const ProductTableSection = ({
   const dispatch = useAppDispatch();
   const ITEMS_PER_PAGE = 25;
 
-  // Calculate total pages
-  const totalPages = Math.ceil(productList.length / ITEMS_PER_PAGE);
-  const { selectedCompany } = useAppSelector((state) => state.client);
+  // Filter products based on search query
+  const filteredProducts = useMemo(() => {
+    if (!searchQuery) return productList;
 
-  // Get current page products
+    const query = searchQuery.toLowerCase();
+    return productList.filter((product) => {
+      return (
+        product.name?.toLowerCase().includes(query) ||
+        product.id?.toString().includes(query) ||
+        product.suitable_for?.toLowerCase().includes(query) ||
+        product.size?.toLowerCase().includes(query) ||
+        product.pack_quantity?.toString().includes(query) ||
+        product.available_packs?.toString().includes(query) ||
+        product.price_of_pack?.toString().includes(query)
+      );
+    });
+  }, [productList, searchQuery]);
+
+  // Get current page products from filtered list
   const currentProducts = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return productList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [productList, currentPage]);
+    return filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [filteredProducts, currentPage]);
+
+  // Calculate total pages based on filtered products
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const { selectedCompany } = useAppSelector((state) => state.client);
 
   // Calculate dropdown position
   const getDropdownPosition = (buttonElement: HTMLButtonElement | null) => {

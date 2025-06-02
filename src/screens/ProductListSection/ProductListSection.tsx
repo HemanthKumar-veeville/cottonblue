@@ -17,13 +17,16 @@ import { useSelector } from "react-redux";
 
 export const ProductListSection = ({
   isWarehouse,
+  searchQuery,
+  setSearchQuery,
 }: {
   isWarehouse: boolean;
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 }): JSX.Element => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
