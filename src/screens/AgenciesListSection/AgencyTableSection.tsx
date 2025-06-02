@@ -77,15 +77,33 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
     setCurrentPage(1);
   }, [searchTerm]);
 
+  // Helper function for case-insensitive search that handles undefined values
+  const includesIgnoreCase = (text: any, searchTerm: string): boolean => {
+    if (text === undefined || text === null) return false;
+    return text.toString().toLowerCase().includes(searchTerm.toLowerCase());
+  };
+
   // Filter agencies based on search term
-  const filteredAgencies = agenciesArray.filter(
-    (agency) =>
-      agency.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agency.phone_number?.includes(searchTerm) ||
-      agency.city?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agency.address?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      agency.postal_code?.includes(searchTerm)
-  );
+  const filteredAgencies = agenciesArray.filter((agency) => {
+    if (!searchTerm) return true;
+
+    const searchTermLower = searchTerm.toLowerCase();
+
+    return (
+      includesIgnoreCase(agency.id, searchTermLower) ||
+      includesIgnoreCase(agency.name, searchTermLower) ||
+      includesIgnoreCase(agency.phone_number, searchTermLower) ||
+      includesIgnoreCase(agency.city, searchTermLower) ||
+      includesIgnoreCase(agency.address, searchTermLower) ||
+      includesIgnoreCase(agency.postal_code, searchTermLower) ||
+      includesIgnoreCase(agency.created_at, searchTermLower) ||
+      includesIgnoreCase(agency.updated_at, searchTermLower) ||
+      includesIgnoreCase(
+        agency.is_active ? "active" : "inactive",
+        searchTermLower
+      )
+    );
+  });
 
   // Pagination logic
   const itemsPerPage = 5;
