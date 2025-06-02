@@ -165,7 +165,16 @@
       "next": "Next"
     },
     "messages": {
-      "loadError": "Error loading product data"
+      "loadError": "Error loading product data",
+      "createSuccess": "Product created successfully",
+      "updateSuccess": "Product updated successfully",
+      "noChanges": "No changes detected to update",
+      "createError": "Error creating product",
+      "updateError": "Error updating product",
+      "publishError": "Error publishing product",
+      "draftSaved": "Draft saved successfully",
+      "published": "Product published successfully",
+      "updated": "Product updated successfully"
     }
   },
   "agencyDetails": {

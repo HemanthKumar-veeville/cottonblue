@@ -351,7 +351,7 @@ export default function Tickets(): JSX.Element {
             <SelectItem value="all">{t("tickets.status.all")}</SelectItem>
             {Object.values(TicketStatus).map((status) => (
               <SelectItem key={status} value={status}>
-                {t(status)}
+                {formatStatus(status)}
               </SelectItem>
             ))}
           </SelectContent>

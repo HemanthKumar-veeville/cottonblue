@@ -177,7 +177,9 @@
       "draftSaved": "Brouillon enregistré avec succès",
       "published": "Produit publié avec succès",
       "updated": "Produit mis à jour avec succès",
-      "noChanges": "Aucune modification détectée à mettre à jour"
+      "noChanges": "Aucune modification détectée à mettre à jour",
+      "createSuccess": "Produit créé avec succès",
+      "updateSuccess": "Produit mis à jour avec succès"
     }
   },
   "agencyDetails": {

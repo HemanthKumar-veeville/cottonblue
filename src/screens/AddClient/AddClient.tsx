@@ -806,7 +806,7 @@ const ClientForm = () => {
       <header className="inline-flex items-center gap-2">
         {isEditMode && (
           <ArrowLeft
-            onClick={() => navigate(`/customers/${company?.dns_prefix}`)}
+            onClick={() => navigate(-1)}
             className="w-5 h-5 text-[#07515f] cursor-pointer hover:text-[#064a56] transition-colors duration-200"
           />
         )}
