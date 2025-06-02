@@ -24,7 +24,7 @@ import {
 } from "../../../../store/features/productSlice";
 import {
   CreateProductData,
-  UpdateProductData,
+  UpdateProductData as BaseUpdateProductData,
 } from "../../../../services/productService";
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -143,6 +143,13 @@ interface InitialProductData {
   reference: string;
   description: string;
   product_image?: string;
+}
+
+// Extend UpdateProductData type to include our custom fields
+interface UpdateProductData extends BaseUpdateProductData {
+  suitable_for?: string;
+  size?: string;
+  reference?: string;
 }
 
 // Reusable Components
@@ -473,6 +480,15 @@ export const ProductSidebarSection = ({
     if (data.total_packs !== initialData.total_packs) {
       changes.total_packs = parseInt(data.total_packs);
     }
+    if (data.suitable_for !== initialData.suitable_for) {
+      changes.suitable_for = data.suitable_for;
+    }
+    if (data.size !== initialData.size) {
+      changes.size = data.size;
+    }
+    if (data.reference !== initialData.reference) {
+      changes.reference = data.reference;
+    }
     if (data.images[0]) {
       changes.product_image = data.images[0];
     }
@@ -586,6 +602,7 @@ export const ProductSidebarSection = ({
                         label={t(field.label)}
                         type={field.type}
                         required={field.required}
+                        disabled={field.name === "productId" && mode === "edit"}
                         error={
                           errors[field.name as keyof typeof errors]?.message
                         }
