@@ -23,6 +23,7 @@ import {
   setSelectedStore,
 } from "../../store/features/agencySlice";
 import { getHost } from "../../utils/hostUtils";
+import { setSearchTerm } from "../../store/features/productSlice";
 
 interface Store {
   id: string;
@@ -121,6 +122,21 @@ export const ClientHeader = () => {
   };
 
   const pathname = useLocation().pathname;
+
+  // Add debounce function
+  const debounce = (func: Function, wait: number) => {
+    let timeout: NodeJS.Timeout;
+    return (...args: any[]) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func(...args), wait);
+    };
+  };
+
+  // Handle search input change with debounce
+  const handleSearchChange = debounce((value: string) => {
+    dispatch(setSearchTerm(value));
+  }, 300);
+
   return (
     <div className="sticky top-0 z-50 flex w-full min-w-[320px] items-center justify-between px-4 md:px-6 lg:px-8 py-3 bg-defaultwhite border-b border-1-tokens-color-modes-common-neutral-lower shadow-sm backdrop-blur-sm bg-white/90">
       {/* Left section with search and store selector */}
@@ -132,6 +148,7 @@ export const ClientHeader = () => {
               type="text"
               placeholder={t("clientHeader.search.placeholder")}
               className="w-full h-11 pl-11 pr-4 rounded-md border-[color:var(--1-tokens-color-modes-input-primary-default-border)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] hover:border-gray-400 focus:border-gray-400 focus:ring-0 outline-none transition-all duration-200"
+              onChange={(e) => handleSearchChange(e.target.value)}
             />
             <SearchIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400 group-hover:text-gray-600 transition-colors duration-200" />
           </div>

@@ -48,6 +48,7 @@ interface ProductState {
   variantSuccess: boolean;
   allocations: ProductAllocation[];
   allocatedStores: string[];
+  searchTerm: string;
 }
 
 // Initial state
@@ -66,6 +67,7 @@ const initialState: ProductState = {
   variantSuccess: false,
   allocations: [],
   allocatedStores: [],
+  searchTerm: '',
 };
 
 // Create async thunks for API calls
@@ -240,6 +242,9 @@ const productSlice = createSlice({
       state.linkSuccess = false;
       state.variantSuccess = false;
       state.allocations = [];
+    },
+    setSearchTerm: (state, action: PayloadAction<string>) => {
+      state.searchTerm = action.payload;
     },
     decrementStock: (state, action: PayloadAction<{ productId: number; quantity: number }>) => {
       const { productId, quantity } = action.payload;
@@ -452,6 +457,7 @@ const productSlice = createSlice({
 
 export const { 
   resetState, 
+  setSearchTerm,
   decrementStock, 
   incrementStock, 
   updateStock 

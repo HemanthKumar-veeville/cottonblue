@@ -402,9 +402,29 @@ export const DashboardSection = (): JSX.Element => {
   const [activeTab, setActiveTab] = useState("mostOrdered");
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
-  const { products, loading } = useAppSelector((state) => state.product);
+  const { products, loading, searchTerm } = useAppSelector(
+    (state) => state.product
+  );
   const productList =
     products?.products?.filter((product) => !product.linked) || [];
+
+  // Filter products based on search term
+  const filteredProducts = productList.filter((product) => {
+    if (!searchTerm) return true;
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      product.name.toLowerCase().includes(searchLower) ||
+      product.description?.toLowerCase().includes(searchLower) ||
+      product.category?.toLowerCase().includes(searchLower) ||
+      product.size?.toLowerCase().includes(searchLower)
+    );
+  });
+
+  // Sort products by stock to get most ordered items
+  const mostOrderedProducts = [...filteredProducts]
+    .sort((a, b) => (b.available_packs ?? 0) - (a.available_packs ?? 0))
+    .slice(0, 6);
+
   const cart = useAppSelector((state) => state.cart);
   const cartProducts = cart?.items || [];
   const dnsPrefix = getHost();
@@ -444,11 +464,6 @@ export const DashboardSection = (): JSX.Element => {
       }
     }
   }, [dispatch, dnsPrefix, isStoreUser, selectedStore]);
-
-  // Sort products by stock to get most ordered items
-  const mostOrderedProducts = [...productList]
-    .sort((a, b) => (b.available_packs ?? 0) - (a.available_packs ?? 0))
-    .slice(0, 6);
 
   const tabs = [
     { id: "mostOrdered", title: "dashboard.sections.mostOrdered" },
@@ -493,7 +508,7 @@ export const DashboardSection = (): JSX.Element => {
                 {activeTab === "allProducts" && (
                   <ProductSection
                     title="dashboard.sections.allProducts"
-                    products={productList}
+                    products={filteredProducts}
                   />
                 )}
               </>
