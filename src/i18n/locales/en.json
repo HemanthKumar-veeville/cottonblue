@@ -32,7 +32,9 @@
       "october": "October",
       "november": "November",
       "december": "December"
-    }
+    },
+    "confirm": "Confirm",
+    "cancel": "Cancel"
   },
   "header": {
     "adminManagement": "Admin Management",
@@ -1047,6 +1049,15 @@
     "title": "Manage Warehouse",
     "search": {
       "placeholder": "Search for an Order"
+    },
+    "confirmation": {
+      "title": "Confirm Action",
+      "process": "Are you sure you want to process {{count}} orders?",
+      "ship": "Are you sure you want to mark {{count}} orders as shipped?",
+      "cancel": "Are you sure you want to cancel {{count}} orders?",
+      "prepareSingle": "Are you sure you want to process order #{{orderId}}?",
+      "completeSingle": "Are you sure you want to mark order #{{orderId}} as shipped?",
+      "cancelSingle": "Are you sure you want to cancel order #{{orderId}}?"
     },
     "actions": {
       "addOrder": "Add Order",

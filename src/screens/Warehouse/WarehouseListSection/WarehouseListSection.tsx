@@ -14,6 +14,7 @@ import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "../../../store/store";
 import { changeOrderStatus } from "../../../store/features/cartSlice";
 import { useParams } from "react-router-dom";
+import { ConfirmationDialog } from "../../../components/ui/ConfirmationDialog";
 
 interface StoreFilter {
   id: string;
@@ -47,6 +48,17 @@ export const WarehouseListSection = ({
   const { selectedCompany } = useAppSelector((state) => state.client);
   const dns_prefix = selectedCompany?.dns || "admin";
 
+  // Add state for confirmation dialogs
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    type: "process" | "ship" | "cancel" | null;
+    orderIds: number[];
+  }>({
+    isOpen: false,
+    type: null,
+    orderIds: [],
+  });
+
   // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -55,44 +67,65 @@ export const WarehouseListSection = ({
   };
 
   const handleProcessOrders = (orderIds: number[]) => {
-    if (dns_prefix) {
-      dispatch(
-        changeOrderStatus({
-          dns_prefix,
-          status: "processing",
-          order_ids: orderIds.map((id) => parseInt(id)),
-        })
-      );
-      onSelectedOrdersChange([]);
-      setSelectedOrders([]);
-    }
+    setConfirmDialog({
+      isOpen: true,
+      type: "process",
+      orderIds,
+    });
   };
 
   const handleShipOrders = (orderIds: number[]) => {
-    if (dns_prefix) {
-      dispatch(
-        changeOrderStatus({
-          dns_prefix,
-          status: "shipped",
-          order_ids: orderIds.map((id) => parseInt(id)),
-        })
-      );
-      onSelectedOrdersChange([]);
-      setSelectedOrders([]);
-    }
+    setConfirmDialog({
+      isOpen: true,
+      type: "ship",
+      orderIds,
+    });
   };
 
   const handleCancelOrders = (orderIds: number[]) => {
-    if (dns_prefix) {
-      dispatch(
-        changeOrderStatus({
-          dns_prefix,
-          status: "on_hold",
-          order_ids: orderIds.map((id) => parseInt(id)),
-        })
-      );
-      onSelectedOrdersChange([]);
-      setSelectedOrders([]);
+    setConfirmDialog({
+      isOpen: true,
+      type: "cancel",
+      orderIds,
+    });
+  };
+
+  const handleConfirmAction = () => {
+    if (!confirmDialog.type || !dns_prefix) return;
+
+    const statusMap = {
+      process: "processing",
+      ship: "shipped",
+      cancel: "on_hold",
+    };
+
+    dispatch(
+      changeOrderStatus({
+        dns_prefix,
+        status: statusMap[confirmDialog.type],
+        order_ids: confirmDialog.orderIds.map(Number),
+      })
+    );
+    onSelectedOrdersChange([]);
+    setSelectedOrders([]);
+    setConfirmDialog({ isOpen: false, type: null, orderIds: [] });
+  };
+
+  const handleCancelDialog = () => {
+    setConfirmDialog({ isOpen: false, type: null, orderIds: [] });
+  };
+
+  const getConfirmationMessage = () => {
+    const count = confirmDialog.orderIds.length;
+    switch (confirmDialog.type) {
+      case "process":
+        return t("warehouse.confirmation.process", { count });
+      case "ship":
+        return t("warehouse.confirmation.ship", { count });
+      case "cancel":
+        return t("warehouse.confirmation.cancel", { count });
+      default:
+        return "";
     }
   };
 
@@ -209,6 +242,16 @@ export const WarehouseListSection = ({
           </div>
         )}
       </div>
+
+      <ConfirmationDialog
+        open={confirmDialog.isOpen}
+        title={t("warehouse.confirmation.title")}
+        message={getConfirmationMessage()}
+        onConfirm={handleConfirmAction}
+        onCancel={handleCancelDialog}
+        confirmText={t("common.confirm")}
+        cancelText={t("common.cancel")}
+      />
     </section>
   );
 };

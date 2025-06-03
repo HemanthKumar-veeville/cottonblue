@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../../components/ui/button";
 import { Loader, PackageIcon, TruckIcon, XIcon } from "lucide-react";
 import { changeOrderStatus } from "../../../../store/features/cartSlice";
 import { useAppDispatch, useAppSelector } from "../../../../store/store";
+import { ConfirmationDialog } from "../../../../components/ui/ConfirmationDialog";
 
 interface ActionButton {
   translationKey: string;
@@ -22,6 +23,15 @@ const ActionButtonSection = ({
   const { selectedCompany } = useAppSelector((state) => state.client);
   const dns_prefix = selectedCompany?.dns;
   const dispatch = useAppDispatch();
+
+  // Add state for confirmation dialog
+  const [confirmDialog, setConfirmDialog] = useState<{
+    isOpen: boolean;
+    type: ActionButton["variant"] | null;
+  }>({
+    isOpen: false,
+    type: null,
+  });
 
   const actionButtons: ActionButton[] = [
     {
@@ -63,38 +73,83 @@ const ActionButtonSection = ({
         changeOrderStatus({
           dns_prefix,
           status,
-          order_ids: orderIds.map((id) => parseInt(id)),
+          order_ids: orderIds.map(Number),
         })
       );
     }
   };
 
   const handleAction = (variant: ActionButton["variant"]) => {
-    if (variant === "prepare") {
-      handleStatusChange([orderId], "processing");
-    } else if (variant === "complete") {
-      handleStatusChange([orderId], "shipped");
-    } else if (variant === "cancel") {
-      handleStatusChange([orderId], "on_hold");
+    setConfirmDialog({
+      isOpen: true,
+      type: variant,
+    });
+  };
+
+  const handleConfirmAction = () => {
+    if (!confirmDialog.type) return;
+
+    const statusMap = {
+      prepare: "processing",
+      complete: "shipped",
+      cancel: "on_hold",
+    };
+
+    handleStatusChange([orderId], statusMap[confirmDialog.type]);
+    setConfirmDialog({ isOpen: false, type: null });
+  };
+
+  const handleCancelDialog = () => {
+    setConfirmDialog({ isOpen: false, type: null });
+  };
+
+  const getConfirmationMessage = () => {
+    switch (confirmDialog.type) {
+      case "prepare":
+        return t("warehouse.confirmation.prepareSingle", { orderId });
+      case "complete":
+        return t("warehouse.confirmation.completeSingle", { orderId });
+      case "cancel":
+        return t("warehouse.confirmation.cancelSingle", { orderId });
+      default:
+        return "";
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center">
+        <Loader className="w-6 h-6 animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div className="flex items-center gap-3 justify-center  mx-auto">
-      {actionButtons.map((button, index) => (
-        <Button
-          key={index}
-          variant="outline"
-          size="default"
-          className={getButtonStyles(button.variant)}
-          onClick={() => handleAction(button.variant)}
-          disabled={isLoading}
-        >
-          {button.icon}
-          <span>{t(button.translationKey)}</span>
-        </Button>
-      ))}
-    </div>
+    <>
+      <div className="flex gap-4">
+        {actionButtons.map((button) => (
+          <Button
+            key={button.variant}
+            variant="outline"
+            className={getButtonStyles(button.variant)}
+            onClick={() => handleAction(button.variant)}
+          >
+            {button.icon}
+            {t(button.translationKey)}
+          </Button>
+        ))}
+      </div>
+
+      <ConfirmationDialog
+        open={confirmDialog.isOpen}
+        title={t("warehouse.confirmation.title")}
+        message={getConfirmationMessage()}
+        onConfirm={handleConfirmAction}
+        onCancel={handleCancelDialog}
+        confirmText={t("common.confirm")}
+        cancelText={t("common.cancel")}
+      />
+    </>
   );
 };
 

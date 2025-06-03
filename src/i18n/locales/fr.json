@@ -32,7 +32,9 @@
       "october": "Octobre",
       "november": "Novembre",
       "december": "Décembre"
-    }
+    },
+    "confirm": "Confirmer",
+    "cancel": "Annuler"
   },
   "header": {
     "adminManagement": "Gestion des administrateurs",
@@ -1076,6 +1078,15 @@
     "title": "Gérer l'entrepôt",
     "search": {
       "placeholder": "Rechercher une commande"
+    },
+    "confirmation": {
+      "title": "Confirmer l'action",
+      "process": "Êtes-vous sûr de vouloir traiter {{count}} commandes ?",
+      "ship": "Êtes-vous sûr de vouloir marquer {{count}} commandes comme expédiées ?",
+      "cancel": "Êtes-vous sûr de vouloir annuler {{count}} commandes ?",
+      "prepareSingle": "Êtes-vous sûr de vouloir traiter la commande #{{orderId}} ?",
+      "completeSingle": "Êtes-vous sûr de vouloir marquer la commande #{{orderId}} comme expédiée ?",
+      "cancelSingle": "Êtes-vous sûr de vouloir annuler la commande #{{orderId}} ?"
     },
     "actions": {
       "addOrder": "Ajouter une commande",
