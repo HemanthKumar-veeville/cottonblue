@@ -60,7 +60,6 @@ const AgencyListSectionBase = ({
     "City",
     "Postal Code",
     "Phone Number",
-    "Store Region",
     "Order Limit",
     "Budget Limit",
   ];
@@ -141,7 +140,6 @@ const csvConfig = {
     "City",
     "Postal Code",
     "Phone Number",
-    "Store Region",
     "Order Limit",
     "Budget Limit",
   ],

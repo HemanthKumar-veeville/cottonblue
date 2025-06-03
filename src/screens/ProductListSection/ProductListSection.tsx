@@ -142,7 +142,7 @@ export const ProductListSection = ({
         onImport={handleImport}
         templateColumns={[
           "Product Name",
-          "SKU Reference",
+          "Reference",
           "Pack of",
           "Pack Price",
           "Total Packs",
@@ -159,7 +159,7 @@ export const ProductListSection = ({
         sheetName="Products"
         templateColumns={[
           "Product Name",
-          "SKU Reference",
+          "Reference",
           "Pack of",
           "Pack Price",
           "Total Packs",
