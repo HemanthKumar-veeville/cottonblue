@@ -23,6 +23,9 @@ import { getStoreDetails, modifyStore } from "../../store/features/agencySlice";
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "../../components/Skeleton";
 import Loader from "../../components/Loader";
+import { getAllOrders } from "../../store/features/cartSlice";
+import { jsPDF } from "jspdf";
+import { StatusIcon } from "../../components/ui/status-icon";
 
 // Define proper types for our data
 interface Agency {
@@ -62,20 +65,25 @@ interface AgencyDetails {
   statistics: AgencyStatistics;
 }
 
-interface OrderStatus {
-  text: string;
-  type: "success" | "warning" | "danger";
+interface OrderItem {
+  product_id: number;
+  product_name: string;
+  product_image: string;
+  price_of_pack: number;
+  quantity: number;
 }
 
 interface Order {
-  id: string;
-  date: string;
-  price: string;
-  status: OrderStatus;
-  hasInvoice: boolean;
+  created_at: string;
+  order_id: number;
+  order_items: OrderItem[];
+  order_status: string;
+  store_address: string;
+  store_name: string;
+  store_id?: number; // Optional since it's not in the store's interface
 }
 
-// Static data
+// Remove the static data section completely
 const agencyDetails: AgencyDetails = {
   id: "1021",
   name: "Chronodrive",
@@ -96,30 +104,6 @@ const agencyDetails: AgencyDetails = {
   },
 };
 
-const orders: Order[] = [
-  {
-    id: "KCJRTAEIJ",
-    date: "15/02/2024",
-    price: "499.90€",
-    status: { text: "Livrée", type: "success" },
-    hasInvoice: true,
-  },
-  {
-    id: "KCJRTAEIJ",
-    date: "22/03/2025",
-    price: "149.90€",
-    status: { text: "En cours", type: "warning" },
-    hasInvoice: true,
-  },
-  {
-    id: "KCJRTAEIJ",
-    date: "30/04/2024",
-    price: "499.90€",
-    status: { text: "Annulée", type: "danger" },
-    hasInvoice: false,
-  },
-];
-
 // Helper function to get store detail by key
 const getStoreDetail = (store: Agency, key: keyof Agency): string => {
   if (!store) return "Not Available";
@@ -132,7 +116,13 @@ const getStoreDetail = (store: Agency, key: keyof Agency): string => {
     : "Not Available";
 };
 
-const AgencyDetailsCard = ({ store }: { store: Agency }) => {
+const AgencyDetailsCard = ({
+  store,
+  orders,
+}: {
+  store: Agency;
+  orders: Order[];
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -158,7 +148,7 @@ const AgencyDetailsCard = ({ store }: { store: Agency }) => {
                 </div>
               ))}
             </div>
-            <StatisticsBox />
+            <StatisticsBox orders={orders} store={store} />
           </div>
           <div className="flex flex-col items-start gap-8 flex-1">
             <div className="flex flex-col gap-4 h-36">
@@ -187,7 +177,13 @@ const AgencyDetailsCard = ({ store }: { store: Agency }) => {
   );
 };
 
-const StatisticsBox = () => {
+const StatisticsBox = ({
+  orders,
+  store,
+}: {
+  orders: Order[];
+  store: Agency;
+}) => {
   const { t } = useTranslation();
 
   return (
@@ -196,18 +192,17 @@ const StatisticsBox = () => {
         <h3 className="font-text-medium text-black">
           {t("agencyDetails.statistics.title")}
         </h3>
-        <div className="font-text-medium text-black space-y-1">
+        <div className="font-text-medium text-black space-y-1 h-24">
           <p>
-            {t("agencyDetails.statistics.totalOrders")}:{" "}
-            {t("agencyDetails.fields.notAvailable")}
+            {t("agencyDetails.statistics.totalOrders")}: {orders.length}
           </p>
           <p>
-            {t("agencyDetails.statistics.monthlyRevenue")}:{" "}
-            {t("agencyDetails.fields.notAvailable")}
+            {t("agencyDetails.statistics.orderLimit")}:{" "}
+            {store?.order_limit || t("agencyDetails.fields.notAvailable")}
           </p>
           <p>
-            {t("agencyDetails.statistics.topProducts")}:{" "}
-            {t("agencyDetails.fields.notAvailable")}
+            {t("agencyDetails.statistics.budgetLimit")}:{" "}
+            {store?.budget_limit || t("agencyDetails.fields.notAvailable")}
           </p>
         </div>
       </CardContent>
@@ -301,18 +296,33 @@ const ActionsBox = () => {
   );
 };
 
-const OrdersTableCard = () => {
-  const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
+const OrdersTableCard = ({ orders }: { orders: Order[] }) => {
+  const navigate = useNavigate();
+  const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
+  const { t } = useTranslation();
+  const { company_name, agency_id } = useParams();
+
+  // Get the 4 most recent orders
+  const recentOrders = [...(orders ?? [])]
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+    .slice(0, 4);
+
+  const handleViewAll = () => {
+    navigate(`/order-history`);
+  };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedOrders(orders.map((order) => order.id));
+      setSelectedOrders(recentOrders.map((order) => order.order_id));
     } else {
       setSelectedOrders([]);
     }
   };
 
-  const handleSelectOrder = (orderId: string, checked: boolean) => {
+  const handleSelectOrder = (orderId: number, checked: boolean) => {
     if (checked) {
       setSelectedOrders([...selectedOrders, orderId]);
     } else {
@@ -320,28 +330,273 @@ const OrdersTableCard = () => {
     }
   };
 
-  const handleViewDetails = (orderId: string) => {
-    alert(`Voir les détails de la commande ${orderId}`);
+  const handleDownloadInvoice = (order: Order) => {
+    if (!order?.order_items?.length) {
+      console.warn("No order items found");
+      return;
+    }
+
+    const doc = new jsPDF();
+
+    // Helper function to draw borders
+    const drawBorder = () => {
+      doc.setDrawColor(7, 81, 95); // #07515f
+      doc.setLineWidth(0.5);
+      doc.rect(10, 10, 190, 277);
+      doc.setLineWidth(0.2);
+      doc.rect(15, 15, 180, 267);
+    };
+
+    // Helper function to draw horizontal line
+    const drawHorizontalLine = (y: number) => {
+      doc.setDrawColor(7, 81, 95);
+      doc.setLineWidth(0.2);
+      doc.line(15, y, 195, y);
+    };
+
+    // Helper function to safely convert text
+    const safeText = (text: any): string => {
+      if (text === null || text === undefined) return "";
+      return String(text);
+    };
+
+    // Helper function to safely convert number
+    const safeNumber = (num: any): number => {
+      if (num === null || num === undefined || isNaN(Number(num))) return 0;
+      return Number(num);
+    };
+
+    // Add borders
+    drawBorder();
+
+    // Add header bar
+    doc.setFillColor(7, 81, 95);
+    doc.rect(10, 10, 190, 25, "F");
+
+    // Add company logo/header
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(24);
+    doc.text("Cotton Blue", 20, 27);
+
+    // Add "INVOICE" text
+    doc.setFontSize(16);
+    doc.text("INVOICE", 160, 27);
+
+    // Add invoice details section
+    doc.setTextColor(7, 81, 95);
+    doc.setFontSize(12);
+    doc.text("BILL TO:", 20, 50);
+
+    // Add subtle divider
+    drawHorizontalLine(53);
+
+    // Store information
+    doc.setTextColor(0, 0, 0);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(safeText(order.store_name || ""), 20, 60);
+    doc.text(safeText(order.store_address || ""), 20, 66);
+
+    // Add invoice info box
+    doc.setDrawColor(7, 81, 95);
+    doc.setFillColor(247, 250, 252);
+    doc.rect(120, 45, 70, 35, "FD");
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Invoice Number:", 125, 53);
+    doc.text("Date:", 125, 61);
+    doc.text("Status:", 125, 69);
+
+    doc.setFont("helvetica", "normal");
+    doc.text(`#${safeText(order.order_id || "")}`, 165, 53);
+    doc.text(new Date(order.created_at).toLocaleDateString(), 165, 61);
+
+    // Status with color coding
+    const statusColors = {
+      approval_pending: [255, 170, 0],
+      on_hold: [255, 170, 0],
+      processing: [255, 170, 0],
+      confirmed: [0, 150, 0],
+      refused: [200, 0, 0],
+      shipped: [0, 150, 0],
+      in_transit: [0, 150, 0],
+      delivered: [0, 150, 0],
+    };
+    const [r, g, b] = statusColors[
+      order.order_status as keyof typeof statusColors
+    ] || [0, 0, 0];
+    doc.setTextColor(r, g, b);
+    doc.text(
+      safeText(order.order_status || "")
+        .replace(/_/g, " ")
+        .toUpperCase(),
+      165,
+      69
+    );
+    doc.setTextColor(0, 0, 0);
+
+    // Add order items table
+    drawHorizontalLine(85);
+
+    // Table headers
+    doc.setFillColor(247, 250, 252);
+    doc.rect(15, 90, 180, 10, "F");
+    doc.setFont("helvetica", "bold");
+    doc.text("Item", 20, 97);
+    doc.text("Quantity", 120, 97);
+    doc.text("Price", 150, 97);
+    doc.text("Total", 175, 97);
+
+    // Table content
+    let yPos = 107;
+    doc.setFont("helvetica", "normal");
+
+    order.order_items.forEach((item, index) => {
+      if (!item) return; // Skip if item is undefined
+
+      // Alternate row background
+      if (index % 2 === 0) {
+        doc.setFillColor(252, 252, 252);
+        doc.rect(15, yPos - 5, 180, 8, "F");
+      }
+
+      const quantity = safeNumber(item.quantity);
+      const price = safeNumber(item.price_of_pack);
+      const itemTotal = quantity * price;
+
+      // Truncate long product names
+      const maxLength = 45;
+      const displayName = safeText(item.product_name || "");
+      const truncatedName =
+        displayName.length > maxLength
+          ? displayName.substring(0, maxLength) + "..."
+          : displayName;
+
+      doc.text(truncatedName, 20, yPos);
+      doc.text(safeText(quantity), 120, yPos);
+      doc.text(`€${price.toFixed(2)}`, 150, yPos);
+      doc.text(`€${itemTotal.toFixed(2)}`, 175, yPos);
+      yPos += 8;
+    });
+
+    // Calculate total
+    const subtotal = order.order_items.reduce((sum, item) => {
+      if (!item) return sum;
+      const quantity = safeNumber(item.quantity);
+      const price = safeNumber(item.price_of_pack);
+      return sum + quantity * price;
+    }, 0);
+
+    const tax = subtotal * 0.1; // 10% tax
+    const total = subtotal + tax;
+
+    // Add total section
+    yPos += 5;
+    doc.setFillColor(247, 250, 252);
+    doc.rect(120, yPos - 5, 75, 35, "F");
+
+    doc.setFont("helvetica", "normal");
+    doc.text("Subtotal:", 125, yPos + 5);
+    doc.text(`€${subtotal.toFixed(2)}`, 175, yPos + 5);
+
+    doc.text("Tax (10%):", 125, yPos + 15);
+    doc.text(`€${tax.toFixed(2)}`, 175, yPos + 15);
+
+    doc.setFont("helvetica", "bold");
+    doc.text("Total:", 125, yPos + 25);
+    doc.text(`€${total.toFixed(2)}`, 175, yPos + 25);
+
+    // Add payment terms
+    yPos += 45;
+    doc.setFont("helvetica", "bold");
+    doc.text("Payment Terms", 20, yPos);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.text("Payment is due within 30 days of invoice date.", 20, yPos + 7);
+    doc.text("Please include invoice number with your payment.", 20, yPos + 14);
+
+    // Add footer
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9);
+    doc.setTextColor(128, 128, 128);
+
+    // Add divider before footer
+    drawHorizontalLine(260);
+
+    // Footer text
+    const footerText1 = "Thank you for your business with Cotton Blue!";
+    const footerText2 =
+      "For any questions about this invoice, please contact support@cottonblue.com";
+    const footerText3 =
+      "Cotton Blue Inc. | 123 Fashion Street, Style City, SC 12345 | +1 (555) 123-4567";
+
+    doc.text(footerText1, doc.internal.pageSize.width / 2, 265, {
+      align: "center",
+    });
+    doc.setFontSize(8);
+    doc.text(footerText2, doc.internal.pageSize.width / 2, 270, {
+      align: "center",
+    });
+    doc.text(footerText3, doc.internal.pageSize.width / 2, 275, {
+      align: "center",
+    });
+
+    // Save the PDF with a clean name
+    const timestamp = new Date().toISOString().split("T")[0];
+    doc.save(`CottonBlue_Invoice_${order.order_id}_${timestamp}.pdf`);
+  };
+
+  const calculateTotalAmount = (items: OrderItem[]): number => {
+    return items.reduce(
+      (total, item) => total + item.price_of_pack * item.quantity,
+      0
+    );
+  };
+
+  const getOrderStatus = (
+    status: string
+  ): { text: string; type: "success" | "warning" | "danger" } => {
+    switch (status) {
+      case "completed":
+        return { text: "Complété", type: "success" };
+      case "approval_pending":
+        return { text: "En attente", type: "warning" };
+      case "cancelled":
+        return { text: "Annulé", type: "danger" };
+      default:
+        return { text: status, type: "warning" };
+    }
   };
 
   return (
     <Card className="w-full">
-      <CardHeader>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]">
-          Commande de l&apos;agence
+          Commandes récentes
         </CardTitle>
+        <Button
+          variant="link"
+          className="font-label-medium text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] underline"
+          onClick={handleViewAll}
+        >
+          Voir tout
+        </Button>
       </CardHeader>
       <CardContent>
         <Table>
           <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
             <TableRow>
               <TableHead className="w-11">
-                <Checkbox
-                  checked={selectedOrders.length === orders.length}
-                  onCheckedChange={(checked: boolean) =>
-                    handleSelectAll(checked)
-                  }
-                />
+                <div className="flex justify-center">
+                  <Checkbox
+                    className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+                    checked={selectedOrders.length === recentOrders?.length}
+                    onCheckedChange={(checked: boolean) =>
+                      handleSelectAll(checked)
+                    }
+                  />
+                </div>
               </TableHead>
               {[
                 "Commande",
@@ -353,7 +608,9 @@ const OrdersTableCard = () => {
               ].map((header, index) => (
                 <TableHead
                   key={index}
-                  className="w-[145px] font-text-small text-[#1e2324]"
+                  className={`${
+                    index === 4 ? "w-[69px]" : "w-[145px]"
+                  } text-left text-[#1e2324] font-text-small`}
                 >
                   {header}
                 </TableHead>
@@ -361,69 +618,79 @@ const OrdersTableCard = () => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {orders.map((order, index) => (
-              <TableRow
-                key={index}
-                className="border-b border-primary-neutal-300"
-              >
-                <TableCell className="w-11">
-                  <Checkbox
-                    checked={selectedOrders.includes(order.id)}
-                    onCheckedChange={(checked: boolean) =>
-                      handleSelectOrder(order.id, checked)
-                    }
-                  />
-                </TableCell>
-                <TableCell className="w-[145px] font-normal text-black text-[15px]">
-                  {order.id}
-                </TableCell>
-                <TableCell className="w-[145px] font-normal text-black text-[15px]">
-                  {order.date}
-                </TableCell>
-                <TableCell className="w-[145px] font-normal text-black text-[15px]">
-                  {order.price}
-                </TableCell>
-                <TableCell className="w-[145px]">
-                  <div className="flex items-center gap-2">
-                    {order.status.type === "success" && (
-                      <CheckCircle className="w-6 h-6 text-1-tokens-color-modes-common-success-medium" />
-                    )}
-                    {order.status.type === "warning" && (
-                      <Clock className="w-6 h-6 text-1-tokens-color-modes-common-warning-medium" />
-                    )}
-                    {order.status.type === "danger" && (
-                      <XCircle className="w-6 h-6 text-1-tokens-color-modes-common-danger-medium" />
-                    )}
-                    <span
-                      className={`text-1-tokens-color-modes-common-${order.status.type}-medium`}
-                    >
-                      {order.status.text}
+            {recentOrders?.map((order, index) => {
+              const status = getOrderStatus(order?.order_status ?? "");
+              const totalAmount = calculateTotalAmount(
+                order?.order_items ?? []
+              );
+              return (
+                <TableRow
+                  key={index}
+                  className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
+                >
+                  <TableCell className="w-11">
+                    <div className="flex justify-center">
+                      <Checkbox
+                        className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+                        checked={selectedOrders.includes(order?.order_id)}
+                        onCheckedChange={(checked: boolean) =>
+                          handleSelectOrder(order?.order_id, checked)
+                        }
+                      />
+                    </div>
+                  </TableCell>
+                  <TableCell className="w-[129px] text-left">
+                    <span className="font-text-smaller text-coolgray-100">
+                      {order?.order_id ?? t("common.notAvailable")}
                     </span>
-                  </div>
-                </TableCell>
-                <TableCell className="w-[69px] text-center">
-                  {order.hasInvoice ? (
+                  </TableCell>
+                  <TableCell className="w-[145px] text-left">
+                    <span className="font-text-smaller text-black">
+                      {order?.created_at
+                        ? new Date(order.created_at).toLocaleDateString()
+                        : t("common.notAvailable")}
+                    </span>
+                  </TableCell>
+                  <TableCell className="w-[145px] text-left">
+                    <span className="font-text-smaller text-black">
+                      {totalAmount
+                        ? `${totalAmount} €`
+                        : t("common.notAvailable")}
+                    </span>
+                  </TableCell>
+                  <TableCell className="w-[145px] text-left">
+                    <div className="flex items-center gap-2">
+                      <StatusIcon type={status.type} />
+                      <span
+                        className={`text-1-tokens-color-modes-common-${status.type}-medium`}
+                      >
+                        {status.text}
+                      </span>
+                    </div>
+                  </TableCell>
+                  <TableCell className="w-[69px] text-left">
                     <FileText
-                      className="w-4 h-4 mx-auto cursor-pointer"
-                      onClick={() =>
-                        alert(`Télécharger la facture pour ${order.id}`)
-                      }
+                      className="inline-block w-4 h-4 text-[#07515f] cursor-pointer hover:text-[#023337] transition-colors"
+                      onClick={() => handleDownloadInvoice(order)}
                     />
-                  ) : (
-                    <span className="text-gray-400">-</span>
-                  )}
-                </TableCell>
-                <TableCell className="w-[145px] text-center">
-                  <Button
-                    variant="link"
-                    className="font-label-medium text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] underline"
-                    onClick={() => handleViewDetails(order.id)}
-                  >
-                    Détails
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
+                  </TableCell>
+                  <TableCell className="w-[145px] text-left">
+                    <Button
+                      variant="link"
+                      onClick={() =>
+                        navigate(
+                          `/order-details/${agency_id}/${order?.order_id}`
+                        )
+                      }
+                      disabled={!order?.order_id}
+                      className="text-[color:var(--1-tokens-color-modes-button-ghost-default-text)] font-text-small underline"
+                    >
+                      {t("history.superAdmin.orderHistory.table.details")}
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              );
+            })}
           </TableBody>
         </Table>
       </CardContent>
@@ -438,12 +705,14 @@ const AgencyDetails = (): JSX.Element => {
     (state) => state.agency
   );
   const store = storeDetails?.store as Agency;
-
+  const { orders } = useAppSelector((state) => state.cart);
+  console.log({ orders });
   useEffect(() => {
     if (company_name && agency_id) {
       dispatch(
         getStoreDetails({ dnsPrefix: company_name, storeId: agency_id })
       );
+      dispatch(getAllOrders({ dns_prefix: company_name, store_id: agency_id }));
     }
   }, [company_name, agency_id, dispatch]);
 
@@ -461,8 +730,8 @@ const AgencyDetails = (): JSX.Element => {
 
   return (
     <div className="flex flex-col items-start gap-8 p-6">
-      <AgencyDetailsCard store={store} />
-      <OrdersTableCard />
+      <AgencyDetailsCard store={store} orders={orders} />
+      <OrdersTableCard orders={orders} />
     </div>
   );
 };

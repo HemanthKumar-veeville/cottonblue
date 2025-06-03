@@ -196,7 +196,9 @@
       "title": "Statistics",
       "totalOrders": "Total Orders",
       "monthlyRevenue": "Monthly Revenue",
-      "topProducts": "Top Products"
+      "topProducts": "Top Products",
+      "orderLimit": "Order Limit",
+      "budgetLimit": "Budget Limit"
     },
     "actions": {
       "title": "Actions",

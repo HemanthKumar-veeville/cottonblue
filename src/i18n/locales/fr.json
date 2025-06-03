@@ -201,7 +201,9 @@
       "title": "Statistiques",
       "totalOrders": "Total des commandes",
       "monthlyRevenue": "Revenu mensuel",
-      "topProducts": "Produits populaires"
+      "topProducts": "Produits populaires",
+      "orderLimit": "Limite de commandes",
+      "budgetLimit": "Limite de budget"
     },
     "actions": {
       "title": "Actions",
