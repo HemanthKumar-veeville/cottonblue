@@ -23,6 +23,7 @@ import {
   modifyUser,
 } from "../../store/features/userSlice";
 import { getHost } from "../../utils/hostUtils";
+import { cn } from "../../lib/utils";
 
 interface FormData {
   firstname: string;
@@ -54,6 +55,7 @@ const LabeledInput = ({
   value,
   type = "text",
   disabled = false,
+  required = false,
   onChange,
 }: {
   label: string;
@@ -61,20 +63,29 @@ const LabeledInput = ({
   value: string;
   type?: string;
   disabled?: boolean;
+  required?: boolean;
   onChange?: (value: string) => void;
 }) => (
-  <div className="relative w-full pt-2">
-    <Input
-      id={id}
-      type={type}
-      className="w-full font-text-medium text-[16px] leading-[24px] bg-gray-100 rounded-lg border"
-      value={value}
-      disabled={disabled}
-      onChange={(e) => onChange?.(e.target.value)}
-    />
-    <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
-      {label}
-    </span>
+  <div className="relative w-full">
+    <div className="relative">
+      <Input
+        id={id}
+        type={type}
+        className={cn(
+          "w-full pt-4 pr-3 pb-2 pl-3 bg-white rounded-lg border border-gray-300",
+          type === "number"
+            ? "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+            : ""
+        )}
+        value={value}
+        disabled={disabled}
+        required={required}
+        onChange={(e) => onChange?.(e.target.value)}
+      />
+      <span className="absolute -top-[10px] left-4 px-2 text-xs font-medium text-gray-600 bg-white">
+        {label} {required && <span className="text-red-500">*</span>}
+      </span>
+    </div>
   </div>
 );
 
@@ -102,10 +113,10 @@ const LabeledSelect = ({
   };
 
   return (
-    <div className="relative w-full pt-2">
+    <div className="relative w-full">
       <div className="relative">
         <div
-          className="flex w-full items-center justify-between gap-3 py-3 px-3 self-stretch bg-gray-100 rounded-lg border border-solid border-gray-300 cursor-pointer"
+          className="flex w-full items-center justify-between gap-3 py-4 px-3 bg-white rounded-lg border border-gray-300 cursor-pointer"
           onClick={() => setIsOpen(!isOpen)}
         >
           <div className="flex-1 font-medium text-gray-700 text-base leading-4 tracking-normal truncate">
@@ -122,11 +133,11 @@ const LabeledSelect = ({
           </div>
         </div>
         {isOpen && (
-          <div className="absolute top-full left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-[300px] overflow-y-auto pr-2 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+          <div className="absolute top-full left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50 max-h-[300px] overflow-y-auto">
             {options?.map((store) => (
               <div
                 key={store.id}
-                className="flex items-center px-4 py-3 hover:bg-gray-100 cursor-pointer border-b border-gray-100 last:border-b-0"
+                className="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
                 onClick={() => toggleStore(store.id)}
               >
                 <div className="flex items-center w-full">
@@ -134,7 +145,7 @@ const LabeledSelect = ({
                     id={`store-${store.id}`}
                     checked={values?.includes(store.id)}
                     onCheckedChange={() => {}}
-                    className="mr-3"
+                    className="w-6 h-6 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f] mr-3"
                   />
                   <div className="flex flex-col flex-1">
                     <span className="font-medium text-gray-800">
@@ -155,8 +166,8 @@ const LabeledSelect = ({
           </div>
         )}
       </div>
-      <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
-        {label}
+      <span className="absolute -top-[10px] left-4 px-2 text-xs font-medium text-gray-600 bg-white">
+        {label} <span className="text-red-500">*</span>
       </span>
     </div>
   );
@@ -173,14 +184,17 @@ const CheckboxField = ({
   checked: boolean;
   onChange: (checked: boolean) => void;
 }) => (
-  <div className="flex items-center gap-2 w-full">
+  <div className="flex items-center gap-2 pt-2 pr-2 pb-2 pl-2 relative flex-1 grow bg-white rounded-lg border border-solid border-gray-300">
     <Checkbox
       id={id}
       checked={checked}
       onCheckedChange={onChange}
-      className="h-5 w-5"
+      className="w-6 h-6 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
     />
-    <label htmlFor={id} className="text-gray-600 text-sm font-medium">
+    <label
+      htmlFor={id}
+      className="flex-1 font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5"
+    >
       {label}
     </label>
   </div>
@@ -336,11 +350,12 @@ export default function AddUser() {
 
       <div className="flex flex-col justify-between flex-1 h-full">
         <div className="flex flex-col gap-6">
-          <div className="flex gap-4 mt-2">
+          <div className="flex gap-4">
             <LabeledInput
               label={t("addUser.fields.firstName")}
               id="firstname"
               value={formData.firstname}
+              required
               onChange={(value) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -352,6 +367,7 @@ export default function AddUser() {
               label={t("addUser.fields.lastName")}
               id="lastname"
               value={formData.lastname}
+              required
               onChange={(value) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -367,6 +383,7 @@ export default function AddUser() {
               id="email"
               type="email"
               value={formData.email}
+              required
               onChange={(value) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -379,6 +396,7 @@ export default function AddUser() {
               id="password"
               type="password"
               value={formData.password}
+              required={!isEditMode}
               onChange={(value) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -406,9 +424,9 @@ export default function AddUser() {
           </div>
         </div>
 
-        <div className="flex justify-end mt-auto pt-6">
+        <div className="flex justify-end mt-auto pt-6 border-t border-gray-200">
           <Button
-            className="bg-[#07515f] text-white h-12 font-text-medium text-[16px] leading-[24px]"
+            className="bg-[#07515f] text-white h-12 px-6 font-medium text-base hover:bg-[#064147] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleSubmit}
             disabled={loading}
           >
