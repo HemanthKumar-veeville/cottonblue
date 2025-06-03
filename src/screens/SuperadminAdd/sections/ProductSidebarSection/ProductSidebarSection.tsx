@@ -747,10 +747,7 @@ export const ProductSidebarSection = ({
                                 imageUrl={formData.imageUrls[position]}
                                 onUpload={handleFileUpload}
                                 onRemove={handleRemoveImage}
-                                disabled={
-                                  Object.keys(formData.images || {}).length >=
-                                  MAX_IMAGES
-                                }
+                                disabled={true}
                               />
                             ))}
                           </div>

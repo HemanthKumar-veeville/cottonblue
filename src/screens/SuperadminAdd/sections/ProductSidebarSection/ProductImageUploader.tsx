@@ -36,11 +36,11 @@ export const ProductImageUploader: React.FC<ProductImageUploaderProps> = ({
   const handleDragOver = useCallback(
     (e: React.DragEvent) => {
       e.preventDefault();
-      if (!disabled && !imageUrl) {
+      if (!disabled) {
         setIsDragging(true);
       }
     },
-    [disabled, imageUrl]
+    [disabled]
   );
 
   const handleDragLeave = useCallback((e: React.DragEvent) => {
@@ -53,14 +53,14 @@ export const ProductImageUploader: React.FC<ProductImageUploaderProps> = ({
       e.preventDefault();
       setIsDragging(false);
 
-      if (disabled || imageUrl) return;
+      if (disabled) return;
 
       const file = e.dataTransfer.files?.[0];
       if (file) {
         onUpload(file, position);
       }
     },
-    [disabled, imageUrl, onUpload, position]
+    [disabled, onUpload, position]
   );
 
   const handleFileChange = useCallback(
@@ -73,14 +73,16 @@ export const ProductImageUploader: React.FC<ProductImageUploaderProps> = ({
     [onUpload, position]
   );
 
+  const handleClick = useCallback(() => {
+    if (!disabled) {
+      document.getElementById(`file-upload-${position}`)?.click();
+    }
+  }, [disabled, position]);
+
   return (
     <div
       className={containerClass}
-      onClick={() =>
-        !disabled &&
-        !imageUrl &&
-        document.getElementById(`file-upload-${position}`)?.click()
-      }
+      onClick={handleClick}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
@@ -94,7 +96,7 @@ export const ProductImageUploader: React.FC<ProductImageUploaderProps> = ({
       />
 
       {imageUrl ? (
-        <div className="relative w-full h-full flex items-center justify-center bg-gray-50">
+        <div className="relative w-full h-full flex items-center justify-center bg-gray-50 group">
           <div className="w-full h-full flex items-center justify-center">
             <img
               src={imageUrl}
@@ -102,6 +104,7 @@ export const ProductImageUploader: React.FC<ProductImageUploaderProps> = ({
               className="max-w-full max-h-full w-auto h-auto object-contain"
             />
           </div>
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-200" />
           <div className="absolute bottom-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
             <Button
               variant="outline"
@@ -118,6 +121,11 @@ export const ProductImageUploader: React.FC<ProductImageUploaderProps> = ({
                 src="/img/icon-16.svg"
               />
             </Button>
+          </div>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+            <span className="text-white text-sm font-medium bg-black/50 px-3 py-1.5 rounded-full whitespace-nowrap">
+              {t("productSidebar.imageUpload.clickToReplace")}
+            </span>
           </div>
         </div>
       ) : (

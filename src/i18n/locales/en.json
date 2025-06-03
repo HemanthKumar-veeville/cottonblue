@@ -160,7 +160,10 @@
     },
     "imageUpload": {
       "dropImages": "Drop your images here",
-      "orClickToSearch": "Or click to search"
+      "orClickToSearch": "Or click to search",
+      "disabled": "Images disabled",
+      "clickToUpload": "Click to upload",
+      "clickToReplace": "Click to replace"
     },
     "actions": {
       "save": "Save",

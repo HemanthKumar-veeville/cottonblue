@@ -165,7 +165,10 @@
     },
     "imageUpload": {
       "dropImages": "Déposez vos images ici",
-      "orClickToSearch": "Ou cliquer pour rechercher"
+      "orClickToSearch": "Ou cliquer pour rechercher",
+      "disabled": "Images désactivées",
+      "clickToUpload": "Cliquer pour télécharger",
+      "clickToReplace": "Cliquer pour remplacer"
     },
     "actions": {
       "saveDraft": "Enregistrer en brouillon",
