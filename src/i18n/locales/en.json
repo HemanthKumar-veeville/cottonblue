@@ -164,7 +164,8 @@
     },
     "actions": {
       "save": "Save",
-      "next": "Next"
+      "next": "Next",
+      "cancel": "Cancel"
     },
     "messages": {
       "loadError": "Error loading product data",

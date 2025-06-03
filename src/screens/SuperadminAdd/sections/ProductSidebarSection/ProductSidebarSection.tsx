@@ -768,7 +768,18 @@ export const ProductSidebarSection = ({
       {/* Fixed Footer */}
       <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
         <div className="px-6 max-w-[calc(100%-2rem)]">
-          <div className="flex items-center justify-end w-full mx-auto">
+          <div className="flex items-center justify-end w-full mx-auto gap-4">
+            {mode === "edit" && (
+              <Button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="gap-4 py-4 px-4 self-stretch bg-white border-[#07515f] border text-[#07515f] hover:bg-gray-50 transition-colors duration-200"
+              >
+                <span className="font-label-medium font-bold text-sm tracking-wide leading-5 whitespace-nowrap">
+                  {t("productSidebar.actions.cancel")}
+                </span>
+              </Button>
+            )}
             <Button
               type="submit"
               form="product-form"
