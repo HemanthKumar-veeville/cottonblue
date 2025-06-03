@@ -50,6 +50,8 @@ interface ShippingAddress {
   city: string;
   country: string;
   phone: string;
+  email: string;
+  zipCode: string;
 }
 
 interface BillingAddress {
@@ -58,6 +60,8 @@ interface BillingAddress {
   city: string;
   country: string;
   phone: string;
+  email: string;
+  zipCode: string;
 }
 
 const ProductRow = ({
@@ -308,6 +312,8 @@ export default function CartContainer(): JSX.Element {
     city: "",
     country: "France",
     phone: "",
+    email: "",
+    zipCode: "",
   });
 
   const [billingAddress, setBillingAddress] = useState<BillingAddress>({
@@ -316,6 +322,8 @@ export default function CartContainer(): JSX.Element {
     city: "",
     country: "France",
     phone: "",
+    email: "",
+    zipCode: "",
   });
 
   // Add useEffect to update addresses when store_details changes
@@ -328,6 +336,8 @@ export default function CartContainer(): JSX.Element {
         lastName: store_details.admin_name?.split(" ")[1] || "",
         street: store_details.store_address || "",
         city: store_details.store_city || "",
+        zipCode: store_details.store_postal_code.toString() || "",
+        email: store_details.admin_email || "",
       }));
 
       // Update billing address
@@ -336,6 +346,8 @@ export default function CartContainer(): JSX.Element {
         name: store_details.admin_name || "",
         street: store_details.store_address || "",
         city: store_details.store_city || "",
+        zipCode: store_details.store_postal_code.toString() || "",
+        email: store_details.admin_email || "",
       }));
     }
   }, [store_details]);
@@ -394,6 +406,7 @@ export default function CartContainer(): JSX.Element {
           dns_prefix: dnsPrefix,
           store_id: selectedStore,
           cart_id: cartId,
+          comments: comments,
         })
       ).unwrap();
 
@@ -545,7 +558,7 @@ export default function CartContainer(): JSX.Element {
                 <div className="flex items-start gap-2 w-full">
                   <Input
                     className="flex-1 bg-gray-200 border-gray-300 text-gray-500"
-                    value={userEmail}
+                    value={billingAddress.email}
                     disabled
                   />
                 </div>

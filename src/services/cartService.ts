@@ -148,9 +148,12 @@ export const cartService = {
   convertCartToOrder: async (
     dns_prefix: string,
     store_id: string,
-    cart_id: string
+    cart_id: string,
+    comments: string
   ): Promise<ConvertCartToOrderResponse> => {
-    return axiosInstance.post(`/${dns_prefix}/convert-cart-to-order/${store_id}/${cart_id}`);
+    const formData = new FormData();
+    formData.append('comments', comments);
+    return axiosInstance.post(`/${dns_prefix}/convert-cart-to-order/${store_id}/${cart_id}`, formData);
   },
 
   /**

@@ -95,13 +95,15 @@ export const convertCartToOrder = createAsyncThunk(
   async ({ 
     dns_prefix, 
     store_id, 
-    cart_id 
+    cart_id,
+    comments
   }: { 
     dns_prefix: string; 
     store_id: string; 
     cart_id: string;
+    comments: string;
   }) => {
-    const response = await cartService.convertCartToOrder(dns_prefix, store_id, cart_id);
+    const response = await cartService.convertCartToOrder(dns_prefix, store_id, cart_id, comments);
     return response;
   }
 );
