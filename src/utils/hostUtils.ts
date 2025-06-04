@@ -1,7 +1,7 @@
 export const isAdminHostname = (): boolean => {
   const hostname = window.location.hostname;
-  return hostname.startsWith('admin.')
-  // return hostname.startsWith('admin.') || hostname === 'localhost';
+  // return hostname.startsWith('admin.')
+  return hostname.startsWith('admin.') || hostname === 'localhost';
 }; 
 
 export const isWarehouseHostname = (): boolean => {
@@ -12,5 +12,5 @@ export const isWarehouseHostname = (): boolean => {
 
 export const getHost = (): string => {
   const hostname = window.location.hostname;
-  return hostname === 'localhost' ? 'chronodrive' : hostname.split('.')[0];
+  return hostname === 'localhost' ? 'admin' : hostname.split('.')[0];
 };

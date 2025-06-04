@@ -22,6 +22,10 @@ import {
 } from "../../store/features/ticketSlice";
 import { useAppDispatch, RootState, useAppSelector } from "../../store/store";
 import { Skeleton } from "../../components/Skeleton";
+import {
+  getTicketStatusText,
+  getTicketStatusColor,
+} from "../../utils/statusUtil";
 
 export enum TicketStatus {
   OPEN = "open",
@@ -45,26 +49,6 @@ interface TicketCardProps {
   onClick: (ticket: Ticket) => void;
   onCheckboxClick: (ticket: Ticket, e: React.MouseEvent) => void;
 }
-
-const getStatusColor = (status: TicketStatus) => {
-  switch (status) {
-    case TicketStatus.OPEN:
-      return "border-indigo-400 text-indigo-700 bg-indigo-50/30 hover:bg-indigo-50 transition-colors";
-    case TicketStatus.IN_PROGRESS:
-      return "border-amber-400 text-amber-700 bg-amber-50/30 hover:bg-amber-50 transition-colors";
-    case TicketStatus.CLOSED:
-      return "border-green-300 text-green-600 bg-green-50/30 hover:bg-green-50 transition-colors";
-    default:
-      return "border-slate-300 text-slate-600 bg-slate-50/30 hover:bg-slate-50 transition-colors";
-  }
-};
-
-const formatStatus = (status: string): string => {
-  // Replace underscores with spaces and convert to sentence case
-  return status.replace(/_/g, " ").replace(/\w\S*/g, (txt) => {
-    return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
-  });
-};
 
 const TicketCard: React.FC<TicketCardProps> = ({
   ticket,
@@ -100,11 +84,11 @@ const TicketCard: React.FC<TicketCardProps> = ({
               </div>
               <div className="flex items-center gap-2">
                 <Badge
-                  className={`${getStatusColor(
+                  className={`${getTicketStatusColor(
                     ticket.ticket_status
                   )} font-label-small pointer-events-none border`}
                 >
-                  {formatStatus(ticket.ticket_status)}
+                  {getTicketStatusText(ticket.ticket_status, t)}
                 </Badge>
                 <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
                   {new Date(ticket.created_at).toLocaleDateString()}
@@ -375,7 +359,7 @@ export default function Tickets(): JSX.Element {
             <SelectItem value="all">{t("tickets.status.all")}</SelectItem>
             {Object.values(TicketStatus).map((status) => (
               <SelectItem key={status} value={status}>
-                {formatStatus(status)}
+                {getTicketStatusText(status, t)}
               </SelectItem>
             ))}
           </SelectContent>

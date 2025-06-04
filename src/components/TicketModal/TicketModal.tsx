@@ -16,6 +16,10 @@ import {
 import { AppDispatch, RootState, useAppSelector } from "../../store/store";
 import { Badge } from "../ui/badge";
 import { Skeleton } from "../ui/skeleton";
+import {
+  getTicketStatusColor,
+  getTicketStatusText,
+} from "../../utils/statusUtil";
 
 interface TicketMessage {
   message_id: number;
@@ -41,26 +45,6 @@ interface TicketModalProps {
   onClose: () => void;
   ticketId: string;
 }
-
-const getStatusColor = (status: TicketStatus) => {
-  switch (status) {
-    case TicketStatus.OPEN:
-      return "border-indigo-400 text-indigo-700 bg-indigo-50/30 hover:bg-indigo-50 transition-colors";
-    case TicketStatus.IN_PROGRESS:
-      return "border-amber-400 text-amber-700 bg-amber-50/30 hover:bg-amber-50 transition-colors";
-    case TicketStatus.CLOSED:
-      return "border-green-300 text-green-600 bg-green-50/30 hover:bg-green-50 transition-colors";
-    default:
-      return "border-slate-300 text-slate-600 bg-slate-50/30 hover:bg-slate-50 transition-colors";
-  }
-};
-
-const formatStatus = (status: string): string => {
-  // Replace underscores with spaces and convert to sentence case
-  return status.replace(/_/g, " ").replace(/\w\S*/g, (txt) => {
-    return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
-  });
-};
 
 const TicketModalSkeleton = () => {
   return (
@@ -227,11 +211,11 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
                   <Badge
-                    className={`${getStatusColor(
+                    className={`${getTicketStatusColor(
                       ticket?.ticket_status ?? TicketStatus.OPEN
                     )} font-label-small pointer-events-none border`}
                   >
-                    {formatStatus(ticket?.ticket_status ?? "open")}
+                    {getTicketStatusText(ticket?.ticket_status ?? "open", t)}
                   </Badge>
                   <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
                     {ticket?.created_at
