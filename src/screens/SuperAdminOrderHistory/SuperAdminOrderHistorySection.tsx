@@ -84,6 +84,7 @@ const DownloadButton = ({
 );
 
 const StatusText = ({ status, type }: { status: string; type: string }) => {
+  const { t } = useTranslation();
   const textColorClassMap: { [key: string]: string } = {
     approval_pending: "text-1-tokens-color-modes-common-warning-medium",
     on_hold: "text-1-tokens-color-modes-common-warning-medium",
@@ -102,11 +103,7 @@ const StatusText = ({ status, type }: { status: string; type: string }) => {
     <div
       className={`font-normal text-[15px] leading-normal whitespace-nowrap ${textColorClass}`}
     >
-      {status
-        ?.split("_")
-        ?.join(" ")
-        ?.replace(/_/g, " ")
-        ?.replace(/\b\w/g, (char) => char.toUpperCase())}
+      {t(`order_status.${status}`)}
     </div>
   );
 };
@@ -500,10 +497,7 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
         "Store Name": order.store_name,
         "Store Address": order.store_address,
         "Total Price": totalPrice,
-        Status: order.order_status
-          .split("_")
-          .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-          .join(" "),
+        Status: t(`order_status.${order.order_status}`),
         Items: order.order_items
           .map((item) => `${item.product_name} (${item.quantity}x)`)
           .join(", "),

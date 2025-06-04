@@ -36,6 +36,7 @@ import {
 
 import { Checkbox } from "../../../components/ui/checkbox";
 import { useAppSelector } from "../../../store/store";
+import { TFunction } from "i18next";
 interface Order {
   order_id: number;
   store_id: number;
@@ -178,11 +179,9 @@ export const WarehouseTableSection = ({
   };
 
   // Format status function
-  const formatStatus = (status: string) => {
-    return status
-      .split("_")
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-      .join(" ");
+  const formatStatus = (status: string, t: TFunction): string => {
+    // Replace underscores with spaces and convert to sentence case
+    return t(`order_status.${status}`);
   };
 
   // Generate pagination items
@@ -346,7 +345,7 @@ export const WarehouseTableSection = ({
                                 : "bg-orange-50 text-orange-700 hover:bg-orange-100"
                             } cursor-pointer`}
                           >
-                            {formatStatus(order.order_status)}
+                            {formatStatus(order.order_status, t)}
                           </button>
                         </div>
                       </TableCell>

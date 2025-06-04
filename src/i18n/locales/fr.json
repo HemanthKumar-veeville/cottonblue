@@ -1156,5 +1156,15 @@
     "clearSearch": "Effacer la recherche",
     "selectAll": "Sélectionner toutes les commandes",
     "selected": "{{count}} commandes sélectionnées"
+  },
+  "order_status": {
+    "pending": "En attente",
+    "approved": "Approuvé",
+    "rejected": "Rejeté",
+    "confirmed": "Confirmé",
+    "processing": "En cours",
+    "shipped": "Expédié",
+    "delivered": "Livré",
+    "on_hold": "En attente"
   }
 }

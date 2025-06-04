@@ -1,6 +1,7 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "../../../../components/ui/card";
+import { TFunction } from "i18next";
 
 interface OrderDetails {
   date: string;
@@ -25,11 +26,9 @@ const formatDate = (dateString: string) => {
 };
 
 // Format status function
-const formatStatus = (status: string) => {
-  return status
-    .split("_")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+const formatStatus = (status: string, t: TFunction): string => {
+  // Replace underscores with spaces and convert to sentence case
+  return t(`order_status.${status}`);
 };
 
 const DetailItem: React.FC<{
@@ -37,7 +36,8 @@ const DetailItem: React.FC<{
   value: string;
   isStatus?: boolean;
   isDate?: boolean;
-}> = ({ label, value, isStatus, isDate }) => (
+  t: TFunction;
+}> = ({ label, value, isStatus, isDate, t }) => (
   <div className="mb-2">
     <dt className="inline font-bold text-[#1e2324]">{label} : </dt>
     <dd
@@ -45,7 +45,7 @@ const DetailItem: React.FC<{
         isStatus ? "font-bold text-orange-500" : "text-[#1e2324]"
       }`}
     >
-      {isStatus ? formatStatus(value) : isDate ? formatDate(value) : value}
+      {isStatus ? formatStatus(value, t) : isDate ? formatDate(value) : value}
     </dd>
   </div>
 );
@@ -66,15 +66,18 @@ export default function OrderDetailsHeaderSection({
               label={t("warehouse.popup.orderInfo.date")}
               value={order?.created_at}
               isDate
+              t={t}
             />
             <DetailItem
               label={t("warehouse.popup.orderInfo.customer")}
               value={order?.company_dns_prefix}
+              t={t}
             />
             <DetailItem
               label={t("warehouse.popup.orderInfo.status")}
               value={order?.order_status}
               isStatus
+              t={t}
             />
           </dl>
         </div>

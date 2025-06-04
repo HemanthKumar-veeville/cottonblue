@@ -12,17 +12,12 @@ import { useAppSelector, AppDispatch } from "../../store/store";
 import { getHost } from "../../utils/hostUtils";
 import { Skeleton } from "../../components/Skeleton";
 import { jsPDF } from "jspdf";
+import { TFunction } from "i18next";
 
 // Utility function to format status
-const formatStatus = (status: string): string => {
-  if (!status) return "";
-  // Replace underscores with spaces and convert to lowercase
-  const withSpaces = status.replace(/_/g, " ").toLowerCase();
-  // Capitalize first letter of each word
-  return withSpaces
-    .split(" ")
-    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ");
+const formatStatus = (status: string, t: TFunction): string => {
+  // Replace underscores with spaces and convert to sentence case
+  return t(`order_status.${status}`);
 };
 
 const OrderHeader = ({ order }: { order: any }) => {
@@ -118,7 +113,7 @@ const OrderHeader = ({ order }: { order: any }) => {
       order.order_status as keyof typeof statusColors
     ] || [0, 0, 0];
     doc.setTextColor(r, g, b);
-    doc.text(formatStatus(order.order_status), 165, 69);
+    doc.text(formatStatus(order.order_status, t), 165, 69);
     doc.setTextColor(0, 0, 0);
 
     // Add order items table
@@ -278,7 +273,7 @@ const OrderInfo = ({
     in_transit: "text-1-tokens-color-modes-common-success-medium",
     delivered: "text-1-tokens-color-modes-common-success-medium",
   };
-
+  const { t } = useTranslation();
   return (
     <p className="text-base">
       <span className="font-medium">{label}</span>
@@ -291,7 +286,7 @@ const OrderInfo = ({
             : ""
         }
       >
-        {isStatus ? formatStatus(value) : value}
+        {isStatus ? formatStatus(value, t) : value}
       </span>
     </p>
   );

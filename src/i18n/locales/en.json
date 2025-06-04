@@ -1102,5 +1102,15 @@
         "cancel": "Cancel Order"
       }
     }
+  },
+  "order_status": {
+    "pending": "Pending",
+    "approved": "Approved",
+    "rejected": "Rejected",
+    "confirmed": "Confirmed",
+    "processing": "Processing",
+    "shipped": "Shipped",
+    "delivered": "Delivered",
+    "on_hold": "On Hold"
   }
 }

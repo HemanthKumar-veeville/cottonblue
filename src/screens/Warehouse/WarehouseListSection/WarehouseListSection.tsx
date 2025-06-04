@@ -15,6 +15,7 @@ import { AppDispatch, useAppSelector } from "../../../store/store";
 import { changeOrderStatus } from "../../../store/features/cartSlice";
 import { useParams } from "react-router-dom";
 import { ConfirmationDialog } from "../../../components/ui/ConfirmationDialog";
+import { TFunction } from "i18next";
 
 interface StoreFilter {
   id: string;
@@ -129,6 +130,11 @@ export const WarehouseListSection = ({
     }
   };
 
+  const formatStatus = (status: string, t: TFunction): string => {
+    // Replace underscores with spaces and convert to sentence case
+    return t(`order_status.${status}`);
+  };
+
   return (
     <section className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
       <header>
@@ -230,7 +236,7 @@ export const WarehouseListSection = ({
                     : "bg-orange-50 text-orange-700"
                 }`}
               >
-                <span>{activeStatusFilter}</span>
+                <span>{formatStatus(activeStatusFilter, t)}</span>
                 <button
                   onClick={onClearStatusFilter}
                   className="p-0.5 hover:bg-gray-200 rounded-full transition-colors"
