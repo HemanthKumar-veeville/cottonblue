@@ -63,6 +63,7 @@ const paginationItems = [
 ];
 
 const StatusText = ({ status, type }: { status: string; type: string }) => {
+  const { t } = useTranslation();
   const textColorClassMap: { [key: string]: string } = {
     approval_pending: "text-1-tokens-color-modes-common-warning-medium",
     on_hold: "text-1-tokens-color-modes-common-warning-medium",
@@ -84,11 +85,7 @@ const StatusText = ({ status, type }: { status: string; type: string }) => {
     <div
       className={`font-normal text-[15px] leading-normal whitespace-nowrap ${textColorClass}`}
     >
-      {status
-        ?.split("_")
-        ?.join(" ")
-        ?.replace(/_/g, " ")
-        ?.replace(/\b\w/g, (char) => char.toUpperCase())}
+      {t(`order_status.${status}`)}
     </div>
   );
 };

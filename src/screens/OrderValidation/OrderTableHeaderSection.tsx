@@ -19,7 +19,7 @@ import { approveOrder, refuseOrder } from "../../store/features/cartSlice";
 import { getHost } from "../../utils/hostUtils";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
-
+import { useTranslation } from "react-i18next";
 interface OrderDetailsProps {
   createdAt: string;
   orderId: string | number;
@@ -92,7 +92,7 @@ const OrderTableHeaderSection: React.FC<{
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const dns_prefix = getHost();
-
+  const { t } = useTranslation();
   const handleApproveOrder = async () => {
     try {
       await dispatch(
@@ -349,10 +349,7 @@ const OrderTableHeaderSection: React.FC<{
                     {getStatusColor(orderDetails.orderStatus).icon}
                   </span>
                   <span className="font-medium text-sm tracking-normal leading-normal capitalize whitespace-nowrap">
-                    {orderDetails.orderStatus.toLowerCase() ===
-                    "approval_pending"
-                      ? "Approval Pending"
-                      : orderDetails.orderStatus.toLowerCase()}
+                    {t(`order_status.${orderDetails.orderStatus}`)}
                   </span>
                 </Badge>
               </div>

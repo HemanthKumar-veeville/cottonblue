@@ -1107,10 +1107,12 @@
     "pending": "Pending",
     "approved": "Approved",
     "rejected": "Rejected",
+    "refused": "Rejected",
     "confirmed": "Confirmed",
     "processing": "Processing",
     "shipped": "Shipped",
     "delivered": "Delivered",
-    "on_hold": "On Hold"
+    "on_hold": "On Hold",
+    "approval_pending": "Pending"
   }
 }
