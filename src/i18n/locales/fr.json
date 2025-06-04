@@ -51,7 +51,8 @@
       "add": "Ajouter un produit",
       "stock": "Gérer le stock",
       "carousel": "Carrousel d'accueil",
-      "umbrella": "Parapluie"
+      "umbrella": "Parapluie",
+      "manage_stock": "Gérer le stock"
     },
     "customers": {
       "title": "Clients",
@@ -120,6 +121,7 @@
       "details": "Détails",
       "stock": "Stock",
       "availableRegion": "Région disponible",
+      "addStock": "Ajouter du stock",
       "description": "Description",
       "suitableFor": "Convient à",
       "packQuantity": "Quantité par lot",
@@ -1173,5 +1175,28 @@
     "open": "Ouvert",
     "in_progress": "En cours",
     "closed": "Fermé"
+  },
+  "productStock": {
+    "popup": {
+      "productDetails": "Détails du produit #{{productId}}",
+      "name": "Nom",
+      "suitableFor": "Convient à",
+      "size": "Taille",
+      "packQuantity": "Quantité par lot",
+      "stockDetails": "Détails du stock",
+      "availablePacks": "Lots disponibles",
+      "totalPacks": "Total des lots",
+      "pricePerPack": "Prix par lot",
+      "addStock": "Ajouter du stock",
+      "quantity": "Quantité",
+      "enterQuantity": "Entrer la quantité",
+      "add": "Ajouter"
+    }
+  },
+  "stockManagement": {
+    "title": "Gestion du stock",
+    "search": {
+      "placeholder": "Rechercher des produits..."
+    }
   }
 }

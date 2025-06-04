@@ -227,6 +227,26 @@ export const allocateMultipleProductsToStores = createAsyncThunk(
   }
 );
 
+export const addProductQuantity = createAsyncThunk(
+  'product/addProductQuantity',
+  async ({ 
+    dnsPrefix, 
+    productId, 
+    quantity 
+  }: { 
+    dnsPrefix: string; 
+    productId: string; 
+    quantity: number 
+  }, { rejectWithValue }) => {
+    try {
+      const response = await productService.addProductQuantity(dnsPrefix, productId, quantity);
+      return { productId, quantity, ...response.data };
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to add product quantity');
+    }
+  }
+);
+
 // Create the product slice
 const productSlice = createSlice({
   name: 'product',
@@ -451,6 +471,19 @@ const productSlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
         state.allocationSuccess = false;
+      })
+      // Add product quantity cases
+      .addCase(addProductQuantity.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(addProductQuantity.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+      })
+      .addCase(addProductQuantity.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
   },
 });

@@ -26,6 +26,7 @@ import { useSelector } from "react-redux";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import { jsPDF } from "jspdf";
+import { StatusText } from "../../components/ui/status-text";
 
 interface OrderItem {
   product_id: number;
@@ -61,34 +62,6 @@ const paginationItems = [
   { page: 5, active: false },
   { page: 24, active: false },
 ];
-
-const StatusText = ({ status, type }: { status: string; type: string }) => {
-  const { t } = useTranslation();
-  const textColorClassMap: { [key: string]: string } = {
-    approval_pending: "text-1-tokens-color-modes-common-warning-medium",
-    on_hold: "text-1-tokens-color-modes-common-warning-medium",
-    processing: "text-1-tokens-color-modes-common-warning-medium",
-    confirmed: "text-1-tokens-color-modes-common-success-medium",
-    refused: "text-1-tokens-color-modes-common-danger-medium",
-    shipped: "text-1-tokens-color-modes-common-success-medium",
-    in_transit: "text-1-tokens-color-modes-common-success-medium",
-    delivered: "text-1-tokens-color-modes-common-success-medium",
-    success: "text-1-tokens-color-modes-common-success-medium",
-    warning: "text-1-tokens-color-modes-common-warning-medium",
-    danger: "text-1-tokens-color-modes-common-danger-medium",
-    default:
-      "text-[color:var(--1-tokens-color-modes-input-primary-default-text)]",
-  };
-  const textColorClass = textColorClassMap[type] || textColorClassMap.default;
-
-  return (
-    <div
-      className={`font-normal text-[15px] leading-normal whitespace-nowrap ${textColorClass}`}
-    >
-      {t(`order_status.${status}`)}
-    </div>
-  );
-};
 
 const OrderRow = ({
   order,
@@ -358,11 +331,8 @@ const OrderRow = ({
       </TableCell>
       <TableCell className="w-[145px] p-2.5 align-middle">
         <div className="flex items-center gap-2">
-          <StatusIcon type={statusIcon[order?.order_status]} />
-          <StatusText
-            status={t(order?.order_status)}
-            type={order?.order_status}
-          />
+          <StatusIcon status={order?.order_status} />
+          <StatusText status={order?.order_status} />
         </div>
       </TableCell>
       <TableCell className="w-[69px] p-2.5 text-left align-middle">

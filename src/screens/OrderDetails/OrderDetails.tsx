@@ -13,12 +13,7 @@ import { getHost } from "../../utils/hostUtils";
 import { Skeleton } from "../../components/Skeleton";
 import { jsPDF } from "jspdf";
 import { TFunction } from "i18next";
-
-// Utility function to format status
-const formatStatus = (status: string, t: TFunction): string => {
-  // Replace underscores with spaces and convert to sentence case
-  return t(`order_status.${status}`);
-};
+import { getOrderStatusText } from "../../utils/statusUtil";
 
 const OrderHeader = ({ order }: { order: any }) => {
   const { t } = useTranslation();
@@ -113,7 +108,7 @@ const OrderHeader = ({ order }: { order: any }) => {
       order.order_status as keyof typeof statusColors
     ] || [0, 0, 0];
     doc.setTextColor(r, g, b);
-    doc.text(formatStatus(order.order_status, t), 165, 69);
+    doc.text(getOrderStatusText(order.order_status, t), 165, 69);
     doc.setTextColor(0, 0, 0);
 
     // Add order items table
@@ -286,7 +281,7 @@ const OrderInfo = ({
             : ""
         }
       >
-        {isStatus ? formatStatus(value, t) : value}
+        {isStatus ? getOrderStatusText(value, t) : value}
       </span>
     </p>
   );

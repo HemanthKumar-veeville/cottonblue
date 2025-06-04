@@ -51,6 +51,7 @@ import LinkProducts from "./screens/LinkProducts/LinkProducts";
 import AddVariant from "./screens/AddVariant/AddVariant";
 import CreatePassword from "./screens/CreatePassword/CreatePassword";
 import { Warehouse } from "./screens/Warehouse/Warehouse";
+import ManageStock from "./screens/ManageStock/ManageStock";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
@@ -123,6 +124,7 @@ function App() {
                 element={<SuperAdminOrderDetails />}
               />
               <Route path="products" element={<ProductList />} />
+              <Route path="manage-stock" element={<ManageStock />} />
               <Route
                 path="products/add"
                 element={<ProductSidebarSection mode="add" />}

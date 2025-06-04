@@ -2,6 +2,7 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "../../../../components/ui/card";
 import { TFunction } from "i18next";
+import { getOrderStatusText } from "../../../../utils/statusUtil";
 
 interface OrderDetails {
   date: string;
@@ -25,12 +26,6 @@ const formatDate = (dateString: string) => {
   }
 };
 
-// Format status function
-const formatStatus = (status: string, t: TFunction): string => {
-  // Replace underscores with spaces and convert to sentence case
-  return t(`order_status.${status}`);
-};
-
 const DetailItem: React.FC<{
   label: string;
   value: string;
@@ -45,7 +40,11 @@ const DetailItem: React.FC<{
         isStatus ? "font-bold text-orange-500" : "text-[#1e2324]"
       }`}
     >
-      {isStatus ? formatStatus(value, t) : isDate ? formatDate(value) : value}
+      {isStatus
+        ? getOrderStatusText(value, t)
+        : isDate
+        ? formatDate(value)
+        : value}
     </dd>
   </div>
 );

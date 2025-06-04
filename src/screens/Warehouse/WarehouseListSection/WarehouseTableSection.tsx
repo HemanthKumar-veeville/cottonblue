@@ -37,6 +37,12 @@ import {
 import { Checkbox } from "../../../components/ui/checkbox";
 import { useAppSelector } from "../../../store/store";
 import { TFunction } from "i18next";
+import {
+  getOrderStatusColor,
+  getOrderStatusText,
+} from "../../../utils/statusUtil";
+import { StatusText } from "../../../components/ui/status-text";
+import { StatusIcon } from "../../../components/ui/status-icon";
 interface Order {
   order_id: number;
   store_id: number;
@@ -176,12 +182,6 @@ export const WarehouseTableSection = ({
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString();
-  };
-
-  // Format status function
-  const formatStatus = (status: string, t: TFunction): string => {
-    // Replace underscores with spaces and convert to sentence case
-    return t(`order_status.${status}`);
   };
 
   // Generate pagination items
@@ -326,26 +326,19 @@ export const WarehouseTableSection = ({
                         )}
                       </TableCell>
                       <TableCell className="w-[120px] px-4 py-3">
-                        <div className="flex justify-center">
+                        <div className="flex justify-start">
                           <button
                             onClick={() =>
                               handleStatusClick(order.order_status)
                             }
-                            className={`inline-flex px-2.5 py-1 rounded-full text-sm font-medium transition-colors duration-150 ${
-                              order.order_status === "shipped"
-                                ? activeStatusFilter === "shipped"
-                                  ? "bg-blue-100 text-blue-800"
-                                  : "bg-blue-50 text-blue-700 hover:bg-blue-100"
-                                : order.order_status === "confirmed"
-                                ? activeStatusFilter === "confirmed"
-                                  ? "bg-green-100 text-green-800"
-                                  : "bg-green-50 text-green-700 hover:bg-green-100"
-                                : activeStatusFilter === order.order_status
-                                ? "bg-orange-100 text-orange-800"
-                                : "bg-orange-50 text-orange-700 hover:bg-orange-100"
-                            } cursor-pointer`}
+                            className={`inline-flex px-2.5 py-1 rounded-full text-sm font-medium transition-colors duration-150 ${getOrderStatusColor(
+                              order.order_status
+                            )} cursor-pointer`}
                           >
-                            {formatStatus(order.order_status, t)}
+                            <div className="flex items-center gap-2">
+                              <StatusIcon status={order?.order_status} />
+                              <StatusText status={order?.order_status} />
+                            </div>
                           </button>
                         </div>
                       </TableCell>

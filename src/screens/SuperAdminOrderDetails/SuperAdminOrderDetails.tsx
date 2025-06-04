@@ -11,6 +11,7 @@ import { getOrder } from "../../store/features/cartSlice";
 import { useAppSelector, AppDispatch } from "../../store/store";
 import { Skeleton } from "../../components/Skeleton";
 import { StatusIcon } from "../../components/ui/status-icon";
+import { StatusText } from "../../components/ui/status-text";
 import { jsPDF } from "jspdf";
 
 const OrderHeader = ({ order }: { order: any }) => {
@@ -19,7 +20,7 @@ const OrderHeader = ({ order }: { order: any }) => {
 
   const handleDownloadInvoice = (order: any) => {
     const doc = new jsPDF();
-    
+
     // Helper function to draw borders
     const drawBorder = () => {
       doc.setDrawColor(7, 81, 95); // #07515f
@@ -41,14 +42,14 @@ const OrderHeader = ({ order }: { order: any }) => {
 
     // Add header bar
     doc.setFillColor(7, 81, 95);
-    doc.rect(10, 10, 190, 25, 'F');
-    
+    doc.rect(10, 10, 190, 25, "F");
+
     // Add company logo/header
     doc.setTextColor(255, 255, 255);
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(24);
     doc.text("Cotton Blue", 20, 27);
-    
+
     // Add "INVOICE" text
     doc.setFontSize(16);
     doc.text("INVOICE", 160, 27);
@@ -57,13 +58,13 @@ const OrderHeader = ({ order }: { order: any }) => {
     doc.setTextColor(7, 81, 95);
     doc.setFontSize(12);
     doc.text("BILL TO:", 20, 50);
-    
+
     // Add subtle divider
     drawHorizontalLine(53);
 
     // Store information
     doc.setTextColor(0, 0, 0);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
     doc.text(order.store_name, 20, 60);
     doc.text(order.store_address, 20, 66);
@@ -71,17 +72,17 @@ const OrderHeader = ({ order }: { order: any }) => {
     // Add invoice info box
     doc.setDrawColor(7, 81, 95);
     doc.setFillColor(247, 250, 252);
-    doc.rect(120, 45, 70, 35, 'FD');
-    
-    doc.setFont('helvetica', 'bold');
+    doc.rect(120, 45, 70, 35, "FD");
+
+    doc.setFont("helvetica", "bold");
     doc.text("Invoice Number:", 125, 53);
     doc.text("Date:", 125, 61);
     doc.text("Status:", 125, 69);
-    
-    doc.setFont('helvetica', 'normal');
+
+    doc.setFont("helvetica", "normal");
     doc.text(`#${order.order_id}`, 165, 53);
     doc.text(new Date(order.created_at).toLocaleDateString(), 165, 61);
-    
+
     // Status with color coding
     const statusColors = {
       approval_pending: [255, 170, 0],
@@ -89,20 +90,22 @@ const OrderHeader = ({ order }: { order: any }) => {
       refused: [200, 0, 0],
       shipped: [0, 150, 0],
       in_transit: [0, 150, 0],
-      delivered: [0, 150, 0]
+      delivered: [0, 150, 0],
     };
-    const [r, g, b] = statusColors[order.order_status as keyof typeof statusColors] || [0, 0, 0];
+    const [r, g, b] = statusColors[
+      order.order_status as keyof typeof statusColors
+    ] || [0, 0, 0];
     doc.setTextColor(r, g, b);
-    doc.text(order.order_status.replace(/_/g, ' ').toUpperCase(), 165, 69);
+    doc.text(order.order_status.replace(/_/g, " ").toUpperCase(), 165, 69);
     doc.setTextColor(0, 0, 0);
 
     // Add order items table
     drawHorizontalLine(85);
-    
+
     // Table headers
     doc.setFillColor(247, 250, 252);
-    doc.rect(15, 90, 180, 10, 'F');
-    doc.setFont('helvetica', 'bold');
+    doc.rect(15, 90, 180, 10, "F");
+    doc.setFont("helvetica", "bold");
     doc.text("Item", 20, 97);
     doc.text("Quantity", 120, 97);
     doc.text("Price", 150, 97);
@@ -110,22 +113,23 @@ const OrderHeader = ({ order }: { order: any }) => {
 
     // Table content
     let yPos = 107;
-    doc.setFont('helvetica', 'normal');
-    
+    doc.setFont("helvetica", "normal");
+
     order.order_items.forEach((item: any, index: number) => {
       // Alternate row background
       if (index % 2 === 0) {
         doc.setFillColor(252, 252, 252);
-        doc.rect(15, yPos - 5, 180, 8, 'F');
+        doc.rect(15, yPos - 5, 180, 8, "F");
       }
 
       const itemTotal = item.product_price * item.quantity;
-      
+
       // Truncate long product names
       const maxLength = 45;
-      const displayName = item.product_name.length > maxLength 
-        ? item.product_name.substring(0, maxLength) + '...'
-        : item.product_name;
+      const displayName =
+        item.product_name.length > maxLength
+          ? item.product_name.substring(0, maxLength) + "..."
+          : item.product_name;
 
       doc.text(displayName, 20, yPos);
       doc.text(item.quantity.toString(), 120, yPos);
@@ -136,7 +140,7 @@ const OrderHeader = ({ order }: { order: any }) => {
 
     // Calculate total
     const subtotal = order.order_items.reduce(
-      (sum: number, item: any) => sum + (item.product_price * item.quantity),
+      (sum: number, item: any) => sum + item.product_price * item.quantity,
       0
     );
     const tax = subtotal * 0.1; // 10% tax
@@ -145,44 +149,59 @@ const OrderHeader = ({ order }: { order: any }) => {
     // Add total section
     yPos += 5;
     doc.setFillColor(247, 250, 252);
-    doc.rect(120, yPos - 5, 75, 35, 'F');
-    
-    doc.setFont('helvetica', 'normal');
+    doc.rect(120, yPos - 5, 75, 35, "F");
+
+    doc.setFont("helvetica", "normal");
     doc.text("Subtotal:", 125, yPos + 5);
     doc.text(`$${subtotal.toFixed(2)}`, 175, yPos + 5);
-    
+
     doc.text("Tax (10%):", 125, yPos + 15);
     doc.text(`$${tax.toFixed(2)}`, 175, yPos + 15);
-    
-    doc.setFont('helvetica', 'bold');
+
+    doc.setFont("helvetica", "bold");
     doc.text("Total:", 125, yPos + 25);
     doc.text(`$${total.toFixed(2)}`, 175, yPos + 25);
 
     // Add payment terms
     yPos += 45;
-    doc.setFont('helvetica', 'bold');
+    doc.setFont("helvetica", "bold");
     doc.text("Payment Terms", 20, yPos);
-    doc.setFont('helvetica', 'normal');
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.text("Payment is due within 30 days of invoice date.", 20, yPos + 7);
     doc.text("Please include invoice number with your payment.", 20, yPos + 14);
 
     // Add footer
-    doc.setFont('helvetica', 'normal');
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(9);
     doc.setTextColor(128, 128, 128);
-    
+
     // Add divider before footer
     drawHorizontalLine(260);
-    
+
     // Footer text
-    doc.text("Thank you for your business with Cotton Blue!", doc.internal.pageSize.width / 2, 265, { align: 'center' });
+    doc.text(
+      "Thank you for your business with Cotton Blue!",
+      doc.internal.pageSize.width / 2,
+      265,
+      { align: "center" }
+    );
     doc.setFontSize(8);
-    doc.text("For any questions about this invoice, please contact support@cottonblue.com", doc.internal.pageSize.width / 2, 270, { align: 'center' });
-    doc.text("Cotton Blue Inc. | 123 Fashion Street, Style City, SC 12345 | +1 (555) 123-4567", doc.internal.pageSize.width / 2, 275, { align: 'center' });
-    
+    doc.text(
+      "For any questions about this invoice, please contact support@cottonblue.com",
+      doc.internal.pageSize.width / 2,
+      270,
+      { align: "center" }
+    );
+    doc.text(
+      "Cotton Blue Inc. | 123 Fashion Street, Style City, SC 12345 | +1 (555) 123-4567",
+      doc.internal.pageSize.width / 2,
+      275,
+      { align: "center" }
+    );
+
     // Save the PDF with a clean name
-    const timestamp = new Date().toISOString().split('T')[0];
+    const timestamp = new Date().toISOString().split("T")[0];
     doc.save(`CottonBlue_Invoice_${order.order_id}_${timestamp}.pdf`);
   };
 
@@ -197,7 +216,7 @@ const OrderHeader = ({ order }: { order: any }) => {
           {t("orderDetails.title")}
         </h1>
       </div>
-      <Button 
+      <Button
         className="bg-[#07515f] text-white hover:bg-[#064a56] h-9 text-sm"
         onClick={() => handleDownloadInvoice(order)}
       >
@@ -223,29 +242,8 @@ const OrderInfo = ({
     </h3>
     {isStatus ? (
       <div className="flex items-center gap-2">
-        <StatusIcon
-          type={
-            value === "confirmed"
-              ? "success"
-              : value === "approval_pending"
-              ? "warning"
-              : "default"
-          }
-        />
-        <p
-          className={`font-text-medium ${
-            value === "confirmed"
-              ? "text-[color:var(--1-tokens-color-modes-common-success-medium)]"
-              : value === "approval_pending"
-              ? "text-[color:var(--1-tokens-color-modes-common-warning-medium)]"
-              : "text-black"
-          }`}
-        >
-          {value
-            ?.split("_")
-            .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-            .join(" ")}
-        </p>
+        <StatusIcon status={value} />
+        <StatusText status={value} />
       </div>
     ) : (
       <p className="font-text-medium text-black">{value}</p>
@@ -343,14 +341,20 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
   );
 };
 
-const ProductTableHeader = ({ onSelectAll, isAllSelected }: { onSelectAll: (checked: boolean) => void, isAllSelected: boolean }) => {
+const ProductTableHeader = ({
+  onSelectAll,
+  isAllSelected,
+}: {
+  onSelectAll: (checked: boolean) => void;
+  isAllSelected: boolean;
+}) => {
   const { t } = useTranslation();
   return (
     <div className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md mb-2">
       <div className="flex items-center justify-between p-2">
         <div className="w-11 flex items-center justify-center">
-          <Checkbox 
-            className="h-5 w-5 rounded border-[1.5px]" 
+          <Checkbox
+            className="h-5 w-5 rounded border-[1.5px]"
             checked={isAllSelected}
             onCheckedChange={onSelectAll}
           />
@@ -385,12 +389,12 @@ const ProductTableHeader = ({ onSelectAll, isAllSelected }: { onSelectAll: (chec
   );
 };
 
-const ProductRow = ({ 
-  product, 
-  isSelected, 
-  onSelect 
-}: { 
-  product: any; 
+const ProductRow = ({
+  product,
+  isSelected,
+  onSelect,
+}: {
+  product: any;
   isSelected: boolean;
   onSelect: (productId: number) => void;
 }) => {
@@ -398,7 +402,7 @@ const ProductRow = ({
   return (
     <div className="flex items-center justify-between px-2 py-3 border-b border-primary-neutal-300">
       <div className="w-11 flex items-center justify-center">
-        <Checkbox 
+        <Checkbox
           className="h-5 w-5 rounded border-[1.5px]"
           checked={isSelected}
           onCheckedChange={() => onSelect(product.product_id)}
@@ -467,21 +471,24 @@ const ProductTable = ({ order }: { order: any }) => {
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedProducts(order.order_items.map((product: any) => product.product_id));
+      setSelectedProducts(
+        order.order_items.map((product: any) => product.product_id)
+      );
     } else {
       setSelectedProducts([]);
     }
   };
 
   const handleSelectProduct = (productId: number) => {
-    setSelectedProducts(prev => 
+    setSelectedProducts((prev) =>
       prev.includes(productId)
-        ? prev.filter(id => id !== productId)
+        ? prev.filter((id) => id !== productId)
         : [...prev, productId]
     );
   };
 
-  const isAllSelected = order.order_items.length > 0 && 
+  const isAllSelected =
+    order.order_items.length > 0 &&
     selectedProducts.length === order.order_items.length;
 
   return (
@@ -491,14 +498,14 @@ const ProductTable = ({ order }: { order: any }) => {
           {t("orderDetails.products.title")}
         </h2>
         <div className="w-full">
-          <ProductTableHeader 
+          <ProductTableHeader
             onSelectAll={handleSelectAll}
             isAllSelected={isAllSelected}
           />
           <div className="overflow-y-auto">
             {order.order_items.map((product: any) => (
-              <ProductRow 
-                key={product?.product_id} 
+              <ProductRow
+                key={product?.product_id}
                 product={product}
                 isSelected={selectedProducts.includes(product.product_id)}
                 onSelect={handleSelectProduct}

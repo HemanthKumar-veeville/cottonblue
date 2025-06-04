@@ -50,7 +50,8 @@
       "list": "Product List",
       "add": "Add Product",
       "stock": "Manage Stock",
-      "carousel": "Home Carousel"
+      "carousel": "Home Carousel",
+      "manage_stock": "Manage Stock"
     },
     "customers": {
       "title": "Clients",
@@ -119,6 +120,7 @@
       "details": "Details",
       "stock": "Stock",
       "availableRegion": "Available Region",
+      "addStock": "Add Stock",
       "description": "Description",
       "suitableFor": "Suitable For",
       "packQuantity": "Pack Quantity",
@@ -1119,5 +1121,28 @@
     "open": "Open",
     "in_progress": "In Progress",
     "closed": "Closed"
+  },
+  "productStock": {
+    "popup": {
+      "productDetails": "Product Details #{{productId}}",
+      "name": "Name",
+      "suitableFor": "Suitable For",
+      "size": "Size",
+      "packQuantity": "Pack Quantity",
+      "stockDetails": "Stock Details",
+      "availablePacks": "Available Packs",
+      "totalPacks": "Total Packs",
+      "pricePerPack": "Price per Pack",
+      "addStock": "Add Stock",
+      "quantity": "Quantity",
+      "enterQuantity": "Enter quantity",
+      "add": "Add"
+    }
+  },
+  "stockManagement": {
+    "title": "Stock Management",
+    "search": {
+      "placeholder": "Search products..."
+    }
   }
 }

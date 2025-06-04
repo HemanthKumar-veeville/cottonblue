@@ -212,4 +212,15 @@ export const productService = {
       },
     });
   },
+
+  /**
+   * Add quantity to a specific product
+   * @param dnsPrefix DNS prefix of the company
+   * @param productId ID of the product to update quantity
+   * @param quantity Amount to add to the product's quantity
+   * @returns Promise with quantity update response
+   */
+  addProductQuantity: async (dnsPrefix: string, productId: string, quantity: number) => {
+    return axiosInstance.post(`/${dnsPrefix}/add-product-quantity/${productId}/${quantity}`);
+  },
 };

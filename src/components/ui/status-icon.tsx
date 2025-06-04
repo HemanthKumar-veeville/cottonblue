@@ -1,31 +1,44 @@
-import { CheckCircle2, AlertCircle, XCircle, Clock } from "lucide-react";
+import {
+  CheckCircle2,
+  AlertCircle,
+  XCircle,
+  Clock,
+  Truck,
+  HourglassIcon,
+  PackageCheck,
+  PackageX,
+  ShieldAlert,
+  ShoppingCart,
+} from "lucide-react";
 import { cn } from "../../lib/utils";
+import { getOrderStatusColor } from "../../utils/statusUtil";
 
 interface StatusIconProps {
-  type: "success" | "warning" | "danger" | "default";
+  status: string;
   className?: string;
 }
 
 export const StatusIcon = ({
-  type,
+  status,
   className,
 }: StatusIconProps): JSX.Element => {
   const iconMap = {
-    success: CheckCircle2,
-    warning: AlertCircle,
-    danger: XCircle,
+    pending: HourglassIcon,
+    approved: CheckCircle2,
+    rejected: XCircle,
+    refused: PackageX,
+    confirmed: ShoppingCart,
+    processing: AlertCircle,
+    shipped: Truck,
+    delivered: PackageCheck,
+    on_hold: ShieldAlert,
+    approval_pending: Clock,
     default: Clock,
   };
 
-  const colorMap = {
-    success: "text-1-tokens-color-modes-common-success-medium",
-    warning: "text-1-tokens-color-modes-common-warning-medium",
-    danger: "text-1-tokens-color-modes-common-danger-medium",
-    default:
-      "text-[color:var(--1-tokens-color-modes-input-primary-default-text)]",
-  };
+  const Icon = iconMap[status as keyof typeof iconMap];
 
-  const Icon = iconMap[type];
-
-  return <Icon className={cn("w-6 h-6", colorMap[type], className)} />;
+  return (
+    <Icon className={cn("w-6 h-6", getOrderStatusColor(status), className)} />
+  );
 };

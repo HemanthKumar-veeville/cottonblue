@@ -185,6 +185,11 @@ export const SuperadminSidebarSection = ({
           path: "/products",
         },
         {
+          icon: <BookOpenIcon className="w-4 h-4" />,
+          label: t("sidebar.products.manage_stock"),
+          path: "/manage-stock",
+        },
+        {
           icon: <PlusCircleIcon className="w-4 h-4" />,
           label: t("sidebar.products.add"),
           path: "/products/add",

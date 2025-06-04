@@ -27,6 +27,7 @@ import { getAllOrders } from "../../store/features/cartSlice";
 import { jsPDF } from "jspdf";
 import { StatusIcon } from "../../components/ui/status-icon";
 import { TFunction } from "i18next";
+import { getOrderStatusText } from "../../utils/statusUtil";
 
 // Define proper types for our data
 interface Agency {
@@ -555,23 +556,18 @@ const OrdersTableCard = ({ orders }: { orders: Order[] }) => {
     );
   };
 
-  const formatStatus = (status: string, t: TFunction): string => {
-    // Replace underscores with spaces and convert to sentence case
-    return t(`order_status.${status}`);
-  };
-
   const getOrderStatus = (
     status: string
   ): { text: string; type: "success" | "warning" | "danger" } => {
     switch (status) {
       case "completed":
-        return { text: formatStatus(status, t), type: "success" };
+        return { text: getOrderStatusText(status, t), type: "success" };
       case "approval_pending":
-        return { text: formatStatus(status, t), type: "warning" };
+        return { text: getOrderStatusText(status, t), type: "warning" };
       case "cancelled":
-        return { text: formatStatus(status, t), type: "danger" };
+        return { text: getOrderStatusText(status, t), type: "danger" };
       default:
-        return { text: formatStatus(status, t), type: "warning" };
+        return { text: getOrderStatusText(status, t), type: "warning" };
     }
   };
 

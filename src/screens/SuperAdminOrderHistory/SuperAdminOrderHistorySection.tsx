@@ -29,6 +29,7 @@ import ErrorState from "../../components/ErrorState";
 import EmptyState from "../../components/EmptyState";
 import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
+import { getOrderStatusColor } from "../../utils/statusUtil";
 
 interface OrderItem {
   product_id: number;
@@ -83,25 +84,14 @@ const DownloadButton = ({
   </Button>
 );
 
-const StatusText = ({ status, type }: { status: string; type: string }) => {
+const StatusText = ({ status }: { status: string }) => {
   const { t } = useTranslation();
-  const textColorClassMap: { [key: string]: string } = {
-    approval_pending: "text-1-tokens-color-modes-common-warning-medium",
-    on_hold: "text-1-tokens-color-modes-common-warning-medium",
-    processing: "text-1-tokens-color-modes-common-warning-medium",
-    confirmed: "text-1-tokens-color-modes-common-success-medium",
-    refused: "text-1-tokens-color-modes-common-danger-medium",
-    shipped: "text-1-tokens-color-modes-common-success-medium",
-    in_transit: "text-1-tokens-color-modes-common-success-medium",
-    delivered: "text-1-tokens-color-modes-common-success-medium",
-    default:
-      "text-[color:var(--1-tokens-color-modes-input-primary-default-text)]",
-  };
-  const textColorClass = textColorClassMap[type] || textColorClassMap.default;
 
   return (
     <div
-      className={`font-normal text-[15px] leading-normal whitespace-nowrap ${textColorClass}`}
+      className={`font-normal text-[15px] leading-normal whitespace-nowrap ${getOrderStatusColor(
+        status
+      )}`}
     >
       {t(`order_status.${status}`)}
     </div>
@@ -324,19 +314,6 @@ const OrderRow = ({
     ? new Date(order.created_at).toLocaleDateString()
     : t("common.notAvailable");
 
-  const statusIcon: Record<Order["order_status"] | "default", StatusIconType> =
-    {
-      approval_pending: "warning",
-      on_hold: "warning",
-      processing: "warning",
-      confirmed: "success",
-      refused: "danger",
-      shipped: "success",
-      in_transit: "success",
-      delivered: "success",
-      default: "default",
-    };
-
   return (
     <TableRow
       key={index}
@@ -371,11 +348,8 @@ const OrderRow = ({
       </TableCell>
       <TableCell className="w-[145px] text-left">
         <div className="flex items-center gap-2">
-          <StatusIcon type={statusIcon[order?.order_status ?? "default"]} />
-          <StatusText
-            status={order?.order_status ?? ""}
-            type={order?.order_status ?? "default"}
-          />
+          <StatusIcon status={order?.order_status} />
+          <StatusText status={order?.order_status} />
         </div>
       </TableCell>
       <TableCell className="w-[69px] text-left">
