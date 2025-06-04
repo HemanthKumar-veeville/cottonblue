@@ -16,26 +16,10 @@ import { AppDispatch, RootState, useAppSelector } from "../../store/store";
 import { getHost } from "../../utils/hostUtils";
 import { TicketStatus } from "../../screens/Tickets/Tickets";
 import EmptyState from "../../components/EmptyState";
-
-const getStatusColor = (status: string) => {
-  switch (status.toLowerCase()) {
-    case "open":
-      return "border-blue-200 text-blue-700 bg-blue-50/50 hover:bg-blue-100/50";
-    case "in_progress":
-      return "border-amber-200 text-amber-700 bg-amber-50/50 hover:bg-amber-100/50";
-    case "closed":
-      return "border-emerald-200 text-emerald-700 bg-emerald-50/50 hover:bg-emerald-100/50";
-    default:
-      return "border-gray-200 text-gray-700 bg-gray-50/50 hover:bg-gray-100/50";
-  }
-};
-
-const formatStatus = (status: string): string => {
-  // Replace underscores with spaces and convert to sentence case
-  return status.replace(/_/g, " ").replace(/\w\S*/g, (txt) => {
-    return txt.charAt(0).toUpperCase() + txt.slice(1).toLowerCase();
-  });
-};
+import {
+  getTicketStatusColor,
+  getTicketStatusText,
+} from "../../utils/statusUtil";
 
 interface TicketMessage {
   message_id: number;
@@ -187,11 +171,11 @@ const PopupTicket = ({ ticketId, onClose }: PopupTicketProps) => {
               <div className="flex flex-col gap-2">
                 <div className="flex items-center gap-2">
                   <Badge
-                    className={`${getStatusColor(
+                    className={`${getTicketStatusColor(
                       ticket?.ticket_status ?? ""
                     )} font-label-small pointer-events-none border`}
                   >
-                    {formatStatus(ticket?.ticket_status ?? "")}
+                    {getTicketStatusText(ticket?.ticket_status ?? "", t)}
                   </Badge>
                 </div>
               </div>

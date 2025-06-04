@@ -1168,5 +1168,10 @@
     "delivered": "Livré",
     "on_hold": "En attente",
     "approval_pending": "En attente"
+  },
+  "ticket_status": {
+    "open": "Ouvert",
+    "in_progress": "En cours",
+    "closed": "Fermé"
   }
 }
