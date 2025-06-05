@@ -33,10 +33,11 @@ export const StatusIcon = ({
     delivered: PackageCheck,
     on_hold: ShieldAlert,
     approval_pending: Clock,
+    pending_approval: Clock,
     default: Clock,
   };
 
-  const Icon = iconMap[status as keyof typeof iconMap];
+  const Icon = iconMap[status as keyof typeof iconMap] || iconMap.default;
 
   return (
     <Icon className={cn("w-6 h-6", getOrderStatusColor(status), className)} />

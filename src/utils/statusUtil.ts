@@ -43,6 +43,8 @@ export const getOrderStatusColor = (status: string): string => {
             return "border-purple-200 text-purple-700 bg-purple-50/50 hover:bg-purple-100/50";
         case "approval_pending":
             return "border-cyan-200 text-cyan-700 bg-cyan-50/50 hover:bg-cyan-100/50";
+        case "pending_approval":
+            return "border-gray-200 text-gray-700 bg-gray-50/50 hover:bg-gray-100/50";
         default:
             return "border-gray-200 text-gray-700 bg-gray-50/50 hover:bg-gray-100/50";
     }
