@@ -26,6 +26,7 @@ import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
 import { Users, MoreVertical, Eye, Edit, Power } from "lucide-react";
 import { fetchUsers, modifyUser } from "../../store/features/userSlice";
+import { getHost } from "../../utils/hostUtils";
 
 interface UserData {
   firstname: string;
@@ -57,7 +58,8 @@ export const ClientUserTableSection = ({
   const dispatch = useAppDispatch();
   const { selectedCompany } = useAppSelector((state) => state.client);
   const ITEMS_PER_PAGE = 5;
-
+  const host = getHost();
+  const dnsPrefix = host || selectedCompany?.dns;
   // Calculate dropdown position
   const getDropdownPosition = (buttonElement: HTMLButtonElement | null) => {
     if (!buttonElement) return { top: 0, right: 0 };
@@ -137,10 +139,10 @@ export const ClientUserTableSection = ({
 
   const handleToggleActive = async (user: any) => {
     try {
-      if (user?.user_id && selectedCompany?.dns) {
+      if (user?.user_id && dnsPrefix) {
         await dispatch(
           modifyUser({
-            dnsPrefix: selectedCompany.dns,
+            dnsPrefix: dnsPrefix,
             userId: user?.user_id,
             data: {
               is_active: !user?.is_active,
@@ -148,7 +150,7 @@ export const ClientUserTableSection = ({
           })
         ).unwrap();
         // Refresh users list after successful import
-        await dispatch(fetchUsers({ dnsPrefix: selectedCompany?.dns || "" }));
+        await dispatch(fetchUsers({ dnsPrefix: dnsPrefix || "" }));
         setActiveDropdown(null);
       }
     } catch (error: any) {

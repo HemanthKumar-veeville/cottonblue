@@ -211,7 +211,8 @@ export default function ClientAddUser() {
   const { selectedUser } = useSelector((state: RootState) => state.user);
   const storeList = stores?.stores;
   const user = selectedUser?.user;
-
+  const host = getHost();
+  const dnsPrefix = host || selectedCompany?.dns;
   // Check if we're in edit mode
   const isEditMode = location.pathname.includes("/edit");
 
@@ -229,12 +230,12 @@ export default function ClientAddUser() {
   // Fetch user details in edit mode
   useEffect(() => {
     const fetchUserDetails = async () => {
-      if (isEditMode && id && selectedCompany?.dns) {
+      if (isEditMode && id && dnsPrefix) {
         try {
           setLoading(true);
           await dispatch(
             getUserDetails({
-              dnsPrefix: selectedCompany.dns,
+              dnsPrefix: dnsPrefix,
               userId: id,
             })
           ).unwrap();
@@ -246,13 +247,13 @@ export default function ClientAddUser() {
       }
     };
     const fetchStores = async () => {
-      if (selectedCompany?.dns) {
-        await dispatch(fetchAllStores(selectedCompany.dns)).unwrap();
+      if (dnsPrefix) {
+        await dispatch(fetchAllStores(dnsPrefix)).unwrap();
       }
     };
     fetchStores();
     fetchUserDetails();
-  }, [isEditMode, id, selectedCompany?.dns, dispatch]);
+  }, [isEditMode, id, dnsPrefix, dispatch]);
 
   // Update form data when selectedUser changes in edit mode
   useEffect(() => {
@@ -282,7 +283,6 @@ export default function ClientAddUser() {
 
     try {
       setLoading(true);
-      const dnsPrefix = selectedCompany?.dns;
 
       if (!dnsPrefix) {
         throw new Error("Company DNS prefix is required");
@@ -291,7 +291,7 @@ export default function ClientAddUser() {
       if (isEditMode && id) {
         await dispatch(
           modifyUser({
-            dnsPrefix,
+            dnsPrefix: dnsPrefix,
             userId: id,
             data: {
               firstname: formData.firstname,
@@ -305,7 +305,7 @@ export default function ClientAddUser() {
       } else {
         await dispatch(
           registerUser({
-            dnsPrefix,
+            dnsPrefix: dnsPrefix,
             data: {
               firstname: formData.firstname,
               lastname: formData.lastname,

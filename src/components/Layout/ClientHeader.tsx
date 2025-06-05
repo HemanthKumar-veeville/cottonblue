@@ -137,6 +137,8 @@ export const ClientHeader = () => {
     dispatch(setSearchTerm(value));
   }, 300);
 
+  const adminPaths = ["/admin-dashboard", "/users", "/users/add"];
+
   return (
     <div className="sticky top-0 z-50 flex w-full min-w-[320px] items-center justify-between px-4 md:px-6 lg:px-8 py-3 bg-defaultwhite border-b border-1-tokens-color-modes-common-neutral-lower shadow-sm backdrop-blur-sm bg-white/90">
       {/* Left section with search and store selector */}
@@ -155,7 +157,7 @@ export const ClientHeader = () => {
         </div>
 
         {/* Store Selector */}
-        {pathname !== "/admin-dashboard" && (
+        {!adminPaths.includes(pathname) && (
           <div className="w-[35%] min-w-[140px]">
             <Select
               value={selectedStore || "all"}
