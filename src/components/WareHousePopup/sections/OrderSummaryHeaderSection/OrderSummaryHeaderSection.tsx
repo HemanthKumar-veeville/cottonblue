@@ -18,44 +18,6 @@ interface OrderItem {
   total: string;
 }
 
-const orderItems: OrderItem[] = [
-  {
-    product: "Magnet + stylo",
-    reference: "122043",
-    unitPrice: "49,99€",
-    quantity: "3",
-    total: "149,97€",
-  },
-  {
-    product: "Magnet + stylo",
-    reference: "122043",
-    unitPrice: "49,99€",
-    quantity: "3",
-    total: "149,97€",
-  },
-  {
-    product: "Magnet + stylo",
-    reference: "122043",
-    unitPrice: "49,99€",
-    quantity: "3",
-    total: "149,97€",
-  },
-  {
-    product: "Magnet + stylo",
-    reference: "122043",
-    unitPrice: "49,99€",
-    quantity: "3",
-    total: "149,97€",
-  },
-  {
-    product: "Magnet + stylo",
-    reference: "122043",
-    unitPrice: "49,99€",
-    quantity: "3",
-    total: "149,97€",
-  },
-];
-
 const OrderSummaryHeaderSection = ({
   products,
 }: {
@@ -71,12 +33,13 @@ const OrderSummaryHeaderSection = ({
     t("cart.table.quantity"),
     t("cart.table.total"),
   ];
-  products = products.map((product: any) => ({
-    product: product.product_name,
-    reference: product.product_id,
-    unitPrice: product.product_price || product.price_of_pack,
-    quantity: product.quantity,
-    total: (product.product_price || product.price_of_pack) * product.quantity,
+  products = products?.map((product: any) => ({
+    product: product?.product_name,
+    reference: product?.product_id,
+    unitPrice: product?.product_price || product?.price_of_pack,
+    quantity: product?.quantity,
+    total:
+      (product?.product_price || product?.price_of_pack) * product?.quantity,
   }));
 
   return (
@@ -128,7 +91,7 @@ const OrderSummaryHeaderSection = ({
         <div className="max-h-[200px] h-full overflow-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
           <Table className="w-full table-fixed">
             <TableBody>
-              {products.map((item: any, index: number) => (
+              {products?.map((item: any, index: number) => (
                 <TableRow
                   key={index}
                   className="border-b border-primary-neutal-300"
@@ -140,27 +103,27 @@ const OrderSummaryHeaderSection = ({
                   </TableCell>
                   <TableCell className="w-[25%] py-[var(--2-tokens-screen-modes-common-spacing-XS)] text-left">
                     <span className="font-text-smaller text-1-tokens-color-modes-common-neutral-hightest whitespace-nowrap">
-                      {item.product}
+                      {item?.product}
                     </span>
                   </TableCell>
                   <TableCell className="w-[20%] py-[var(--2-tokens-screen-modes-common-spacing-XS)] text-left">
                     <span className="font-text-smaller text-1-tokens-color-modes-common-neutral-hightest whitespace-nowrap">
-                      {item.reference}
+                      {item?.reference}
                     </span>
                   </TableCell>
                   <TableCell className="w-[20%] py-[var(--2-tokens-screen-modes-common-spacing-XS)] text-right">
                     <span className="font-text-smaller text-1-tokens-color-modes-common-neutral-hightest whitespace-nowrap">
-                      €{item.unitPrice}
+                      €{item?.unitPrice}
                     </span>
                   </TableCell>
                   <TableCell className="w-[15%] py-[var(--2-tokens-screen-modes-common-spacing-XS)] text-center">
                     <span className="font-text-smaller text-1-tokens-color-modes-common-neutral-hightest whitespace-nowrap">
-                      {item.quantity}
+                      {item?.quantity}
                     </span>
                   </TableCell>
                   <TableCell className="w-[15%] py-[var(--2-tokens-screen-modes-common-spacing-XS)] text-right">
                     <span className="font-text-smaller text-1-tokens-color-modes-common-neutral-hightest whitespace-nowrap">
-                      €{item.total}
+                      €{item?.total}
                     </span>
                   </TableCell>
                 </TableRow>

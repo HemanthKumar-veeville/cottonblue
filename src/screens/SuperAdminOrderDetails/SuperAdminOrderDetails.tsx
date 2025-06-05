@@ -526,12 +526,13 @@ export default function SuperAdminOrderDetails() {
   const { currentOrder, loading, error } = useAppSelector(
     (state) => state.cart
   );
+  const { selectedCompany } = useAppSelector((state) => state.client);
 
   useEffect(() => {
     if (id && store_id) {
       dispatch(
         getOrder({
-          dns_prefix: "chronodrive",
+          dns_prefix: selectedCompany?.dns,
           store_id: store_id,
           order_id: id,
         })

@@ -86,27 +86,6 @@ interface Order {
   store_id?: number; // Optional since it's not in the store's interface
 }
 
-// Remove the static data section completely
-const agencyDetails: AgencyDetails = {
-  id: "1021",
-  name: "Chronodrive",
-  city: "Lyon",
-  address: "123 Rue de la République",
-  phone_number: "+33 4 78 34 56 78",
-  longitude: "4.8357",
-  latitude: "45.7640",
-  created_at: "22/03/2025",
-  updated_at: "22/03/2025",
-  company_id: 1,
-  postal_code: "69001",
-  is_active: true,
-  statistics: {
-    totalOrders: "342",
-    monthlyRevenue: "8 500 €",
-    topProducts: "T-shirt blanc, Mug Chrono",
-  },
-};
-
 // Helper function to get store detail by key
 const getStoreDetail = (store: Agency, key: keyof Agency): string => {
   if (!store) return "Not Available";

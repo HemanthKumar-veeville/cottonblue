@@ -67,9 +67,9 @@ const ActionButtonSection = ({
     }
   };
 
-  const handleStatusChange = (orderIds: number[], status: string) => {
+  const handleStatusChange = async (orderIds: number[], status: string) => {
     if (dns_prefix) {
-      dispatch(
+      await dispatch(
         changeOrderStatus({
           dns_prefix,
           status,

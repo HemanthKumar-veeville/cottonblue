@@ -94,51 +94,6 @@ interface Order {
   hasInvoice: boolean;
 }
 
-// Static data
-const agencyDetails: AgencyDetails = {
-  id: "1021",
-  name: "Chronodrive",
-  city: "Lyon",
-  address: "123 Rue de la République",
-  phone_number: "+33 4 78 34 56 78",
-  longitude: "4.8357",
-  latitude: "45.7640",
-  created_at: "22/03/2025",
-  updated_at: "22/03/2025",
-  company_id: 1,
-  postal_code: "69001",
-  is_active: true,
-  statistics: {
-    totalOrders: "342",
-    monthlyRevenue: "8 500 €",
-    topProducts: "T-shirt blanc, Mug Chrono",
-  },
-};
-
-const orders: Order[] = [
-  {
-    id: "KCJRTAEIJ",
-    date: "15/02/2024",
-    price: "499.90€",
-    status: { text: "Livrée", type: "success" },
-    hasInvoice: true,
-  },
-  {
-    id: "KCJRTAEIJ",
-    date: "22/03/2025",
-    price: "149.90€",
-    status: { text: "En cours", type: "warning" },
-    hasInvoice: true,
-  },
-  {
-    id: "KCJRTAEIJ",
-    date: "30/04/2024",
-    price: "499.90€",
-    status: { text: "Annulée", type: "danger" },
-    hasInvoice: false,
-  },
-];
-
 // Helper function to get company detail by key
 const getCompanyDetail = (company: Company, key: keyof Company): string => {
   if (!company) return "Not Available";
