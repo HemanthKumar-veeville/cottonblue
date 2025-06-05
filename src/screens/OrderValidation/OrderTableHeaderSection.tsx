@@ -10,33 +10,64 @@ import { toast } from "sonner";
 import { jsPDF } from "jspdf";
 import { StatusText } from "../../components/ui/status-text";
 import { StatusIcon } from "../../components/ui/status-icon";
-interface OrderDetailsProps {
-  createdAt: string;
-  orderId: string | number;
-  orderItems: Array<{ [key: string]: any }>;
-  orderStatus: string;
-  storeAddress: string;
-  storeName: string;
+import ErrorState from "../../components/ErrorState";
+import { Skeleton } from "../../components/ui/skeleton";
+
+interface OrderItem {
+  product_id: number;
+  product_name: string;
+  product_image: string;
+  product_price: number;
+  quantity: number;
 }
 
-const OrderInfo: React.FC<{ label: string; value: string }> = ({
-  label,
-  value,
-}) => (
+interface OrderDetailsProps {
+  order_id: number;
+  created_at: string;
+  order_status: string;
+  store_name: string;
+  store_address: string;
+  order_items: OrderItem[];
+}
+
+const OrderInfo: React.FC<{
+  label: string;
+  value: string;
+  isLoading?: boolean;
+}> = ({ label, value, isLoading = false }) => (
   <div className="group transition-all duration-200 ease-in-out hover:bg-gray-50 p-2 rounded-md -mx-2">
     <p className="font-text-medium font-medium text-black text-base tracking-normal leading-normal">
       <span className="font-medium text-gray-600 group-hover:text-primary transition-colors">
         {label}
       </span>
-      <span className="ml-2 text-gray-900"> {value}</span>
+      {isLoading ? (
+        <Skeleton className="ml-2 h-4 w-32 inline-block" />
+      ) : (
+        <span className="ml-2 text-gray-900">{value}</span>
+      )}
     </p>
   </div>
 );
 
 const OrderTableHeaderSection: React.FC<{
-  orderDetails: OrderDetailsProps;
-}> = ({ orderDetails }) => {
+  orderDetails: OrderDetailsProps | null | undefined;
+  isLoading?: boolean;
+}> = ({ orderDetails, isLoading = false }) => {
   const navigate = useNavigate();
+
+  if (!orderDetails && !isLoading) {
+    return (
+      <Card className="w-full p-6 md:p-8 shadow-lg">
+        <ErrorState
+          title="Order Not Found"
+          message="The order details are not available. Please try again or contact support if the issue persists."
+          onRetry={() => window.location.reload()}
+          variant="inline"
+        />
+      </Card>
+    );
+  }
+
   const dispatch = useAppDispatch();
   const dns_prefix = getHost();
   const handleApproveOrder = async () => {
@@ -44,7 +75,7 @@ const OrderTableHeaderSection: React.FC<{
       await dispatch(
         approveOrder({
           dns_prefix,
-          order_id: orderDetails.orderId.toString(),
+          order_id: orderDetails?.order_id?.toString() ?? "",
         })
       ).unwrap();
       toast.success("Order approved successfully");
@@ -59,7 +90,7 @@ const OrderTableHeaderSection: React.FC<{
       await dispatch(
         refuseOrder({
           dns_prefix,
-          order_id: orderDetails.orderId.toString(),
+          order_id: orderDetails?.order_id?.toString() ?? "",
         })
       ).unwrap();
       toast.success("Order refused successfully");
@@ -114,17 +145,17 @@ const OrderTableHeaderSection: React.FC<{
     doc.setFontSize(10);
 
     const orderInfo = [
-      { label: "Order ID:", value: `#${orderDetails.orderId}` },
+      { label: "Order ID:", value: `#${orderDetails?.order_id}` },
       {
         label: "Date:",
-        value: new Date(orderDetails.createdAt).toLocaleDateString(),
+        value: new Date(orderDetails?.created_at ?? "").toLocaleDateString(),
       },
       {
         label: "Status:",
-        value: orderDetails.orderStatus,
+        value: orderDetails?.order_status ?? "",
       },
-      { label: "Store Name:", value: orderDetails.storeName },
-      { label: "Store Address:", value: orderDetails.storeAddress },
+      { label: "Store Name:", value: orderDetails?.store_name ?? "" },
+      { label: "Store Address:", value: orderDetails?.store_address ?? "" },
     ];
 
     let yPos = 60;
@@ -164,27 +195,27 @@ const OrderTableHeaderSection: React.FC<{
     doc.setFont("helvetica", "normal");
 
     let totalAmount = 0;
-    orderDetails.orderItems.forEach((item, index) => {
+    orderDetails?.order_items?.forEach((item, index) => {
       // Alternate row background
       if (index % 2 === 0) {
         doc.setFillColor(250, 255, 252);
         doc.rect(15, yPos - 5, 180, 8, "F");
       }
 
-      const itemTotal = item.product_price * item.quantity;
+      const itemTotal = (item?.product_price ?? 0) * (item?.quantity ?? 0);
       totalAmount += itemTotal;
 
       // Truncate long product names
       const maxLength = 35;
       const displayName =
-        item.product_name.length > maxLength
-          ? item.product_name.substring(0, maxLength) + "..."
-          : item.product_name;
+        (item?.product_name?.length ?? 0) > maxLength
+          ? item?.product_name?.substring(0, maxLength) + "..."
+          : item?.product_name ?? "";
 
       doc.text(displayName, 20, yPos);
-      doc.text(item.product_id.toString(), 90, yPos);
-      doc.text(`$${item.product_price.toFixed(2)}`, 130, yPos);
-      doc.text(item.quantity.toString(), 160, yPos);
+      doc.text(item?.product_id?.toString() ?? "", 90, yPos);
+      doc.text(`$${(item?.product_price ?? 0).toFixed(2)}`, 130, yPos);
+      doc.text(item?.quantity?.toString() ?? "", 160, yPos);
       doc.text(`$${itemTotal.toFixed(2)}`, 180, yPos);
 
       yPos += 8;
@@ -218,7 +249,7 @@ const OrderTableHeaderSection: React.FC<{
 
     // Save the PDF
     const timestamp = new Date().toISOString().split("T")[0];
-    doc.save(`CottonBlue_OrderForm_${orderDetails.orderId}_${timestamp}.pdf`);
+    doc.save(`CottonBlue_OrderForm_${orderDetails?.order_id}_${timestamp}.pdf`);
   };
 
   return (
@@ -239,16 +270,18 @@ const OrderTableHeaderSection: React.FC<{
           </h3>
         </div>
 
-        <Button
-          className="bg-green-600 border border-green-700 hover:bg-green-600/90 h-auto group transition-all duration-200"
-          aria-label="Download order form"
-          onClick={handleDownloadOrderForm}
-        >
-          <Download className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-          <span className="font-label-medium font-medium text-base tracking-normal leading-normal">
-            Download Order Form
-          </span>
-        </Button>
+        {!isLoading && (
+          <Button
+            className="bg-green-600 border border-green-700 hover:bg-green-600/90 h-auto group transition-all duration-200"
+            aria-label="Download order form"
+            onClick={handleDownloadOrderForm}
+          >
+            <Download className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
+            <span className="font-label-medium font-medium text-base tracking-normal leading-normal">
+              Download Order Form
+            </span>
+          </Button>
+        )}
       </div>
 
       <CardContent className="p-0">
@@ -257,74 +290,86 @@ const OrderTableHeaderSection: React.FC<{
             <div className="space-y-2">
               <OrderInfo
                 label="Order ID"
-                value={orderDetails.orderId.toString()}
+                value={orderDetails?.order_id?.toString() ?? ""}
+                isLoading={isLoading}
               />
               <OrderInfo
                 label="Date"
-                value={new Date(orderDetails.createdAt).toLocaleDateString(
-                  "en-US",
-                  {
-                    year: "numeric",
-                    month: "long",
-                    day: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }
-                )}
+                value={new Date(
+                  orderDetails?.created_at ?? ""
+                ).toLocaleDateString("en-US", {
+                  year: "numeric",
+                  month: "long",
+                  day: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+                isLoading={isLoading}
               />
               <div className="flex items-center gap-2 p-2 -mx-2 group transition-all duration-200 ease-in-out hover:bg-gray-50 rounded-md">
                 <span className="font-medium text-gray-600 group-hover:text-primary transition-colors">
                   Status
                 </span>
-                <div className="flex items-center gap-2">
-                  <StatusIcon status={orderDetails.orderStatus} />
-                  <StatusText status={orderDetails.orderStatus} />
-                </div>
+                {isLoading ? (
+                  <Skeleton className="h-6 w-24" />
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <StatusIcon status={orderDetails?.order_status ?? ""} />
+                    <StatusText status={orderDetails?.order_status ?? ""} />
+                  </div>
+                )}
               </div>
             </div>
           </div>
 
           <div className="flex-1 space-y-4">
             <div className="space-y-2">
-              <OrderInfo label="Store Name" value={orderDetails.storeName} />
+              <OrderInfo
+                label="Store Name"
+                value={orderDetails?.store_name ?? ""}
+                isLoading={isLoading}
+              />
               <OrderInfo
                 label="Store Address"
-                value={orderDetails.storeAddress}
+                value={orderDetails?.store_address ?? ""}
+                isLoading={isLoading}
               />
             </div>
           </div>
         </div>
       </CardContent>
 
-      <div className="flex flex-col sm:flex-row gap-4 w-full">
-        <Button
-          className="flex-1 bg-green-600 border border-green-700 hover:bg-green-600/90 h-auto group transition-all duration-200"
-          aria-label="Approve order"
-          onClick={handleApproveOrder}
-          disabled={
-            orderDetails.orderStatus.toLowerCase() !== "approval_pending"
-          }
-        >
-          <CheckCircle className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-          <span className="font-label-medium font-medium text-primary-text text-base tracking-normal leading-normal">
-            Approve Order
-          </span>
-        </Button>
+      {!isLoading && (
+        <div className="flex flex-col sm:flex-row gap-4 w-full">
+          <Button
+            className="flex-1 bg-green-600 border border-green-700 hover:bg-green-600/90 h-auto group transition-all duration-200"
+            aria-label="Approve order"
+            onClick={handleApproveOrder}
+            disabled={
+              orderDetails?.order_status?.toLowerCase() !== "approval_pending"
+            }
+          >
+            <CheckCircle className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+            <span className="font-label-medium font-medium text-primary-text text-base tracking-normal leading-normal">
+              Approve Order
+            </span>
+          </Button>
 
-        <Button
-          className="flex-1 bg-red-500 border border-red-600 hover:bg-red-600 text-white h-auto group transition-all duration-200"
-          aria-label="Reject order"
-          onClick={handleRefuseOrder}
-          disabled={
-            orderDetails.orderStatus.toLowerCase() !== "approval_pending"
-          }
-        >
-          <XCircle className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
-          <span className="font-label-medium font-medium text-base tracking-normal leading-normal">
-            Reject Order
-          </span>
-        </Button>
-      </div>
+          <Button
+            className="flex-1 bg-red-500 border border-red-600 hover:bg-red-600 text-white h-auto group transition-all duration-200"
+            aria-label="Reject order"
+            onClick={handleRefuseOrder}
+            disabled={
+              orderDetails?.order_status?.toLowerCase() !== "approval_pending"
+            }
+          >
+            <XCircle className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+            <span className="font-label-medium font-medium text-base tracking-normal leading-normal">
+              Reject Order
+            </span>
+          </Button>
+        </div>
+      )}
     </Card>
   );
 };

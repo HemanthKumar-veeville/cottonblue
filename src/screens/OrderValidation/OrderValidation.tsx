@@ -2,13 +2,11 @@ import React, { useEffect } from "react";
 import { OrderTableHeaderSection } from "./OrderTableHeaderSection";
 import { ProductListHeaderSection } from "./ProductListHeaderSection";
 import { useParams } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
 import { getOrder } from "../../store/features/cartSlice";
-import { RootState, AppDispatch } from "../../store";
 import { getHost } from "../../utils/hostUtils";
-import { useAppSelector } from "../../store/store";
 import { Skeleton } from "../../components/ui/skeleton";
 import { Card } from "../../components/ui/card";
+import { useAppDispatch, useAppSelector } from "../../store/store";
 
 interface OrderItem {
   product_id: number;
@@ -102,22 +100,13 @@ const ProductListSkeleton = () => (
 export default function Container(): JSX.Element {
   const { id, store_id } = useParams();
   const dnsPrefix = getHost();
-  const { selectedStore } = useAppSelector((state) => state.agency);
 
-  const dispatch = useDispatch<AppDispatch>();
-  const { currentOrder, loading, error } = useSelector(
-    (state: RootState) => state.cart
+  const dispatch = useAppDispatch();
+  const { currentOrder, loading, error } = useAppSelector(
+    (state) => state.cart
   );
 
-  // Safely access order properties with fallbacks
-  const orderDetails = {
-    createdAt: currentOrder?.created_at ?? "Not available",
-    orderId: currentOrder?.order_id ?? "Not available",
-    orderItems: currentOrder?.order_items ?? [],
-    orderStatus: currentOrder?.order_status ?? "Not available",
-    storeAddress: currentOrder?.store_address ?? "Not available",
-    storeName: currentOrder?.store_name ?? "Not available",
-  };
+  console.log({ currentOrder });
 
   useEffect(() => {
     if (id && store_id) {
@@ -164,10 +153,12 @@ export default function Container(): JSX.Element {
   return (
     <main className="flex flex-col w-full max-w-[1208px] mx-auto gap-8 px-4 py-6 md:px-6 lg:px-8">
       <SectionWrapper>
-        <OrderTableHeaderSection orderDetails={orderDetails} />
+        <OrderTableHeaderSection orderDetails={currentOrder} />
       </SectionWrapper>
       <SectionWrapper>
-        <ProductListHeaderSection orderDetails={orderDetails.orderItems} />
+        <ProductListHeaderSection
+          orderDetails={currentOrder?.order_items || []}
+        />
       </SectionWrapper>
     </main>
   );

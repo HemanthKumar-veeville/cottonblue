@@ -52,6 +52,9 @@ import AddVariant from "./screens/AddVariant/AddVariant";
 import CreatePassword from "./screens/CreatePassword/CreatePassword";
 import { Warehouse } from "./screens/Warehouse/Warehouse";
 import ManageStock from "./screens/ManageStock/ManageStock";
+import ClientUserDetails from "./screens/UserDetails/ClientUserDetails";
+import { ClientUserListSection } from "./screens/UserListSection/ClientUserListSection";
+import ClientAddUser from "./screens/AddUser/ClientAddUser";
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
@@ -189,6 +192,10 @@ function App() {
               path="validate-order/:store_id/:id"
               element={<OrderValidation />}
             />
+            <Route path="users" element={<ClientUserListSection />} />
+            <Route path="users/add" element={<ClientAddUser />} />
+            <Route path="users/edit/:id" element={<ClientAddUser />} />
+            <Route path="users/:id" element={<ClientUserDetails />} />
             <Route path="product/:id" element={<ClientProduct />} />
             <Route path="cart" element={<CartContainer />} />
             <Route path="history" element={<History />} />

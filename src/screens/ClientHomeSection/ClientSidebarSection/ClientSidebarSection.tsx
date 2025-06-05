@@ -5,6 +5,7 @@ import {
   LifeBuoyIcon,
   LogOutIcon,
   SettingsIcon,
+  UsersIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../components/ui/button";
@@ -29,6 +30,11 @@ let navItems = [
     icon: <ClipboardListIcon className="w-4 h-4" />,
     label: "sidebar.adminDashboard",
     path: "/admin-dashboard",
+  },
+  {
+    icon: <UsersIcon className="w-4 h-4" />,
+    label: "sidebar.users.list",
+    path: "/users",
   },
 ];
 
@@ -85,7 +91,7 @@ const NavigationMenu = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { isClientAdmin } = useAppSelector((state) => state.auth);
-  navItems = navItems?.slice(0, isClientAdmin ? 3 : 2);
+  navItems = navItems?.slice(0, isClientAdmin ? 4 : 2);
 
   return (
     <nav className="w-full space-y-2">
