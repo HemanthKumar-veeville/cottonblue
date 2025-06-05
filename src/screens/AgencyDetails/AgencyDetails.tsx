@@ -28,6 +28,7 @@ import { jsPDF } from "jspdf";
 import { StatusIcon } from "../../components/ui/status-icon";
 import { TFunction } from "i18next";
 import { getOrderStatusText } from "../../utils/statusUtil";
+import { StatusText } from "../../components/ui/status-text";
 
 // Define proper types for our data
 interface Agency {
@@ -662,12 +663,8 @@ const OrdersTableCard = ({ orders }: { orders: Order[] }) => {
                   </TableCell>
                   <TableCell className="w-[145px] text-left">
                     <div className="flex items-center gap-2">
-                      <StatusIcon type={status.type} />
-                      <span
-                        className={`text-1-tokens-color-modes-common-${status.type}-medium`}
-                      >
-                        {status.text}
-                      </span>
+                      <StatusIcon status={order?.order_status ?? ""} />
+                      <StatusText status={order?.order_status ?? ""} />
                     </div>
                   </TableCell>
                   <TableCell className="w-[69px] text-left">

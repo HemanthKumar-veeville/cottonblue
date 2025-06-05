@@ -2,7 +2,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import { Card, CardContent } from "../../../../components/ui/card";
 import { TFunction } from "i18next";
-import { getOrderStatusText } from "../../../../utils/statusUtil";
+import { StatusIcon } from "../../../../components/ui/status-icon";
+import { StatusText } from "../../../../components/ui/status-text";
 
 interface OrderDetails {
   date: string;
@@ -40,11 +41,7 @@ const DetailItem: React.FC<{
         isStatus ? "font-bold text-orange-500" : "text-[#1e2324]"
       }`}
     >
-      {isStatus
-        ? getOrderStatusText(value, t)
-        : isDate
-        ? formatDate(value)
-        : value}
+      {isDate ? formatDate(value) : value}
     </dd>
   </div>
 );
@@ -72,12 +69,10 @@ export default function OrderDetailsHeaderSection({
               value={order?.company_dns_prefix}
               t={t}
             />
-            <DetailItem
-              label={t("warehouse.popup.orderInfo.status")}
-              value={order?.order_status}
-              isStatus
-              t={t}
-            />
+            <div className="flex items-center gap-2">
+              <StatusIcon status={order?.order_status} />
+              <StatusText status={order?.order_status} />
+            </div>
           </dl>
         </div>
       </CardContent>

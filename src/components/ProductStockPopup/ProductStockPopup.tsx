@@ -6,7 +6,10 @@ import { Separator } from "../ui/separator";
 import { Input } from "../ui/input";
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/store";
-import { addProductQuantity } from "../../store/features/productSlice";
+import {
+  addProductQuantity,
+  fetchAllProducts,
+} from "../../store/features/productSlice";
 import { Label } from "../ui/label";
 
 interface ProductStockPopupProps {
@@ -113,12 +116,17 @@ const StockDetailsSection = ({ product }: { product: any }) => {
   );
 };
 
-const AddStockSection = ({ productId }: { productId: number }) => {
+const AddStockSection = ({
+  productId,
+  loading,
+}: {
+  productId: number;
+  loading: boolean;
+}) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const [quantity, setQuantity] = useState("");
   const { selectedCompany } = useAppSelector((state) => state.client);
-  const { loading } = useAppSelector((state) => state.product);
 
   const handleSubmit = async () => {
     if (quantity && selectedCompany?.dns) {
@@ -130,6 +138,7 @@ const AddStockSection = ({ productId }: { productId: number }) => {
         })
       );
       setQuantity("");
+      await dispatch(fetchAllProducts(selectedCompany.dns));
     }
   };
 
@@ -172,9 +181,10 @@ export const ProductStockPopup = ({
   productId,
   onClose,
   open,
-  product,
-  isLoading = false,
 }: ProductStockPopupProps): JSX.Element => {
+  const { products, loading } = useAppSelector((state) => state.product);
+  const product =
+    products?.products.find((product: any) => product.id === productId) || null;
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="flex flex-col gap-6 p-8 bg-white max-w-[800px] rounded-lg shadow-lg border border-[color:var(--1-tokens-color-modes-common-neutral-lower)]">
@@ -199,7 +209,7 @@ export const ProductStockPopup = ({
         <div className="h-px bg-[color:var(--1-tokens-color-modes-common-neutral-lower)]" />
         <StockDetailsSection product={product} />
         <div className="h-px bg-[color:var(--1-tokens-color-modes-common-neutral-lower)]" />
-        <AddStockSection productId={productId} />
+        <AddStockSection productId={productId} loading={loading} />
       </DialogContent>
     </Dialog>
   );

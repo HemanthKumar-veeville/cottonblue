@@ -52,17 +52,6 @@ interface Order {
   order_items: OrderItem[];
 }
 
-type StatusIconType = "warning" | "success" | "danger" | "default";
-
-const paginationItems = [
-  { page: 1, active: true },
-  { page: 2, active: false },
-  { page: 3, active: false },
-  { page: 4, active: false },
-  { page: 5, active: false },
-  { page: 24, active: false },
-];
-
 const OrderRow = ({
   order,
   index,
@@ -287,19 +276,6 @@ const OrderRow = ({
   const formattedDate = order?.created_at
     ? new Date(order.created_at).toLocaleDateString()
     : "";
-
-  const statusIcon: Record<Order["order_status"] | "default", StatusIconType> =
-    {
-      approval_pending: "warning",
-      on_hold: "warning",
-      processing: "warning",
-      confirmed: "success",
-      refused: "danger",
-      shipped: "success",
-      in_transit: "success",
-      delivered: "success",
-      default: "default",
-    };
 
   return (
     <TableRow key={index} className="border-b border-primary-neutal-300">

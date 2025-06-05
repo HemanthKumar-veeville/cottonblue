@@ -1,25 +1,15 @@
-import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
-import {
-  ArrowLeft,
-  Download,
-  CheckCircle,
-  XCircle,
-  Clock,
-  CheckCircle2,
-  RefreshCw,
-  Circle,
-} from "lucide-react";
+import { CheckCircle, ArrowLeft, Download, XCircle } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { cn } from "../../lib/utils";
 import { useAppDispatch } from "../../store/store";
 import { approveOrder, refuseOrder } from "../../store/features/cartSlice";
 import { getHost } from "../../utils/hostUtils";
 import { toast } from "sonner";
 import { jsPDF } from "jspdf";
-import { useTranslation } from "react-i18next";
+import { StatusText } from "../../components/ui/status-text";
+import { StatusIcon } from "../../components/ui/status-icon";
 interface OrderDetailsProps {
   createdAt: string;
   orderId: string | number;
@@ -43,56 +33,12 @@ const OrderInfo: React.FC<{ label: string; value: string }> = ({
   </div>
 );
 
-const getStatusColor = (status: string) => {
-  const statusMap: {
-    [key: string]: {
-      bg: string;
-      text: string;
-      border: string;
-      icon: JSX.Element;
-    };
-  } = {
-    approval_pending: {
-      bg: "bg-amber-50",
-      text: "text-amber-700",
-      border: "border-amber-200",
-      icon: <Clock className="w-3.5 h-3.5" />,
-    },
-    approved: {
-      bg: "bg-emerald-50",
-      text: "text-emerald-700",
-      border: "border-emerald-200",
-      icon: <CheckCircle2 className="w-3.5 h-3.5" />,
-    },
-    rejected: {
-      bg: "bg-rose-50",
-      text: "text-rose-700",
-      border: "border-rose-200",
-      icon: <XCircle className="w-3.5 h-3.5" />,
-    },
-    processing: {
-      bg: "bg-blue-50",
-      text: "text-blue-700",
-      border: "border-blue-200",
-      icon: <RefreshCw className="w-3.5 h-3.5" />,
-    },
-    default: {
-      bg: "bg-gray-50",
-      text: "text-gray-700",
-      border: "border-gray-200",
-      icon: <Circle className="w-3.5 h-3.5" />,
-    },
-  };
-  return statusMap[status.toLowerCase()] || statusMap.default;
-};
-
 const OrderTableHeaderSection: React.FC<{
   orderDetails: OrderDetailsProps;
 }> = ({ orderDetails }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const dns_prefix = getHost();
-  const { t } = useTranslation();
   const handleApproveOrder = async () => {
     try {
       await dispatch(
@@ -175,7 +121,7 @@ const OrderTableHeaderSection: React.FC<{
       },
       {
         label: "Status:",
-        value: orderDetails.orderStatus.replace(/_/g, " ").toUpperCase(),
+        value: orderDetails.orderStatus,
       },
       { label: "Store Name:", value: orderDetails.storeName },
       { label: "Store Address:", value: orderDetails.storeAddress },
@@ -330,28 +276,10 @@ const OrderTableHeaderSection: React.FC<{
                 <span className="font-medium text-gray-600 group-hover:text-primary transition-colors">
                   Status
                 </span>
-                <Badge
-                  className={cn(
-                    "border px-3 py-1.5 rounded-full flex items-center gap-2 transition-all duration-200 shadow-sm",
-                    getStatusColor(orderDetails.orderStatus).bg,
-                    getStatusColor(orderDetails.orderStatus).text,
-                    getStatusColor(orderDetails.orderStatus).border,
-                    "hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
-                  )}
-                >
-                  <span
-                    className={cn(
-                      "flex items-center transition-transform",
-                      orderDetails.orderStatus.toLowerCase() ===
-                        "approval_pending" && "animate-spin"
-                    )}
-                  >
-                    {getStatusColor(orderDetails.orderStatus).icon}
-                  </span>
-                  <span className="font-medium text-sm tracking-normal leading-normal capitalize whitespace-nowrap">
-                    {t(`order_status.${orderDetails.orderStatus}`)}
-                  </span>
-                </Badge>
+                <div className="flex items-center gap-2">
+                  <StatusIcon status={orderDetails.orderStatus} />
+                  <StatusText status={orderDetails.orderStatus} />
+                </div>
               </div>
             </div>
           </div>

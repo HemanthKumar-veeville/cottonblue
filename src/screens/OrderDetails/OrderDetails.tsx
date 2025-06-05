@@ -14,6 +14,8 @@ import { Skeleton } from "../../components/Skeleton";
 import { jsPDF } from "jspdf";
 import { TFunction } from "i18next";
 import { getOrderStatusText } from "../../utils/statusUtil";
+import { StatusText } from "../../components/ui/status-text";
+import { StatusIcon } from "../../components/ui/status-icon";
 
 const OrderHeader = ({ order }: { order: any }) => {
   const { t } = useTranslation();
@@ -328,11 +330,10 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
                 }
                 isStatus={false}
               />
-              <OrderInfo
-                label={t("orderDetails.fields.status")}
-                value={order?.order_status ?? t("common.notAvailable")}
-                isStatus={!!order?.order_status}
-              />
+              <div className="flex items-center gap-2">
+                <StatusIcon status={order?.order_status} />
+                <StatusText status={order?.order_status} />
+              </div>
             </div>
           </div>
           <div className="space-y-4">
