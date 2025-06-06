@@ -406,22 +406,24 @@ export default function AddUser() {
             />
           </div>
 
-          <div className="flex gap-4">
-            <div className="w-1/2">
-              <LabeledSelect
-                label={t("addUser.fields.stores")}
-                id="store"
-                values={formData.store_ids}
-                options={storeList}
-                onChange={(values) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    store_ids: values,
-                  }))
-                }
-              />
+          {user?.role === "user" && (
+            <div className="flex gap-4">
+              <div className="w-1/2">
+                <LabeledSelect
+                  label={t("addUser.fields.stores")}
+                  id="store"
+                  values={formData.store_ids}
+                  options={storeList}
+                  onChange={(values) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      store_ids: values,
+                    }))
+                  }
+                />
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="flex justify-end mt-auto pt-6 border-t border-gray-200">
