@@ -453,9 +453,6 @@ export const WarehouseTableSection = ({
       {selectedOrderId && (
         <PopupOrder
           orderId={selectedOrderId}
-          order={currentOrders.find(
-            (order) => order.order_id === selectedOrderId
-          )}
           onClose={handleClosePopup}
           open={isPopupOpen}
           isLoading={loading}

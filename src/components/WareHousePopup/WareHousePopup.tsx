@@ -11,12 +11,14 @@ import ActionButtonSection from "./sections/ActionButtonSection/ActionButtonSect
 import OrderDetailsHeaderSection from "./sections/OrderDetailsHeaderSection/OrderDetailsHeaderSection";
 import OrderSummaryHeaderSection from "./sections/OrderSummaryHeaderSection/OrderSummaryHeaderSection";
 import { Separator } from "../ui/separator";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 interface PopupOrderProps {
   orderId: number;
   onClose: () => void;
   open: boolean;
-  order: any;
+
   isLoading?: boolean;
 }
 
@@ -52,9 +54,10 @@ export const PopupOrder = ({
   orderId,
   onClose,
   open,
-  order,
   isLoading = false,
 }: PopupOrderProps): JSX.Element => {
+  const { orders } = useSelector((state: RootState) => state.cart);
+  const order = orders.find((order) => order.order_id === orderId);
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent
