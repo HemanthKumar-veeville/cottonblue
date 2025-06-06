@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { ScrollArea, ScrollBar } from "../../components/ui/scroll-area";
-import { Crown, MessageSquare, Package2, Users } from "lucide-react";
+import { Crown, MessageSquare, Package2, Ticket, Users } from "lucide-react";
 import React from "react";
 import { RootState } from "../../store/store";
 import {
@@ -39,7 +39,10 @@ interface Client {
 
 interface Ticket {
   id: number;
+  ticket_id: number;
   issue: string;
+  ticket_status: string;
+  created_at: string;
   client: string;
 }
 
@@ -96,9 +99,22 @@ const ClientCard: React.FC<{ client: Client }> = ({ client }) => (
 
 const TicketCard: React.FC<{ ticket: Ticket }> = ({ ticket }) => (
   <div className="p-4 rounded-md border border-[#E2E8F0] bg-white transition-all duration-200 hover:shadow-md">
-    <div className="flex flex-col gap-2">
-      <div className="font-medium text-[#475569]">{ticket.issue}</div>
-      <div className="text-[#64748B] text-sm font-medium">{ticket.client}</div>
+    <div className="flex items-center justify-between gap-3">
+      <div className="flex items-center justify-between">
+        <div className="font-medium text-[#475569] flex items-center gap-2">
+          <span>#{ticket.ticket_id}</span>
+          <span className="text-[#64748B]">:</span>
+          <span>{ticket.issue}</span>
+        </div>
+      </div>
+      <div className="flex flex-col gap-1">
+        <div className="text-[#64748B] text-sm font-medium flex items-center gap-2">
+          {ticket.client}
+        </div>
+        <div className="text-[#64748B] text-sm font-medium flex items-center gap-2">
+          {new Date(ticket.created_at).toLocaleDateString()}
+        </div>
+      </div>
     </div>
   </div>
 );
@@ -127,14 +143,17 @@ const DashboardSection: React.FC = () => {
       total_amount: client.total_amount,
     })) || [];
 
-  const latestTickets = [
-    { id: 1, issue: "Problème de connexion", client: "Chronodrive - Lille" },
-    {
-      id: 2,
-      issue: "Problème de connexion",
-      client: "Dassault System - Seclin",
-    },
-  ];
+  const latestTickets =
+    summary?.dashboard_data?.recent_tickets?.map(
+      (ticket: any, index: number) => ({
+        id: index + 1,
+        ticket_id: ticket.ticket_id,
+        issue: ticket.ticket_title,
+        ticket_status: ticket.ticket_status,
+        created_at: ticket.created_at,
+        client: ticket.company_name,
+      })
+    ) || [];
 
   return (
     <div className="flex gap-8 w-full">
@@ -204,9 +223,18 @@ const DashboardSection: React.FC = () => {
             </div>
           </CardHeader>
           <CardContent className="flex flex-col gap-4 px-6 pb-6">
-            {latestTickets.map((ticket) => (
-              <TicketCard key={ticket.id} ticket={ticket} />
-            ))}
+            {latestTickets.length === 0 ? (
+              <EmptyState
+                icon={Ticket}
+                title={t("dashboard.noLatestTickets")}
+                description={t("dashboard.noLatestTicketsDescription")}
+                className="h-[28rem]"
+              />
+            ) : (
+              latestTickets.map((ticket) => (
+                <TicketCard key={ticket.id} ticket={ticket} />
+              ))
+            )}
           </CardContent>
         </Card>
       </div>
