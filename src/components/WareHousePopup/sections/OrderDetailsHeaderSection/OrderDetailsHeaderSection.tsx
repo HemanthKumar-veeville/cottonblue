@@ -4,6 +4,7 @@ import { Card, CardContent } from "../../../../components/ui/card";
 import { TFunction } from "i18next";
 import { StatusIcon } from "../../../../components/ui/status-icon";
 import { StatusText } from "../../../../components/ui/status-text";
+import { useAppSelector } from "../../../../store/store";
 
 interface OrderDetails {
   date: string;
@@ -52,6 +53,8 @@ export default function OrderDetailsHeaderSection({
   order: any;
 }): JSX.Element {
   const { t } = useTranslation();
+  const { selectedCompany } = useAppSelector((state) => state.client);
+  const dns = selectedCompany?.dns || "admin";
 
   return (
     <Card className="w-full border-0 shadow-none">
@@ -66,7 +69,7 @@ export default function OrderDetailsHeaderSection({
             />
             <DetailItem
               label={t("warehouse.popup.orderInfo.customer")}
-              value={order?.company_dns_prefix}
+              value={order?.company_dns_prefix || dns}
               t={t}
             />
             <div className="flex items-center gap-2">
