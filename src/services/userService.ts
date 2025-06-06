@@ -4,7 +4,7 @@ export interface UserRegistrationData {
   firstname: string;
   lastname: string;
   email: string;
-  password: string;
+  password?: string;
   store_ids: number[];
 }
 
@@ -40,7 +40,9 @@ export const userService = {
       formData.append('firstname', data.firstname);
       formData.append('lastname', data.lastname);
       formData.append('email', data.email);
-      formData.append('password', data.password);
+      if (data.password) {
+        formData.append('password', data.password);
+      }
       
       // Send store_ids as a JSON string to preserve array structure
       formData.append('store_ids', JSON.stringify(data.store_ids));

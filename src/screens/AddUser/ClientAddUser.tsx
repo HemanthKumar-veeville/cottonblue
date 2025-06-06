@@ -29,7 +29,6 @@ interface FormData {
   firstname: string;
   lastname: string;
   email: string;
-  password: string;
   store_ids: number[];
 }
 
@@ -220,7 +219,6 @@ export default function ClientAddUser() {
     firstname: "",
     lastname: "",
     email: "",
-    password: "",
     store_ids: [],
   };
 
@@ -262,7 +260,6 @@ export default function ClientAddUser() {
         firstname: user.firstname,
         lastname: user.lastname,
         email: user.email,
-        password: "", // Password is not included in user details for security
         store_ids: user?.store_ids || [],
       });
     }
@@ -274,7 +271,6 @@ export default function ClientAddUser() {
       !formData.firstname ||
       !formData.lastname ||
       !formData.email ||
-      (!isEditMode && !formData.password) || // Only require password for new users
       formData.store_ids.length === 0
     ) {
       toast.error("Please fill in all required fields");
@@ -297,7 +293,6 @@ export default function ClientAddUser() {
               firstname: formData.firstname,
               lastname: formData.lastname,
               email: formData.email,
-              ...(formData.password && { password: formData.password }), // Only include password if provided
               store_ids: formData.store_ids,
             },
           })
@@ -310,7 +305,6 @@ export default function ClientAddUser() {
               firstname: formData.firstname,
               lastname: formData.lastname,
               email: formData.email,
-              password: formData.password,
               store_ids: formData.store_ids,
             },
           })
@@ -378,35 +372,24 @@ export default function ClientAddUser() {
             </div>
 
             <div className="flex gap-4">
-              <LabeledInput
-                label={t("addUser.fields.email")}
-                id="email"
-                type="email"
-                value={formData.email}
-                required
-                onChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    email: value,
-                  }))
-                }
-              />
-              <LabeledInput
-                label={t("addUser.fields.password")}
-                id="password"
-                type="password"
-                value={formData.password}
-                required={!isEditMode}
-                onChange={(value) =>
-                  setFormData((prev) => ({
-                    ...prev,
-                    password: value,
-                  }))
-                }
-              />
+              <div className="w-1/2">
+                <LabeledInput
+                  label={t("addUser.fields.email")}
+                  id="email"
+                  type="email"
+                  value={formData.email}
+                  required
+                  onChange={(value) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      email: value,
+                    }))
+                  }
+                />
+              </div>
             </div>
 
-            {user?.role === "user" && (
+            {!(user?.role === "admin") && (
               <div className="flex gap-4">
                 <div className="w-1/2">
                   <LabeledSelect
