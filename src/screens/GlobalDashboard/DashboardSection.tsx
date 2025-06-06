@@ -6,7 +6,7 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { ScrollArea, ScrollBar } from "../../components/ui/scroll-area";
-import { Crown, MessageSquare, Package2 } from "lucide-react";
+import { Crown, MessageSquare, Package2, Users } from "lucide-react";
 import React from "react";
 import { RootState } from "../../store/store";
 import {
@@ -33,6 +33,8 @@ interface Product {
 interface Client {
   id: number;
   name: string;
+  total_orders: number;
+  total_amount: number;
 }
 
 interface Ticket {
@@ -77,10 +79,16 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => (
 const ClientCard: React.FC<{ client: Client }> = ({ client }) => (
   <Card className="transition-all duration-200 hover:shadow-md rounded-md">
     <CardContent className="px-6 py-4">
-      <div className="font-semibold text-lg text-[#475569] flex items-center gap-2">
-        <span>#{client.id}</span>
-        <span className="text-[#64748B]">:</span>
-        <span>{client.name}</span>
+      <div className="flex flex-col">
+        <div className="font-semibold text-lg text-[#475569] flex items-center gap-2">
+          <span>#{client.id}</span>
+          <span className="text-[#64748B]">:</span>
+          <span>{client.name}</span>
+        </div>
+        <div className="text-sm text-[#64748B] mt-1 flex items-center gap-4">
+          <span>{client.total_orders} commandes</span>
+          <span>{client.total_amount.toFixed(2)} €</span>
+        </div>
       </div>
     </CardContent>
   </Card>
@@ -111,11 +119,13 @@ const DashboardSection: React.FC = () => {
       })
     ) || [];
 
-  const topClients = [
-    { id: 1, name: "Chronodrive" },
-    { id: 2, name: "Dassault Aviation" },
-    { id: 3, name: "Cultura" },
-  ];
+  const topClients =
+    summary?.dashboard_data?.top_clients?.map((client: any, index: number) => ({
+      id: index + 1,
+      name: client.company_name,
+      total_orders: client.total_orders,
+      total_amount: client.total_amount,
+    })) || [];
 
   const latestTickets = [
     { id: 1, issue: "Problème de connexion", client: "Chronodrive - Lille" },
@@ -167,9 +177,18 @@ const DashboardSection: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent className="flex flex-col gap-4 px-6 pb-6">
-              {topClients.map((client) => (
-                <ClientCard key={client.id} client={client} />
-              ))}
+              {topClients.length === 0 ? (
+                <EmptyState
+                  icon={Users}
+                  title={t("dashboard.noTopClients")}
+                  description={t("dashboard.noTopClientsDescription")}
+                  className="h-[28rem]"
+                />
+              ) : (
+                topClients.map((client) => (
+                  <ClientCard key={client.id} client={client} />
+                ))
+              )}
             </CardContent>
           </Card>
         ) : (
