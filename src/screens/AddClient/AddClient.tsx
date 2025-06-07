@@ -90,6 +90,7 @@ const LabeledInput = ({
       disabled={disabled}
       onChange={(e) => onChange?.(e.target.value)}
       required={required}
+      data-testid={label.toLowerCase().replace(/\s+/g, "-")}
     />
     <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
       {label}
@@ -115,6 +116,7 @@ const LabeledButton = ({
     variant="outline"
     className="w-full justify-start pl-10 py-2 font-text-medium text-[16px] leading-[24px] relative"
     onClick={onClick || (() => onChange?.(!checked))}
+    data-testid={`button-${label.toLowerCase().replace(/\s+/g, "-")}`}
   >
     {checked !== undefined && (
       <Checkbox
@@ -228,6 +230,9 @@ const ColorPicker = ({
           onBlur={handleBlur}
           className="w-[80px] h-7 px-2 py-1 text-xs font-mono text-center uppercase"
           maxLength={7}
+          data-testid={`color-input-${label
+            .toLowerCase()
+            .replace(/\s+/g, "-")}`}
         />
       </div>
       {isOpen && (
@@ -382,6 +387,7 @@ const ColorPaletteRecommendation = ({
             key={index}
             className="cursor-pointer hover:scale-110 transition-transform"
             onClick={() => onSelect(palette.background, palette.text)}
+            data-testid={`color-palette-${index}`}
           >
             <div className="w-6 h-6 rounded-full border shadow-sm overflow-hidden">
               <div
@@ -831,6 +837,7 @@ const ClientForm = () => {
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
                   required
+                  data-testid="input-client-name"
                 />
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
                 <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
@@ -855,6 +862,7 @@ const ClientForm = () => {
                 accept="image/*"
                 onChange={handleLogoUpload}
                 required
+                data-testid="input-brand-logo"
               />
               <LabeledButton
                 label={t("addClient.fields.brandLogo")}
@@ -882,6 +890,7 @@ const ClientForm = () => {
                         fileInputRef.current.value = "";
                       }
                     }}
+                    data-testid="button-remove-logo"
                   >
                     {t("common.remove")}
                   </Button>
@@ -1010,6 +1019,7 @@ const ClientForm = () => {
                           }))
                         }
                         required
+                        data-testid="input-postal-code"
                       />
                       <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
                       <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
@@ -1035,6 +1045,7 @@ const ClientForm = () => {
                           }))
                         }
                         required
+                        data-testid="input-city"
                       />
                       <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
                       <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
@@ -1062,6 +1073,7 @@ const ClientForm = () => {
                         }))
                       }
                       required
+                      data-testid="input-address"
                     />
                     <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
                     <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
@@ -1087,6 +1099,7 @@ const ClientForm = () => {
                           },
                         }))
                       }
+                      data-testid="input-address-comment"
                     />
                     <MapPin className="absolute left-3 top-6 w-4 h-4" />
                     <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
@@ -1117,6 +1130,7 @@ const ClientForm = () => {
                         }))
                       }
                       required
+                      data-testid="input-validation-email"
                     />
                     <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
                     <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
@@ -1172,6 +1186,7 @@ const ClientForm = () => {
                       inputProps={{
                         required: true,
                         name: "phone",
+                        "data-testid": "input-admin-mobile",
                       }}
                     />
                   </div>
@@ -1195,6 +1210,7 @@ const ClientForm = () => {
                       }))
                     }
                     required
+                    data-testid="input-client-email"
                   />
                   <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
                   <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
@@ -1221,6 +1237,7 @@ const ClientForm = () => {
               )}
               onClick={handleNext}
               disabled={loading || (isEditMode && !hasFormDataChanged())}
+              data-testid="button-submit"
             >
               {loading ? (
                 <div className="flex items-center justify-center">
