@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { authService } from '../../services/authService';
+import { authService, ErrorLogsResponse } from '../../services/authService';
 
 interface AuthState {
   company: string | null;
@@ -15,6 +15,8 @@ interface AuthState {
   adminMode: boolean;
   passwordResetSuccess: boolean;
   forgotPasswordEmailSent: boolean;
+  errorLogs: ErrorLogsResponse | null;
+  errorLogsLoading: boolean;
 }
 
 const initialState: AuthState = {
@@ -31,6 +33,8 @@ const initialState: AuthState = {
   adminMode: false,
   passwordResetSuccess: false,
   forgotPasswordEmailSent: false,
+  errorLogs: null,
+  errorLogsLoading: false,
 };
 
 // Async thunks
@@ -117,6 +121,18 @@ export const forgotPassword = createAsyncThunk(
   }
 );
 
+export const getErrorLogs = createAsyncThunk(
+  'auth/getErrorLogs',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await authService.getErrorLogs();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch error logs');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -130,6 +146,9 @@ const authSlice = createSlice({
     clearPasswordResetStatus: (state) => {
       state.passwordResetSuccess = false;
       state.forgotPasswordEmailSent = false;
+    },
+    clearErrorLogs: (state) => {
+      state.errorLogs = null;
     },
   },
   extraReducers: (builder) => {
@@ -232,9 +251,22 @@ const authSlice = createSlice({
       .addCase(getUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
+      })
+      // Get Error Logs
+      .addCase(getErrorLogs.pending, (state) => {
+        state.errorLogsLoading = true;
+        state.error = null;
+      })
+      .addCase(getErrorLogs.fulfilled, (state, action) => {
+        state.errorLogsLoading = false;
+        state.errorLogs = action.payload;
+      })
+      .addCase(getErrorLogs.rejected, (state, action) => {
+        state.errorLogsLoading = false;
+        state.error = action.payload as string;
       });
   },
 });
 
-export const { clearError, setAdminMode, clearPasswordResetStatus } = authSlice.actions;
+export const { clearError, setAdminMode, clearPasswordResetStatus, clearErrorLogs } = authSlice.actions;
 export default authSlice.reducer; 

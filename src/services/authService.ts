@@ -4,6 +4,8 @@ export interface LoginResponse {
   message: string;
   company: string;
   company_color: string;
+  company_bg_color: string;
+  company_text_color: string;
   company_logo: string;
 }
 
@@ -11,7 +13,12 @@ export interface UserResponse {
   company: string;
   email: string;
   role: string;
-  // Add other user fields as needed
+  company_admin: boolean;
+  company_name: string;
+  logged_in: boolean;
+  company_bg_color: string;
+  company_text_color: string;
+  company_logo: string;
 }
 
 export interface ResetPasswordResponse {
@@ -20,6 +27,23 @@ export interface ResetPasswordResponse {
 
 export interface ForgotPasswordResponse {
   message: string;
+}
+
+export interface ErrorLog {
+  id: number;
+  user_id: number;
+  user_name: string;
+  user_email: string;
+  method: string;
+  endpoint: string;
+  data: string;
+  error_code: number;
+  error_message: string;
+  created_at: string;
+}
+
+export interface ErrorLogsResponse {
+  logs: ErrorLog[];
 }
 
 export const authService = {
@@ -50,6 +74,10 @@ export const authService = {
   },
   forgotPassword: async (dnsPrefix: string, email: string): Promise<ForgotPasswordResponse> => {
     const response = await axiosInstance.post(`/${dnsPrefix}/forgot-password/${email}`);
+    return response.data;
+  },
+  getErrorLogs: async (): Promise<ErrorLogsResponse> => {
+    const response = await axiosInstance.get('/dev/error-logs');
     return response.data;
   },
 };

@@ -2,6 +2,8 @@ import { SearchIcon, DownloadIcon } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { useTranslation } from "react-i18next";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
 
 interface ErrorLogsSectionProps {
   searchQuery: string;
@@ -13,10 +15,48 @@ export const ErrorLogsSection = ({
   setSearchQuery,
 }: ErrorLogsSectionProps): JSX.Element => {
   const { t } = useTranslation();
+  const errorLogs = useSelector(
+    (state: RootState) => state.auth.errorLogs?.logs || []
+  );
 
   const handleExport = () => {
-    // TODO: Implement export functionality
-    console.log("Export logs");
+    if (!errorLogs.length) return;
+
+    const csvContent = [
+      // CSV Headers
+      [
+        "Timestamp",
+        "Method",
+        "Error Message",
+        "User",
+        "Endpoint",
+        "Error Code",
+      ].join(","),
+      // CSV Data
+      ...errorLogs.map((log) =>
+        [
+          log.created_at,
+          log.method,
+          `"${log.error_message.replace(/"/g, '""')}"`, // Escape quotes in error messages
+          log.user_email,
+          log.endpoint,
+          log.error_code,
+        ].join(",")
+      ),
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute(
+      "download",
+      `error_logs_${new Date().toISOString().split("T")[0]}.csv`
+    );
+    link.style.visibility = "hidden";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   return (
@@ -45,6 +85,7 @@ export const ErrorLogsSection = ({
             variant="outline"
             className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
             onClick={handleExport}
+            disabled={!errorLogs.length}
           >
             <DownloadIcon className="w-6 h-6 text-[color:var(--1-tokens-color-modes-button-secondary-default-icon)]" />
             <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] [font-style:var(--label-smaller-font-style)]">

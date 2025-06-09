@@ -1,5 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from "../../store/store";
+import { getErrorLogs } from "../../store/features/authSlice";
+import { RootState } from "../../store/store";
 import {
   Table,
   TableBody,
@@ -21,15 +25,20 @@ import { Badge } from "../../components/ui/badge";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
+import { format } from "date-fns";
 
 interface ErrorLog {
-  id: string;
-  timestamp: string;
-  level: "error" | "warning" | "info";
-  message: string;
-  source: string;
-  stackTrace: string;
+  id: number;
+  user_id: number;
+  user_name: string;
+  user_email: string;
+  method: string;
+  endpoint: string;
+  data: string;
+  error_code: number;
+  error_message: string;
+  created_at: string;
 }
 
 interface ErrorLogsTableSectionProps {
@@ -40,43 +49,46 @@ export const ErrorLogsTableSection = ({
   searchQuery,
 }: ErrorLogsTableSectionProps): JSX.Element => {
   const { t } = useTranslation();
+  const dispatch = useDispatch<AppDispatch>();
   const [currentPage, setCurrentPage] = useState(1);
+  const [expandedRows, setExpandedRows] = useState<number[]>([]);
   const ITEMS_PER_PAGE = 25;
 
-  // TODO: Replace with actual API call
-  const mockLogs: ErrorLog[] = [
-    {
-      id: "1",
-      timestamp: "2024-03-20 10:30:45",
-      level: "error",
-      message: "Failed to process payment",
-      source: "PaymentService",
-      stackTrace:
-        "Error: Payment processing failed\n at PaymentService.process",
-    },
-    {
-      id: "2",
-      timestamp: "2024-03-20 10:29:30",
-      level: "warning",
-      message: "High memory usage detected",
-      source: "SystemMonitor",
-      stackTrace: "Warning: Memory usage above 80%",
-    },
-  ];
+  const {
+    errorLogs,
+    errorLogsLoading: isLoading,
+    error,
+  } = useSelector((state: RootState) => ({
+    errorLogs: state.auth.errorLogs?.logs || [],
+    errorLogsLoading: state.auth.errorLogsLoading,
+    error: state.auth.error,
+  }));
+
+  useEffect(() => {
+    dispatch(getErrorLogs());
+  }, [dispatch]);
+
+  const toggleRowExpansion = (id: number) => {
+    setExpandedRows((prev) =>
+      prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
+    );
+  };
 
   // Filter logs based on search query
   const filteredLogs = useMemo(() => {
-    if (!searchQuery) return mockLogs;
+    if (!searchQuery) return errorLogs;
 
     const query = searchQuery.toLowerCase();
-    return mockLogs.filter((log) => {
+    return errorLogs.filter((log) => {
       return (
-        log.message.toLowerCase().includes(query) ||
-        log.source.toLowerCase().includes(query) ||
-        log.level.toLowerCase().includes(query)
+        log.error_message.toLowerCase().includes(query) ||
+        log.endpoint.toLowerCase().includes(query) ||
+        log.method.toLowerCase().includes(query) ||
+        log.user_email.toLowerCase().includes(query) ||
+        log.user_name.toLowerCase().includes(query)
       );
     });
-  }, [mockLogs, searchQuery]);
+  }, [errorLogs, searchQuery]);
 
   // Get current page logs
   const currentLogs = useMemo(() => {
@@ -96,82 +108,179 @@ export const ErrorLogsTableSection = ({
     return items;
   }, [totalPages]);
 
-  const getLevelBadgeVariant = (level: ErrorLog["level"]) => {
-    switch (level) {
-      case "error":
-        return "destructive";
-      case "warning":
-        return "warning";
-      default:
-        return "secondary";
+  const formatErrorMessage = (message: string) => {
+    try {
+      const parsed = JSON.parse(message);
+      return JSON.stringify(parsed, null, 2);
+    } catch {
+      return message;
     }
+  };
+
+  const formatDateTime = (dateString: string) => {
+    try {
+      return format(new Date(dateString), "MMM dd, yyyy HH:mm:ss");
+    } catch {
+      return dateString;
+    }
+  };
+
+  const getLevelBadgeVariant = (errorCode: number) => {
+    if (errorCode >= 500) return "inactive";
+    return "active";
   };
 
   return (
     <section className="flex flex-col h-full">
       <div className="flex-grow overflow-auto pb-24">
         <div className="w-full">
-          {false ? ( // Replace with actual loading state
+          {isLoading ? (
             <Skeleton variant="table" />
-          ) : false ? ( // Replace with actual error state
+          ) : error ? (
             <ErrorState
               message="Failed to fetch error logs"
               variant="inline"
-              onRetry={() => window.location.reload()}
+              onRetry={() => dispatch(getErrorLogs())}
             />
           ) : currentLogs.length === 0 ? (
             <EmptyState
               icon={AlertTriangle}
               title="No Error Logs"
               description="No error logs found matching your criteria"
-              actionLabel="Clear Search"
-              onAction={() => window.location.reload()}
             />
           ) : (
             <Table>
               <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
                 <TableRow>
-                  <TableHead className="w-[200px] text-left text-[#1e2324] font-text-small">
+                  <TableHead className="w-[40px]"></TableHead>
+                  <TableHead className="w-[160px] text-left text-[#1e2324] font-text-small">
                     Timestamp
                   </TableHead>
                   <TableHead className="w-[100px] text-left text-[#1e2324] font-text-small">
-                    Level
+                    Method
+                  </TableHead>
+                  <TableHead className="w-[200px] text-left text-[#1e2324] font-text-small">
+                    User
                   </TableHead>
                   <TableHead className="w-[300px] text-left text-[#1e2324] font-text-small">
-                    Message
-                  </TableHead>
-                  <TableHead className="w-[150px] text-left text-[#1e2324] font-text-small">
-                    Source
+                    Error Message
                   </TableHead>
                   <TableHead className="flex-1 text-left text-[#1e2324] font-text-small">
-                    Stack Trace
+                    Endpoint
                   </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {currentLogs.map((log) => (
-                  <TableRow
-                    key={log.id}
-                    className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
-                  >
-                    <TableCell className="w-[200px] text-left font-text-smaller text-coolgray-100">
-                      {log.timestamp}
-                    </TableCell>
-                    <TableCell className="w-[100px]">
-                      <Badge variant={getLevelBadgeVariant(log.level)}>
-                        {log.level.toUpperCase()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="w-[300px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
-                      {log.message}
-                    </TableCell>
-                    <TableCell className="w-[150px] text-left font-text-smaller text-black">
-                      {log.source}
-                    </TableCell>
-                    <TableCell className="flex-1 text-left font-text-smaller text-black font-mono">
-                      {log.stackTrace}
-                    </TableCell>
-                  </TableRow>
+                  <>
+                    <TableRow
+                      key={log.id}
+                      className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)] cursor-pointer hover:bg-gray-50"
+                      onClick={() => toggleRowExpansion(log.id)}
+                    >
+                      <TableCell className="w-[40px] text-center">
+                        {expandedRows.includes(log.id) ? (
+                          <ChevronUp className="w-4 h-4" />
+                        ) : (
+                          <ChevronDown className="w-4 h-4" />
+                        )}
+                      </TableCell>
+                      <TableCell className="w-[160px] text-left font-text-smaller text-coolgray-100">
+                        <div className="flex flex-col">
+                          <span>{formatDateTime(log.created_at)}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="w-[100px]">
+                        <Badge variant={getLevelBadgeVariant(log.error_code)}>
+                          {log.method}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="w-[200px] text-left font-text-smaller">
+                        <div className="flex flex-col">
+                          <span className="font-medium">{log.user_name}</span>
+                          <span className="text-gray-500 text-xs">
+                            {log.user_email}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="w-[300px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
+                        <div className="flex items-center gap-2">
+                          <Badge
+                            variant={
+                              log.error_code >= 500 ? "inactive" : "active"
+                            }
+                          >
+                            {log.error_code}
+                          </Badge>
+                          <span
+                            className="truncate"
+                            title={formatErrorMessage(log.error_message)}
+                          >
+                            {formatErrorMessage(log.error_message)}
+                          </span>
+                        </div>
+                      </TableCell>
+                      <TableCell className="flex-1 text-left font-text-smaller text-black font-mono">
+                        {log.endpoint}
+                      </TableCell>
+                    </TableRow>
+                    {expandedRows.includes(log.id) && (
+                      <TableRow>
+                        <TableCell colSpan={6} className="bg-gray-50 px-6 py-4">
+                          <div className="flex flex-col gap-4">
+                            <div>
+                              <h4 className="text-sm font-medium text-gray-900 mb-1">
+                                Error Details
+                              </h4>
+                              <pre className="text-sm bg-gray-100 p-3 rounded-md overflow-x-auto">
+                                {formatErrorMessage(log.error_message)}
+                              </pre>
+                            </div>
+                            {log.data && (
+                              <div>
+                                <h4 className="text-sm font-medium text-gray-900 mb-1">
+                                  Request Data
+                                </h4>
+                                <pre className="text-sm bg-gray-100 p-3 rounded-md overflow-x-auto">
+                                  {formatErrorMessage(log.data)}
+                                </pre>
+                              </div>
+                            )}
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <p className="font-medium text-gray-900">
+                                  User Information
+                                </p>
+                                <p className="text-gray-600">
+                                  ID: {log.user_id}
+                                </p>
+                                <p className="text-gray-600">
+                                  Name: {log.user_name}
+                                </p>
+                                <p className="text-gray-600">
+                                  Email: {log.user_email}
+                                </p>
+                              </div>
+                              <div>
+                                <p className="font-medium text-gray-900">
+                                  Request Information
+                                </p>
+                                <p className="text-gray-600">
+                                  Method: {log.method}
+                                </p>
+                                <p className="text-gray-600">
+                                  Endpoint: {log.endpoint}
+                                </p>
+                                <p className="text-gray-600">
+                                  Error Code: {log.error_code}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
                 ))}
               </TableBody>
             </Table>
