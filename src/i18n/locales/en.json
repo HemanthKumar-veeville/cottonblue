@@ -95,6 +95,15 @@
       "title": "Warehouse",
       "manage": "Manage Warehouse",
       "orders": "Warehouse Orders"
+    },
+    "test": {
+      "title": "Tests",
+      "testBoard": "Test Board",
+      "errorLogs": "Error Logs"
+    },
+    "error": {
+      "title": "Error",
+      "errorLogs": "Error Logs"
     }
   },
   "productList": {
@@ -324,7 +333,9 @@
       "outOfStock": "Out of Stock"
     },
     "noTopProducts": "No Top Products",
-    "noTopProductsDescription": "There are no top selling products to display at the moment. Products will appear here once sales data is available."
+    "noTopProductsDescription": "There are no top selling products to display at the moment. Products will appear here once sales data is available.",
+    "noLatestTickets": "No Latest Tickets",
+    "noLatestTicketsDescription": "No latest tickets to display at the moment. Tickets will appear here once support data is available."
   },
   "clientProduct": {
     "breadcrumb": {

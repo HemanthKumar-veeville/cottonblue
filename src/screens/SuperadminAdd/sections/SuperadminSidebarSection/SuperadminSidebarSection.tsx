@@ -1,5 +1,6 @@
 import {
   BookOpenIcon,
+  BugIcon,
   FileTextIcon,
   HomeIcon,
   LayersIcon,
@@ -8,6 +9,7 @@ import {
   PackageIcon,
   PlusCircleIcon,
   SettingsIcon,
+  TestTubeIcon,
   UserPlusIcon,
   UsersIcon,
 } from "lucide-react";
@@ -21,7 +23,13 @@ import {
   AppDispatch,
   useAppSelector,
 } from "../../../../store/store";
-import { isWarehouseHostname } from "../../../../utils/hostUtils";
+import {
+  isDevHostname,
+  isWarehouseHostname,
+} from "../../../../utils/hostUtils";
+
+const isDevDomain = isDevHostname();
+
 interface NavItem {
   icon: JSX.Element;
   label: string;
@@ -144,6 +152,30 @@ export const SuperadminSidebarSection = ({
         },
       ],
     },
+    ...(isDevDomain
+      ? [
+          {
+            title: t("sidebar.test.title"),
+            items: [
+              {
+                icon: <TestTubeIcon className="w-4 h-4" />,
+                label: t("sidebar.test.testBoard"),
+                path: "/test-board",
+              },
+            ],
+          },
+          {
+            title: t("sidebar.error.title"),
+            items: [
+              {
+                icon: <BugIcon className="w-4 h-4" />,
+                label: t("sidebar.error.errorLogs"),
+                path: "/error-logs",
+              },
+            ],
+          },
+        ]
+      : []),
     {
       title: t("sidebar.support.title"),
       items: [
@@ -226,6 +258,30 @@ export const SuperadminSidebarSection = ({
         },
       ],
     },
+    ...(isDevDomain
+      ? [
+          {
+            title: t("sidebar.test.title"),
+            items: [
+              {
+                icon: <TestTubeIcon className="w-4 h-4" />,
+                label: t("sidebar.test.testBoard"),
+                path: "/test-board",
+              },
+            ],
+          },
+          {
+            title: t("sidebar.error.title"),
+            items: [
+              {
+                icon: <BugIcon className="w-4 h-4" />,
+                label: t("sidebar.error.errorLogs"),
+                path: "/error-logs",
+              },
+            ],
+          },
+        ]
+      : []),
     {
       title: t("sidebar.support.title"),
       items: [

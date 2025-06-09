@@ -96,6 +96,15 @@
       "title": "Entrepôt",
       "manage": "Gérer l'entrepôt",
       "orders": "Commandes d'entrepôt"
+    },
+    "test": {
+      "title": "Tests",
+      "testBoard": "Tableau de test",
+      "errorLogs": "Logs d'erreur"
+    },
+    "error": {
+      "title": "Erreur",
+      "errorLogs": "Logs d'erreur"
     }
   },
   "productList": {
@@ -329,7 +338,9 @@
     "status": {
       "inStock": "En stock",
       "outOfStock": "Épuisé"
-    }
+    },
+    "noLatestTickets": "Aucun ticket à afficher",
+    "noLatestTicketsDescription": "Aucun ticket à afficher pour le moment. Les tickets apparaîtront ici une fois que les données de support seront disponibles."
   },
   "clientProduct": {
     "breadcrumb": {

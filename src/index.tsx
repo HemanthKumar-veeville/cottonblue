@@ -33,7 +33,11 @@ import History from "./screens/History/History";
 import OrderDetails from "./screens/OrderDetails/OrderDetails";
 import ClientSupport from "./screens/ClientSupport/ClientSupport";
 import ClientLogin from "./screens/ClientLogin/ClientLogin";
-import { isAdminHostname, isWarehouseHostname } from "./utils/hostUtils";
+import {
+  isAdminHostname,
+  isDevHostname,
+  isWarehouseHostname,
+} from "./utils/hostUtils";
 import ProductDetails from "./screens/ProductDetails/ProductDetails";
 import { getHost } from "./utils/hostUtils";
 import AddUser from "./screens/AddUser/AddUser";
@@ -55,11 +59,16 @@ import ManageStock from "./screens/ManageStock/ManageStock";
 import ClientUserDetails from "./screens/UserDetails/ClientUserDetails";
 import { ClientUserListSection } from "./screens/UserListSection/ClientUserListSection";
 import ClientAddUser from "./screens/AddUser/ClientAddUser";
+import TestBoard from "./screens/TestBoard/TestBoard";
+import ErrorLogs from "./screens/ErrorLogs/ErrorLogs";
+
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
   const isSuperAdmin = useAppSelector((state) => state.auth.user?.super_admin);
   const isAdminDomain = isAdminHostname();
   const isWarehouse = isWarehouseHostname();
+  const isDevDomain = isDevHostname();
+
   const dnsPrefix = getHost();
   const dispatch = useAppDispatch();
 
@@ -173,6 +182,12 @@ function App() {
               />
               <Route path="support/tickets" element={<Tickets />} />
               <Route path="settings" element={<SuperAdminSettings />} />
+              {isDevDomain && (
+                <>
+                  <Route path="test-board" element={<TestBoard />} />
+                  <Route path="error-logs" element={<ErrorLogs />} />
+                </>
+              )}
               <Route path="logout" element={<ComingSoon />} />
               <Route path="analytics" element={<ComingSoon />} />
               <Route path="reports" element={<ComingSoon />} />
