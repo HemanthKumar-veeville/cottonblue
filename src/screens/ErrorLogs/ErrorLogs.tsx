@@ -1,13 +1,19 @@
 import React from "react";
+import { ErrorLogsSection } from "./ErrorLogsSection";
+import { ErrorLogsTableSection } from "./ErrorLogsTableSection";
+import { useState } from "react";
 
 const ErrorLogs: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Error Logs</h1>
-      <div className="bg-white rounded-lg shadow p-6">
-        <p>Development error logs viewer</p>
-      </div>
-    </div>
+    <main className="flex flex-col w-full gap-8 p-6 bg-white rounded-lg">
+      <ErrorLogsSection
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+      />
+      <ErrorLogsTableSection searchQuery={searchQuery} />
+    </main>
   );
 };
 
