@@ -68,6 +68,11 @@ export const ErrorLogsTableSection = ({
     dispatch(getErrorLogs());
   }, [dispatch]);
 
+  // Reset pagination when search query changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery]);
+
   const toggleRowExpansion = (id: number) => {
     setExpandedRows((prev) =>
       prev.includes(id) ? prev.filter((rowId) => rowId !== id) : [...prev, id]
@@ -99,14 +104,25 @@ export const ErrorLogsTableSection = ({
   // Calculate total pages
   const totalPages = Math.ceil(filteredLogs.length / ITEMS_PER_PAGE);
 
-  // Generate pagination items
-  const paginationItems = useMemo(() => {
-    const items = [];
+  // Generate visible pagination items with smart ellipsis
+  const getVisiblePages = useMemo(() => {
+    const delta = 2; // Number of pages to show before and after current page
+    const range: (number | string)[] = [];
+
     for (let i = 1; i <= totalPages; i++) {
-      items.push(i);
+      if (
+        i === 1 || // Always show first page
+        i === totalPages || // Always show last page
+        (i >= currentPage - delta && i <= currentPage + delta) // Show pages around current page
+      ) {
+        range.push(i);
+      } else if (range[range.length - 1] !== "...") {
+        range.push("...");
+      }
     }
-    return items;
-  }, [totalPages]);
+
+    return range;
+  }, [currentPage, totalPages]);
 
   const formatErrorMessage = (message: string) => {
     try {
@@ -291,12 +307,19 @@ export const ErrorLogsTableSection = ({
       {currentLogs.length > 0 && (
         <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
           <div className="px-6 max-w-[calc(100%-2rem)]">
-            <Pagination className="flex items-center justify-between w-full mx-auto">
+            <Pagination
+              className="flex items-center justify-between w-full mx-auto"
+              aria-label="Pagination navigation"
+            >
               <PaginationPrevious
                 href="#"
                 className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                  e.preventDefault();
+                  setCurrentPage((prev) => Math.max(1, prev - 1));
+                }}
                 disabled={currentPage === 1}
+                aria-label="Go to previous page"
               >
                 <img
                   className="w-6 h-6"
@@ -307,44 +330,45 @@ export const ErrorLogsTableSection = ({
               </PaginationPrevious>
 
               <PaginationContent className="flex items-center gap-3">
-                {paginationItems.map((page) => (
-                  <PaginationItem key={page}>
-                    <PaginationLink
-                      href="#"
-                      className={`flex items-center justify-center w-9 h-9 rounded ${
-                        page === currentPage
-                          ? "bg-cyan-100 font-bold text-[#1e2324]"
-                          : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                      }`}
-                      onClick={() => setCurrentPage(page)}
-                    >
-                      {page}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                {totalPages > 5 && (
-                  <>
-                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
-                    <PaginationItem>
+                {getVisiblePages.map((page, index) =>
+                  page === "..." ? (
+                    <PaginationEllipsis
+                      key={`ellipsis-${index}`}
+                      className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]"
+                      aria-hidden="true"
+                    />
+                  ) : (
+                    <PaginationItem key={`page-${page}`}>
                       <PaginationLink
                         href="#"
-                        className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                        onClick={() => setCurrentPage(totalPages)}
+                        className={`flex items-center justify-center w-9 h-9 rounded ${
+                          page === currentPage
+                            ? "bg-cyan-100 font-bold text-[#1e2324]"
+                            : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        }`}
+                        onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                          e.preventDefault();
+                          setCurrentPage(page as number);
+                        }}
+                        aria-label={`Go to page ${page}`}
+                        aria-current={page === currentPage ? "page" : undefined}
                       >
-                        {totalPages}
+                        {page}
                       </PaginationLink>
                     </PaginationItem>
-                  </>
+                  )
                 )}
               </PaginationContent>
 
               <PaginationNext
                 href="#"
                 className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px]"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                }
+                onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                  e.preventDefault();
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+                }}
                 disabled={currentPage === totalPages}
+                aria-label="Go to next page"
               >
                 Next
                 <img
