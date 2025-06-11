@@ -1,47 +1,51 @@
 import { Button } from "../../../components/ui/button";
 import { Checkbox } from "../../../components/ui/checkbox";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "../../../components/ui/pagination";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../../components/ui/table";
-import { useTranslation } from "react-i18next";
-import { useState } from "react";
-import { Skeleton } from "../../../components/Skeleton";
-import EmptyState from "../../../components/EmptyState";
-import ErrorState from "../../../components/ErrorState";
-import { Eye, Edit, Power, Beaker } from "lucide-react";
-import { Test } from "../../../services/testService";
+import { TestResult, TestFileResult } from "../../../services/testService";
 import { useDispatch, useSelector } from "react-redux";
 import {
   setSelectedTests,
-  setCurrentPage,
   selectSelectedTests,
-  selectCurrentPage,
+  selectFilteredTests,
 } from "../../../store/features/testSlice";
 import { AppDispatch } from "../../../store/store";
+import { useTranslation } from "react-i18next";
+import { Skeleton } from "../../../components/Skeleton";
+import EmptyState from "../../../components/EmptyState";
+import ErrorState from "../../../components/ErrorState";
+import {
+  Eye,
+  Edit,
+  Power,
+  Beaker,
+  ChevronDown,
+  ChevronRight,
+  Clock,
+  CheckCircle2,
+  XCircle,
+  AlertCircle,
+} from "lucide-react";
+import { useState } from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../../../components/ui/collapsible";
+import { cn } from "../../../lib/utils";
+import { Badge } from "../../../components/ui/badge";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "../../../components/ui/tooltip";
 
 interface TestTableSectionProps {
-  tests: Test[];
   loading: boolean;
   error: string | null;
   searchTerm: string;
 }
 
 export const TestTableSection: React.FC<TestTableSectionProps> = ({
-  tests,
   loading,
   error,
   searchTerm,
@@ -49,37 +53,44 @@ export const TestTableSection: React.FC<TestTableSectionProps> = ({
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const selectedTests = useSelector(selectSelectedTests);
-  const currentPage = useSelector(selectCurrentPage);
-  const testsPerPage = 10;
+  const filteredTestsData = useSelector(selectFilteredTests);
+  const [expandedFiles, setExpandedFiles] = useState<string[]>([]);
 
-  // Filter tests based on search term
-  const filteredTests = tests.filter((test) =>
-    test.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Calculate pagination
-  const indexOfLastTest = currentPage * testsPerPage;
-  const indexOfFirstTest = indexOfLastTest - testsPerPage;
-  const currentTests = filteredTests.slice(indexOfFirstTest, indexOfLastTest);
-  const totalPages = Math.ceil(filteredTests.length / testsPerPage);
-
-  const handleSelectTest = (testId: number) => {
-    const newSelectedTests = selectedTests.includes(testId)
-      ? selectedTests.filter((id) => id !== testId)
-      : [...selectedTests, testId];
+  const handleSelectTest = (testFilePath: string) => {
+    const newSelectedTests = selectedTests.includes(testFilePath)
+      ? selectedTests.filter((path) => path !== testFilePath)
+      : [...selectedTests, testFilePath];
     dispatch(setSelectedTests(newSelectedTests));
   };
 
-  const handleSelectAll = () => {
-    const newSelectedTests =
-      selectedTests.length === currentTests.length
-        ? []
-        : currentTests.map((test) => test.id);
-    dispatch(setSelectedTests(newSelectedTests));
+  const toggleFileExpansion = (filePath: string) => {
+    setExpandedFiles((prev) =>
+      prev.includes(filePath)
+        ? prev.filter((p) => p !== filePath)
+        : [...prev, filePath]
+    );
   };
 
-  const handlePageChange = (page: number) => {
-    dispatch(setCurrentPage(page));
+  const getStatusIcon = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "passed":
+        return <CheckCircle2 className="w-4 h-4 text-green-500" />;
+      case "failed":
+        return <XCircle className="w-4 h-4 text-red-500" />;
+      default:
+        return <AlertCircle className="w-4 h-4 text-yellow-500" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "passed":
+        return "bg-green-50 border-green-200";
+      case "failed":
+        return "bg-red-50 border-red-200";
+      default:
+        return "bg-yellow-50 border-yellow-200";
+    }
   };
 
   if (loading) {
@@ -90,7 +101,7 @@ export const TestTableSection: React.FC<TestTableSectionProps> = ({
     return <ErrorState message={error} />;
   }
 
-  if (!tests.length) {
+  if (!filteredTestsData?.data.testResults.length) {
     return (
       <EmptyState
         icon={Beaker}
@@ -105,117 +116,134 @@ export const TestTableSection: React.FC<TestTableSectionProps> = ({
   }
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-[50px] text-center">
-                <Checkbox
-                  checked={
-                    selectedTests.length === currentTests.length &&
-                    currentTests.length > 0
-                  }
-                  onCheckedChange={handleSelectAll}
-                />
-              </TableHead>
-              <TableHead className="w-[250px]">{t("Test Name")}</TableHead>
-              <TableHead className="w-[100px] text-center">
-                {t("Type")}
-              </TableHead>
-              <TableHead className="w-[100px] text-center">
-                {t("Status")}
-              </TableHead>
-              <TableHead className="w-[150px]">{t("Last Run")}</TableHead>
-              <TableHead className="w-[100px] text-center">
-                {t("Duration")}
-              </TableHead>
-              <TableHead className="w-[120px] text-center">
-                {t("Success Rate")}
-              </TableHead>
-              <TableHead className="w-[100px] text-center">
-                {t("Actions")}
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {currentTests.map((test) => (
-              <TableRow key={test.id}>
-                <TableCell className="text-center">
+    <TooltipProvider>
+      <div className="h-[calc(100vh-200px)] overflow-auto">
+        <div className="space-y-4 p-4">
+          {filteredTestsData.data.testResults.map((fileResult) => (
+            <div
+              key={fileResult.testFilePath}
+              className={cn(
+                "rounded-lg border p-4",
+                getStatusColor(
+                  fileResult.numFailingTests > 0
+                    ? "failed"
+                    : fileResult.numPendingTests ===
+                      fileResult.testResults.length
+                    ? "pending"
+                    : "passed"
+                )
+              )}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   <Checkbox
-                    checked={selectedTests.includes(test.id)}
-                    onCheckedChange={() => handleSelectTest(test.id)}
+                    checked={selectedTests.includes(fileResult.testFilePath)}
+                    onCheckedChange={() =>
+                      handleSelectTest(fileResult.testFilePath)
+                    }
                   />
-                </TableCell>
-                <TableCell className="font-medium">{test.name}</TableCell>
-                <TableCell className="text-center">{test.type}</TableCell>
-                <TableCell className="w-[100px] text-center">
-                  <span
-                    className={`inline-flex px-2 py-1 rounded-full text-sm ${
-                      test.status === "Passed"
-                        ? "bg-green-100 text-green-800"
-                        : test.status === "Failed"
-                        ? "bg-red-100 text-red-800"
-                        : "bg-yellow-100 text-yellow-800"
-                    }`}
+                  <button
+                    onClick={() => toggleFileExpansion(fileResult.testFilePath)}
+                    className="flex items-center gap-2 hover:text-primary"
                   >
-                    {test.status}
-                  </span>
-                </TableCell>
-                <TableCell>{test.lastRun}</TableCell>
-                <TableCell className="text-center">{test.duration}</TableCell>
-                <TableCell className="text-center">
-                  {test.success_rate}%
-                </TableCell>
-                <TableCell className="text-center">
-                  <div className="flex justify-center gap-2">
-                    <Button variant="ghost" size="icon">
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon">
-                      <Edit className="w-4 h-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon">
-                      <Power className="w-4 h-4" />
-                    </Button>
+                    {expandedFiles.includes(fileResult.testFilePath) ? (
+                      <ChevronDown className="w-4 h-4" />
+                    ) : (
+                      <ChevronRight className="w-4 h-4" />
+                    )}
+                    <span className="font-medium">
+                      {fileResult.testFilePath.split("/").pop()}
+                    </span>
+                  </button>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-2 text-sm">
+                    <Badge variant="success" className="gap-1">
+                      <CheckCircle2 className="w-3 h-3" />
+                      {fileResult.numPassingTests}
+                    </Badge>
+                    <Badge variant="destructive" className="gap-1">
+                      <XCircle className="w-3 h-3" />
+                      {fileResult.numFailingTests}
+                    </Badge>
+                    {fileResult.numPendingTests > 0 && (
+                      <Badge variant="secondary" className="gap-1">
+                        <AlertCircle className="w-3 h-3" />
+                        {fileResult.numPendingTests}
+                      </Badge>
+                    )}
                   </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => toggleFileExpansion(fileResult.testFilePath)}
+                  >
+                    <Power className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
 
-      {totalPages > 1 && (
-        <Pagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                onClick={() => handlePageChange(Math.max(currentPage - 1, 1))}
-                disabled={currentPage === 1}
-              />
-            </PaginationItem>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <PaginationItem key={page}>
-                <PaginationLink
-                  onClick={() => handlePageChange(page)}
-                  isActive={currentPage === page}
-                >
-                  {page}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext
-                onClick={() =>
-                  handlePageChange(Math.min(currentPage + 1, totalPages))
-                }
-                disabled={currentPage === totalPages}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
-    </div>
+              {expandedFiles.includes(fileResult.testFilePath) && (
+                <div className="mt-4 space-y-3">
+                  {fileResult.testResults.map((test, index) => (
+                    <div
+                      key={`${fileResult.testFilePath}-${index}`}
+                      className={cn(
+                        "rounded-md border p-3",
+                        getStatusColor(test.status)
+                      )}
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-3">
+                          {getStatusIcon(test.status)}
+                          <div>
+                            <div className="font-medium">{test.title}</div>
+                            {test.ancestorTitles.length > 0 && (
+                              <div className="text-sm text-muted-foreground">
+                                {test.ancestorTitles.join(" › ")}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                                <Clock className="w-3 h-3" />
+                                {test.duration}ms
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <span>Test Duration</span>
+                            </TooltipContent>
+                          </Tooltip>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="icon">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon">
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                      {test.failureMessages.length > 0 && (
+                        <div className="mt-2 rounded-md bg-red-50 p-3 text-sm text-red-800 font-mono">
+                          {test.failureMessages.map((message, i) => (
+                            <div key={i} className="whitespace-pre-wrap">
+                              {message}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </TooltipProvider>
   );
 };

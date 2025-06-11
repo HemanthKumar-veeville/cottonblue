@@ -7,19 +7,37 @@ const axiosInstance = axios.create({
   }
 });
 
-export interface Test {
-  id: number;
-  name: string;
-  type: string;
+export interface TestResult {
+  title: string;
   status: string;
-  lastRun: string;
-  duration: string;
-  success_rate: number;
+  duration: number;
+  failureMessages: string[];
+  ancestorTitles: string[];
+}
+
+export interface TestFileResult {
+  testFilePath: string;
+  numFailingTests: number;
+  numPassingTests: number;
+  numPendingTests: number;
+  testResults: TestResult[];
+}
+
+interface TestData {
+  success: boolean;
+  startTime: number;
+  duration: number | null;
+  numTotalTests: number;
+  numPassedTests: number;
+  numFailedTests: number;
+  numPendingTests: number;
+  testResults: TestFileResult[];
 }
 
 export interface RunTestsResponse {
+  success: boolean;
   message: string;
-  tests: Test[];
+  data: TestData;
 }
 
 export interface HealthCheckResponse {
@@ -32,7 +50,6 @@ export interface HealthCheckResponse {
 export const testService = {
   /**
    * Run tests for a specific company
-   * @param dns_prefix DNS prefix of the company
    * @returns Promise with test execution results
    */
   runTests: async (): Promise<RunTestsResponse> => {

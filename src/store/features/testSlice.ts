@@ -1,12 +1,12 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { testService, Test, HealthCheckResponse } from '../../services/testService';
+import { testService, RunTestsResponse, HealthCheckResponse } from '../../services/testService';
 
 // Define the state interface
 interface TestState {
-  tests: Test[];
+  tests: RunTestsResponse | null;
   loading: boolean;
   error: string | null;
-  selectedTests: number[];
+  selectedTests: string[];  // Changed to string[] to store testFilePaths
   currentPage: number;
   searchTerm: string;
   health: HealthCheckResponse | null;
@@ -14,7 +14,7 @@ interface TestState {
 
 // Initial state
 const initialState: TestState = {
-  tests: [],
+  tests: null,
   loading: false,
   error: null,
   selectedTests: [],
@@ -28,7 +28,7 @@ export const runTests = createAsyncThunk(
   'test/runTests',
   async () => {
     const response = await testService.runTests();
-    return response.tests;
+    return response;
   }
 );
 
@@ -53,10 +53,10 @@ const testSlice = createSlice({
       state.currentPage = action.payload;
     },
     toggleTestSelection: (state, action) => {
-      const testId = action.payload;
-      const index = state.selectedTests.indexOf(testId);
+      const testPath = action.payload;
+      const index = state.selectedTests.indexOf(testPath);
       if (index === -1) {
-        state.selectedTests.push(testId);
+        state.selectedTests.push(testPath);
       } else {
         state.selectedTests.splice(index, 1);
       }
@@ -68,7 +68,7 @@ const testSlice = createSlice({
       state.selectedTests = [];
     },
     clearTests: (state) => {
-      state.tests = [];
+      state.tests = null;
       state.selectedTests = [];
       state.currentPage = 1;
       state.searchTerm = '';
@@ -128,11 +128,30 @@ export const selectSearchTerm = (state: { test: TestState }) => state.test.searc
 // Export filtered tests selector
 export const selectFilteredTests = (state: { test: TestState }) => {
   const { tests, searchTerm } = state.test;
-  if (!searchTerm) return tests;
+  if (!tests || !searchTerm) return tests;
   
-  return tests.filter((test) =>
-    test.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const allTests = tests.data.testResults.flatMap(fileResult => 
+    fileResult.testResults.map(test => ({
+      ...test,
+      testFilePath: fileResult.testFilePath
+    }))
   );
+  
+  return {
+    ...tests,
+    data: {
+      ...tests.data,
+      testResults: tests.data.testResults.map(fileResult => ({
+        ...fileResult,
+        testResults: fileResult.testResults.filter(test =>
+          test.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          test.ancestorTitles.some(title => 
+            title.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        )
+      })).filter(fileResult => fileResult.testResults.length > 0)
+    }
+  };
 };
 
 // Export the reducer
