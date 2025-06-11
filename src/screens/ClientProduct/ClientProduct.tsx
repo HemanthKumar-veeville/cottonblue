@@ -762,7 +762,7 @@ const RelatedProductCard = ({ product }: { product: Product }) => {
             {/* Quick View Overlay */}
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl flex items-center justify-center">
               <span className="text-white text-sm font-medium">
-                Click to view details
+                {t("dashboard.clickToViewDetails")}
               </span>
             </div>
           </div>
@@ -853,7 +853,10 @@ const RelatedProductCard = ({ product }: { product: Product }) => {
             {/* Available Packs with Icon */}
             <div className="text-sm text-gray-500 flex items-center gap-1">
               <Package2 className="h-4 w-4" />
-              <span>Available: {product.available_packs ?? 0} packs</span>
+              <span>
+                {t("dashboard.available")}: {product.available_packs ?? 0}{" "}
+                {t("dashboard.packs")}
+              </span>
             </div>
           </div>
 

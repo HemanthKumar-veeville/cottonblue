@@ -12,7 +12,7 @@ export const isWarehouseHostname = (): boolean => {
 
 export const getHost = (): string => {
   const hostname = window.location.hostname;
-  return hostname === 'localhost' ? 'dev' : hostname.split('.')[0];
+  return hostname === 'localhost' ? 'admin' : hostname.split('.')[0];
 };
 
 export const isDevHostname = (): boolean => {

@@ -29,70 +29,6 @@ import {
 import { useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 
-// Constants
-const MAX_IMAGES = 5;
-const MAX_FILE_SIZE = 5 * 1024 * 1024;
-
-const FORM_FIELDS = {
-  suitable_for: { options: ["General", "Men", "Women", "Kids", "Unisex"] },
-  size: {
-    options: ["Free", "XS", "S", "M", "L", "XL", "2XL", "3XL", "4XL"],
-  },
-};
-
-// Form field configurations
-const FORM_CONFIG = {
-  basic: [
-    {
-      name: "name",
-      label: "productSidebar.form.productName",
-      type: "text",
-      required: true,
-    },
-    {
-      name: "productId",
-      label: "productSidebar.form.productId",
-      type: "text",
-    },
-  ],
-  attributes: [
-    {
-      name: "suitable_for",
-      label: "productSidebar.form.suitableFor",
-      type: "select",
-      options: FORM_FIELDS.suitable_for.options,
-      required: true,
-    },
-    {
-      name: "size",
-      label: "productSidebar.form.size",
-      type: "select",
-      options: FORM_FIELDS.size.options,
-      required: true,
-    },
-  ],
-  pricing: [
-    {
-      name: "pack_price",
-      label: "productSidebar.form.price.packPrice",
-      type: "number",
-      required: true,
-    },
-    {
-      name: "pack_of",
-      label: "productSidebar.form.packOf",
-      type: "number",
-      required: true,
-    },
-    {
-      name: "total_packs",
-      label: "productSidebar.form.totalPacks",
-      type: "number",
-      required: true,
-    },
-  ],
-};
-
 interface FormData {
   name: string;
   productId: string;
@@ -322,6 +258,88 @@ export const ProductSidebarSection = ({
   const [initialData, setInitialData] = useState<InitialProductData | null>(
     null
   );
+
+  // Constants
+  const MAX_IMAGES = 5;
+  const MAX_FILE_SIZE = 5 * 1024 * 1024;
+
+  const FORM_FIELDS = {
+    suitable_for: {
+      options: [
+        t("productSidebar.form.options.suitableFor.general"),
+        t("productSidebar.form.options.suitableFor.men"),
+        t("productSidebar.form.options.suitableFor.women"),
+        t("productSidebar.form.options.suitableFor.unisex"),
+      ],
+    },
+    size: {
+      options: [
+        t("productSidebar.form.options.size.unique"),
+        t("productSidebar.form.options.size.XS"),
+        t("productSidebar.form.options.size.S"),
+        t("productSidebar.form.options.size.M"),
+        t("productSidebar.form.options.size.L"),
+        t("productSidebar.form.options.size.XL"),
+        t("productSidebar.form.options.size.2XL"),
+        t("productSidebar.form.options.size.3XL"),
+        t("productSidebar.form.options.size.4XL"),
+        t("productSidebar.form.options.size.5XL"),
+      ],
+    },
+  };
+
+  // Form field configurations
+  const FORM_CONFIG = {
+    basic: [
+      {
+        name: "name",
+        label: "productSidebar.form.productName",
+        type: "text",
+        required: true,
+      },
+      {
+        name: "productId",
+        label: "productSidebar.form.productId",
+        type: "text",
+      },
+    ],
+    attributes: [
+      {
+        name: "suitable_for",
+        label: "productSidebar.form.suitableFor",
+        type: "select",
+        options: FORM_FIELDS.suitable_for.options,
+        required: true,
+      },
+      {
+        name: "size",
+        label: "productSidebar.form.size",
+        type: "select",
+        options: FORM_FIELDS.size.options,
+        required: true,
+      },
+    ],
+    pricing: [
+      {
+        name: "pack_price",
+        label: "productSidebar.form.price.packPrice",
+        type: "number",
+        required: true,
+      },
+      {
+        name: "pack_of",
+        label: "productSidebar.form.packOf",
+        type: "number",
+        required: true,
+      },
+      {
+        name: "total_packs",
+        label: "productSidebar.form.totalPacks",
+        type: "number",
+        required: true,
+      },
+    ],
+  };
 
   const {
     control,

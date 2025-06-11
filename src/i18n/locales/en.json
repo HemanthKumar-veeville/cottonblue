@@ -1,7 +1,7 @@
 {
   "language": {
     "en": "English",
-    "fr": "French"
+    "fr": "Français"
   },
   "common": {
     "loading": "Loading...",
@@ -167,7 +167,27 @@
         "carton": "Sold by Carton",
         "unit": "Sold by Unit"
       },
-      "selectPlaceholder": "Select an option"
+      "selectPlaceholder": "Select an option",
+      "options": {
+        "suitableFor": {
+          "general": "General",
+          "men": "Men",
+          "women": "Women",
+          "unisex": "Unisex"
+        },
+        "size": {
+          "unique": "Unique",
+          "XS": "XS",
+          "S": "S",
+          "M": "M",
+          "L": "L",
+          "XL": "XL",
+          "2XL": "2XL",
+          "3XL": "3XL",
+          "4XL": "4XL",
+          "5XL": "5XL"
+        }
+      }
     },
     "imageUpload": {
       "dropImages": "Drop your images here",
@@ -252,6 +272,9 @@
     "cartTooltip": "View my cart"
   },
   "dashboard": {
+    "clickToViewDetails": "Click to view details",
+    "available": "Available",
+    "packs": "packs",
     "sections": {
       "mostOrdered": "Most Ordered",
       "allProducts": "All Products",
@@ -829,9 +852,12 @@
       "role": "Role",
       "stores": "Stores",
       "details": "Details",
+      "actions": "Actions",
       "status": "Status",
       "active": "Active",
-      "inactive": "Inactive"
+      "inactive": "Inactive",
+      "admin": "Admin",
+      "user": "User"
     },
     "pagination": {
       "previous": "Previous",

@@ -1,7 +1,7 @@
 {
   "language": {
     "en": "English",
-    "fr": "French"
+    "fr": "Français"
   },
   "common": {
     "loading": "Chargement...",
@@ -172,7 +172,27 @@
       "totalPacks": "lots disponibles",
       "reference": "Référence (SKU)",
       "description": "Description",
-      "selectPlaceholder": "Sélectionner une taille"
+      "selectPlaceholder": "Sélectionner une taille",
+      "options": {
+        "suitableFor": {
+          "general": "Général",
+          "men": "Hommes",
+          "women": "Femmes",
+          "unisex": "Unisexe"
+        },
+        "size": {
+          "unique": "Unique",
+          "XS": "XS",
+          "S": "S",
+          "M": "M",
+          "L": "L",
+          "XL": "XL",
+          "2XL": "2XL",
+          "3XL": "3XL",
+          "4XL": "4XL",
+          "5XL": "5XL"
+        }
+      }
     },
     "imageUpload": {
       "dropImages": "Déposez vos images ici",
@@ -257,6 +277,9 @@
     "cartTooltip": "Voir mon panier"
   },
   "dashboard": {
+    "clickToViewDetails": "Cliquer pour voir les détails",
+    "available": "Disponible",
+    "packs": "lots",
     "sections": {
       "mostOrdered": "Les plus commandés",
       "allProducts": "Tous les produits",
@@ -858,9 +881,12 @@
       "role": "Rôle",
       "stores": "Magasins",
       "details": "Détails",
+      "actions": "Actions",
       "status": "Statut",
       "active": "Actif",
-      "inactive": "Inactif"
+      "inactive": "Inactif",
+      "admin": "Admin",
+      "user": "Utilisateur"
     },
     "pagination": {
       "previous": "Précédent",

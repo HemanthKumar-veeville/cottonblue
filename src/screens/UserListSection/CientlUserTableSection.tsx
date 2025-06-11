@@ -206,7 +206,7 @@ export const ClientUserTableSection = ({
                     {t("userList.table.stores")}
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
-                    {t("userList.table.details")}
+                    {t("userList.table.actions")}
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -237,10 +237,12 @@ export const ClientUserTableSection = ({
                         : t("userList.table.inactive")}
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-smaller text-[#1e2324]">
-                      {user.role || "User"}
+                      {user.role === "admin"
+                        ? t("userList.table.admin")
+                        : t("userList.table.user")}
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-smaller text-[#1e2324]">
-                      {user.store_ids?.length || 0} stores
+                      {user.store_ids?.length || 0}
                     </TableCell>
                     <TableCell className="w-[145px] text-left">
                       <div className="relative inline-flex items-center">
