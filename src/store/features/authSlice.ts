@@ -133,6 +133,18 @@ export const getErrorLogs = createAsyncThunk(
   }
 );
 
+export const clearErrorLogs = createAsyncThunk(
+  'auth/clearErrorLogs',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await authService.clearErrorLogs();
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to clear error logs');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -146,9 +158,6 @@ const authSlice = createSlice({
     clearPasswordResetStatus: (state) => {
       state.passwordResetSuccess = false;
       state.forgotPasswordEmailSent = false;
-    },
-    clearErrorLogs: (state) => {
-      state.errorLogs = null;
     },
   },
   extraReducers: (builder) => {
@@ -212,7 +221,7 @@ const authSlice = createSlice({
         state.passwordResetSuccess = true;
       })
       .addCase(resetPassword.rejected, (state, action) => {
-        state.isLoading = false;
+        state.isLoading = false;  
         state.error = action.payload as string;
         state.passwordResetSuccess = false;
       })
@@ -264,9 +273,22 @@ const authSlice = createSlice({
       .addCase(getErrorLogs.rejected, (state, action) => {
         state.errorLogsLoading = false;
         state.error = action.payload as string;
-      });
+      })
+        // Clear Error Logs
+        .addCase(clearErrorLogs.pending, (state) => {
+          state.errorLogsLoading = true;
+          state.error = null;
+        })
+        .addCase(clearErrorLogs.fulfilled, (state, action) => {
+          state.errorLogsLoading = false;
+          state.errorLogs = action.payload;
+        })
+        .addCase(clearErrorLogs.rejected, (state, action) => {
+          state.errorLogsLoading = false;
+          state.error = action.payload as string;
+        });
   },
 });
 
-export const { clearError, setAdminMode, clearPasswordResetStatus, clearErrorLogs } = authSlice.actions;
+export const { clearError, setAdminMode, clearPasswordResetStatus } = authSlice.actions;
 export default authSlice.reducer; 

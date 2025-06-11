@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { Textarea } from "../../components/ui/textarea";
-import { Minus, Package2, Plus, ShoppingCart } from "lucide-react";
+import { Minus, Package2, Plus, ShoppingCart, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import {
@@ -64,15 +64,7 @@ interface BillingAddress {
   zipCode: string;
 }
 
-const ProductRow = ({
-  product,
-  checked,
-  onCheckChange,
-}: {
-  product: CartItem;
-  checked: boolean;
-  onCheckChange: (id: number) => void;
-}) => {
+const ProductRow = ({ product }: { product: CartItem }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const dnsPrefix = getHost();
@@ -81,6 +73,31 @@ const ProductRow = ({
 
   const productDetails =
     products?.find((p) => p.id === product.product_id) || null;
+
+  const handleDelete = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (dnsPrefix && selectedStore) {
+      try {
+        // Optimistic update
+        dispatch(removeFromCart(product.product_id));
+
+        await dispatch(
+          addToCartAsync({
+            dns_prefix: dnsPrefix,
+            store_id: selectedStore,
+            product_id: product.product_id.toString(),
+            quantity: -product.quantity,
+          })
+        ).unwrap();
+      } catch (error) {
+        // Revert optimistic update
+        dispatch(
+          addToCart({ product: productDetails!, quantity: product.quantity })
+        );
+        toast.error(t("cart.error.deleteFailed"));
+      }
+    }
+  };
 
   const handleQuantityChange = async (amount: number, e?: React.MouseEvent) => {
     e?.stopPropagation();
@@ -137,10 +154,14 @@ const ProductRow = ({
       className="border-b border-primary-neutal-300 hover:bg-transparent"
     >
       <TableCell className="w-11 p-2">
-        <Checkbox
-          checked={checked}
-          onCheckedChange={() => onCheckChange(product.product_id)}
-        />
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-8 w-8 p-0 hover:bg-destructive hover:text-destructive-foreground"
+          onClick={handleDelete}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
       </TableCell>
       <TableCell className="w-[203px] p-3">
         <div className="flex items-center gap-3">
@@ -326,7 +347,8 @@ export default function CartContainer(): JSX.Element {
     zipCode: "",
   });
 
-  // Add useEffect to update addresses when store_details changes
+  const [comments, setComments] = useState("");
+
   useEffect(() => {
     if (store_details) {
       // Update shipping address
@@ -351,34 +373,6 @@ export default function CartContainer(): JSX.Element {
       }));
     }
   }, [store_details]);
-
-  const [comments, setComments] = useState("");
-
-  // Add state for checked items
-  const [checkedItems, setCheckedItems] = useState<Set<number>>(new Set());
-
-  // Handle check all functionality
-  const handleCheckAll = (checked: boolean | "indeterminate") => {
-    if (checked === true) {
-      setCheckedItems(new Set(items.map((item) => item.product_id)));
-    } else {
-      setCheckedItems(new Set());
-    }
-  };
-
-  // Handle individual item check
-  const handleItemCheck = (productId: number) => {
-    const newCheckedItems = new Set(checkedItems);
-    if (newCheckedItems.has(productId)) {
-      newCheckedItems.delete(productId);
-    } else {
-      newCheckedItems.add(productId);
-    }
-    setCheckedItems(newCheckedItems);
-  };
-
-  // Check if all items are selected
-  const allChecked = items.length > 0 && checkedItems.size === items.length;
 
   const handleShippingUpdate = (field: string, value: string) => {
     setShippingAddress((prev) => ({ ...prev, [field]: value }));
@@ -470,12 +464,7 @@ export default function CartContainer(): JSX.Element {
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">
                       <TableHead className="w-11 h-10 p-2">
-                        <Checkbox
-                          checked={allChecked}
-                          onCheckedChange={(
-                            checked: boolean | "indeterminate"
-                          ) => handleCheckAll(checked)}
-                        />
+                        {/* Action column */}
                       </TableHead>
                       <TableHead className="w-[203px] h-10 p-2.5 text-[#1e2324] font-text-small">
                         {t("cart.table.product")}
@@ -501,12 +490,7 @@ export default function CartContainer(): JSX.Element {
                 <Table>
                   <TableBody>
                     {items.map((product) => (
-                      <ProductRow
-                        key={product.product_id}
-                        product={product}
-                        checked={checkedItems.has(product.product_id)}
-                        onCheckChange={handleItemCheck}
-                      />
+                      <ProductRow key={product.product_id} product={product} />
                     ))}
                   </TableBody>
                 </Table>
@@ -544,7 +528,10 @@ export default function CartContainer(): JSX.Element {
                     />
                   </div>
                 </section>
-                <AddressSection address={shippingAddress} />
+                <AddressSection
+                  title="cart.shipping.title"
+                  address={shippingAddress}
+                />
                 <AddressSection
                   title="cart.billing.title"
                   address={billingAddress}

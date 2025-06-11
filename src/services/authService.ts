@@ -80,4 +80,8 @@ export const authService = {
     const response = await axiosInstance.get('/dev/error-logs');
     return response.data;
   },
+  clearErrorLogs: async (): Promise<ErrorLogsResponse> => {
+    const response = await axiosInstance.delete('/dev/error-logs');
+    return response.data;
+  },
 };
