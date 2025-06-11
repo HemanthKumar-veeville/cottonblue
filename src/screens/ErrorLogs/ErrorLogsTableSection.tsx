@@ -248,7 +248,7 @@ export const ErrorLogsTableSection = ({
                               <h4 className="text-sm font-medium text-gray-900 mb-1">
                                 Error Details
                               </h4>
-                              <pre className="text-sm bg-gray-100 p-3 rounded-md overflow-x-auto">
+                              <pre className="text-sm bg-gray-100 p-3 rounded-md overflow-x-auto max-w-[80vw] whitespace-pre-wrap">
                                 {formatErrorMessage(log.error_message)}
                               </pre>
                             </div>
@@ -257,7 +257,7 @@ export const ErrorLogsTableSection = ({
                                 <h4 className="text-sm font-medium text-gray-900 mb-1">
                                   Request Data
                                 </h4>
-                                <pre className="text-sm bg-gray-100 p-3 rounded-md overflow-x-auto">
+                                <pre className="text-sm bg-gray-100 p-3 rounded-md overflow-x-auto max-w-[80vw] whitespace-pre-wrap">
                                   {formatErrorMessage(log.data)}
                                 </pre>
                               </div>
