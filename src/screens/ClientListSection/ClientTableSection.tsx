@@ -294,12 +294,16 @@ export const ClientTableSection = ({
                           <div
                             className="w-6 h-6 rounded-sm border"
                             style={{ backgroundColor: client.bg_color_code }}
-                            title={`Background: ${client.bg_color_code}`}
+                            title={`${t("clientTable.branding.background")}: ${
+                              client.bg_color_code
+                            }`}
                           />
                           <div
                             className="w-6 h-6 rounded-sm border"
                             style={{ backgroundColor: client.text_color_code }}
-                            title={`Text: ${client.text_color_code}`}
+                            title={`${t("clientTable.branding.text")}: ${
+                              client.text_color_code
+                            }`}
                           />
                         </div>
                       </TableCell>

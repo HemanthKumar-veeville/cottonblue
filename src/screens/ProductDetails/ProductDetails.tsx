@@ -266,7 +266,7 @@ const ProductDescription = ({
               onClick={toggleExpand}
               className="text-[#07515f] hover:text-[#064a56] font-medium text-sm inline-block focus:outline-none"
             >
-              Read More
+              {t("productDetails.description.readMore")}
             </button>
           )}
         </p>
@@ -275,7 +275,7 @@ const ProductDescription = ({
             onClick={toggleExpand}
             className="text-[#07515f] hover:text-[#064a56] font-medium text-sm mt-1 focus:outline-none"
           >
-            Show Less
+            {t("productDetails.description.showLess")}
           </button>
         )}
       </div>
@@ -284,6 +284,7 @@ const ProductDescription = ({
 };
 
 export default function ProductDetails() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
   const { currentProduct, loading, error } = useAppSelector(
@@ -319,7 +320,7 @@ export default function ProductDetails() {
     return (
       <div className="flex flex-col items-center gap-8 p-6">
         <div className="text-center py-4 font-label-small text-sm tracking-wide leading-5">
-          Product not found
+          {t("productDetails.notFound")}
         </div>
       </div>
     );

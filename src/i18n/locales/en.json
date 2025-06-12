@@ -665,8 +665,11 @@
       "next": "Next"
     },
     "description": {
-      "title": "Description"
-    }
+      "title": "Description",
+      "readMore": "Read More",
+      "showLess": "Show Less"
+    },
+    "notFound": "Product not found"
   },
   "tickets": {
     "title": "Tickets",
@@ -750,6 +753,10 @@
     "pagination": {
       "previous": "Previous",
       "next": "Next"
+    },
+    "branding": {
+      "background": "Background",
+      "text": "Text"
     }
   },
   "agencyTable": {

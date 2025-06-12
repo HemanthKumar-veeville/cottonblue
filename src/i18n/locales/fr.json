@@ -692,8 +692,11 @@
       "next": "Suivant"
     },
     "description": {
-      "title": "Description"
-    }
+      "title": "Description",
+      "readMore": "Lire la suite",
+      "showLess": "Voir moins"
+    },
+    "notFound": "Produit non trouvé"
   },
   "tickets": {
     "title": "Tickets",
@@ -777,6 +780,10 @@
     "pagination": {
       "previous": "Précédent",
       "next": "Suivant"
+    },
+    "branding": {
+      "background": "Arrière-plan",
+      "text": "Texte"
     }
   },
   "agencyTable": {
