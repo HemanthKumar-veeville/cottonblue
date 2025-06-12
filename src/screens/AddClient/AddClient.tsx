@@ -829,10 +829,7 @@ const ClientForm = () => {
                 <Input
                   className="pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
                   defaultValue={formData.name}
-                  placeholder={
-                    t("addClient.fields.clientPlaceholder") ||
-                    "Enter client name"
-                  }
+                  placeholder={t("addClient.fields.clientPlaceholder")}
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
@@ -1005,10 +1002,9 @@ const ClientForm = () => {
                       <Input
                         className="pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
                         defaultValue={formData.location.postalCode}
-                        placeholder={
-                          t("addClient.fields.postalCodePlaceholder") ||
-                          "Enter postal code"
-                        }
+                        placeholder={t(
+                          "addClient.fields.postalCodePlaceholder"
+                        )}
                         onChange={(e) =>
                           setFormData((prev) => ({
                             ...prev,
@@ -1031,10 +1027,7 @@ const ClientForm = () => {
                       <Input
                         className="pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
                         defaultValue={formData.location.city}
-                        placeholder={
-                          t("addClient.fields.cityPlaceholder") ||
-                          "Enter city name"
-                        }
+                        placeholder={t("addClient.fields.cityPlaceholder")}
                         onChange={(e) =>
                           setFormData((prev) => ({
                             ...prev,
@@ -1059,10 +1052,7 @@ const ClientForm = () => {
                     <Input
                       className="pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
                       defaultValue={formData.location.address}
-                      placeholder={
-                        t("addClient.fields.addressPlaceholder") ||
-                        "Enter street address"
-                      }
+                      placeholder={t("addClient.fields.addressPlaceholder")}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -1085,10 +1075,9 @@ const ClientForm = () => {
                   <div className="relative w-full">
                     <Textarea
                       className="min-h-[100px] pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
-                      placeholder={
-                        t("addClient.fields.addressCommentPlaceholder") ||
-                        "Additional address details (optional)"
-                      }
+                      placeholder={t(
+                        "addClient.fields.addressCommentPlaceholder"
+                      )}
                       defaultValue={formData.location.addressComment}
                       onChange={(e) =>
                         setFormData((prev) => ({
@@ -1116,10 +1105,7 @@ const ClientForm = () => {
                       type="email"
                       className="pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
                       defaultValue={formData.validation.email}
-                      placeholder={
-                        t("addClient.fields.emailPlaceholder") ||
-                        "Enter email address"
-                      }
+                      placeholder={t("addClient.fields.emailPlaceholder")}
                       onChange={(e) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -1150,10 +1136,7 @@ const ClientForm = () => {
                       country={"fr"}
                       preferredCountries={["fr", "de", "gb", "it", "es"]}
                       value={formData.validation.adminMobile}
-                      placeholder={
-                        t("addClient.fields.phonePlaceholder") ||
-                        "Enter phone number"
-                      }
+                      placeholder={t("addClient.fields.phonePlaceholder")}
                       onChange={(phone) =>
                         setFormData((prev) => ({
                           ...prev,
@@ -1196,10 +1179,7 @@ const ClientForm = () => {
                     type="email"
                     className="pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
                     defaultValue={formData.validation.clientEmail}
-                    placeholder={
-                      t("addClient.fields.clientEmailPlaceholder") ||
-                      "Enter client email address"
-                    }
+                    placeholder={t("addClient.fields.clientEmailPlaceholder")}
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
