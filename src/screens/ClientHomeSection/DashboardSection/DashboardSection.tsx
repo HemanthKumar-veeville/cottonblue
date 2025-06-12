@@ -180,6 +180,7 @@ const ProductCard = ({ product }: { product: Product }) => {
     <Card
       className="w-full h-full bg-white shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 rounded-xl overflow-hidden border border-gray-100"
       onClick={handleClick}
+      data-testid={`product-card-${product.id}`}
     >
       <CardContent className="p-4 h-full">
         <div className="flex flex-col h-full">
@@ -251,6 +252,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                       disabled={localQuantity + quantity <= 0}
                       aria-label={t("product.decreaseQuantity")}
                       title={t("product.decreaseQuantity")}
+                      data-testid={`decrease-quantity-${product.id}`}
                     >
                       <MinusIcon className="h-4 w-4 text-[#00b85b]" />
                     </Button>
@@ -260,6 +262,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                       aria-label={t("product.quantityInCart", {
                         quantity: localQuantity + quantity,
                       })}
+                      data-testid={`quantity-display-${product.id}`}
                     >
                       {localQuantity + quantity}
                     </span>
@@ -281,6 +284,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                       }
                       aria-label={t("product.increaseQuantity")}
                       title={t("product.increaseQuantity")}
+                      data-testid={`increase-quantity-${product.id}`}
                     >
                       <PlusIcon className="h-4 w-4 text-[#00b85b]" />
                     </Button>
@@ -326,6 +330,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                 aria-label={t("product.addToCart")}
                 title={t("product.addToCart")}
                 disabled={localQuantity === 0}
+                data-testid={`add-to-cart-${product.id}`}
               >
                 <ShoppingCart className="h-4 w-4 text-white" />
                 {localQuantity !== 0 && (
@@ -357,7 +362,10 @@ const ProductSection = ({ title, products }: ProductSectionProps) => {
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-4 gap-4 w-full max-w-[1200px] mx-auto">
+      <div
+        className="grid grid-cols-1 sm:grid-cols-3 xl:grid-cols-4 gap-4 w-full max-w-[1200px] mx-auto"
+        data-testid="products-grid"
+      >
         {products.map((product) => (
           <div key={product.id} className="w-full max-w-[320px] mx-auto">
             <ProductCard product={product} />
@@ -490,6 +498,7 @@ export const DashboardSection = (): JSX.Element => {
                     ? "text-[#00b85b] border-b-2 border-[#00b85b]"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
+                data-testid={`tab-${tab.id}`}
               >
                 {t(tab.title)}
               </button>
@@ -497,7 +506,7 @@ export const DashboardSection = (): JSX.Element => {
           </div>
 
           {/* Content */}
-          <div className="w-full">
+          <div className="w-full" data-testid="products-section">
             {loading ? (
               <ProductSkeleton />
             ) : (

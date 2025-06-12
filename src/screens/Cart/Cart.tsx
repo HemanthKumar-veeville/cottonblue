@@ -270,7 +270,7 @@ const OrderSummary = () => {
     (acc, item) => acc + item.price_of_pack * item.quantity,
     0
   );
-  const shippingCost = items.length > 0 ? 38.94 : 0;
+  const shippingCost = 0;
   const totalTTC = totalHT + shippingCost;
 
   return (
