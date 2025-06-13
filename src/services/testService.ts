@@ -47,6 +47,33 @@ export interface HealthCheckResponse {
   timestamp: string;
 }
 
+export interface TestInfo {
+  title: string;
+  type: string;
+}
+
+export interface DescribeBlock {
+  title: string;
+  tests: TestInfo[];
+}
+
+export interface TestFile {
+  filePath: string;
+  describes: DescribeBlock[];
+  tests: TestInfo[];
+}
+
+export interface ListTestsData {
+  totalFiles: number;
+  tests: TestFile[];
+}
+
+export interface ListTestsResponse {
+  success: boolean;
+  message: string;
+  data: ListTestsData;
+}
+
 export const testService = {
   /**
    * Run tests for a specific company
@@ -63,6 +90,15 @@ export const testService = {
    */
   getHealth: async (): Promise<HealthCheckResponse> => {
     const response = await axiosInstance.get('/api/health');
+    return response.data;
+  },
+
+  /**
+   * List all available tests
+   * @returns Promise with list of available tests
+   */
+  listTests: async (): Promise<ListTestsResponse> => {
+    const response = await axiosInstance.get('/api/list-tests');
     return response.data;
   }
 };

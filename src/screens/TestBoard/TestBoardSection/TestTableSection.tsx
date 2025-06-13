@@ -6,6 +6,8 @@ import {
   setSelectedTests,
   selectSelectedTests,
   selectFilteredTests,
+  selectFilteredAvailableTests,
+  fetchAvailableTests,
 } from "../../../store/features/testSlice";
 import { AppDispatch } from "../../../store/store";
 import { useTranslation } from "react-i18next";
@@ -24,7 +26,7 @@ import {
   XCircle,
   AlertCircle,
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Collapsible,
   CollapsibleContent,
@@ -54,7 +56,12 @@ export const TestTableSection: React.FC<TestTableSectionProps> = ({
   const dispatch = useDispatch<AppDispatch>();
   const selectedTests = useSelector(selectSelectedTests);
   const filteredTestsData = useSelector(selectFilteredTests);
+  const availableTests = useSelector(selectFilteredAvailableTests);
   const [expandedFiles, setExpandedFiles] = useState<string[]>([]);
+
+  useEffect(() => {
+    dispatch(fetchAvailableTests());
+  }, [dispatch]);
 
   const handleSelectTest = (testFilePath: string) => {
     const newSelectedTests = selectedTests.includes(testFilePath)
@@ -101,20 +108,127 @@ export const TestTableSection: React.FC<TestTableSectionProps> = ({
     return <ErrorState message={error} />;
   }
 
+  // Show available tests if no test results yet
   if (!filteredTestsData?.data.testResults.length) {
+    if (!availableTests?.data.tests.length) {
+      return (
+        <EmptyState
+          icon={Beaker}
+          title={t("No Tests Found")}
+          description={
+            searchTerm
+              ? t("No tests match your search criteria")
+              : t("No tests have been created yet")
+          }
+        />
+      );
+    }
+
     return (
-      <EmptyState
-        icon={Beaker}
-        title={t("No Tests Found")}
-        description={
-          searchTerm
-            ? t("No tests match your search criteria")
-            : t("No tests have been created yet")
-        }
-      />
+      <TooltipProvider>
+        <div className="h-[calc(100vh-200px)] overflow-auto">
+          <div className="space-y-4 p-4">
+            {availableTests.data.tests.map((file) => (
+              <div
+                key={file.filePath}
+                className="rounded-lg border p-4 bg-white"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      checked={selectedTests.includes(file.filePath)}
+                      onCheckedChange={() => handleSelectTest(file.filePath)}
+                    />
+                    <button
+                      onClick={() => toggleFileExpansion(file.filePath)}
+                      className="flex items-center gap-2 hover:text-primary"
+                    >
+                      {expandedFiles.includes(file.filePath) ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
+                      )}
+                      <span className="font-medium">
+                        {file.filePath.split("/").pop()}
+                      </span>
+                    </button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => toggleFileExpansion(file.filePath)}
+                    >
+                      <Power className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {expandedFiles.includes(file.filePath) && (
+                  <div className="mt-4 space-y-3">
+                    {file.describes.map((describe, describeIndex) => (
+                      <div
+                        key={`${file.filePath}-${describeIndex}`}
+                        className="ml-6"
+                      >
+                        <div className="font-medium mb-2">{describe.title}</div>
+                        <div className="space-y-2">
+                          {describe.tests.map((test, testIndex) => (
+                            <div
+                              key={`${file.filePath}-${describeIndex}-${testIndex}`}
+                              className="rounded-md border p-3 bg-gray-50"
+                            >
+                              <div className="flex items-start justify-between">
+                                <div className="flex items-start gap-3">
+                                  <div className="font-medium">
+                                    {test.title}
+                                  </div>
+                                </div>
+                                <div className="flex gap-1">
+                                  <Button variant="ghost" size="icon">
+                                    <Eye className="w-4 h-4" />
+                                  </Button>
+                                  <Button variant="ghost" size="icon">
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                    {file.tests.map((test, index) => (
+                      <div
+                        key={`${file.filePath}-standalone-${index}`}
+                        className="rounded-md border p-3 bg-gray-50"
+                      >
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-3">
+                            <div className="font-medium">{test.title}</div>
+                          </div>
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="icon">
+                              <Eye className="w-4 h-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon">
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </TooltipProvider>
     );
   }
 
+  // Show test results if available
   return (
     <TooltipProvider>
       <div className="h-[calc(100vh-200px)] overflow-auto">
@@ -158,16 +272,16 @@ export const TestTableSection: React.FC<TestTableSectionProps> = ({
                 </div>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2 text-sm">
-                    <Badge variant="success" className="gap-1">
+                    <Badge className="gap-1 bg-green-50 text-green-700 border-green-200">
                       <CheckCircle2 className="w-3 h-3" />
                       {fileResult.numPassingTests}
                     </Badge>
-                    <Badge variant="destructive" className="gap-1">
+                    <Badge className="gap-1 bg-red-50 text-red-700 border-red-200">
                       <XCircle className="w-3 h-3" />
                       {fileResult.numFailingTests}
                     </Badge>
                     {fileResult.numPendingTests > 0 && (
-                      <Badge variant="secondary" className="gap-1">
+                      <Badge className="gap-1 bg-gray-50 text-gray-700 border-gray-200">
                         <AlertCircle className="w-3 h-3" />
                         {fileResult.numPendingTests}
                       </Badge>
@@ -213,7 +327,7 @@ export const TestTableSection: React.FC<TestTableSectionProps> = ({
                                 {test.duration}ms
                               </div>
                             </TooltipTrigger>
-                            <TooltipContent>
+                            <TooltipContent side="top">
                               <span>Test Duration</span>
                             </TooltipContent>
                           </Tooltip>

@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { testService, RunTestsResponse, HealthCheckResponse } from '../../services/testService';
+import { testService, RunTestsResponse, HealthCheckResponse, ListTestsResponse } from '../../services/testService';
 
 // Define the state interface
 interface TestState {
@@ -10,6 +10,7 @@ interface TestState {
   currentPage: number;
   searchTerm: string;
   health: HealthCheckResponse | null;
+  availableTests: ListTestsResponse | null;
 }
 
 // Initial state
@@ -21,6 +22,7 @@ const initialState: TestState = {
   currentPage: 1,
   searchTerm: '',
   health: null,
+  availableTests: null,
 };
 
 // Async thunks
@@ -36,6 +38,14 @@ export const checkHealth = createAsyncThunk(
   'test/checkHealth',
   async () => {
     const response = await testService.getHealth();
+    return response;
+  }
+);
+
+export const fetchAvailableTests = createAsyncThunk(
+  'test/fetchAvailableTests',
+  async () => {
+    const response = await testService.listTests();
     return response;
   }
 );
@@ -103,6 +113,20 @@ const testSlice = createSlice({
       .addCase(checkHealth.rejected, (state, action) => {
         state.loading = false;
         state.error = action.error.message || 'Health check failed';
+      })
+      // Handle fetchAvailableTests
+      .addCase(fetchAvailableTests.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAvailableTests.fulfilled, (state, action) => {
+        state.loading = false;
+        state.availableTests = action.payload;
+        state.error = null;
+      })
+      .addCase(fetchAvailableTests.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.error.message || 'Failed to fetch available tests';
       });
   },
 });
@@ -124,6 +148,32 @@ export const selectError = (state: { test: TestState }) => state.test.error;
 export const selectSelectedTests = (state: { test: TestState }) => state.test.selectedTests;
 export const selectCurrentPage = (state: { test: TestState }) => state.test.currentPage;
 export const selectSearchTerm = (state: { test: TestState }) => state.test.searchTerm;
+export const selectAvailableTests = (state: { test: TestState }) => state.test.availableTests;
+
+// Export filtered available tests selector
+export const selectFilteredAvailableTests = (state: { test: TestState }) => {
+  const { availableTests, searchTerm } = state.test;
+  if (!availableTests || !searchTerm) return availableTests;
+
+  return {
+    ...availableTests,
+    data: {
+      ...availableTests.data,
+      tests: availableTests.data.tests.map(file => ({
+        ...file,
+        describes: file.describes.filter(describe => 
+          describe.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          describe.tests.some(test => 
+            test.title.toLowerCase().includes(searchTerm.toLowerCase())
+          )
+        ),
+        tests: file.tests.filter(test =>
+          test.title.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+      })).filter(file => file.describes.length > 0 || file.tests.length > 0)
+    }
+  };
+};
 
 // Export filtered tests selector
 export const selectFilteredTests = (state: { test: TestState }) => {
