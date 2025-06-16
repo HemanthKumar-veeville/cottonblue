@@ -5,6 +5,7 @@ interface CompanyColors {
   primaryTextColor: string;
   primaryHoverColor: string;
   primaryLightColor: string;
+  buttonStyles: React.CSSProperties;
 }
 
 export const useCompanyColors = (): CompanyColors => {
@@ -17,10 +18,19 @@ export const useCompanyColors = (): CompanyColors => {
   const primaryHoverColor = `${primaryColor}`;
   const primaryLightColor = `${primaryColor}10`; // 10% opacity version for subtle backgrounds
   
+  // Define button styles with CSS variables
+  const buttonStyles = {
+    "--primary-color": primaryColor,
+    "--primary-text-color": primaryTextColor,
+    "--primary-hover-color": primaryHoverColor,
+    "--primary-light-color": primaryLightColor,
+  } as React.CSSProperties;
+
   return {
     primaryColor,
     primaryTextColor,
     primaryHoverColor,
     primaryLightColor,
+    buttonStyles,
   };
 }; 

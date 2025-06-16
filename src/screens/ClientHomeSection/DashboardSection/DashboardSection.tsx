@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useAppDispatch, useAppSelector } from "../../../store/store";
+import { useCompanyColors } from "../../../hooks/useCompanyColors";
 import {
   fetchAllProducts,
   getProductsByStoreId,
@@ -20,7 +21,6 @@ import {
   addToCartAsync,
 } from "../../../store/features/cartSlice";
 import { toast } from "react-hot-toast";
-import { cn } from "../../../lib/utils";
 
 interface Product {
   id: number;
@@ -82,6 +82,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   const quantity = cartItem?.quantity || 0;
   // Local state for quantity instead of reading from cart
   const [localQuantity, setLocalQuantity] = useState(0);
+  const { buttonStyles } = useCompanyColors();
 
   const handleClick = () => {
     navigate(`/product/${product.id}`);
@@ -155,12 +156,12 @@ const ProductCard = ({ product }: { product: Product }) => {
   };
 
   const stockStatus = getStockStatus(product);
-
   return (
     <Card
       className="w-full h-full bg-white shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 rounded-xl overflow-hidden border border-gray-100"
       onClick={handleClick}
       data-testid={`product-card-${product.id}`}
+      style={buttonStyles}
     >
       <CardContent className="p-4 h-full">
         <div className="flex flex-col h-full">
@@ -220,21 +221,14 @@ const ProductCard = ({ product }: { product: Product }) => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={cn(
-                        "w-8 h-8",
-                        "hover:bg-gray-50 transition-all duration-200",
-                        "disabled:opacity-50 disabled:cursor-not-allowed",
-                        "text-[#00b85b] border-r border-gray-200",
-                        "rounded-l-lg rounded-r-none",
-                        "border-r-2 border-gray-200"
-                      )}
+                      className="w-8 h-8 hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-[color:var(--primary-color)] border-r border-gray-200 rounded-l-lg rounded-r-none border-r-2 border-gray-200"
                       onClick={(e) => handleQuantityChange(-1, e)}
                       disabled={localQuantity + quantity <= 0}
                       aria-label={t("product.decreaseQuantity")}
                       title={t("product.decreaseQuantity")}
                       data-testid={`decrease-quantity-${product.id}`}
                     >
-                      <MinusIcon className="h-4 w-4 text-[#00b85b]" />
+                      <MinusIcon className="h-4 w-4 text-[color:var(--primary-color)]" />
                     </Button>
                     <span
                       className="w-8 text-center text-sm font-medium text-gray-700 bg-white"
@@ -249,14 +243,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={cn(
-                        "w-8 h-8",
-                        "hover:bg-gray-50 transition-all duration-200",
-                        "disabled:opacity-50 disabled:cursor-not-allowed",
-                        "text-[#00b85b]",
-                        "rounded-r-lg rounded-l-none",
-                        "border-l-2 border-gray-200"
-                      )}
+                      className="w-8 h-8 hover:bg-gray-50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed text-[color:var(--primary-color)] rounded-r-lg rounded-l-none border-l-2 border-gray-200"
                       onClick={(e) => handleQuantityChange(1, e)}
                       disabled={
                         localQuantity + quantity >=
@@ -266,7 +253,7 @@ const ProductCard = ({ product }: { product: Product }) => {
                       title={t("product.increaseQuantity")}
                       data-testid={`increase-quantity-${product.id}`}
                     >
-                      <PlusIcon className="h-4 w-4 text-[#00b85b]" />
+                      <PlusIcon className="h-4 w-4 text-[color:var(--primary-color)]" />
                     </Button>
                   </div>
                 </div>
@@ -305,14 +292,18 @@ const ProductCard = ({ product }: { product: Product }) => {
               </div>
               <Button
                 size="icon"
-                className="h-8 w-8 rounded-r-md bg-[#00b85b] hover:bg-[#00b85b]/90 text-white transition-all duration-200 relative"
+                className="h-8 w-8 rounded-r-md transition-all duration-200 relative disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{
+                  backgroundColor: "var(--primary-color)",
+                  color: "var(--primary-text-color)",
+                }}
                 onClick={handleAddToCart}
                 aria-label={t("product.addToCart")}
                 title={t("product.addToCart")}
                 disabled={localQuantity === 0}
                 data-testid={`add-to-cart-${product.id}`}
               >
-                <ShoppingCart className="h-4 w-4 text-white" />
+                <ShoppingCart className="h-4 w-4" />
                 {localQuantity !== 0 && (
                   <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-in fade-in duration-200">
                     {localQuantity}
@@ -393,6 +384,7 @@ export const DashboardSection = (): JSX.Element => {
   const [activeTab, setActiveTab] = useState("mostOrdered");
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
+  const { buttonStyles } = useCompanyColors();
   const { products, loading, searchTerm } = useAppSelector(
     (state) => state.product
   );
@@ -468,16 +460,27 @@ export const DashboardSection = (): JSX.Element => {
           <DashboardCarousel />
 
           {/* Tabs */}
-          <div className="flex items-center gap-6 border-b border-gray-200 w-full mb-5">
+          <div
+            className="flex items-center gap-6 border-b border-gray-200 w-full mb-5"
+            style={buttonStyles}
+          >
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={`py-2 px-4 font-medium text-sm transition-colors duration-200 ${
                   activeTab === tab.id
-                    ? "text-[#00b85b] border-b-2 border-[#00b85b]"
+                    ? "border-b-2"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
+                style={
+                  activeTab === tab.id
+                    ? {
+                        color: "var(--primary-color)",
+                        borderBottomColor: "var(--primary-color)",
+                      }
+                    : undefined
+                }
                 data-testid={`tab-${tab.id}`}
               >
                 {t(tab.title)}

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCarousel } from "../../store/features/clientSlice";
 import { getHost } from "../../utils/hostUtils";
+import { useCompanyColors } from "../../hooks/useCompanyColors";
 
 // Carousel skeleton loader component
 const CarouselSkeleton = () => {
@@ -30,6 +31,7 @@ export const DashboardCarousel = (): JSX.Element => {
   const carousel = useSelector((state: any) => state.client.carousel);
   const loading = useSelector((state: any) => state.client.loading);
   const dnsPrefix = getHost();
+  const { primaryColor } = useCompanyColors();
 
   useEffect(() => {
     dispatch(getCarousel(dnsPrefix) as any);
@@ -95,10 +97,12 @@ export const DashboardCarousel = (): JSX.Element => {
             key={index}
             onClick={() => handleDotClick(index)}
             className={`w-4 h-4 rounded-lg ${
-              currentSlide === index
-                ? "bg-[#00b85b]"
-                : "border border-solid border-[#00b85b]"
+              currentSlide === index ? "" : "border border-solid"
             }`}
+            style={{
+              backgroundColor: currentSlide === index ? primaryColor : "",
+              borderColor: currentSlide === index ? "" : primaryColor,
+            }}
           />
         ))}
       </div>
