@@ -25,6 +25,7 @@ import {
   CheckCircle2,
   XCircle,
   AlertCircle,
+  RotateCcw,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
@@ -126,100 +127,128 @@ export const TestTableSection: React.FC<TestTableSectionProps> = ({
 
     return (
       <TooltipProvider>
-        <div className="h-[calc(100vh-200px)] overflow-auto">
-          <div className="space-y-4 p-4">
+        <div className="h-[calc(100vh-200px)] overflow-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+          <div className="space-y-6 p-4">
             {availableTests.data.tests.map((file) => (
               <div
                 key={file.filePath}
-                className="rounded-lg border p-4 bg-white"
+                className="rounded-lg border p-4 bg-white shadow-sm"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      checked={selectedTests.includes(file.filePath)}
-                      onCheckedChange={() => handleSelectTest(file.filePath)}
-                    />
-                    <button
-                      onClick={() => toggleFileExpansion(file.filePath)}
-                      className="flex items-center gap-2 hover:text-primary"
-                    >
-                      {expandedFiles.includes(file.filePath) ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4" />
-                      )}
-                      <span className="font-medium">
-                        {file.filePath.split("/").pop()}
-                      </span>
-                    </button>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => toggleFileExpansion(file.filePath)}
-                    >
-                      <Power className="w-4 h-4" />
-                    </Button>
-                  </div>
+                {/* File name as subtle header */}
+                <div className="flex items-center gap-2 mb-2">
+                  <Badge className="text-xs bg-gray-100 text-gray-600 border-gray-200 px-2 py-0.5">
+                    {file.filePath.split("/").pop()}
+                  </Badge>
                 </div>
-
-                {expandedFiles.includes(file.filePath) && (
-                  <div className="mt-4 space-y-3">
-                    {file.describes.map((describe, describeIndex) => (
+                {/* Describe blocks */}
+                <div className="space-y-3">
+                  {file.describes.map((describe, describeIndex) => {
+                    const describeKey = `${file.filePath}-describe-${describeIndex}`;
+                    const expandedKey = `${file.filePath}::${describe.title}`;
+                    return describe.tests.length > 0 ? (
                       <div
-                        key={`${file.filePath}-${describeIndex}`}
-                        className="ml-6"
+                        key={describeKey}
+                        className="border rounded-md bg-gray-50"
                       >
-                        <div className="font-medium mb-2">{describe.title}</div>
-                        <div className="space-y-2">
-                          {describe.tests.map((test, testIndex) => (
-                            <div
-                              key={`${file.filePath}-${describeIndex}-${testIndex}`}
-                              className="rounded-md border p-3 bg-gray-50"
-                            >
-                              <div className="flex items-start justify-between">
-                                <div className="flex items-start gap-3">
-                                  <div className="font-medium">
-                                    {test.title}
+                        <button
+                          onClick={() =>
+                            setExpandedFiles((prev) =>
+                              prev.includes(expandedKey)
+                                ? prev.filter((k) => k !== expandedKey)
+                                : [...prev, expandedKey]
+                            )
+                          }
+                          className={cn(
+                            "w-full flex items-center justify-between px-4 py-3 text-left hover:bg-gray-100 transition rounded-md",
+                            expandedFiles.includes(expandedKey) && "bg-gray-100"
+                          )}
+                          aria-expanded={expandedFiles.includes(expandedKey)}
+                        >
+                          <div className="flex items-center gap-2">
+                            {expandedFiles.includes(expandedKey) ? (
+                              <ChevronDown className="w-4 h-4 text-primary" />
+                            ) : (
+                              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                            )}
+                            <span className="font-semibold text-base text-gray-800">
+                              {describe.title}
+                            </span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-500">
+                              {describe.tests.length} {t("Tests")}
+                            </span>
+                          </div>
+                        </button>
+                        {expandedFiles.includes(expandedKey) &&
+                          describe.tests.length > 0 && (
+                            <div className="px-6 pb-3 pt-1 space-y-2">
+                              {describe.tests.map((test, testIndex) => (
+                                <div
+                                  key={`${describeKey}-test-${testIndex}`}
+                                  className="flex items-center justify-between rounded-md border bg-white px-3 py-2 shadow-sm hover:shadow transition"
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <Beaker className="w-4 h-4 text-blue-400" />
+                                    <span className="font-medium text-gray-900">
+                                      {test.title}
+                                    </span>
+                                  </div>
+                                  <div className="flex gap-1">
+                                    <Button variant="ghost" size="icon">
+                                      <Eye className="w-4 h-4" />
+                                    </Button>
+                                    <Button variant="ghost" size="icon">
+                                      <Edit className="w-4 h-4" />
+                                    </Button>
                                   </div>
                                 </div>
-                                <div className="flex gap-1">
-                                  <Button variant="ghost" size="icon">
-                                    <Eye className="w-4 h-4" />
-                                  </Button>
-                                  <Button variant="ghost" size="icon">
-                                    <Edit className="w-4 h-4" />
-                                  </Button>
-                                </div>
-                              </div>
+                              ))}
                             </div>
-                          ))}
-                        </div>
+                          )}
+                        {expandedFiles.includes(expandedKey) &&
+                          describe.tests.length === 0 && (
+                            <div className="px-6 pb-3 pt-1 text-sm text-gray-400 italic">
+                              {t("No tests in this block")}
+                            </div>
+                          )}
                       </div>
-                    ))}
-                    {file.tests.map((test, index) => (
-                      <div
-                        key={`${file.filePath}-standalone-${index}`}
-                        className="rounded-md border p-3 bg-gray-50"
-                      >
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-start gap-3">
-                            <div className="font-medium">{test.title}</div>
-                          </div>
-                          <div className="flex gap-1">
-                            <Button variant="ghost" size="icon">
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon">
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
+                    ) : (
+                      <></>
+                    );
+                  })}
+                  {/* Standalone tests (not in any describe) */}
+                  {file.tests.length > 0 && (
+                    <div className="mt-2 border rounded-md bg-gray-50">
+                      <div className="px-4 py-2 font-semibold text-gray-700 text-sm">
+                        {t("Standalone Tests")}
                       </div>
-                    ))}
-                  </div>
-                )}
+                      <div className="px-6 pb-3 pt-1 space-y-2">
+                        {file.tests.map((test, index) => (
+                          <div
+                            key={`${file.filePath}-standalone-${index}`}
+                            className="flex items-center justify-between rounded-md border bg-white px-3 py-2 shadow-sm hover:shadow transition"
+                          >
+                            <div className="flex items-center gap-2">
+                              <Beaker className="w-4 h-4 text-blue-400" />
+                              <span className="font-medium text-gray-900">
+                                {test.title}
+                              </span>
+                            </div>
+                            <div className="flex gap-1">
+                              <Button variant="ghost" size="icon">
+                                <Eye className="w-4 h-4" />
+                              </Button>
+                              <Button variant="ghost" size="icon">
+                                <Edit className="w-4 h-4" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -231,7 +260,7 @@ export const TestTableSection: React.FC<TestTableSectionProps> = ({
   // Show test results if available
   return (
     <TooltipProvider>
-      <div className="h-[calc(100vh-200px)] overflow-auto">
+      <div className="h-[calc(100vh-200px)] overflow-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
         <div className="space-y-4 p-4">
           {filteredTestsData.data.testResults.map((fileResult) => (
             <div
@@ -248,29 +277,24 @@ export const TestTableSection: React.FC<TestTableSectionProps> = ({
                 )
               )}
             >
-              <div className="flex items-center justify-between">
+              {/* File name as badge/header */}
+              <div
+                className="flex items-center justify-between mb-2"
+                onClick={() => toggleFileExpansion(fileResult.testFilePath)}
+              >
                 <div className="flex items-center gap-2">
-                  <Checkbox
-                    checked={selectedTests.includes(fileResult.testFilePath)}
-                    onCheckedChange={() =>
-                      handleSelectTest(fileResult.testFilePath)
-                    }
-                  />
-                  <button
-                    onClick={() => toggleFileExpansion(fileResult.testFilePath)}
-                    className="flex items-center gap-2 hover:text-primary"
-                  >
+                  <Badge className="text-xs bg-gray-100 text-gray-600 border-gray-200 px-2 py-0.5">
+                    {fileResult.testFilePath.split("\\").pop()}
+                  </Badge>
+                  <button className="flex items-center gap-2 hover:text-primary ml-2">
                     {expandedFiles.includes(fileResult.testFilePath) ? (
                       <ChevronDown className="w-4 h-4" />
                     ) : (
                       <ChevronRight className="w-4 h-4" />
                     )}
-                    <span className="font-medium">
-                      {fileResult.testFilePath.split("/").pop()}
-                    </span>
                   </button>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
                   <div className="flex items-center gap-2 text-sm">
                     <Badge className="gap-1 bg-green-50 text-green-700 border-green-200">
                       <CheckCircle2 className="w-3 h-3" />
@@ -288,22 +312,31 @@ export const TestTableSection: React.FC<TestTableSectionProps> = ({
                     )}
                   </div>
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => toggleFileExpansion(fileResult.testFilePath)}
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      /* TODO: implement rerun for file */
+                    }}
                   >
-                    <Power className="w-4 h-4" />
+                    <RotateCcw className="w-4 h-4 mr-1" />
+                    {t("Rerun")}
                   </Button>
                 </div>
               </div>
 
               {expandedFiles.includes(fileResult.testFilePath) && (
                 <div className="mt-4 space-y-3">
+                  {/* Standalone Tests header always shown if there are tests */}
+                  {fileResult.testResults.length > 0 && (
+                    <div className="mb-2 px-1 py-1 font-semibold text-gray-700 text-sm">
+                      {t("Standalone Tests")}
+                    </div>
+                  )}
                   {fileResult.testResults.map((test, index) => (
                     <div
                       key={`${fileResult.testFilePath}-${index}`}
                       className={cn(
-                        "rounded-md border p-3",
+                        "rounded-md border p-3 bg-white",
                         getStatusColor(test.status)
                       )}
                     >
@@ -331,14 +364,6 @@ export const TestTableSection: React.FC<TestTableSectionProps> = ({
                               <span>Test Duration</span>
                             </TooltipContent>
                           </Tooltip>
-                          <div className="flex gap-1">
-                            <Button variant="ghost" size="icon">
-                              <Eye className="w-4 h-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon">
-                              <Edit className="w-4 h-4" />
-                            </Button>
-                          </div>
                         </div>
                       </div>
                       {test.failureMessages.length > 0 && (
