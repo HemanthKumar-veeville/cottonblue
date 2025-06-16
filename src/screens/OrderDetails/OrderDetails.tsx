@@ -16,11 +16,12 @@ import { TFunction } from "i18next";
 import { getOrderStatusText } from "../../utils/statusUtil";
 import { StatusText } from "../../components/ui/status-text";
 import { StatusIcon } from "../../components/ui/status-icon";
+import { useCompanyColors } from "../../hooks/useCompanyColors";
 
 const OrderHeader = ({ order }: { order: any }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-
+  const { buttonStyles } = useCompanyColors();
   const handleDownloadInvoice = (order: any) => {
     // Validate order data
     if (!order?.order_items?.length) {
@@ -228,7 +229,10 @@ const OrderHeader = ({ order }: { order: any }) => {
   };
 
   return (
-    <div className="flex items-center justify-between mb-8">
+    <div
+      className="flex items-center justify-between mb-8"
+      style={buttonStyles}
+    >
       <div className="flex items-center gap-2">
         <Button
           variant="ghost"
@@ -243,8 +247,12 @@ const OrderHeader = ({ order }: { order: any }) => {
         </h2>
       </div>
       <Button
-        className="bg-[#00b85b] hover:bg-[#00a050] border border-[#1a8563] text-white"
+        className="bg-[var(--primary-color)] hover:bg-[var(--primary-hover-color)] border border-[var(--primary-color)] text-white"
         onClick={() => handleDownloadInvoice(order)}
+        style={{
+          backgroundColor: "var(--primary-color)",
+          color: "var(--primary-text-color)",
+        }}
       >
         <Download className="mr-2 h-4 w-4" />
         {t("orderDetails.downloadInvoice")}

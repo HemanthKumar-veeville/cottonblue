@@ -32,6 +32,7 @@ import {
   fetchAllProducts,
   getProductsByStoreId,
 } from "../../store/features/productSlice";
+import { useCompanyColors } from "../../hooks/useCompanyColors";
 
 interface StoreDetails {
   store_id: number;
@@ -325,7 +326,7 @@ export default function CartContainer(): JSX.Element {
   const userEmail = user?.user_email;
   const dnsPrefix = getHost();
   const { selectedStore } = useAppSelector((state) => state.agency);
-
+  const { buttonStyles } = useCompanyColors();
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     firstName: "",
     lastName: "",
@@ -501,7 +502,10 @@ export default function CartContainer(): JSX.Element {
           </CardContent>
         </Card>
 
-        <Card className="w-[400px] bg-[color:var(--1-tokens-color-modes-background-primary)] rounded-lg">
+        <Card
+          className="w-[400px] bg-[color:var(--1-tokens-color-modes-background-primary)] rounded-lg"
+          style={buttonStyles}
+        >
           <CardContent className="flex flex-col gap-8 pt-6 h-full">
             <div className="flex flex-col items-start gap-4 w-full">
               <div className="flex flex-col items-start w-full gap-4">
@@ -569,6 +573,10 @@ export default function CartContainer(): JSX.Element {
               className="w-full py-2 px-4 bg-[#00b85b] text-white rounded-[var(--2-tokens-screen-modes-button-border-radius)] hover:bg-[#00b85b]/90 disabled:opacity-70 disabled:cursor-not-allowed"
               disabled={items.length === 0 || loading}
               onClick={handleValidateOrder}
+              style={{
+                backgroundColor: "var(--primary-color)",
+                color: "var(--primary-text-color)",
+              }}
             >
               {loading
                 ? t("cart.buttons.processing")

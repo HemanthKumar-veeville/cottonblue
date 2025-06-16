@@ -18,6 +18,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../components/ui/select";
+import { useCompanyColors } from "../../hooks/useCompanyColors";
 
 interface UserModificationData {
   firstname: string;
@@ -44,6 +45,7 @@ const ClientSettings: React.FC = () => {
   const { t, i18n } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const dnsPrefix = getHost();
+  const { buttonStyles } = useCompanyColors();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const { currentUser, isLoading, error } = useSelector(
@@ -379,13 +381,18 @@ const ClientSettings: React.FC = () => {
       {/* Save Button Section */}
       <div className="w-full mt-auto pt-12">
         <Separator className="mb-6" />
-        <div className="flex justify-end">
+        <div className="flex justify-end" style={buttonStyles}>
           <Button
             className={`w-fit flex items-center justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] bg-[#00b85b] text-white rounded-[var(--2-tokens-screen-modes-button-border-radius)] border border-solid border-[#1a8563] ${
               isSubmitting || isLoading ? "opacity-70 cursor-not-allowed" : ""
             }`}
             onClick={handleSubmit}
             disabled={isSubmitting || isLoading}
+            style={{
+              backgroundColor: "var(--primary-color)",
+              color: "var(--primary-text-color)",
+              borderColor: "var(--primary-color)",
+            }}
           >
             <Save
               className={`w-4 h-4 ${

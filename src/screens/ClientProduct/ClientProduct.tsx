@@ -33,6 +33,7 @@ import { Skeleton } from "../../components/Skeleton";
 import { toast } from "sonner";
 import { getProductsByStoreId } from "../../store/features/productSlice";
 import { cn } from "../../lib/utils";
+import { useCompanyColors } from "../../hooks/useCompanyColors";
 
 const ProductNotFound = () => {
   const { t } = useTranslation();
@@ -118,6 +119,13 @@ const ProductPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
+  const {
+    primaryColor,
+    primaryTextColor,
+    primaryHoverColor,
+    primaryLightColor,
+    buttonStyles,
+  } = useCompanyColors();
   const { currentProduct, loading, error, products } = useAppSelector(
     (state) => state.product
   );
@@ -226,7 +234,10 @@ const ProductPage = () => {
   return (
     <div className="min-h-screen bg-[#F8FAFC] mt-[-90px]">
       <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
+        <div
+          className="bg-white rounded-2xl shadow-sm overflow-hidden"
+          style={buttonStyles}
+        >
           <div className="p-6 sm:p-8 lg:p-12">
             <Breadcrumb className="flex items-center gap-2 w-full mb-8">
               <BreadcrumbList className="flex items-center gap-2">
@@ -235,8 +246,8 @@ const ProductPage = () => {
                     onClick={() => navigate("/")}
                     className={cn(
                       "font-medium text-sm transition-all duration-200 cursor-pointer",
-                      "flex items-center gap-1.5 group text-gray-600 hover:text-[#00b85b]",
-                      "focus:outline-none focus:ring-2 focus:ring-[#00b85b]/20 focus:ring-offset-2 rounded-md"
+                      "flex items-center gap-1.5 group text-gray-600 hover:text-[var(--primary-color)]",
+                      "focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]/20 focus:ring-offset-2 rounded-md"
                     )}
                   >
                     <ArrowLeft className="w-3.5 h-3.5 transform group-hover:-translate-x-0.5 transition-transform duration-200" />
@@ -252,7 +263,7 @@ const ProductPage = () => {
                   <BreadcrumbLink
                     className={cn(
                       "font-semibold text-sm text-gray-800",
-                      "focus:outline-none focus:ring-2 focus:ring-[#00b85b]/20 focus:ring-offset-2 rounded-md"
+                      "focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)]/20 focus:ring-offset-2 rounded-md"
                     )}
                   >
                     {product?.name ?? t("clientProduct.notAvailable")}
@@ -264,6 +275,7 @@ const ProductPage = () => {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 min-h-[600px]">
               <ProductImages
                 images={product?.product_image ? [product.product_image] : []}
+                buttonStyles={buttonStyles}
               />
               <ProductInfo
                 product={product}
@@ -271,6 +283,7 @@ const ProductPage = () => {
                 localQuantity={localQuantity}
                 onQuantityChange={handleQuantityChange}
                 onAddToCart={handleAddToCart}
+                buttonStyles={buttonStyles}
               />
             </div>
 
@@ -295,14 +308,23 @@ const ProductPage = () => {
         </div>
 
         <div className="mt-12">
-          <RelatedProducts otherProducts={otherProducts} />
+          <RelatedProducts
+            otherProducts={otherProducts}
+            buttonStyles={buttonStyles}
+          />
         </div>
       </div>
     </div>
   );
 };
 
-const ProductImages = ({ images }: { images: string[] }) => {
+const ProductImages = ({
+  images,
+  buttonStyles,
+}: {
+  images: string[];
+  buttonStyles: React.CSSProperties;
+}) => {
   const [selectedImage, setSelectedImage] = useState(0);
 
   return (
@@ -364,12 +386,13 @@ const ProductImages = ({ images }: { images: string[] }) => {
                 "absolute left-4 top-1/2 -translate-y-1/2",
                 "p-2 rounded-full",
                 "bg-white/90 backdrop-blur-sm shadow-sm",
-                "hover:bg-[#00b85b] hover:text-white",
+                "hover:bg-[var(--primary-color)] hover:text-[var(--primary-text-color)]",
                 "transition-all duration-200",
                 "text-gray-700",
                 "border border-gray-200",
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
+              style={buttonStyles}
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedImage((prev) => (prev > 0 ? prev - 1 : prev));
@@ -384,12 +407,13 @@ const ProductImages = ({ images }: { images: string[] }) => {
                 "absolute right-4 top-1/2 -translate-y-1/2",
                 "p-2 rounded-full",
                 "bg-white/90 backdrop-blur-sm shadow-sm",
-                "hover:bg-[#00b85b] hover:text-white",
+                "hover:bg-[var(--primary-color)] hover:text-[var(--primary-text-color)]",
                 "transition-all duration-200",
                 "text-gray-700",
                 "border border-gray-200",
                 "disabled:opacity-50 disabled:cursor-not-allowed"
               )}
+              style={buttonStyles}
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedImage((prev) =>
@@ -414,9 +438,10 @@ const ProductImages = ({ images }: { images: string[] }) => {
                 "min-w-[5rem] w-20 h-20 transition-all duration-200",
                 "hover:opacity-100 focus:outline-none",
                 selectedImage === index
-                  ? "opacity-100 ring-2 ring-[#00b85b]"
+                  ? "opacity-100 ring-2 ring-[var(--primary-color)]"
                   : "opacity-70 hover:opacity-90"
               )}
+              style={buttonStyles}
               onClick={() => setSelectedImage(index)}
               aria-label={`Select image ${index + 1}`}
               aria-current={selectedImage === index}
@@ -440,12 +465,14 @@ const ProductInfo = ({
   localQuantity,
   onQuantityChange,
   onAddToCart,
+  buttonStyles,
 }: {
   product: Product;
   quantity: number;
   localQuantity: number;
   onQuantityChange: (amount: number) => void;
   onAddToCart: () => void;
+  buttonStyles: React.CSSProperties;
 }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -519,7 +546,7 @@ const ProductInfo = ({
       <div className="grid grid-cols-2 gap-x-8 gap-y-4 w-full bg-gray-50 p-6 rounded-xl">
         {productDetails.map((detail, index) => (
           <div key={index} className="flex items-center gap-3 py-2 group">
-            <detail.icon className="w-5 h-5 text-gray-400 group-hover:text-[#00b85b] transition-colors duration-200" />
+            <detail.icon className="w-5 h-5 text-gray-400 group-hover:text-[var(--primary-color)] transition-colors duration-200" />
             <div>
               <span className="font-medium text-gray-700 text-sm block font-label-medium">
                 {detail.label}
@@ -533,10 +560,20 @@ const ProductInfo = ({
                         variant="outline"
                         size="sm"
                         className={cn(
-                          "h-7 px-3 py-1 bg-white border border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-[#00b85b] hover:text-[#00b85b]",
-                          item.size === product?.size &&
-                            "bg-[#00b85b] text-white hover:bg-[#00b85b]/90 hover:border-[#00b85b]/90 hover:text-white"
+                          "h-7 px-3 py-1 transition-all duration-200",
+                          item.size === product?.size
+                            ? "hover:opacity-90"
+                            : "bg-white border border-gray-200 text-gray-700 hover:border-[var(--primary-color)] hover:text-[var(--primary-color)]"
                         )}
+                        style={
+                          item.size === product?.size
+                            ? {
+                                backgroundColor: "var(--primary-color)",
+                                color: "var(--primary-text-color)",
+                                borderColor: "var(--primary-color)",
+                              }
+                            : undefined
+                        }
                         onClick={() => {
                           if (item.linked_product_id) {
                             dispatch(
@@ -553,13 +590,7 @@ const ProductInfo = ({
                     ))}
                   </div>
                 ) : (
-                  <span
-                    className={`${
-                      detail.isPrice
-                        ? "text-[#07515f] font-semibold"
-                        : "text-gray-700"
-                    } font-label-small text-sm tracking-wide leading-5`}
-                  >
+                  <span className="text-gray-700 font-label-small text-sm tracking-wide leading-5">
                     {Array.isArray(detail.value)
                       ? detail.value.map((item) => item.size).join(", ")
                       : detail.value}
@@ -596,9 +627,10 @@ const ProductInfo = ({
                   "w-10 h-10",
                   "hover:bg-gray-50 transition-all duration-200",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
-                  "text-[#00b85b] border-r border-gray-200",
+                  "text-[var(--primary-color)] border-r border-gray-200",
                   "rounded-l-lg rounded-r-none"
                 )}
+                style={buttonStyles}
                 onClick={() => onQuantityChange(-1)}
                 disabled={localQuantity + cartQuantity <= 0}
               >
@@ -616,9 +648,10 @@ const ProductInfo = ({
                   "w-10 h-10",
                   "hover:bg-gray-50 transition-all duration-200",
                   "disabled:opacity-50 disabled:cursor-not-allowed",
-                  "text-[#00b85b]",
+                  "text-[var(--primary-color)]",
                   "rounded-r-lg rounded-l-none"
                 )}
+                style={buttonStyles}
                 onClick={() => onQuantityChange(1)}
                 disabled={localQuantity >= (product?.available_packs ?? 0)}
               >
@@ -639,12 +672,17 @@ const ProductInfo = ({
       <div className="relative">
         <Button
           className={cn(
-            "w-full py-6 px-6 bg-[#00b85b] text-white text-lg font-medium rounded-xl",
+            "w-full py-6 px-6 text-lg font-medium rounded-xl",
             "shadow-sm transition-all duration-200 hover:shadow-md",
-            "hover:bg-[#00b85b]/90 transform hover:-translate-y-0.5",
+            "transform hover:-translate-y-0.5",
             "disabled:opacity-50 disabled:cursor-not-allowed",
-            "relative"
+            "relative",
+            "hover:opacity-90"
           )}
+          style={{
+            backgroundColor: "var(--primary-color)",
+            color: "var(--primary-text-color)",
+          }}
           disabled={
             !product?.available_packs ||
             product.available_packs <= 0 ||
@@ -679,7 +717,13 @@ const ProductInfo = ({
   );
 };
 
-const RelatedProductCard = ({ product }: { product: Product }) => {
+const RelatedProductCard = ({
+  product,
+  buttonStyles,
+}: {
+  product: Product;
+  buttonStyles: React.CSSProperties;
+}) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const cart = useAppSelector((state) => state.cart);
@@ -739,6 +783,7 @@ const RelatedProductCard = ({ product }: { product: Product }) => {
     <Card
       className="w-full h-full bg-white shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1 rounded-xl overflow-hidden border border-gray-100 cursor-pointer"
       onClick={() => navigate(`/product/${product.id}`)}
+      style={buttonStyles}
     >
       <CardContent className="p-4 h-full">
         <div className="flex flex-col h-full">
@@ -802,9 +847,10 @@ const RelatedProductCard = ({ product }: { product: Product }) => {
                         "h-7 w-7",
                         "hover:bg-gray-50 transition-colors duration-200",
                         "disabled:opacity-50 disabled:cursor-not-allowed",
-                        "text-[#00b85b] border-r border-gray-200",
+                        "text-[var(--primary-color)] border-r border-gray-200",
                         "rounded-l-md rounded-r-none"
                       )}
+                      style={buttonStyles}
                       onClick={(e) => handleQuantityChange(-1, e)}
                       disabled={localQuantity <= 0}
                       aria-label={t("product.decreaseQuantity")}
@@ -830,9 +876,10 @@ const RelatedProductCard = ({ product }: { product: Product }) => {
                         "h-7 w-7",
                         "hover:bg-gray-50 transition-colors duration-200",
                         "disabled:opacity-50 disabled:cursor-not-allowed",
-                        "text-[#00b85b]",
+                        "text-[var(--primary-color)]",
                         "rounded-r-md rounded-l-none"
                       )}
+                      style={buttonStyles}
                       onClick={(e) => handleQuantityChange(1, e)}
                       disabled={localQuantity >= (product.available_packs ?? 0)}
                       aria-label={t("product.increaseQuantity")}
@@ -878,11 +925,15 @@ const RelatedProductCard = ({ product }: { product: Product }) => {
                   size="icon"
                   className={cn(
                     "h-9 w-9 rounded-xl",
-                    "bg-[#00b85b] hover:bg-[#00b85b]/90 text-white",
+                    "text-[var(--primary-text-color)]",
                     "shadow-sm hover:shadow-md transition-all duration-200",
                     "disabled:opacity-50 disabled:cursor-not-allowed",
-                    "relative"
+                    "relative",
+                    "hover:opacity-90"
                   )}
+                  style={{
+                    backgroundColor: "var(--primary-color)",
+                  }}
                   onClick={handleAddToCart}
                   disabled={localQuantity === 0}
                   aria-label={t("product.addToCart")}
@@ -915,7 +966,13 @@ const RelatedProductCard = ({ product }: { product: Product }) => {
   );
 };
 
-const RelatedProducts = ({ otherProducts }: { otherProducts: Product[] }) => {
+const RelatedProducts = ({
+  otherProducts,
+  buttonStyles,
+}: {
+  otherProducts: Product[];
+  buttonStyles: React.CSSProperties;
+}) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const relatedProducts = otherProducts?.slice(0, 4);
@@ -924,14 +981,18 @@ const RelatedProducts = ({ otherProducts }: { otherProducts: Product[] }) => {
     <div className="w-full">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-2">
-          <Package2 className="w-5 h-5 text-[#00b85b]" />
+          <Package2
+            className="w-5 h-5 text-[var(--primary-color)]"
+            style={buttonStyles}
+          />
           <h2 className="font-bold text-xl text-gray-900">
             {t("clientProduct.relatedProducts.title")}
           </h2>
         </div>
         <div
           onClick={() => navigate("/")}
-          className="font-medium text-[#00b85b] hover:text-[#00b85b]/90 transition-all duration-200 cursor-pointer flex items-center gap-1 group"
+          className="font-medium hover:text-[var(--primary-hover-color)] transition-all duration-200 cursor-pointer flex items-center gap-1 group"
+          style={buttonStyles}
         >
           {t("common.viewAll")}
           <ChevronRight className="w-4 h-4 transform group-hover:translate-x-0.5 transition-transform duration-200" />
@@ -940,7 +1001,7 @@ const RelatedProducts = ({ otherProducts }: { otherProducts: Product[] }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 w-full max-w-[1200px] mx-auto">
         {relatedProducts?.map((product) => (
           <div key={product.id} className="w-full max-w-[320px] mx-auto">
-            <RelatedProductCard product={product} />
+            <RelatedProductCard product={product} buttonStyles={buttonStyles} />
           </div>
         ))}
       </div>
