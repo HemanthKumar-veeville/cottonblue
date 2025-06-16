@@ -1,15 +1,6 @@
-import {
-  BellIcon,
-  MinusIcon,
-  PlusIcon,
-  SearchIcon,
-  UserIcon,
-  ShoppingCart,
-} from "lucide-react";
-import { FaCartPlus } from "react-icons/fa";
+import { MinusIcon, PlusIcon, ShoppingCart } from "lucide-react";
 import { Badge } from "../../../components/ui/badge";
 import { Card, CardContent } from "../../../components/ui/card";
-import { Input } from "../../../components/ui/input";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -20,7 +11,6 @@ import {
 } from "../../../store/features/productSlice";
 import { getHost } from "../../../utils/hostUtils";
 import { DashboardCarousel } from "../../../components/DashboardCarousel/DashboardCarousel";
-import { Skeleton } from "../../../components/Skeleton";
 import EmptyState from "../../../components/EmptyState";
 import { Package2 } from "lucide-react";
 import { Button } from "../../../components/ui/button";
@@ -48,23 +38,13 @@ interface Product {
   created_at: string;
   updated_at: string;
   company_id: number;
+  linked: boolean;
 }
 
 interface ProductSectionProps {
   title: string;
   products: Product[];
 }
-
-// Utility functions for handling null values
-const formatPrice = (price: number | null | undefined): string => {
-  if (price == null) return "N/A";
-  return `${price.toFixed(2)}€`;
-};
-
-const formatStock = (stock: number | null | undefined): string => {
-  if (stock == null) return "N/A";
-  return `/${stock}pcs`;
-};
 
 const getStockStatus = (
   product: Product
@@ -214,14 +194,14 @@ const ProductCard = ({ product }: { product: Product }) => {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Badge
-                  variant="outline"
+                  variant="active"
                   className={`${stockStatus.color} whitespace-nowrap text-xs font-medium px-2.5 py-0.5 rounded-md border ${stockStatus.borderColor} bg-white`}
                 >
                   {t(stockStatus.status)}
                 </Badge>
                 {!product.is_active && (
                   <Badge
-                    variant="outline"
+                    variant="inactive"
                     className="text-gray-600 whitespace-nowrap text-xs font-medium px-2.5 py-0.5 rounded-md border border-gray-300 bg-white"
                   >
                     {t("dashboard.status.inactive")}
