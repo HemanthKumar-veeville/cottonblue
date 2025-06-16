@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
 import { AppDispatch } from "../../store/store";
-import { getErrorLogs } from "../../store/features/authSlice";
+import { getErrorLogs, clearErrorLogs } from "../../store/features/authSlice";
 import { RootState } from "../../store/store";
 import {
   Table,
