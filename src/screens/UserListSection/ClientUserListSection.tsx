@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { ClientUserTableSection } from "./CientlUserTableSection";
 import { getHost } from "../../utils/hostUtils";
+import { useCompanyColors } from "../../hooks/useCompanyColors";
 
 const Heading = ({ text }: { text: string }) => (
   <h3 className="text-[length:var(--heading-h3-font-size)] font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
@@ -100,8 +101,13 @@ export const ClientUserListSection = (): JSX.Element => {
     navigate("/users/add");
   };
 
+  const { buttonStyles } = useCompanyColors();
+
   return (
-    <section className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
+    <section
+      className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full"
+      style={buttonStyles}
+    >
       <header className="flex items-center justify-between w-full">
         <Heading text={t("userList.title")} />
       </header>
@@ -121,8 +127,13 @@ export const ClientUserListSection = (): JSX.Element => {
 
         <div className="flex items-center gap-[var(--2-tokens-screen-modes-common-spacing-m)]">
           <Button
-            className="bg-[#00b85b] hover:bg-[#00a050] text-white flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)]"
+            className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)]"
             onClick={handleCreateUser}
+            style={{
+              backgroundColor: "var(--primary-color)",
+              color: "var(--primary-text-color)",
+              borderColor: "var(--primary-color)",
+            }}
           >
             <PlusIcon className="w-4 h-4" />
             <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-white [font-style:var(--label-smaller-font-style)]">

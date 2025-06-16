@@ -25,6 +25,7 @@ import {
   getTicketStatusColor,
   getTicketStatusText,
 } from "../../utils/statusUtil";
+import { useCompanyColors } from "../../hooks/useCompanyColors";
 
 interface Ticket {
   ticket_id: number;
@@ -188,6 +189,7 @@ const TicketList = ({
 export default function ClientSupportTicket() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { buttonStyles } = useCompanyColors();
   const dispatch = useDispatch<AppDispatch>();
   const dnsPrefix = getHost();
   const [selectedTicket, setSelectedTicket] = useState<any>(null);
@@ -275,7 +277,10 @@ export default function ClientSupportTicket() {
 
   return (
     <>
-      <main className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-XL)] pt-[var(--2-tokens-screen-modes-common-spacing-l)] pr-[var(--2-tokens-screen-modes-common-spacing-l)] pb-[var(--2-tokens-screen-modes-common-spacing-l)] pl-[var(--2-tokens-screen-modes-common-spacing-l)] bg-white rounded-[var(--2-tokens-screen-modes-button-border-radius)]">
+      <main
+        className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-XL)] pt-[var(--2-tokens-screen-modes-common-spacing-l)] pr-[var(--2-tokens-screen-modes-common-spacing-l)] pb-[var(--2-tokens-screen-modes-common-spacing-l)] pl-[var(--2-tokens-screen-modes-common-spacing-l)] bg-white rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
+        style={buttonStyles}
+      >
         <header className="flex items-center gap-[var(--2-tokens-screen-modes-common-spacing-XS)]">
           <Button
             variant="ghost"
@@ -340,8 +345,12 @@ export default function ClientSupportTicket() {
                     }`}
                     onClick={handleSubmit}
                     disabled={isSubmitting}
+                    style={{
+                      backgroundColor: "var(--primary-color)",
+                      color: "var(--primary-text-color)",
+                      borderColor: "var(--primary-color)",
+                    }}
                   >
-                    {" "}
                     <Send
                       className={`w-4 h-4 ${
                         isSubmitting ? "animate-pulse" : ""
@@ -363,11 +372,24 @@ export default function ClientSupportTicket() {
                     <Button
                       variant={activeTab === "active" ? "default" : "outline"}
                       onClick={() => setActiveTab("active")}
-                      className={`flex-1 ${
+                      className={`flex-1 transition-all duration-200 ${
                         activeTab === "active"
-                          ? "bg-[#00b85b] text-white hover:bg-[#00b85b]/90"
-                          : "text-[#00b85b] hover:bg-[#00b85b]/10"
+                          ? "hover:brightness-90 shadow-md hover:shadow-lg hover:bg-primary-hover-color hover:text-white hover:border-primary-hover-color"
+                          : "hover:bg-[var(--primary-light-color)] hover:border-[var(--primary-hover-color)] hover:text-[var(--primary-hover-color)]"
                       }`}
+                      style={{
+                        backgroundColor:
+                          activeTab === "active"
+                            ? "var(--primary-color)"
+                            : "transparent",
+                        color:
+                          activeTab === "active"
+                            ? "var(--primary-text-color)"
+                            : "var(--primary-color)",
+                        border: "1px solid var(--primary-color)",
+                        transform: "translateY(0)",
+                        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                      }}
                     >
                       {t("clientSupport.activeTickets")} (
                       {activeTickets?.length ?? 0})
@@ -377,11 +399,24 @@ export default function ClientSupportTicket() {
                         activeTab === "completed" ? "default" : "outline"
                       }
                       onClick={() => setActiveTab("completed")}
-                      className={`flex-1 ${
+                      className={`flex-1 transition-all duration-200 ${
                         activeTab === "completed"
-                          ? "bg-[#00b85b] text-white hover:bg-[#00b85b]/90"
-                          : "text-[#00b85b] hover:bg-[#00b85b]/10"
+                          ? "hover:brightness-90 shadow-md hover:shadow-lg hover:bg-primary-hover-color hover:text-white hover:border-primary-hover-color"
+                          : "hover:bg-[var(--primary-light-color)] hover:border-[var(--primary-hover-color)] hover:text-[var(--primary-hover-color)]"
                       }`}
+                      style={{
+                        backgroundColor:
+                          activeTab === "completed"
+                            ? "var(--primary-color)"
+                            : "transparent",
+                        color:
+                          activeTab === "completed"
+                            ? "var(--primary-text-color)"
+                            : "var(--primary-color)",
+                        border: "1px solid var(--primary-color)",
+                        transform: "translateY(0)",
+                        transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                      }}
                     >
                       {t("clientSupport.completedTickets")} (
                       {completedTickets?.length ?? 0})
