@@ -3,6 +3,7 @@ import { Button } from "../../components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import * as XLSX from "xlsx";
+import { useCompanyColors } from "../../hooks/useCompanyColors";
 
 const Heading = ({ text }: { text: string }) => (
   <h3 className="text-[length:var(--heading-h3-font-size)] font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
@@ -20,9 +21,15 @@ const DownloadButton = ({
   onClick: () => void;
 }) => (
   <Button
-    className="bg-[#00b85b] hover:bg-[#00a050] border border-[#1a8563] text-white"
+    variant="outline"
+    className="transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
     disabled={disabled}
     onClick={onClick}
+    style={{
+      backgroundColor: "var(--primary-color)",
+      color: "var(--primary-text-color)",
+      borderColor: "var(--primary-color)",
+    }}
   >
     <DownloadIcon className="mr-2 h-4 w-4" />
     {label}
@@ -33,7 +40,7 @@ export const OrderHistorySection = (): JSX.Element => {
   const { t } = useTranslation();
   const orders = useSelector((state: any) => state.cart.orders);
   const loading = useSelector((state: any) => state.cart.loading);
-
+  const { buttonStyles } = useCompanyColors();
   const orderList = orders || [];
 
   const handleDownloadOrders = () => {
@@ -94,7 +101,10 @@ export const OrderHistorySection = (): JSX.Element => {
   };
 
   return (
-    <header className="flex items-center justify-between w-full">
+    <header
+      className="flex items-center justify-between w-full"
+      style={buttonStyles}
+    >
       <Heading text={t("history.title")} />
       <DownloadButton
         label={t("history.downloadSelectedInvoices")}
