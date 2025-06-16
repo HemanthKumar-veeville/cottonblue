@@ -12,6 +12,7 @@ import { StatusText } from "../../components/ui/status-text";
 import { StatusIcon } from "../../components/ui/status-icon";
 import ErrorState from "../../components/ErrorState";
 import { Skeleton } from "../../components/ui/skeleton";
+import { useCompanyColors } from "../../hooks/useCompanyColors";
 
 interface OrderItem {
   product_id: number;
@@ -54,6 +55,7 @@ const OrderTableHeaderSection: React.FC<{
   isLoading?: boolean;
 }> = ({ orderDetails, isLoading = false }) => {
   const navigate = useNavigate();
+  const { buttonStyles } = useCompanyColors();
 
   if (!orderDetails && !isLoading) {
     return (
@@ -253,7 +255,10 @@ const OrderTableHeaderSection: React.FC<{
   };
 
   return (
-    <Card className="w-full p-6 md:p-8 space-y-8 shadow-lg transition-all duration-200 hover:shadow-xl">
+    <Card
+      className="w-full p-6 md:p-8 space-y-8 shadow-lg transition-all duration-200 hover:shadow-xl"
+      style={buttonStyles}
+    >
       <div className="flex flex-col md:flex-row md:items-center justify-between w-full gap-4">
         <div className="flex items-center gap-3">
           <Button
@@ -272,9 +277,13 @@ const OrderTableHeaderSection: React.FC<{
 
         {!isLoading && (
           <Button
-            className="bg-green-600 border border-green-700 hover:bg-green-600/90 h-auto group transition-all duration-200"
+            className="bg-[var(--primary-color)] hover:bg-[var(--primary-hover-color)]  border border-[var(--primary-color)] text-[var(--primary-text-color)] h-auto group transition-all duration-200"
             aria-label="Download order form"
             onClick={handleDownloadOrderForm}
+            style={{
+              backgroundColor: "var(--primary-color)",
+              color: "var(--primary-text-color)",
+            }}
           >
             <Download className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
             <span className="font-label-medium font-medium text-base tracking-normal leading-normal">

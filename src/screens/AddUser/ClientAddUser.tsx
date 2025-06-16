@@ -24,6 +24,7 @@ import {
 } from "../../store/features/userSlice";
 import { getHost } from "../../utils/hostUtils";
 import { cn } from "../../lib/utils";
+import { useCompanyColors } from "../../hooks/useCompanyColors";
 
 interface FormData {
   firstname: string;
@@ -212,6 +213,7 @@ export default function ClientAddUser() {
   const user = selectedUser?.user;
   const host = getHost();
   const dnsPrefix = host || selectedCompany?.dns;
+  const { buttonStyles } = useCompanyColors();
   // Check if we're in edit mode
   const isEditMode = location.pathname.includes("/edit");
 
@@ -412,14 +414,17 @@ export default function ClientAddUser() {
       </div>
 
       {/* Fixed Footer */}
-      <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-[#e5e7eb] py-4">
+      <div
+        className="fixed bottom-0 left-64 right-0 bg-white border-t border-[#e5e7eb] py-4"
+        style={buttonStyles}
+      >
         <div className="px-6 max-w-[calc(100%-2rem)]">
           <div className="flex items-center justify-end w-full mx-auto gap-4">
             {isEditMode && (
               <Button
                 type="button"
                 onClick={() => navigate(-1)}
-                className="gap-4 py-4 px-4 self-stretch bg-white border-[#00b85b] border text-[#00b85b] hover:bg-gray-50 transition-colors duration-200 font-medium"
+                className="gap-4 py-4 px-4 self-stretch bg-white border-[var(--primary-color)] border text-[var(--primary-color)] hover:bg-gray-50 transition-colors duration-200 font-medium"
               >
                 <span className="font-label-medium text-sm tracking-wide leading-5 whitespace-nowrap">
                   {t("common.cancel")}
@@ -430,11 +435,15 @@ export default function ClientAddUser() {
               onClick={handleSubmit}
               disabled={loading}
               className={cn(
-                "gap-4 py-4 px-4 self-stretch bg-[#00b85b] text-white",
-                "hover:bg-[#00a050] transition-colors duration-200",
+                "gap-4 py-4 px-4 self-stretch bg-[var(--primary-color)] text-white",
+                "hover:bg-[var(--primary-hover-color)] transition-colors duration-200",
                 "disabled:opacity-50 disabled:cursor-not-allowed",
                 loading && "animate-pulse"
               )}
+              style={{
+                backgroundColor: "var(--primary-color)",
+                color: "var(--primary-text-color)",
+              }}
             >
               {loading ? (
                 <div className="flex items-center justify-center">
