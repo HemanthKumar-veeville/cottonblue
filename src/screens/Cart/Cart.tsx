@@ -457,10 +457,13 @@ export default function CartContainer(): JSX.Element {
       </div>
 
       <div className="flex gap-6 flex-1">
-        <Card className="flex-[2] p-0 border-0 rounded-lg overflow-hidden">
+        <Card
+          className="flex-[2] p-0 border-0 rounded-lg overflow-hidden"
+          style={buttonStyles}
+        >
           <CardContent className="p-0 h-full flex flex-col">
             <div className="h-full flex flex-col">
-              <div className="bg-[#eaf8e7] rounded-md">
+              <div className="bg-[var(--primary-light-color)] rounded-md">
                 <Table>
                   <TableHeader>
                     <TableRow className="hover:bg-transparent">

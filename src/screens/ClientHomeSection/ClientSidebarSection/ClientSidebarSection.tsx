@@ -14,6 +14,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAppDispatch } from "../../../store/store";
 import { logout } from "../../../store/features/authSlice";
 import { useAppSelector } from "../../../store/store";
+import { useCompanyColors } from "../../../hooks/useCompanyColors";
 
 let navItems = [
   {
@@ -92,9 +93,10 @@ const NavigationMenu = () => {
   const location = useLocation();
   const { isClientAdmin } = useAppSelector((state) => state.auth);
   navItems = navItems?.slice(0, isClientAdmin ? 4 : 2);
+  const { buttonStyles } = useCompanyColors();
 
   return (
-    <nav className="w-full space-y-2">
+    <nav className="w-full space-y-2" style={buttonStyles}>
       {navItems.map((item, index) => (
         <Button
           key={index}
@@ -102,7 +104,7 @@ const NavigationMenu = () => {
           onClick={() => navigate(item.path)}
           className={`h-fit flex justify-start items-center w-full gap-2 py-2 px-4 rounded-lg ${
             location.pathname === item.path
-              ? "bg-[#e9f9ef] text-[#1e2324]"
+              ? "bg-[var(--primary-light-color)] text-[#1e2324]"
               : "bg-[color:var(--1-tokens-color-modes-nav-tab-primary-default-background)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]"
           }`}
         >
@@ -156,7 +158,7 @@ const BottomNavigation = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useAppDispatch();
-
+  const { buttonStyles } = useCompanyColors();
   const handleClick = async (path: string) => {
     if (path === "/logout") {
       try {
@@ -172,7 +174,10 @@ const BottomNavigation = () => {
   };
 
   return (
-    <div className="flex flex-col items-start gap-3 w-full">
+    <div
+      className="flex flex-col items-start gap-3 w-full"
+      style={buttonStyles}
+    >
       {bottomNavItems.map((item, index) => (
         <Button
           key={index}
@@ -180,7 +185,7 @@ const BottomNavigation = () => {
           onClick={() => handleClick(item.path)}
           className={`flex justify-start items-center w-full gap-2 py-2 px-4 rounded-lg ${
             location.pathname === item.path
-              ? "bg-[#e9f9ef] text-[#1e2324]"
+              ? "bg-[var(--primary-light-color)] text-[#1e2324]"
               : "bg-[color:var(--1-tokens-color-modes-nav-tab-primary-default-background)]"
           }`}
         >

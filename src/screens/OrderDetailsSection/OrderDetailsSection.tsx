@@ -27,6 +27,7 @@ import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import { jsPDF } from "jspdf";
 import { StatusText } from "../../components/ui/status-text";
+import { useCompanyColors } from "../../hooks/useCompanyColors";
 
 interface OrderItem {
   product_id: number;
@@ -338,7 +339,7 @@ export const OrderDetailsSection = (): JSX.Element => {
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const ordersPerPage = 10; // Number of orders to show per page
-
+  const { buttonStyles } = useCompanyColors();
   const orderList = orders || [];
   const totalPages = Math.ceil(orderList.length / ordersPerPage);
 
@@ -426,10 +427,13 @@ export const OrderDetailsSection = (): JSX.Element => {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full" style={buttonStyles}>
       <div className="flex-grow overflow-auto pb-24">
         <Table className="bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)]">
-          <TableHeader className="bg-[#eaf8e7] rounded-md">
+          <TableHeader
+            className="bg-[var(--primary-light-color)] rounded-md"
+            style={buttonStyles}
+          >
             <TableRow>
               <TableHead className="w-11 p-2.5 align-middle">
                 <Checkbox

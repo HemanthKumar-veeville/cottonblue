@@ -470,7 +470,7 @@ const ProductRow = ({ product }: { product: any }) => {
 const ProductTable = ({ order }: { order: any }) => {
   const { t } = useTranslation();
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
-
+  const { buttonStyles } = useCompanyColors();
   if (!order || !order.order_items) return null;
 
   const handleSelectAll = (checked: boolean) => {
@@ -508,8 +508,8 @@ const ProductTable = ({ order }: { order: any }) => {
             </span>
           )}
         </div>
-        <div className="w-full">
-          <div className="bg-[#eaf8e7] rounded-md mb-2">
+        <div className="w-full" style={buttonStyles}>
+          <div className="bg-[var(--primary-light-color)] rounded-md mb-2">
             <div className="flex items-center justify-between p-2">
               <div className="w-11 flex items-center justify-center">
                 <Checkbox

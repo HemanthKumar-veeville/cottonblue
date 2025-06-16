@@ -179,7 +179,7 @@ export const ClientUserTableSection = ({
             />
           ) : (
             <Table className="bg-white rounded-[var(--2-tokens-screen-modes-common-spacing-XS)]">
-              <TableHeader className="bg-[#eaf8e7] rounded-md">
+              <TableHeader className="bg-[var(--primary-light-color)] rounded-md">
                 <TableRow>
                   <TableHead className="w-11">
                     <div className="flex justify-center">

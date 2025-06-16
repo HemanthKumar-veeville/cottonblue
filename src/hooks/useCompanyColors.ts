@@ -15,8 +15,8 @@ export const useCompanyColors = (): CompanyColors => {
   const primaryTextColor = companyTextColor || "#ffffff";
   
   // Create a lighter version of the primary color for hover states
-  const primaryHoverColor = `${primaryColor}`;
-  const primaryLightColor = `${primaryColor}10`; // 10% opacity version for subtle backgrounds
+  const primaryHoverColor = `${primaryColor}90`;
+  const primaryLightColor = `${primaryColor}20`; // 10% opacity version for subtle backgrounds
   
   // Define button styles with CSS variables
   const buttonStyles = {

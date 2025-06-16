@@ -8,6 +8,7 @@ import { Skeleton } from "../../components/ui/skeleton";
 import { fetchAllStores } from "../../store/features/agencySlice";
 import { useAppSelector } from "../../store/store";
 import { getHost } from "../../utils/hostUtils";
+import { useCompanyColors } from "../../hooks/useCompanyColors";
 
 interface Store {
   id: number;
@@ -126,7 +127,7 @@ const ActionsSection = () => {
   const isActive = selectedUser?.user?.is_active;
   const host = getHost();
   const dns = selectedCompany?.dns || host;
-
+  const { buttonStyles } = useCompanyColors();
   const handleEdit = () => {
     navigate(`/users/edit/${id}`);
   };
@@ -157,7 +158,10 @@ const ActionsSection = () => {
   };
 
   return (
-    <div className="bg-[#eaf8e7] p-4 rounded-[var(--2-tokens-screen-modes-common-spacing-XS)]">
+    <div
+      style={buttonStyles}
+      className="bg-[var(--primary-light-color)] p-4 rounded-[var(--2-tokens-screen-modes-common-spacing-XS)]"
+    >
       <h3 className="text-sm font-medium text-[#1e2324] mb-4">Actions</h3>
       <div className="flex flex-col sm:flex-row gap-4 w-full">
         <Button
