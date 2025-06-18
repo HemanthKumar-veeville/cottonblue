@@ -91,6 +91,7 @@ export const ClientHeader = () => {
   // Calculate total items in cart
 
   const cartItemCount = items.reduce((total, item) => total + item.quantity, 0);
+  const cartTotalAmount = cart.total;
 
   useEffect(() => {
     if (dns && isAdmin) {
@@ -255,7 +256,9 @@ export const ClientHeader = () => {
           >
             <ShoppingCartIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
             <span className="inline-block text-sm font-semibold text-gray-900 whitespace-nowrap">
-              {t("clientHeader.cart")}
+              {cartTotalAmount > 0
+                ? `${cartTotalAmount.toFixed(2)}€`
+                : t("clientHeader.cart")}
             </span>
             {cartItemCount > 0 && (
               <Badge className="absolute -top-1 -right-1 min-w-[20px] h-[20px] flex items-center justify-center bg-defaultalert text-white text-xs font-semibold rounded-full">

@@ -273,7 +273,7 @@ const cartSlice = createSlice({
         state.items = action.payload.products;
         state.store_details = action.payload.store_details;
         state.cartId = action.payload.cart_id;
-        state.total = state.items.reduce((sum, item) => sum + (item.price_of_pack * item.quantity), 0);
+        state.total = action.payload.total_amount;
       })
       .addCase(fetchCart.rejected, (state, action) => {
         state.loading = false;
