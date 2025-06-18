@@ -89,7 +89,7 @@ const ProductCard = ({ product }: { product: Product }) => {
   };
 
   // Updated to handle negative quantities
-  const handleQuantityChange = (amount: number, e?: React.MouseEvent) => {
+  const handleQuantityChange = async (amount: number, e?: React.MouseEvent) => {
     e?.stopPropagation();
     const newQuantity = localQuantity + amount;
 
@@ -97,7 +97,49 @@ const ProductCard = ({ product }: { product: Product }) => {
       setLocalQuantity(newQuantity);
     } else if (amount < 0) {
       // Allow negative quantities for cart removals
-      setLocalQuantity(newQuantity);
+      // setLocalQuantity(newQuantity);
+
+      if (dnsPrefix && selectedStore && localQuantity <= 0) {
+        // Optimistic update - Update UI immediately
+        dispatch(
+          addToCart({
+            product: product,
+            quantity: amount,
+          })
+        );
+
+        // Store the quantity for potential rollback
+        const quantityToAdd = amount;
+
+        try {
+          // Make API call in the background
+          await dispatch(
+            addToCartAsync({
+              dns_prefix: dnsPrefix,
+              store_id: selectedStore,
+              product_id: product.id.toString(),
+              quantity: quantityToAdd,
+            })
+          ).unwrap();
+
+          // No need to fetch cart again as we've already updated the UI optimistically
+        } catch (error) {
+          // Revert the optimistic update on failure
+          dispatch(
+            addToCart({
+              product: product,
+              quantity: -quantityToAdd, // Reverse the quantity change
+            })
+          );
+
+          // Restore the local quantity
+          setLocalQuantity(localQuantity - amount);
+
+          toast.error(t("cart.error.updateFailed"));
+        }
+      } else if (localQuantity > 0) {
+        setLocalQuantity(localQuantity + amount);
+      }
     } else if (newQuantity > (product.available_packs ?? 0)) {
       toast.error(t("cart.error.notEnoughStock"));
     }
@@ -300,11 +342,11 @@ const ProductCard = ({ product }: { product: Product }) => {
                 onClick={handleAddToCart}
                 aria-label={t("product.addToCart")}
                 title={t("product.addToCart")}
-                disabled={localQuantity === 0}
+                disabled={localQuantity <= 0}
                 data-testid={`add-to-cart-${product.id}`}
               >
                 <ShoppingCart className="h-4 w-4" />
-                {localQuantity !== 0 && (
+                {localQuantity > 0 && (
                   <div className="absolute -top-2 -right-2 bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center animate-in fade-in duration-200">
                     {localQuantity}
                   </div>

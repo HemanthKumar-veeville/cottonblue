@@ -156,14 +156,58 @@ const ProductPage = () => {
   }, [dispatch, dnsPrefix, selectedStore]);
 
   // Handle local quantity changes
-  const handleQuantityChange = (amount: number) => {
+  const handleQuantityChange = async (amount: number, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     const newQuantity = localQuantity + amount;
 
-    if (amount > 0 && newQuantity <= (product?.available_packs ?? 0)) {
+    if (amount > 0 && newQuantity <= (product.available_packs ?? 0)) {
       setLocalQuantity(newQuantity);
     } else if (amount < 0) {
-      setLocalQuantity(newQuantity);
-    } else if (newQuantity > (product?.available_packs ?? 0)) {
+      // Allow negative quantities for cart removals
+      // setLocalQuantity(newQuantity);
+
+      if (dnsPrefix && selectedStore && localQuantity <= 0) {
+        // Optimistic update - Update UI immediately
+        dispatch(
+          addToCart({
+            product: product,
+            quantity: amount,
+          })
+        );
+
+        // Store the quantity for potential rollback
+        const quantityToAdd = amount;
+
+        try {
+          // Make API call in the background
+          await dispatch(
+            addToCartAsync({
+              dns_prefix: dnsPrefix,
+              store_id: selectedStore,
+              product_id: product.id.toString(),
+              quantity: quantityToAdd,
+            })
+          ).unwrap();
+
+          // No need to fetch cart again as we've already updated the UI optimistically
+        } catch (error) {
+          // Revert the optimistic update on failure
+          dispatch(
+            addToCart({
+              product: product,
+              quantity: -quantityToAdd, // Reverse the quantity change
+            })
+          );
+
+          // Restore the local quantity
+          setLocalQuantity(localQuantity - amount);
+
+          toast.error(t("cart.error.updateFailed"));
+        }
+      } else if (localQuantity > 0) {
+        setLocalQuantity(localQuantity + amount);
+      }
+    } else if (newQuantity > (product.available_packs ?? 0)) {
       toast.error(t("cart.error.notEnoughStock"));
     }
   };
