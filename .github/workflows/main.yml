@@ -72,10 +72,10 @@ jobs:
           USER: ${{ secrets.PROD_SERVER_USER }}
           KEY: ${{ secrets.PROD_SERVER_KEY }}
         run: |
-          echo "$KEY" > prod_key.pem
-          chmod 600 prod_key.pem
-          scp -i prod_key.pem -o StrictHostKeyChecking=no production-build.tar.gz $USER@$HOST:/tmp
-          ssh -i prod_key.pem -o StrictHostKeyChecking=no $USER@$HOST "
+          echo "$KEY" > cottonblue_production_key.pem
+          chmod 600 cottonblue_production_key.pem
+          scp -i cottonblue_production_key.pem -o StrictHostKeyChecking=no production-build.tar.gz $USER@$HOST:/tmp
+          ssh -i cottonblue_production_key.pem -o StrictHostKeyChecking=no $USER@$HOST "
             sudo mv /tmp/production-build.tar.gz /usr/share/nginx/html &&
             cd /usr/share/nginx/html &&
             sudo tar -xzf production-build.tar.gz &&
