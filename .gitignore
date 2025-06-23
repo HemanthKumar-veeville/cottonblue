@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+cottonblue_production_key.pem
 
 # Editor directories and files
 .vscode/*
