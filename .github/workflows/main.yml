@@ -1,0 +1,83 @@
+name: Frontend CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main # Production branch
+      - development # Staging branch
+  pull_request:
+    branches:
+      - main
+      - development
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "16"
+
+      - name: Create .env file
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/main" ]; then
+            echo "VITE_API_URL=${{ secrets.PRODUCTION_VITE_API_URL }}" > .env
+          else
+            echo "VITE_API_URL=${{ secrets.DEVELOPMENT_VITE_API_URL }}" > .env
+          fi
+        shell: bash
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project
+        run: npm run build
+
+      - name: Archive production build artifacts
+        if: github.ref == 'refs/heads/main'
+        run: tar -czf production-build.tar.gz -C dist .
+
+      - name: Archive staging build artifacts
+        if: github.ref == 'refs/heads/development'
+        run: tar -czf staging-build.tar.gz -C dist .
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifact
+          path: |
+            production-build.tar.gz
+            staging-build.tar.gz
+
+  deploy-production:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifact
+          path: ./
+
+      - name: Deploy to Production Server
+        env:
+          HOST: ${{ secrets.PROD_SERVER_HOST }}
+          USER: ${{ secrets.PROD_SERVER_USER }}
+          KEY: ${{ secrets.PROD_SERVER_KEY }}
+        run: |
+          echo "$KEY" > prod_key.pem
+          chmod 600 prod_key.pem
+          scp -i prod_key.pem -o StrictHostKeyChecking=no production-build.tar.gz $USER@$HOST:/tmp
+          ssh -i prod_key.pem -o StrictHostKeyChecking=no $USER@$HOST "
+            sudo mv /tmp/production-build.tar.gz /usr/share/nginx/html &&
+            cd /usr/share/nginx/html &&
+            sudo tar -xzf production-build.tar.gz &&
+            sudo rm production-build.tar.gz
+          "
