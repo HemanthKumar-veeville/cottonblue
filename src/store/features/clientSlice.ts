@@ -204,7 +204,7 @@ const clientSlice = createSlice({
         state.companies = action.payload;
         
         if (!state.selectedCompany && action.payload.companies.length > 0) {
-          const defaultCompany = action.payload.companies.find((company: any) => company.dns_prefix === 'chronodrive');
+          const defaultCompany = action.payload.companies.find((company: any) => company.dns_prefix === 'chronodrive') || action.payload.companies[0];
           state.selectedCompany = {
             id: defaultCompany.id,
             name: defaultCompany.name,
