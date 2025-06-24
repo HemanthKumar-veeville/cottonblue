@@ -622,7 +622,12 @@
   },
   "login": {
     "submit": "Login",
-    "poweredBy": "by Cotton Blue"
+    "poweredBy": "by Cotton Blue",
+    "greeting": "Hello!",
+    "welcomeMessage": "Welcome to your admin portal",
+    "email": "Email",
+    "password": "Password",
+    "forgotPassword": "Forgot password?"
   },
   "clientLogin": {
     "greeting": "Hello!",
@@ -1032,8 +1037,9 @@
   },
   "forgotPassword": {
     "title": "Forgot Password",
+    "description": "Enter your email address to receive a reset link",
     "sendResetLink": "Send Reset Link",
-    "backToLogin": "Login",
+    "backToLogin": "Back to Login",
     "emailSent": "A reset link has been sent to your email address"
   },
   "exportCSV": {

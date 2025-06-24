@@ -648,7 +648,12 @@
   },
   "login": {
     "submit": "Connexion",
-    "poweredBy": "par Cotton Blue"
+    "poweredBy": "par Cotton Blue",
+    "greeting": "Bonjour !",
+    "welcomeMessage": "Bienvenue sur votre espace administrateur",
+    "email": "Email",
+    "password": "Mot de passe",
+    "forgotPassword": "Mot de passe oublié ?"
   },
   "clientLogin": {
     "greeting": "Bonjour !",
@@ -1061,8 +1066,9 @@
   },
   "forgotPassword": {
     "title": "Mot de passe oublié",
+    "description": "Entrez votre adresse email pour recevoir un lien de réinitialisation",
     "sendResetLink": "Envoyer un lien de réinitialisation",
-    "backToLogin": "Se connecter",
+    "backToLogin": "Retour à la connexion",
     "emailSent": "Un lien de réinitialisation a été envoyé à votre adresse email"
   },
   "exportCSV": {
