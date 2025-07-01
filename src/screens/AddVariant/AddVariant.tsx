@@ -154,11 +154,36 @@ const VariantTable = ({
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="XS">XS</SelectItem>
-                  <SelectItem value="S">S</SelectItem>
-                  <SelectItem value="M">M</SelectItem>
-                  <SelectItem value="L">L</SelectItem>
-                  <SelectItem value="XL">XL</SelectItem>
+                  <SelectItem value="Unique">
+                    {t("productSidebar.form.options.size.unique")}
+                  </SelectItem>
+                  <SelectItem value="XS">
+                    {t("productSidebar.form.options.size.XS")}
+                  </SelectItem>
+                  <SelectItem value="S">
+                    {t("productSidebar.form.options.size.S")}
+                  </SelectItem>
+                  <SelectItem value="M">
+                    {t("productSidebar.form.options.size.M")}
+                  </SelectItem>
+                  <SelectItem value="L">
+                    {t("productSidebar.form.options.size.L")}
+                  </SelectItem>
+                  <SelectItem value="XL">
+                    {t("productSidebar.form.options.size.XL")}
+                  </SelectItem>
+                  <SelectItem value="2XL">
+                    {t("productSidebar.form.options.size.2XL")}
+                  </SelectItem>
+                  <SelectItem value="3XL">
+                    {t("productSidebar.form.options.size.3XL")}
+                  </SelectItem>
+                  <SelectItem value="4XL">
+                    {t("productSidebar.form.options.size.4XL")}
+                  </SelectItem>
+                  <SelectItem value="5XL">
+                    {t("productSidebar.form.options.size.5XL")}
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
