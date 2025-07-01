@@ -272,11 +272,11 @@ export const ProductTableSection = ({
                       {product?.product_images &&
                       product?.product_images.length > 0 &&
                       product?.product_images[0] ? (
-                        <div className="w-[50px] h-[50px] rounded-[var(--2-tokens-screen-modes-button-border-radius)] flex items-center justify-center">
+                        <div className="w-[150px] h-[150px] rounded-[var(--2-tokens-screen-modes-button-border-radius)] flex items-center justify-center">
                           <img
                             src={product?.product_images[0]}
                             alt={product?.name}
-                            className="w-full h-full object-contain"
+                            className="w-full h-auto min-h-[150px] max-h-[150px] object-contain"
                           />
                         </div>
                       ) : (
