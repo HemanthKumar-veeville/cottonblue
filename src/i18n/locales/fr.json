@@ -216,7 +216,8 @@
       "updated": "Produit mis à jour avec succès",
       "noChanges": "Aucune modification détectée à mettre à jour",
       "createSuccess": "Produit créé avec succès",
-      "updateSuccess": "Produit mis à jour avec succès"
+      "updateSuccess": "Produit mis à jour avec succès",
+      "mainImageUpdated": "Image principale mise à jour avec succès"
     }
   },
   "agencyDetails": {

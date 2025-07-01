@@ -26,7 +26,15 @@ import { useNavigate } from "react-router-dom";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
-import { Boxes, Package, MoreVertical, Eye, Edit, Power } from "lucide-react";
+import {
+  Boxes,
+  Package,
+  MoreVertical,
+  Eye,
+  Edit,
+  Power,
+  ImageOff,
+} from "lucide-react";
 import {
   fetchAllProducts,
   updateProduct,
@@ -261,20 +269,30 @@ export const ProductTableSection = ({
                       {product.id ?? "Not available"}
                     </TableCell>
                     <TableCell className="w-[77px] align-middle">
-                      <div
-                        className="w-[50px] h-[50px] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
-                        style={{
-                          backgroundImage: product.product_image
-                            ? `url(${product.product_image})`
-                            : "none",
-                          backgroundColor: !product.product_image
-                            ? "#f0f0f0"
-                            : "transparent",
-                          backgroundSize: "contain",
-                          backgroundPosition: "center",
-                          backgroundRepeat: "no-repeat",
-                        }}
-                      />
+                      {product?.product_images?.length > 0 ? (
+                        <div
+                          className="w-[50px] h-[50px] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
+                          style={{
+                            backgroundImage:
+                              product?.product_images?.length > 0 &&
+                              product?.product_images[0]
+                                ? `url(${product.product_images[0]})`
+                                : "none",
+                            backgroundColor:
+                              product?.product_images?.length > 0 &&
+                              product?.product_images[0]
+                                ? "#f0f0f0"
+                                : "transparent",
+                            backgroundSize: "contain",
+                            backgroundPosition: "center",
+                            backgroundRepeat: "no-repeat",
+                          }}
+                        />
+                      ) : (
+                        <div className="w-[50px] h-[50px] rounded-[var(--2-tokens-screen-modes-button-border-radius)] flex items-center justify-center">
+                          <ImageOff className="w-10 h-10 text-gray-400" />
+                        </div>
+                      )}
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)] align-middle">
                       {product.name ?? "Not available"}

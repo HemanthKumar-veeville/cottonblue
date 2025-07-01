@@ -2,7 +2,8 @@ import { axiosInstance } from '../lib/axios';
 
 export interface CreateProductData {
   company_id: string;
-  product_image: File;
+  product_image?: File;
+  product_images?: File[];
   product_name: string;
   product_description?: string;
   product_price?: number;
@@ -17,13 +18,14 @@ export interface CreateProductData {
 export interface UpdateProductData {
   product_name?: string;
   product_description?: string;
-  product_price?: number;
-  available_region?: string;
+  product_image?: File;
+  product_images?: File[];
   pack_of?: number;
   pack_price?: number;
   total_packs?: number;
-  product_image?: File;
-  is_active?: boolean;
+  suitable_for?: string;
+  size?: string;
+  reference?: string;
 }
 
 export interface ProductVariant {
@@ -37,6 +39,10 @@ export interface AddProductVariantsRequest {
   product_variants: ProductVariant[];
 }
 
+// Add new type aliases to accept FormData
+export type CreateProductPayload = CreateProductData | FormData;
+export type UpdateProductPayload = UpdateProductData | FormData;
+
 export const productService = {
   /**
    * Create a new product
@@ -44,7 +50,7 @@ export const productService = {
    * @param data Product creation data
    * @returns Promise with creation response
    */
-  createProduct: async (dnsPrefix: string, data: CreateProductData | FormData) => {
+  createProduct: async (dnsPrefix: string, data: CreateProductPayload) => {
     // If data is already FormData, use it directly
     const formData = data instanceof FormData ? data : new FormData();
     
@@ -92,7 +98,7 @@ export const productService = {
    * @param data Product update data
    * @returns Promise with update response
    */
-  updateProduct: async (dnsPrefix: string, productId: string, data: UpdateProductData | FormData) => {
+  updateProduct: async (dnsPrefix: string, productId: string, data: UpdateProductPayload) => {
     // If data is already FormData, use it directly
     const formData = data instanceof FormData ? data : new FormData();
     

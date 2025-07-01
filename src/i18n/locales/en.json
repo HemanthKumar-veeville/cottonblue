@@ -211,7 +211,8 @@
       "publishError": "Error publishing product",
       "draftSaved": "Draft saved successfully",
       "published": "Product published successfully",
-      "updated": "Product updated successfully"
+      "updated": "Product updated successfully",
+      "mainImageUpdated": "Main image updated successfully"
     }
   },
   "agencyDetails": {

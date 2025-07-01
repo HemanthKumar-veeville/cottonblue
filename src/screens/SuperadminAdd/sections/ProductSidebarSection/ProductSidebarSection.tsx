@@ -41,16 +41,16 @@ interface FormData {
   total_packs: string;
   reference: string;
   description: string;
-  images: { [key: number]: File | undefined };
-  imageUrls: { [key: number]: string | undefined };
+  images: File[];
+  imageUrls: string[];
 }
 
 // Extend CreateProductData type to include our custom fields
 interface ExtendedCreateProductData
-  extends Omit<CreateProductData, "product_image"> {
+  extends Omit<CreateProductData, "product_images"> {
   suitable_for: string;
   size: string;
-  product_image?: File;
+  product_images?: File[];
 }
 
 interface BaseProductData {
@@ -78,7 +78,7 @@ interface InitialProductData {
   total_packs: string;
   reference: string;
   description: string;
-  product_image?: string;
+  product_images: File[];
 }
 
 // Extend UpdateProductData type to include our custom fields
@@ -361,13 +361,13 @@ export const ProductSidebarSection = ({
       total_packs: "0",
       reference: "",
       description: "",
-      images: {},
-      imageUrls: {},
+      images: [],
+      imageUrls: [],
     },
   });
 
   const formData = watch();
-
+  console.log({ formData });
   // Load product data in edit mode
   useEffect(() => {
     const loadProductData = async () => {
@@ -400,8 +400,8 @@ export const ProductSidebarSection = ({
               total_packs: product.total_packs?.toString() || "0",
               reference: product.id?.toString() || "",
               description: product.description || "",
-              images: {},
-              imageUrls: { 0: product.product_image || "" },
+              images: [],
+              imageUrls: product.product_images || [],
             };
 
             // Store initial data for comparison
@@ -417,7 +417,7 @@ export const ProductSidebarSection = ({
               total_packs: product.total_packs?.toString() || "0",
               reference: product.id?.toString() || "",
               description: product.description || "",
-              product_image: product.product_image || "",
+              product_images: product.product_images || [],
             });
 
             reset(formData);
@@ -432,6 +432,20 @@ export const ProductSidebarSection = ({
     loadProductData();
   }, [mode, id, selectedCompany, dispatch, reset, t]);
 
+  // Function to check if image order has changed or images were deleted
+  const hasImageOrderChanged = (
+    currentImages: string[],
+    initialImages: File[]
+  ): boolean => {
+    // If the number of images is different, there was a change
+    if (currentImages.length !== initialImages.length) {
+      return true;
+    }
+
+    // Since we're comparing URLs with Files, any change in order is considered a change
+    return true;
+  };
+
   const handleFileUpload = useCallback(
     (file: File, position: number) => {
       if (file.size > MAX_FILE_SIZE) {
@@ -444,36 +458,69 @@ export const ProductSidebarSection = ({
         return;
       }
 
-      const currentImages = watch("images");
-      if (Object.keys(currentImages || {}).length >= MAX_IMAGES) {
+      const currentImages = watch("images") || [];
+      if (currentImages.length >= MAX_IMAGES) {
         toast.error(t("productSidebar.validation.maxImages"));
         return;
       }
 
       const imageUrl = URL.createObjectURL(file);
-      setValue("images", { ...currentImages, [position]: file });
-      setValue("imageUrls", { ...watch("imageUrls"), [position]: imageUrl });
+
+      // Insert at specific position
+      const newImages = Array.from(currentImages);
+      const newImageUrls = Array.from(watch("imageUrls") || []);
+
+      newImages[position] = file;
+      newImageUrls[position] = imageUrl;
+
+      // Remove any undefined gaps
+      setValue("images", newImages.filter(Boolean));
+      setValue("imageUrls", newImageUrls.filter(Boolean));
     },
     [t, watch, setValue]
   );
 
   const handleRemoveImage = useCallback(
     (position: number) => {
-      const currentImageUrls = watch("imageUrls");
-      if (currentImageUrls?.[position]) {
-        URL.revokeObjectURL(currentImageUrls[position]!);
+      const currentImageUrls = watch("imageUrls") || [];
+      if (currentImageUrls[position]) {
+        URL.revokeObjectURL(currentImageUrls[position]);
       }
 
-      setValue("images", {
-        ...watch("images"),
-        [position]: undefined,
-      });
-      setValue("imageUrls", {
-        ...watch("imageUrls"),
-        [position]: undefined,
-      });
+      const newImages = Array.from(watch("images") || []);
+      const newImageUrls = Array.from(currentImageUrls);
+
+      // Remove at position
+      newImages.splice(position, 1);
+      newImageUrls.splice(position, 1);
+
+      setValue("images", newImages);
+      setValue("imageUrls", newImageUrls);
     },
     [watch, setValue]
+  );
+
+  const handleSetMainImage = useCallback(
+    (position: number) => {
+      const currentImages = Array.from(watch("images") || []);
+      const currentImageUrls = Array.from(watch("imageUrls") || []);
+
+      // If the selected position has no image, return
+      if (!currentImageUrls[position]) return;
+
+      // Move selected image to front
+      const [selectedImage] = currentImages.splice(position, 1);
+      const [selectedUrl] = currentImageUrls.splice(position, 1);
+
+      currentImages.unshift(selectedImage);
+      currentImageUrls.unshift(selectedUrl);
+
+      setValue("images", currentImages);
+      setValue("imageUrls", currentImageUrls);
+
+      toast.success(t("productSidebar.messages.mainImageUpdated"));
+    },
+    [watch, setValue, t]
   );
 
   // Function to detect changes in form data
@@ -507,8 +554,20 @@ export const ProductSidebarSection = ({
     if (data.reference !== initialData.reference) {
       changes.reference = data.reference;
     }
-    if (data.images[0]) {
-      changes.product_image = data.images[0];
+
+    // Only include images if there are new images or changes in existing images
+    const hasNewImages = Object.values(data.images).some(
+      (image) => image instanceof File
+    );
+    const hasImageChanges = hasImageOrderChanged(
+      data.imageUrls,
+      initialData.product_images
+    );
+
+    if (hasNewImages || hasImageChanges) {
+      changes.product_images = Object.values(data.images).filter(
+        (image): image is File => image !== undefined
+      );
     }
 
     return changes;
@@ -551,11 +610,40 @@ export const ProductSidebarSection = ({
           return;
         }
 
+        // Create FormData and append all changed fields
+        const formData = new FormData();
+        Object.entries(changedFields).forEach(([key, value]) => {
+          if (Array.isArray(value) && key === "product_images") {
+            // Skip product_images array here as we'll handle it separately
+            return;
+          } else if (value !== undefined) {
+            formData.append(key, value.toString());
+          }
+        });
+
+        // Add new images if they exist
+        if (changedFields.product_images) {
+          // Add new image files
+          data.images.forEach((image) => {
+            if (image instanceof File) {
+              formData.append("new_images", image);
+            }
+          });
+
+          // Only append existing images if there are changes in the image order or deletions
+          if (
+            initialData?.product_images &&
+            hasImageOrderChanged(data.imageUrls, initialData.product_images)
+          ) {
+            formData.append("product_images", data.imageUrls.filter(Boolean));
+          }
+        }
+
         const resultAction = await dispatch(
           updateProduct({
             dnsPrefix: selectedCompany.dns,
             productId: id,
-            data: changedFields,
+            data: formData,
           }) as any
         ).unwrap();
         const productId = resultAction?.product_id;
@@ -565,15 +653,27 @@ export const ProductSidebarSection = ({
           navigate(`/products/add-variant/${productId}`);
         }
       } else {
-        const createData: CreateProductData = {
-          ...baseData,
-          product_image: data.images[0]!, // We know this exists because of the validation above
-        };
+        // Create FormData for new product
+        const formData = new FormData();
+
+        // Append all base data fields
+        Object.entries(baseData).forEach(([key, value]) => {
+          if (value !== undefined) {
+            formData.append(key, value.toString());
+          }
+        });
+
+        // Add all images if they exist
+        Object.entries(data.images).forEach(([_, image]) => {
+          if (image) {
+            formData.append("product_images", image);
+          }
+        });
 
         const resultAction = await dispatch(
           createProduct({
             dnsPrefix: selectedCompany.dns,
-            data: createData,
+            data: formData,
           }) as any
         ).unwrap();
         const productId = resultAction?.product_id;
@@ -754,6 +854,7 @@ export const ProductSidebarSection = ({
                           imageUrl={formData.imageUrls[0]}
                           onUpload={handleFileUpload}
                           onRemove={handleRemoveImage}
+                          onSetMainImage={handleSetMainImage}
                           isMain
                         />
                         <div className="flex flex-col h-[250px] items-start justify-center gap-6">
@@ -765,7 +866,8 @@ export const ProductSidebarSection = ({
                                 imageUrl={formData.imageUrls[position]}
                                 onUpload={handleFileUpload}
                                 onRemove={handleRemoveImage}
-                                disabled={true}
+                                onSetMainImage={handleSetMainImage}
+                                disabled={false}
                               />
                             ))}
                           </div>

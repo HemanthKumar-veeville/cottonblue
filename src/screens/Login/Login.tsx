@@ -1,6 +1,7 @@
 import { Input } from "../../components/ui/input";
 import { Button } from "../../components/ui/button";
 import { useAppDispatch, useAppSelector } from "../../store/store";
+import { Eye, EyeOff } from "lucide-react";
 import {
   login,
   loginPage,
@@ -28,6 +29,7 @@ export default function LoginPage() {
   const domain = getHost();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
 
   useEffect(() => {
@@ -164,15 +166,22 @@ export default function LoginPage() {
                   required
                 />
               </div>
-              <div>
+              <div className="relative">
                 <Input
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   placeholder="Mot de passe"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="w-full p-3 border border-[#cbd5e1] rounded-md"
+                  className="w-full p-3 border border-[#cbd5e1] rounded-md pr-10"
                   required
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
               </div>
               <div className="w-full flex justify-end">
                 <button

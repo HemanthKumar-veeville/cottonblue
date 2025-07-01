@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
-import { productService, CreateProductData, UpdateProductData, AddProductVariantsRequest } from '../../services/productService.ts';
+import { productService, CreateProductPayload, UpdateProductPayload, AddProductVariantsRequest } from '../../services/productService.ts';
 
 // Define types for the product state
 interface ProductAllocation {
@@ -73,13 +73,15 @@ const initialState: ProductState = {
 // Create async thunks for API calls
 export const createProduct = createAsyncThunk(
   'product/createProduct',
-  async ({ dnsPrefix, data }: { dnsPrefix: string; data: CreateProductData }, { rejectWithValue }) => {
-    try {
-      const response = await productService.createProduct(dnsPrefix, data);
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to create product');
-    }
+  async ({
+    dnsPrefix,
+    data,
+  }: {
+    dnsPrefix: string;
+    data: CreateProductPayload;
+  }) => {
+    const response = await productService.createProduct(dnsPrefix, data);
+    return response.data;
   }
 );
 
@@ -109,13 +111,17 @@ export const getProductById = createAsyncThunk(
 
 export const updateProduct = createAsyncThunk(
   'product/updateProduct',
-  async ({ dnsPrefix, productId, data }: { dnsPrefix: string; productId: string; data: UpdateProductData | FormData }, { rejectWithValue }) => {
-    try {
-      const response = await productService.updateProduct(dnsPrefix, productId, data);
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Failed to update product');
-    }
+  async ({
+    dnsPrefix,
+    productId,
+    data,
+  }: {
+    dnsPrefix: string;
+    productId: string;
+    data: UpdateProductPayload;
+  }) => {
+    const response = await productService.updateProduct(dnsPrefix, productId, data);
+    return response.data;
   }
 );
 

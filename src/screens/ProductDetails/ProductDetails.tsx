@@ -1,5 +1,11 @@
 import { Button } from "../../components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import {
+  ArrowLeft,
+  BoxIcon,
+  ImageOff,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../../store/store";
@@ -31,22 +37,112 @@ const ProductHeader = () => {
   );
 };
 
-const ProductImage = ({ imageUrl }: { imageUrl: string | null }) => {
-  return (
-    <div className="w-full h-[400px] rounded-lg overflow-hidden border border-solid border-gray-300 bg-white flex items-center justify-center">
-      {imageUrl ? (
-        <div className="w-full h-full flex items-center justify-center p-4">
-          <img
-            src={imageUrl}
-            alt="Product"
-            className="max-w-full max-h-full w-auto h-auto object-contain"
-          />
-        </div>
-      ) : (
+const ProductImage = () => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const { currentProduct } = useAppSelector((state) => state.product);
+  const productImages = currentProduct?.product?.product_images;
+  const images = productImages ? productImages : [];
+  const SLIDE_INTERVAL = 1500; // 3 seconds per slide
+
+  useEffect(() => {
+    if (!images.length || images.length === 1 || isPaused) return;
+
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % images.length);
+    }, SLIDE_INTERVAL);
+
+    return () => clearInterval(timer);
+  }, [images.length, isPaused]);
+
+  const handlePrevSlide = () => {
+    setCurrentSlide((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleNextSlide = () => {
+    setCurrentSlide((prev) => (prev + 1) % images.length);
+  };
+
+  const handleDotClick = (index: number) => {
+    setCurrentSlide(index);
+  };
+
+  if (!images || images.length === 0) {
+    return (
+      <div className="w-full h-[400px] rounded-lg overflow-hidden border border-solid border-gray-300 bg-white flex items-center justify-center">
         <div className="w-full h-full flex items-center justify-center">
-          <ArrowLeft className="w-12 h-12 text-gray-400" />
+          <ImageOff className="w-24 h-24 text-gray-400" />
         </div>
+      </div>
+    );
+  }
+
+  return (
+    <div
+      className="relative w-full h-[400px] rounded-lg border border-solid border-gray-300 bg-white group"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      {/* Navigation Arrows */}
+      {images.length > 1 && (
+        <>
+          <button
+            onClick={handlePrevSlide}
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2 bg-white hover:bg-gray-50 rounded-full p-2.5 shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100 border border-gray-200 z-10"
+            aria-label="Previous image"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-700" />
+          </button>
+          <button
+            onClick={handleNextSlide}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1/2 bg-white hover:bg-gray-50 rounded-full p-2.5 shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100 border border-gray-200 z-10"
+            aria-label="Next image"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-700" />
+          </button>
+        </>
       )}
+
+      <div className="relative w-full h-full overflow-hidden rounded-lg">
+        {images.map((image: string, index: number) => (
+          <div
+            key={index}
+            className={`absolute w-full h-full transition-all duration-500 ease-in-out ${
+              currentSlide === index
+                ? "opacity-100 translate-x-0"
+                : index > currentSlide
+                ? "opacity-0 translate-x-full"
+                : "opacity-0 -translate-x-full"
+            }`}
+          >
+            <div className="w-full h-full flex items-center justify-center p-4">
+              <img
+                src={image}
+                alt={`Product ${index + 1}`}
+                className="max-w-full max-h-full w-full h-auto object-contain"
+              />
+            </div>
+          </div>
+        ))}
+
+        {/* Dots Navigation */}
+        {images.length > 1 && (
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
+            {images.map((_: string, index: number) => (
+              <button
+                key={index}
+                onClick={() => handleDotClick(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                  currentSlide === index
+                    ? "bg-[#07515f] w-4"
+                    : "bg-gray-400 hover:bg-gray-600"
+                }`}
+                aria-label={`Go to image ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -332,7 +428,7 @@ export default function ProductDetails() {
       <div className="mt-6">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-1">
-            <ProductImage imageUrl={product.product_image} />
+            <ProductImage />
           </div>
           <div className="lg:col-span-2">
             <div className="flex flex-col h-[400px]">

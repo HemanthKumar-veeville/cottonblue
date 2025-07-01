@@ -2,7 +2,13 @@ import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Checkbox } from "../../components/ui/checkbox";
-import { ArrowLeft, Download, Package2, FileText } from "lucide-react";
+import {
+  ArrowLeft,
+  Download,
+  Package2,
+  FileText,
+  ImageOff,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -410,26 +416,17 @@ const ProductRow = ({
       </div>
       <div className="w-[203px] flex items-center gap-3 px-3">
         <div className="w-10 h-10 rounded overflow-hidden border border-[color:var(--1-tokens-color-modes-border-primary)] flex items-center justify-center bg-[color:var(--1-tokens-color-modes-background-secondary)]">
-          {product?.product_image ? (
+          {product?.product_images?.length > 0 && product?.product_images[0] ? (
             <img
-              src={product.product_image}
+              src={product.product_images[0]}
               alt={product?.product_name ?? t("common.product")}
               className="w-[30px] h-[29px] object-cover"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-                e.currentTarget.parentElement
-                  ?.querySelector(".placeholder-icon")
-                  ?.classList.remove("hidden");
-              }}
             />
-          ) : null}
-          <div
-            className={`placeholder-icon ${
-              product?.product_image ? "hidden" : ""
-            } text-gray-400`}
-          >
-            <Package2 className="w-5 h-5" />
-          </div>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+              <ImageOff className="w-5 h-5 text-gray-400" />
+            </div>
+          )}
         </div>
         <span className="font-text-medium text-black">
           {product?.product_name ?? t("common.notAvailable")}

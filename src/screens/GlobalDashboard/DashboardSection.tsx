@@ -6,7 +6,14 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { ScrollArea, ScrollBar } from "../../components/ui/scroll-area";
-import { Crown, MessageSquare, Package2, Ticket, Users } from "lucide-react";
+import {
+  Crown,
+  ImageOff,
+  MessageSquare,
+  Package2,
+  Ticket,
+  Users,
+} from "lucide-react";
 import React from "react";
 import { RootState } from "../../store/store";
 import {
@@ -55,11 +62,17 @@ const ProductCard: React.FC<{ product: Product }> = ({ product }) => (
         </div>
         <div className="flex items-center">
           <div className="w-20 h-20 rounded-md overflow-hidden border border-[#E2E8F0] flex items-center justify-center bg-white">
-            <img
-              className="max-w-full max-h-full object-contain"
-              alt={`${product.name} image`}
-              src={product.image}
-            />
+            {product?.image ? (
+              <img
+                className="max-w-full max-h-full object-contain"
+                alt={`${product.name} image`}
+                src={product.image}
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <ImageOff className="w-10 h-10 text-gray-400" />
+              </div>
+            )}
           </div>
           <div className="w-px h-16 bg-[#E2E8F0] mx-4"></div>
           <div className="flex flex-col gap-2">
@@ -129,7 +142,10 @@ const DashboardSection: React.FC = () => {
       (prod: any, index: number) => ({
         id: index + 1,
         name: prod.product_name,
-        image: prod.product_image,
+        image:
+          prod?.product_images?.length > 0 && prod?.product_images[0]
+            ? prod?.product_images[0]
+            : null,
         price: `${prod.price_of_pack} €/${prod.pack_quantity}pcs`,
         quantity: prod.ordered_quantity,
       })
