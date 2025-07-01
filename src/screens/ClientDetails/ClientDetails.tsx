@@ -5,31 +5,19 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
-import { Checkbox } from "../../components/ui/checkbox";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../../components/ui/table";
-import {
-  CheckCircle,
-  Clock,
-  FileText,
-  XCircle,
-  ArrowLeft,
   Building2,
   MapPin,
   Phone,
   Mail,
-  Calendar,
   Hash,
   Palette,
+  ArrowLeft,
+  Link2,
+  ExternalLink,
 } from "lucide-react";
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "../../store/store";
 import {
   getCompanyByDnsPrefix,
@@ -38,7 +26,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "../../components/Skeleton";
 import Loader from "../../components/Loader";
-import { format } from "date-fns";
 
 // Define proper types for our data
 interface Company {
@@ -58,53 +45,6 @@ interface Company {
   text_color_code: string;
   email: string;
 }
-
-interface AgencyStatistics {
-  totalOrders: string;
-  monthlyRevenue: string;
-  topProducts: string;
-}
-
-interface AgencyDetails {
-  id: string;
-  name: string;
-  city: string;
-  address: string;
-  phone_number: string;
-  longitude: string;
-  latitude: string;
-  created_at: string;
-  updated_at: string;
-  company_id: number;
-  postal_code: string;
-  is_active: boolean;
-  statistics: AgencyStatistics;
-}
-
-interface OrderStatus {
-  type: "success" | "warning" | "danger";
-  text: string;
-}
-
-interface Order {
-  id: string;
-  date: string;
-  price: string;
-  status: OrderStatus;
-  hasInvoice: boolean;
-}
-
-// Helper function to get company detail by key
-const getCompanyDetail = (company: Company, key: keyof Company): string => {
-  if (!company) return "Not Available";
-  if (key === "is_active") {
-    return company.is_active ? "Active" : "Inactive";
-  }
-  const value = company[key];
-  return value !== null && value !== undefined
-    ? String(value)
-    : "Not Available";
-};
 
 const CompanyHeader = () => {
   const { t } = useTranslation();
@@ -148,14 +88,6 @@ const CompanyLogo = ({ logoUrl }: { logoUrl: string | null }) => {
 const CompanyInfo = ({ company }: { company: Company }) => {
   const { t } = useTranslation();
 
-  const formatDate = (dateString: string) => {
-    try {
-      return format(new Date(dateString), "dd/MM/yyyy HH:mm");
-    } catch {
-      return "Not Available";
-    }
-  };
-
   const companyDetails = [
     {
       icon: <Hash className="w-4 h-4" />,
@@ -168,9 +100,18 @@ const CompanyInfo = ({ company }: { company: Company }) => {
       value: company?.name ?? "Not Available",
     },
     {
-      icon: <Mail className="w-4 h-4" />,
+      icon: <Link2 className="w-4 h-4" />,
       label: t("companyDetails.info.dnsPrefix"),
-      value: company?.dns_prefix ?? "Not Available",
+      value: (
+        <Link
+          to={`https://${company?.dns_prefix}.${import.meta.env.VITE_DOMAIN}`}
+          target="_blank"
+          className="font-semibold text-blue-800 hover:text-blue-600 transition-colors duration-200 flex items-center gap-1"
+        >
+          {company?.dns_prefix ?? "Not Available"}
+          <ExternalLink className="w-4 h-4" />
+        </Link>
+      ),
     },
     {
       icon: <Mail className="w-4 h-4" />,

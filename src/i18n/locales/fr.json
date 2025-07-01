@@ -1250,5 +1250,10 @@
     "search": {
       "placeholder": "Rechercher des produits..."
     }
+  },
+  "companyNotRegistered": {
+    "title": "Entreprise non enregistrée",
+    "description": "Votre domaine d'entreprise {domain} n'est pas enregistré dans notre système. Veuillez contacter l'administrateur pour obtenir de l'aide.",
+    "contactAdmin": "Contacter l'administrateur"
   }
 }

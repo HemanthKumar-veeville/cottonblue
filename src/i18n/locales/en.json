@@ -1196,5 +1196,10 @@
     "search": {
       "placeholder": "Search products..."
     }
+  },
+  "companyNotRegistered": {
+    "title": "Company Not Registered",
+    "description": "Your company domain {domain} is not registered in our system. Please contact the administrator for assistance.",
+    "contactAdmin": "Contact Administrator"
   }
 }

@@ -12,6 +12,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Loader from "../../components/Loader";
 import { getHost } from "../../utils/hostUtils";
+import { Eye, EyeOff } from "lucide-react";
+import CompanyNotRegistered from "../../components/CompanyNotRegistered";
 
 const LogoSection = ({ companyLogo }: { companyLogo: string | null }) => {
   const { t } = useTranslation();
@@ -64,6 +66,7 @@ const LoginInputSection = ({
   const { companyColor, companyTextColor } = useAppSelector(
     (state) => state.auth
   );
+  const [showPassword, setShowPassword] = useState(false);
 
   const { t } = useTranslation();
   return (
@@ -79,13 +82,27 @@ const LoginInputSection = ({
         className="flex items-center justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] w-full bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)] border border-solid border-[color:var(--1-tokens-color-modes-input-primary-default-border)] font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)]"
       />
 
-      <Input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder={t("clientLogin.password")}
-        className="flex items-center justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] w-full bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)] border border-solid border-[color:var(--1-tokens-color-modes-input-primary-default-border)] font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)]"
-      />
+      <div className="relative w-full">
+        <Input
+          type={showPassword ? "text" : "password"}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder={t("clientLogin.password")}
+          className="flex items-center justify-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] w-full bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)] border border-solid border-[color:var(--1-tokens-color-modes-input-primary-default-border)] font-label-medium text-[color:var(--1-tokens-color-modes-input-primary-default-placeholder-label)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] pr-12"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPassword(!showPassword)}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors duration-200 focus:outline-none"
+        >
+          {showPassword ? (
+            <EyeOff className="h-5 w-5 transition-transform duration-200 ease-in-out" />
+          ) : (
+            <Eye className="h-5 w-5 transition-transform duration-200 ease-in-out" />
+          )}
+        </button>
+      </div>
+
       <div className="w-full flex justify-end">
         <button
           type="button"
@@ -219,6 +236,10 @@ export default function ClientLogin() {
       console.error("Forgot password failed:", error);
     }
   };
+
+  if (error) {
+    return <CompanyNotRegistered error={error} />;
+  }
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">

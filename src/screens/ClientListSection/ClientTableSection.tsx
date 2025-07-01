@@ -19,11 +19,18 @@ import {
 } from "../../components/ui/table";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useMemo, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
-import { Users, MoreVertical, Eye, Edit, Power } from "lucide-react";
+import {
+  Users,
+  MoreVertical,
+  Eye,
+  Edit,
+  Power,
+  ExternalLink,
+} from "lucide-react";
 import { Dialog, DialogContent } from "../../components/ui/dialog";
 import {
   getCompanyByDnsPrefix,
@@ -274,8 +281,13 @@ export const ClientTableSection = ({
                       <TableCell className="w-[60px] text-left font-text-smaller text-coolgray-100">
                         {client.id}
                       </TableCell>
-                      <TableCell className="w-[200px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
-                        {client.name}
+                      <TableCell className="w-[200px] text-left">
+                        <button
+                          onClick={() => handleViewDetails(client.dns_prefix)}
+                          className="font-medium text-primary-600 hover:text-primary-800 transition-colors duration-200 text-left cursor-pointer hover:underline"
+                        >
+                          {client.name}
+                        </button>
                       </TableCell>
                       <TableCell className="w-[200px] text-left font-text-smaller text-black">
                         {client.email || "-"}
@@ -287,7 +299,16 @@ export const ClientTableSection = ({
                         {client.city}
                       </TableCell>
                       <TableCell className="w-[150px] text-left font-text-smaller text-black">
-                        {client.dns_prefix}
+                        <Link
+                          to={`https://${client.dns_prefix}.${
+                            import.meta.env.VITE_DOMAIN
+                          }`}
+                          target="_blank"
+                          className="font-semibold text-blue-800 hover:text-blue-600 transition-colors duration-200 flex items-start"
+                        >
+                          {client.dns_prefix}
+                          <ExternalLink className="w-4 h-4 ml-[2px]" />
+                        </Link>
                       </TableCell>
                       <TableCell className="w-[100px] text-center">
                         <div className="flex items-center justify-center gap-2">
