@@ -9,6 +9,7 @@ import {
   Package2,
   Loader2,
   Check,
+  ImageOff,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/utils";
@@ -113,7 +114,7 @@ const NoProductsAvailable = ({ searchQuery }: { searchQuery: string }) => (
   >
     <div className="flex flex-col items-center gap-4 max-w-md text-center mt-8">
       <div className="p-4 rounded-full bg-gray-50">
-        <Package2 className="w-8 h-8 text-gray-400" />
+        <ImageOff className="w-8 h-8 text-gray-400" />
       </div>
       <div className="space-y-2">
         <h3 className="font-heading-h4 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-lg font-semibold">
@@ -168,15 +169,19 @@ const ProductList = ({
                 onClick={(e: React.MouseEvent) => e.stopPropagation()}
               />
               <div className="w-16 h-16 flex-shrink-0 rounded-md border border-gray-100 overflow-hidden bg-white">
-                {product.product_image ? (
+                {product?.product_images &&
+                product?.product_images.length > 0 &&
+                product?.product_images[0] ? (
                   <img
-                    src={product.product_image}
-                    alt={product.name}
+                    src={product?.product_images[0]}
+                    alt={product?.name}
                     className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-200"
+                    width={100}
+                    height={100}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gray-50">
-                    <Package2 className="w-6 h-6 text-gray-400" />
+                    <ImageOff className="w-6 h-6 text-gray-400" />
                   </div>
                 )}
               </div>
@@ -367,17 +372,21 @@ const ProductDetails = () => {
             transition={{ duration: 0.3 }}
             className="sticky top-6 w-full aspect-square rounded-lg overflow-hidden border border-solid border-gray-200 bg-white flex items-center justify-center group hover:border-[#07515f] transition-all duration-200"
           >
-            {product?.product_image ? (
+            {product?.product_images &&
+            product?.product_images.length > 0 &&
+            product?.product_images[0] ? (
               <div className="w-full h-full flex items-center justify-center p-4 relative">
                 <img
-                  src={product.product_image}
-                  alt={product.name}
+                  src={product?.product_images[0]}
+                  alt={product?.name}
                   className="max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-200 group-hover:scale-105"
+                  width={100}
+                  height={100}
                 />
               </div>
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <Package2 className="w-12 h-12 text-gray-400" />
+                <ImageOff className="w-12 h-12 text-gray-400" />
               </div>
             )}
           </motion.div>

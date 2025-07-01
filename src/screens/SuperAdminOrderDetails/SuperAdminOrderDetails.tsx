@@ -420,7 +420,9 @@ const ProductRow = ({
             <img
               src={product.product_images[0]}
               alt={product?.product_name ?? t("common.product")}
-              className="w-[30px] h-[29px] object-cover"
+              className="w-full h-full object-contain"
+              width={100}
+              height={100}
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center">

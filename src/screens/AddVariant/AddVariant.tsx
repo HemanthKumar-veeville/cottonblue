@@ -412,12 +412,16 @@ const ProductDetails = () => {
                   transition={{ duration: 0.3 }}
                   className="w-24 h-24 md:w-32 md:h-32 rounded-lg overflow-hidden border border-solid border-gray-200 bg-white flex items-center justify-center group hover:border-[#07515f] transition-all duration-200 flex-shrink-0"
                 >
-                  {product?.product_image ? (
+                  {product?.product_images &&
+                  product?.product_images.length > 0 &&
+                  product?.product_images[0] ? (
                     <div className="w-full h-full flex items-center justify-center p-2 relative">
                       <img
-                        src={product.product_image}
+                        src={product.product_images[0]}
                         alt={product.name}
                         className="max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-200 group-hover:scale-105"
+                        width={100}
+                        height={100}
                       />
                     </div>
                   ) : (

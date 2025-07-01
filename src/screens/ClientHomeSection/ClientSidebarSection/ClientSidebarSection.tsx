@@ -11,10 +11,14 @@ import { useTranslation } from "react-i18next";
 import { Button } from "../../../components/ui/button";
 import { Card, CardContent } from "../../../components/ui/card";
 import { useNavigate, useLocation } from "react-router-dom";
-import { useAppDispatch } from "../../../store/store";
+import { RootState, useAppDispatch } from "../../../store/store";
 import { logout } from "../../../store/features/authSlice";
 import { useAppSelector } from "../../../store/store";
 import { useCompanyColors } from "../../../hooks/useCompanyColors";
+import { fetchDashboard } from "../../../store/features/dashboardSlice";
+import { getHost } from "../../../utils/hostUtils";
+import { useEffect } from "react";
+import { useSelector } from "react-redux";
 
 let navItems = [
   {
@@ -57,27 +61,6 @@ const bottomNavItems = [
   },
 ];
 
-const budgetCards = [
-  {
-    title: "sidebar.budget.expenses",
-    value: (
-      <>
-        <span className="text-emerald-500 text-2xl font-bold">881,03€/</span>
-        <span className="text-lg leading-[19.8px]">2000€</span>
-      </>
-    ),
-  },
-  {
-    title: "sidebar.budget.orders",
-    value: (
-      <>
-        <span className="text-red-500 text-2xl font-bold">2/</span>
-        <span className="text-lg leading-[19.8px]">2</span>
-      </>
-    ),
-  },
-];
-
 const LogoSection = ({ companyLogo }: { companyLogo: string }) => (
   <div className="flex flex-col items-end justify-center w-full">
     <img className="w-full h-9" alt="Logo vert" src={companyLogo} />
@@ -94,6 +77,18 @@ const NavigationMenu = () => {
   const { isClientAdmin } = useAppSelector((state) => state.auth);
   navItems = navItems?.slice(0, isClientAdmin ? 4 : 2);
   const { buttonStyles } = useCompanyColors();
+  const dispatch = useAppDispatch();
+  const dns_prefix = getHost();
+
+  useEffect(() => {
+    dispatch(
+      fetchDashboard({
+        dns_prefix,
+        filter_by: "monthly",
+        filter_value: new Date().getMonth() + 1,
+      })
+    );
+  }, [dispatch]);
 
   return (
     <nav className="w-full space-y-2" style={buttonStyles}>
@@ -120,6 +115,48 @@ const NavigationMenu = () => {
 
 const BudgetSection = () => {
   const { t } = useTranslation();
+  const { summary, loading: dashboardLoading } = useSelector(
+    (state: RootState) => ({
+      summary: state.dashboard.summary,
+      loading: state.dashboard.loading,
+    })
+  );
+
+  const summaryData = summary?.dashboard_data;
+  const averageBasketValue = summaryData?.average_basket_value;
+  const totalOrders = summaryData?.total_orders;
+  const totalAmount = summaryData?.total_amount;
+  const currentMonthOrders = summaryData?.current_month_orders || 0;
+  const currentMonthAmount = summaryData?.current_month_amount || 0;
+  const monthlyOrderLimit = summaryData?.monthly_order_limit || 0;
+  const monthlyExpenseLimit = summaryData?.monthly_budget_limit || 0;
+
+  const budgetCards = [
+    {
+      title: "sidebar.budget.expenses",
+      value: (
+        <>
+          <span className="text-emerald-500 text-2xl font-bold">
+            {currentMonthAmount}€/
+          </span>
+          <span className="text-lg leading-[19.8px]">
+            {monthlyExpenseLimit}€
+          </span>
+        </>
+      ),
+    },
+    {
+      title: "sidebar.budget.orders",
+      value: (
+        <>
+          <span className="text-red-500 text-2xl font-bold">
+            {currentMonthOrders}/
+          </span>
+          <span className="text-lg leading-[19.8px]">{monthlyOrderLimit}</span>
+        </>
+      ),
+    },
+  ];
   return (
     <section className="flex flex-col items-start gap-6 w-full">
       <div className="flex items-center justify-between w-full">

@@ -24,7 +24,7 @@ import { useAppSelector } from "../../store/store";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
-import { Package, PlusCircle } from "lucide-react";
+import { ImageOff, Package, PlusCircle } from "lucide-react";
 import { ProductStockPopup } from "../../components/ProductStockPopup/ProductStockPopup";
 
 export const ManageStockTableSection = ({
@@ -186,20 +186,20 @@ export const ManageStockTableSection = ({
                         {stock.id ?? "Not available"}
                       </TableCell>
                       <TableCell className="w-[77px] align-middle">
-                        <div
-                          className="w-[50px] h-[50px] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
-                          style={{
-                            backgroundImage: stock.product_image
-                              ? `url(${stock.product_image})`
-                              : "none",
-                            backgroundColor: !stock.product_image
-                              ? "#f0f0f0"
-                              : "transparent",
-                            backgroundSize: "contain",
-                            backgroundPosition: "center",
-                            backgroundRepeat: "no-repeat",
-                          }}
-                        />
+                        <div className="w-[50px] h-[50px] rounded-[var(--2-tokens-screen-modes-button-border-radius)] flex items-center justify-center">
+                          {stock.product_images &&
+                          stock.product_images.length > 0 &&
+                          stock.product_images[0] ? (
+                            <img
+                              src={stock.product_images[0]}
+                              alt={stock.name}
+                              width={100}
+                              height={100}
+                            />
+                          ) : (
+                            <ImageOff className="w-10 h-10 text-gray-400" />
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell className="w-[145px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)] align-middle">
                         {stock.name ?? "Not available"}

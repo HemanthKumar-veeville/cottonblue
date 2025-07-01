@@ -8,11 +8,11 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import React, { useState } from "react";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, ImageOff } from "lucide-react";
 
 interface OrderItem {
   product_id: number;
-  product_image: string;
+  product_images: string[];
   product_name: string;
   product_price: number;
   quantity: number;
@@ -153,15 +153,19 @@ const ProductListHeaderSection: React.FC<{ orderDetails: OrderItem[] }> = ({
                 <TableCell className="p-3">
                   <div className="flex items-center gap-3">
                     <div className="w-12 h-12 rounded-lg overflow-hidden border border-gray-200 flex items-center justify-center bg-white">
-                      <img
-                        className="w-10 h-10 object-cover"
-                        alt={item.product_name}
-                        src={item.product_image}
-                        onError={(e) => {
-                          (e.target as HTMLImageElement).src =
-                            "https://via.placeholder.com/40";
-                        }}
-                      />
+                      {item?.product_images &&
+                      item?.product_images.length > 0 &&
+                      item?.product_images[0] ? (
+                        <img
+                          className="w-full h-auto min-h-[100px] max-h-[100px] object-contain"
+                          width={100}
+                          height={100}
+                          alt={item.product_name}
+                          src={item?.product_images[0]}
+                        />
+                      ) : (
+                        <ImageOff className="w-10 h-10 text-gray-400" />
+                      )}
                     </div>
                     <span className="font-medium text-gray-900 text-sm">
                       {item.product_name}

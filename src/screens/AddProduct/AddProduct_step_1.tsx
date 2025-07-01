@@ -2,7 +2,15 @@ import React, { useState, useCallback, useEffect } from "react";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
 import { Input } from "../../components/ui/input";
-import { ArrowLeft, Info, Search, Store, Loader2, Check } from "lucide-react";
+import {
+  ArrowLeft,
+  Info,
+  Search,
+  Store,
+  Loader2,
+  Check,
+  ImageOff,
+} from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/utils";
 import { useNavigate, useParams } from "react-router-dom";
@@ -399,17 +407,21 @@ const ProductDetails = () => {
             transition={{ duration: 0.3 }}
             className="sticky top-6 w-full aspect-square rounded-lg overflow-hidden border border-solid border-gray-200 bg-white flex items-center justify-center group hover:border-[#07515f] transition-all duration-200"
           >
-            {product?.product_image ? (
+            {product?.product_images &&
+            product?.product_images.length > 0 &&
+            product?.product_images[0] ? (
               <div className="w-full h-full flex items-center justify-center p-4 relative">
                 <img
-                  src={product.product_image}
-                  alt={product.name}
+                  src={product?.product_images[0]}
+                  alt={product?.name}
                   className="max-w-full max-h-full w-auto h-auto object-contain transition-transform duration-200 group-hover:scale-105"
+                  width={100}
+                  height={100}
                 />
               </div>
             ) : (
               <div className="w-full h-full flex items-center justify-center">
-                <Store className="w-12 h-12 text-gray-400" />
+                <ImageOff className="w-12 h-12 text-gray-400" />
               </div>
             )}
           </motion.div>

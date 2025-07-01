@@ -2,7 +2,7 @@ import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Checkbox } from "../../components/ui/checkbox";
-import { ArrowLeft, Download, Package2 } from "lucide-react";
+import { ArrowLeft, Download, ImageOff, Package2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -416,9 +416,11 @@ const ProductRow = ({ product }: { product: any }) => {
       </div>
       <div className="w-[203px] flex items-center gap-3 px-3">
         <div className="w-10 h-10 rounded overflow-hidden border border-primary-neutal-200 flex items-center justify-center bg-gray-50">
-          {product?.product_image ? (
+          {product?.product_images &&
+          product?.product_images.length > 0 &&
+          product?.product_images[0] ? (
             <img
-              src={product.product_image}
+              src={product?.product_images[0]}
               alt={product?.product_name ?? "Product"}
               className="w-[30px] h-[29px] object-cover"
               onError={(e) => {
@@ -564,11 +566,15 @@ const ProductTable = ({ order }: { order: any }) => {
                 </div>
                 <div className="w-[203px] flex items-center gap-3 px-3">
                   <div className="w-10 h-10 rounded overflow-hidden border border-primary-neutal-200 flex items-center justify-center bg-gray-50">
-                    {product?.product_image ? (
+                    {product?.product_images &&
+                    product?.product_images.length > 0 &&
+                    product?.product_images[0] ? (
                       <img
-                        src={product.product_image}
+                        src={product?.product_images[0]}
                         alt={product?.product_name ?? "Product"}
-                        className="w-[30px] h-[29px] object-cover"
+                        className="w-full h-full object-contain"
+                        width={100}
+                        height={100}
                         onError={(e) => {
                           e.currentTarget.style.display = "none";
                           e.currentTarget.parentElement
@@ -576,14 +582,11 @@ const ProductTable = ({ order }: { order: any }) => {
                             ?.classList.remove("hidden");
                         }}
                       />
-                    ) : null}
-                    <div
-                      className={`placeholder-icon ${
-                        product?.product_image ? "hidden" : ""
-                      } text-gray-400`}
-                    >
-                      <Package2 className="w-5 h-5" />
-                    </div>
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-gray-400">
+                        <ImageOff className="w-10 h-10 text-gray-400" />
+                      </div>
+                    )}
                   </div>
                   <span className="text-base text-coolgray-100">
                     {product?.product_name ?? t("common.notAvailable")}

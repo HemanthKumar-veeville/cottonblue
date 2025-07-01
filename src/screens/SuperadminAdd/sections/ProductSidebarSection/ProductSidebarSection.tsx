@@ -494,8 +494,9 @@ export const ProductSidebarSection = ({
       newImages.splice(position, 1);
       newImageUrls.splice(position, 1);
 
-      setValue("images", newImages);
-      setValue("imageUrls", newImageUrls);
+      // Use batch updates to prevent unnecessary re-renders
+      setValue("images", newImages, { shouldDirty: false });
+      setValue("imageUrls", newImageUrls, { shouldDirty: false });
     },
     [watch, setValue]
   );
@@ -635,7 +636,13 @@ export const ProductSidebarSection = ({
             initialData?.product_images &&
             hasImageOrderChanged(data.imageUrls, initialData.product_images)
           ) {
-            formData.append("product_images", data.imageUrls.filter(Boolean));
+            console.log(data.imageUrls);
+            const existingImages = data.imageUrls.filter(
+              (imgUrl) => !imgUrl.includes("blob:")
+            );
+            if (existingImages.length > 0) {
+              formData.append("product_images", existingImages.filter(Boolean));
+            }
           }
         }
 

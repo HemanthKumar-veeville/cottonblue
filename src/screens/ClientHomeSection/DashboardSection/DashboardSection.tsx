@@ -1,4 +1,4 @@
-import { MinusIcon, PlusIcon, ShoppingCart } from "lucide-react";
+import { ImageOff, MinusIcon, PlusIcon, ShoppingCart } from "lucide-react";
 import { Badge } from "../../../components/ui/badge";
 import { Card, CardContent } from "../../../components/ui/card";
 import { useState, useEffect } from "react";
@@ -210,19 +210,20 @@ const ProductCard = ({ product }: { product: Product }) => {
           {/* Image Container with Hover Effect */}
           <div className="relative group">
             <div className=" w-full rounded-2xl bg-gray-100 bg-no-repeat bg-center flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-[1.02]">
-              {!product.product_image && (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <Package2 size={48} />
-                </div>
-              )}
-              {product.product_image && (
+              {product?.product_images &&
+              product?.product_images.length > 0 &&
+              product?.product_images[0] ? (
                 <img
-                  src={product.product_image}
-                  alt={product.name}
+                  src={product?.product_images[0]}
+                  alt={product?.name}
                   width={100}
                   height={100}
-                  className="w-full h-auto object-contain"
+                  className="w-auto h-auto min-h-[300px] max-h-[300px] object-contain"
                 />
+              ) : (
+                <div className="w-full min-h-[300px] flex items-center justify-center text-gray-400">
+                  <ImageOff className="w-10 h-10 text-gray-400" />
+                </div>
               )}
             </div>
             {/* Quick View Overlay */}

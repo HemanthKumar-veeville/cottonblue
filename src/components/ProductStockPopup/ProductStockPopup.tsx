@@ -1,4 +1,4 @@
-import { XIcon } from "lucide-react";
+import { ImageOff, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog";
 import { useTranslation } from "react-i18next";
@@ -190,20 +190,20 @@ export const ProductStockPopup = ({
       <DialogContent className="flex flex-col gap-6 p-8 bg-white max-w-[800px] rounded-lg shadow-lg border border-[color:var(--1-tokens-color-modes-common-neutral-lower)]">
         <ProductStockPopupHeader productId={productId} onClose={onClose} />
         <div className="flex items-start gap-6">
-          <div
-            className="w-[120px] h-[120px] rounded-lg border border-[color:var(--1-tokens-color-modes-common-neutral-lower)] flex-shrink-0"
-            style={{
-              backgroundImage: product?.product_image
-                ? `url(${product.product_image})`
-                : "none",
-              backgroundColor: !product?.product_image
-                ? "var(--1-tokens-color-modes-common-neutral-lower)"
-                : "transparent",
-              backgroundSize: "contain",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          />
+          <div className="w-[120px] h-[120px] rounded-lg border border-[color:var(--1-tokens-color-modes-common-neutral-lower)] flex-shrink-0 flex items-center justify-center">
+            {product?.product_images &&
+            product?.product_images.length > 0 &&
+            product?.product_images[0] ? (
+              <img
+                src={product?.product_images[0]}
+                alt={product?.name}
+                width={100}
+                height={100}
+              />
+            ) : (
+              <ImageOff className="w-10 h-10 text-gray-400" />
+            )}
+          </div>
           <ProductDetailsSection product={product} />
         </div>
         <div className="h-px bg-[color:var(--1-tokens-color-modes-common-neutral-lower)]" />

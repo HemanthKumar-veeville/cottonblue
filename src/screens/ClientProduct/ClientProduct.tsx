@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   ChevronLeft,
   Info,
+  ImageOff,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -318,7 +319,7 @@ const ProductPage = () => {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 min-h-[600px]">
               <ProductImages
-                images={product?.product_image ? [product.product_image] : []}
+                images={product?.product_images || []}
                 buttonStyles={buttonStyles}
               />
               <ProductInfo
@@ -369,136 +370,111 @@ const ProductImages = ({
   images: string[];
   buttonStyles: React.CSSProperties;
 }) => {
-  const [selectedImage, setSelectedImage] = useState(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
+  const SLIDE_INTERVAL = 1500; // 1.5 seconds per slide
+
+  useEffect(() => {
+    if (!images.length || images.length === 1 || isPaused) return;
+
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % images.length);
+    }, SLIDE_INTERVAL);
+
+    return () => clearInterval(timer);
+  }, [images.length, isPaused]);
+
+  const handlePrevSlide = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentSlide((prev) => (prev - 1 + images.length) % images.length);
+  };
+
+  const handleNextSlide = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentSlide((prev) => (prev + 1) % images.length);
+  };
+
+  const handleDotClick = (index: number, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setCurrentSlide(index);
+  };
+
+  if (!images || images.length === 0) {
+    return (
+      <div className="w-full h-[600px] rounded-lg overflow-hidden border border-solid border-gray-300 bg-white flex items-center justify-center">
+        <div className="w-full h-full flex items-center justify-center">
+          <Package2 className="w-24 h-24 text-gray-400" />
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col items-start gap-6 w-full h-full">
-      <div
-        className={cn(
-          "w-full h-full aspect-square overflow-hidden",
-          "relative bg-gray-50"
-        )}
-      >
-        {images[selectedImage] ? (
-          <div
-            className={cn(
-              "w-full h-full flex items-center justify-center p-6",
-              "relative"
-            )}
-          >
-            <img
-              src={images[selectedImage]}
-              alt={`Product view ${selectedImage + 1}`}
-              className={cn(
-                "max-w-full max-h-full w-auto h-auto object-contain",
-                "transition-all duration-300 ease-in-out"
-              )}
-              style={{ objectFit: "contain" }}
-            />
-            {/* Image Navigation Dots */}
-            {images.length > 1 && (
-              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-black/20 backdrop-blur-sm rounded-full px-3 py-1.5">
-                {images.map((_, index) => (
-                  <button
-                    key={index}
-                    className={cn(
-                      "w-2 h-2 rounded-full transition-all duration-200",
-                      selectedImage === index
-                        ? "bg-white"
-                        : "bg-white/50 hover:bg-white/75"
-                    )}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedImage(index);
-                    }}
-                    aria-label={`View image ${index + 1}`}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <Package2 className="w-20 h-20 text-gray-300" />
-          </div>
-        )}
-        {/* Image Navigation Arrows */}
-        {images.length > 1 && (
-          <>
-            <button
-              className={cn(
-                "absolute left-4 top-1/2 -translate-y-1/2",
-                "p-2 rounded-full",
-                "bg-white/90 backdrop-blur-sm shadow-sm",
-                "hover:bg-[var(--primary-color)] hover:text-[var(--primary-text-color)]",
-                "transition-all duration-200",
-                "text-gray-700",
-                "border border-gray-200",
-                "disabled:opacity-50 disabled:cursor-not-allowed"
-              )}
-              style={buttonStyles}
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedImage((prev) => (prev > 0 ? prev - 1 : prev));
-              }}
-              disabled={selectedImage === 0}
-              aria-label="Previous image"
-            >
-              <ChevronLeft className="w-6 h-6" />
-            </button>
-            <button
-              className={cn(
-                "absolute right-4 top-1/2 -translate-y-1/2",
-                "p-2 rounded-full",
-                "bg-white/90 backdrop-blur-sm shadow-sm",
-                "hover:bg-[var(--primary-color)] hover:text-[var(--primary-text-color)]",
-                "transition-all duration-200",
-                "text-gray-700",
-                "border border-gray-200",
-                "disabled:opacity-50 disabled:cursor-not-allowed"
-              )}
-              style={buttonStyles}
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedImage((prev) =>
-                  prev < images.length - 1 ? prev + 1 : prev
-                );
-              }}
-              disabled={selectedImage === images.length - 1}
-              aria-label="Next image"
-            >
-              <ChevronRight className="w-6 h-6" />
-            </button>
-          </>
-        )}
-      </div>
-      {/* Thumbnail Gallery */}
+    <div
+      className="relative w-full h-[600px] rounded-lg border border-solid border-gray-300 bg-white group"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      {/* Navigation Arrows */}
       {images.length > 1 && (
-        <div className="flex items-center gap-4 overflow-x-auto pb-2 w-full scrollbar-thin scrollbar-thumb-gray-200 scrollbar-track-transparent">
-          {images.map((image, index) => (
-            <button
-              key={index}
-              className={cn(
-                "min-w-[5rem] w-20 h-20 transition-all duration-200",
-                "hover:opacity-100 focus:outline-none",
-                selectedImage === index
-                  ? "opacity-100 ring-2 ring-[var(--primary-color)]"
-                  : "opacity-70 hover:opacity-90"
-              )}
-              style={buttonStyles}
-              onClick={() => setSelectedImage(index)}
-              aria-label={`Select image ${index + 1}`}
-              aria-current={selectedImage === index}
-            >
+        <>
+          <button
+            onClick={handlePrevSlide}
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-1/2 bg-white hover:bg-gray-50 rounded-full p-2.5 shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100 border border-gray-200 z-10"
+            aria-label="Previous image"
+          >
+            <ChevronLeft className="w-5 h-5 text-gray-700" />
+          </button>
+          <button
+            onClick={handleNextSlide}
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-1/2 bg-white hover:bg-gray-50 rounded-full p-2.5 shadow-lg transition-all duration-200 opacity-0 group-hover:opacity-100 border border-gray-200 z-10"
+            aria-label="Next image"
+          >
+            <ChevronRight className="w-5 h-5 text-gray-700" />
+          </button>
+        </>
+      )}
+
+      <div className="relative w-full h-full overflow-hidden rounded-lg">
+        {images.map((image, index) => (
+          <div
+            key={index}
+            className={`absolute w-full h-full transition-all duration-500 ease-in-out ${
+              currentSlide === index
+                ? "opacity-100 translate-x-0"
+                : index > currentSlide
+                ? "opacity-0 translate-x-full"
+                : "opacity-0 -translate-x-full"
+            }`}
+          >
+            <div className="w-full h-full flex items-center justify-center p-4">
               <img
                 src={image}
-                alt={`Product thumbnail ${index + 1}`}
-                className="w-full h-full object-cover"
+                alt={`Product ${index + 1}`}
+                className="max-w-full max-h-full w-full h-auto object-contain"
               />
-            </button>
-          ))}
-        </div>
-      )}
+            </div>
+          </div>
+        ))}
+
+        {/* Dots Navigation */}
+        {images.length > 1 && (
+          <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center gap-2 bg-white/80 px-3 py-1.5 rounded-full shadow-sm">
+            {images.map((_, index) => (
+              <button
+                key={index}
+                onClick={(e) => handleDotClick(index, e)}
+                className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                  currentSlide === index
+                    ? "bg-[var(--primary-color)] w-4"
+                    : "bg-gray-400 hover:bg-gray-600"
+                }`}
+                aria-label={`Go to image ${index + 1}`}
+              />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -834,19 +810,20 @@ const RelatedProductCard = ({
           {/* Image Container with Hover Effect */}
           <div className="relative group">
             <div className="w-full rounded-2xl bg-gray-100 bg-no-repeat bg-center flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-[1.02]">
-              {!product.product_image && (
-                <div className="w-full h-full flex items-center justify-center text-gray-400">
-                  <Package2 size={48} />
-                </div>
-              )}
-              {product.product_image && (
+              {product?.product_images &&
+              product?.product_images.length > 0 &&
+              product?.product_images[0] ? (
                 <img
-                  src={product.product_image}
-                  alt={product.name}
+                  src={product?.product_images[0]}
+                  alt={product?.name}
                   width={100}
                   height={100}
-                  className="w-full h-auto object-contain"
+                  className="w-auto h-auto min-h-[300px] max-h-[300px] object-contain"
                 />
+              ) : (
+                <div className="w-full min-h-[300px] max-h-[300px] flex items-center justify-center text-gray-400">
+                  <ImageOff className="w-10 h-10 text-gray-400" />
+                </div>
               )}
             </div>
             {/* Quick View Overlay */}

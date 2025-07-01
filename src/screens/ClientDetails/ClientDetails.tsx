@@ -114,11 +114,6 @@ const CompanyInfo = ({ company }: { company: Company }) => {
       ),
     },
     {
-      icon: <Mail className="w-4 h-4" />,
-      label: t("companyDetails.info.email"),
-      value: company?.email ?? "Not Available",
-    },
-    {
       icon: <Phone className="w-4 h-4" />,
       label: t("companyDetails.info.phoneNumber"),
       value: company?.phone_number ?? "Not Available",
