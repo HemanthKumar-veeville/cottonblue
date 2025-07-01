@@ -154,7 +154,7 @@
     "updateTitle": "Update product",
     "form": {
       "productName": "Product Name",
-      "productId": "SKU Reference",
+      "productId": "EAN Reference",
       "suitableFor": "Suitable For",
       "size": "Size",
       "price": {
@@ -438,12 +438,12 @@
     "variants": {
       "title": "Product Variants",
       "size": "Size",
-      "sku": "Reference (SKU)",
+      "sku": "Reference (EAN)",
       "price": "Price ({{currency}})",
       "stock": "Stock",
       "active": "Active",
       "sizePlaceholder": "Select size",
-      "skuPlaceholder": "Enter SKU",
+      "skuPlaceholder": "Enter EAN",
       "pricePlaceholder": "Enter price",
       "stockPlaceholder": "Enter stock",
       "addVariant": "Add Variant",

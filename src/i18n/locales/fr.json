@@ -155,7 +155,7 @@
     "updateTitle": "Mettre à jour un produit",
     "form": {
       "productName": "Nom du produit",
-      "productId": "Référence SKU",
+      "productId": "Référence EAN",
       "category": "Catégorie",
       "gender": "Genre",
       "suitableFor": "Convient à",
@@ -170,7 +170,7 @@
       },
       "packOf": "Unités par lot",
       "totalPacks": "lots disponibles",
-      "reference": "Référence (SKU)",
+      "reference": "Référence (EAN)",
       "description": "Description",
       "selectPlaceholder": "Sélectionner une taille",
       "options": {

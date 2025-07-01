@@ -82,7 +82,7 @@ export const ExportCSV = ({
       } else {
         // Default fields if no template columns provided
         initialFields["Product Name"] = true;
-        initialFields["SKU Reference"] = true;
+        initialFields["EAN Reference"] = true;
         initialFields["Pack of"] = true;
         initialFields["Pack Price"] = true;
         initialFields["Total Packs"] = true;
@@ -106,7 +106,7 @@ export const ExportCSV = ({
               case "Product Name":
                 filteredProduct[field] = product.name;
                 break;
-              case "SKU Reference":
+              case "EAN Reference":
                 filteredProduct[field] = product.id;
                 break;
               case "Pack of":
