@@ -167,14 +167,18 @@ const ProductRow = ({ product }: { product: CartItem }) => {
       <TableCell className="w-[203px] p-3">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded overflow-hidden border border-primary-neutal-200 flex items-center justify-center">
-            {product.product_image ? (
+            {product?.product_images &&
+            product?.product_images?.length > 0 &&
+            product?.product_images[0] ? (
               <img
                 className="w-[30px] h-[29px] object-cover"
                 alt={product.product_name}
-                src={product.product_image}
+                src={product?.product_images[0]}
               />
             ) : (
-              <Package2 className="w-5 h-5 text-gray-400" />
+              <div className="w-10 h-10 rounded overflow-hidden border border-primary-neutal-200 flex items-center justify-center">
+                <Package2 className="w-5 h-5 text-gray-400" />
+              </div>
             )}
           </div>
           <span className="font-text-medium text-black">
