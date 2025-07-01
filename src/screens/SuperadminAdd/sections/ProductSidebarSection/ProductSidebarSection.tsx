@@ -735,10 +735,16 @@ export const ProductSidebarSection = ({
                       name="description"
                       control={control}
                       render={({ field }) => (
-                        <Textarea
-                          {...field}
-                          className="h-[175px] pt-6 pr-3 pb-2 pl-3 border-gray-300"
-                        />
+                        <div className="relative">
+                          <Textarea
+                            {...field}
+                            className="h-[175px] pt-6 pr-3 pb-2 pl-3 border-gray-300"
+                            maxLength={500}
+                          />
+                          <span className="absolute bottom-2 right-2 text-xs text-gray-500">
+                            {t("productSidebar.form.descriptionHint")}
+                          </span>
+                        </div>
                       )}
                     />
                   </FormField>

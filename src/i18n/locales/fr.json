@@ -172,6 +172,7 @@
       "totalPacks": "lots disponibles",
       "reference": "Référence (EAN)",
       "description": "Description",
+      "descriptionHint": "Maximum 500 caractères",
       "selectPlaceholder": "Sélectionner une taille",
       "options": {
         "suitableFor": {

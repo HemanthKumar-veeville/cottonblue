@@ -163,6 +163,7 @@
       "packOf": "Pack Of",
       "totalPacks": "Total Packs",
       "description": "Description",
+      "descriptionHint": "Maximum 500 characters",
       "soldBy": {
         "carton": "Sold by Carton",
         "unit": "Sold by Unit"
