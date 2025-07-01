@@ -833,19 +833,20 @@ const RelatedProductCard = ({
         <div className="flex flex-col h-full">
           {/* Image Container with Hover Effect */}
           <div className="relative group">
-            <div
-              className="aspect-[4/3] w-full rounded-2xl bg-gray-100 bg-no-repeat bg-center flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-[1.02]"
-              style={{
-                backgroundImage: product.product_image
-                  ? `url(${product.product_image})`
-                  : "none",
-                backgroundSize: "contain",
-              }}
-            >
+            <div className="w-full rounded-2xl bg-gray-100 bg-no-repeat bg-center flex items-center justify-center overflow-hidden transition-transform duration-300 group-hover:scale-[1.02]">
               {!product.product_image && (
                 <div className="w-full h-full flex items-center justify-center text-gray-400">
                   <Package2 size={48} />
                 </div>
+              )}
+              {product.product_image && (
+                <img
+                  src={product.product_image}
+                  alt={product.name}
+                  width={100}
+                  height={100}
+                  className="w-full h-auto object-contain"
+                />
               )}
             </div>
             {/* Quick View Overlay */}

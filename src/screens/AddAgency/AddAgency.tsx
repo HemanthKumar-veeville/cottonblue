@@ -6,6 +6,9 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import toast from "react-hot-toast";
 import { cn } from "../../lib/utils";
+import PhoneInput from "react-phone-input-2";
+import "react-phone-input-2/lib/style.css";
+import { Phone } from "lucide-react";
 
 import { store, useAppSelector } from "../../store/store";
 import {
@@ -25,6 +28,7 @@ interface FormData {
   store_address: string;
   city: string;
   postal_code: string;
+  phone_number: string;
   limits: {
     order: {
       enabled: boolean;
@@ -44,6 +48,7 @@ interface InitialAgencyData {
   store_address: string;
   city: string;
   postal_code: string;
+  phone_number: string;
   limits: {
     order: {
       enabled: boolean;
@@ -144,6 +149,7 @@ export default function AddAgency() {
     store_address: "",
     city: "",
     postal_code: "",
+    phone_number: "",
     limits: {
       order: {
         enabled: false,
@@ -180,6 +186,7 @@ export default function AddAgency() {
         store_address: store.address ?? "",
         city: store.city ?? "",
         postal_code: store.postal_code ?? "",
+        phone_number: store.phone_number ?? "",
         limits: {
           order: {
             enabled: !!store.order_limit,
@@ -203,6 +210,7 @@ export default function AddAgency() {
         store_address: store.address ?? "",
         city: store.city ?? "",
         postal_code: store.postal_code ?? "",
+        phone_number: store.phone_number ?? "",
         limits: {
           order: {
             enabled: !!store.order_limit,
@@ -232,6 +240,7 @@ export default function AddAgency() {
       formData.store_address !== initialData.store_address ||
       formData.city !== initialData.city ||
       formData.postal_code !== initialData.postal_code ||
+      formData.phone_number !== initialData.phone_number ||
       formData.limits.order.enabled !== initialData.limits.order.enabled ||
       formData.limits.budget.enabled !== initialData.limits.budget.enabled ||
       (formData.limits.order.enabled &&
@@ -259,6 +268,9 @@ export default function AddAgency() {
     }
     if (formData.postal_code !== initialData.postal_code) {
       changes.postal_code = formData.postal_code;
+    }
+    if (formData.phone_number !== initialData.phone_number) {
+      changes.phone_number = formData.phone_number;
     }
     if (
       formData.limits.order.enabled !== initialData.limits.order.enabled ||
@@ -289,6 +301,7 @@ export default function AddAgency() {
       !formData.city ||
       !formData.store_address ||
       !formData.postal_code ||
+      !formData.phone_number ||
       !selectedCompany?.id
     ) {
       toast.error("Please fill in all required fields", {
@@ -304,12 +317,14 @@ export default function AddAgency() {
 
     try {
       // Prepare the base data
+
       const baseData = {
-        company_id: selectedCompany.id,
-        store_name: formData.store_name.trim(),
-        store_address: formData.store_address.trim(),
-        city: formData.city.trim(),
-        postal_code: formData.postal_code.trim(),
+        company_id: selectedCompany?.id,
+        store_name: formData?.store_name?.trim(),
+        store_address: formData?.store_address?.trim(),
+        city: formData?.city?.trim(),
+        postal_code: formData?.postal_code,
+        phone_number: formData?.phone_number,
         order_limit: formData.limits.order.enabled
           ? parseInt(formData.limits.order.value) || null
           : null,
@@ -330,7 +345,7 @@ export default function AddAgency() {
 
         await dispatch(
           modifyStore({
-            dnsPrefix: selectedCompany.dns || "",
+            dnsPrefix: selectedCompany?.dns || "",
             storeId: id,
             data: changedFields,
           })
@@ -346,7 +361,7 @@ export default function AddAgency() {
       } else {
         await dispatch(
           registerStore({
-            dnsPrefix: selectedCompany.dns || "",
+            dnsPrefix: selectedCompany?.dns || "",
             data: baseData,
           })
         ).unwrap();
@@ -376,6 +391,35 @@ export default function AddAgency() {
     }
   };
 
+  // Add phone input styles
+  const phoneInputStyles = {
+    container: {
+      width: "100%",
+      marginTop: "8px",
+    },
+    inputStyle: {
+      width: "100%",
+      height: "40px",
+      fontSize: "16px",
+      paddingLeft: "48px",
+      borderRadius: "6px",
+      border: "1px solid #e2e8f0",
+      backgroundColor: "white",
+      fontFamily: "inherit",
+    },
+    buttonStyle: {
+      border: "1px solid #e2e8f0",
+      borderRadius: "6px 0 0 6px",
+      backgroundColor: "white",
+    },
+    dropdownStyle: {
+      width: "300px",
+      maxHeight: "300px",
+      borderRadius: "6px",
+      border: "1px solid #e2e8f0",
+    },
+  };
+
   if (loading) {
     return <Skeleton variant="form" />;
   }
@@ -394,13 +438,6 @@ export default function AddAgency() {
           <div className="flex flex-col gap-8 flex-1 p-1">
             <div className="flex gap-6">
               <LabeledInput
-                label={t("addAgency.fields.companyId")}
-                id="company_id"
-                value={selectedCompany?.id || ""}
-                disabled={true}
-                required={true}
-              />
-              <LabeledInput
                 label={t("addAgency.fields.storeName")}
                 id="store_name"
                 value={formData.store_name}
@@ -412,6 +449,54 @@ export default function AddAgency() {
                   }))
                 }
               />
+              <div className="relative w-full mt-[-10px]">
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 z-10" />
+                  <PhoneInput
+                    country={"fr"}
+                    preferredCountries={["fr", "de", "gb", "it", "es"]}
+                    value={formData.phone_number}
+                    placeholder={t("addAgency.fields.phonePlaceholder")}
+                    onChange={(phone) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        phone_number: phone,
+                      }))
+                    }
+                    containerStyle={phoneInputStyles.container}
+                    inputStyle={{
+                      ...phoneInputStyles.inputStyle,
+                      paddingLeft: "48px",
+                      paddingTop: "16px",
+                      paddingBottom: "8px",
+                    }}
+                    buttonStyle={{
+                      ...phoneInputStyles.buttonStyle,
+                      display: "none",
+                    }}
+                    dropdownStyle={phoneInputStyles.dropdownStyle}
+                    enableSearch={true}
+                    searchPlaceholder="Search country..."
+                    searchStyle={{
+                      width: "100%",
+                      height: "36px",
+                      borderRadius: "4px",
+                      border: "1px solid #e2e8f0",
+                      padding: "0 10px",
+                      marginTop: "5px",
+                    }}
+                    inputProps={{
+                      required: true,
+                      name: "phone",
+                      "data-testid": "input-phone",
+                    }}
+                  />
+                  <span className="absolute -top-[10px] left-4 px-2 text-xs font-medium text-gray-600 bg-white">
+                    {t("addAgency.fields.phone")}{" "}
+                    <span className="text-red-500">*</span>
+                  </span>
+                </div>
+              </div>
             </div>
 
             <div className="flex gap-6">
