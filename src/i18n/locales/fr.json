@@ -813,6 +813,7 @@
     "fields": {
       "companyId": "ID de l'entreprise",
       "storeName": "Nom du magasin",
+      "phone": "Téléphone",
       "postalCode": "Code postal",
       "city": "Ville",
       "address": "Adresse",

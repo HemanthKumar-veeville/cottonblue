@@ -106,7 +106,7 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
   });
 
   // Pagination logic
-  const itemsPerPage = 5;
+  const itemsPerPage = 15;
   const totalPages = Math.ceil(filteredAgencies.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;

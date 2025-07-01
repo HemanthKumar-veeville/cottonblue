@@ -786,6 +786,7 @@
     "fields": {
       "companyId": "Company ID",
       "storeName": "Store Name",
+      "phone": "Phone",
       "postalCode": "Postal code",
       "city": "City",
       "address": "Address",
