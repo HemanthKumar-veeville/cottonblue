@@ -269,25 +269,16 @@ export const ProductTableSection = ({
                       {product.id ?? "Not available"}
                     </TableCell>
                     <TableCell className="w-[77px] align-middle">
-                      {product?.product_images?.length > 0 ? (
-                        <div
-                          className="w-[50px] h-[50px] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
-                          style={{
-                            backgroundImage:
-                              product?.product_images?.length > 0 &&
-                              product?.product_images[0]
-                                ? `url(${product.product_images[0]})`
-                                : "none",
-                            backgroundColor:
-                              product?.product_images?.length > 0 &&
-                              product?.product_images[0]
-                                ? "#f0f0f0"
-                                : "transparent",
-                            backgroundSize: "contain",
-                            backgroundPosition: "center",
-                            backgroundRepeat: "no-repeat",
-                          }}
-                        />
+                      {product?.product_images &&
+                      product?.product_images.length > 0 &&
+                      product?.product_images[0] ? (
+                        <div className="w-[50px] h-[50px] rounded-[var(--2-tokens-screen-modes-button-border-radius)] flex items-center justify-center">
+                          <img
+                            src={product?.product_images[0]}
+                            alt={product?.name}
+                            className="w-full h-full object-contain"
+                          />
+                        </div>
                       ) : (
                         <div className="w-[50px] h-[50px] rounded-[var(--2-tokens-screen-modes-button-border-radius)] flex items-center justify-center">
                           <ImageOff className="w-10 h-10 text-gray-400" />
