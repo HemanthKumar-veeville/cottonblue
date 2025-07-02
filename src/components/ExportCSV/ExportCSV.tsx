@@ -111,19 +111,19 @@ export const ExportCSV = ({
                 filteredProduct[field] = product.id;
                 break;
               case "Quantité par lot":
-                filteredProduct[field] = product.total_stock;
+                filteredProduct[field] = product.pack_quantity;
                 break;
               case "Prix du lot":
-                filteredProduct[field] = product.price;
+                filteredProduct[field] = product.price_of_pack;
                 break;
               case "Total des lots":
-                filteredProduct[field] = product.total_stock;
+                filteredProduct[field] = product.total_packs;
                 break;
               case "Convient pour":
-                filteredProduct[field] = product.available_region;
+                filteredProduct[field] = product.suitable_for;
                 break;
               case "Taille":
-                filteredProduct[field] = "";
+                filteredProduct[field] = product.size;
                 break;
               case "Description":
                 filteredProduct[field] = product.description;
