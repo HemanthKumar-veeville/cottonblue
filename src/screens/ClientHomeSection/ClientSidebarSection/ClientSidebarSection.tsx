@@ -123,13 +123,11 @@ const BudgetSection = () => {
   );
 
   const summaryData = summary?.dashboard_data;
-  const averageBasketValue = summaryData?.average_basket_value;
-  const totalOrders = summaryData?.total_orders;
-  const totalAmount = summaryData?.total_amount;
-  const currentMonthOrders = summaryData?.current_month_orders || 0;
-  const currentMonthAmount = summaryData?.current_month_amount || 0;
-  const monthlyOrderLimit = summaryData?.monthly_order_limit || 0;
-  const monthlyExpenseLimit = summaryData?.monthly_budget_limit || 0;
+
+  const currentMonthOrders = summaryData?.current_month_orders || "-";
+  const currentMonthAmount = summaryData?.current_month_amount || "-";
+  const monthlyOrderLimit = summaryData?.monthly_order_limit || "-";
+  const monthlyExpenseLimit = summaryData?.monthly_budget_limit || "-";
 
   const budgetCards = [
     {
