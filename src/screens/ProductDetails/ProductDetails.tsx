@@ -275,12 +275,13 @@ const ProductInfo = ({ product }: { product: Product }) => {
                           "bg-[#07515f] text-white hover:bg-[#07515f]/90 hover:border-[#07515f]/90 hover:text-white"
                       )}
                       onClick={() => {
-                        dispatch(
-                          getProductById({
-                            dnsPrefix: selectedCompany.dns,
-                            productId: item.linked_product_id,
-                          })
-                        );
+                        item.linked_product_id &&
+                          dispatch(
+                            getProductById({
+                              dnsPrefix: selectedCompany.dns,
+                              productId: item.linked_product_id,
+                            })
+                          );
                       }}
                     >
                       {item.size}
