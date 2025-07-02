@@ -125,7 +125,8 @@
       "linkProducts": "Group Products",
       "importCsv": "Import CSV",
       "exportCsv": "Export CSV",
-      "importCsvRecommendation": "Please make sure the file follows the required format (columns, types, etc.)"
+      "importCsvRecommendation": "CSV and XLSX files accepted",
+      "placeholder": "Drop your file here"
     },
     "table": {
       "sku": "Ref.",
@@ -200,7 +201,7 @@
       }
     },
     "imageUpload": {
-      "dropImages": "Drop your .csv here",
+      "dropImages": "Drop your image here",
       "orClickToSearch": "Or click to search",
       "disabled": "Images disabled",
       "clickToUpload": "Click to upload",
@@ -871,7 +872,7 @@
     "images": {
       "title": "Add Images",
       "recommendation": "Recommended image: 1600×600 px (JPEG or PNG, max 2 MB). Important areas should be centered.",
-      "dropImages": "Drop your .csv here",
+      "dropImages": "Drop your image here",
       "orClickToSearch": "Or click to search",
       "uploadedImage": "Uploaded image",
       "preview": "Carousel preview"

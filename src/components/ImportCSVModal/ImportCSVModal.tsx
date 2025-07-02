@@ -92,7 +92,7 @@ const FileDropArea = ({
         ) : (
           <div className="space-y-1">
             <p className="text-base font-medium text-[#1E2324]">
-              {t("carousel.images.dropImages")}
+              {t("productList.actions.placeholder")}
             </p>
             <p className="text-sm text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
               {t("carousel.images.orClickToSearch")}
