@@ -223,7 +223,11 @@ function App() {
         )}
 
         {/* 404 Route - Must be last */}
-        <Route path="*" element={<NotFound />} />
+        {isAdminDomain ? (
+          <Route path="/" element={<LoginPage />} />
+        ) : (
+          <Route path="/" element={<ClientLogin />} />
+        )}
         <Route path="/create-password" element={<CreatePassword />} />
         <Route path="/reset-password" element={<CreatePassword />} />
       </Routes>

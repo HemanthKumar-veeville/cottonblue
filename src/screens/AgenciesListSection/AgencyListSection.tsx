@@ -54,16 +54,6 @@ const AgencyListSectionBase = ({
     navigate("/agencies/add");
   };
 
-  const templateColumns = [
-    "Store Name",
-    "Store Address",
-    "City",
-    "Postal Code",
-    "Phone Number",
-    "Order Limit",
-    "Budget Limit",
-  ];
-
   return (
     <section className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
       <header>
@@ -135,13 +125,13 @@ const AgencyListSectionBase = ({
 // Configure the CSV functionality for agencies
 const csvConfig = {
   templateColumns: [
-    "Store Name",
-    "Store Address",
-    "City",
-    "Postal Code",
-    "Phone Number",
-    "Order Limit",
-    "Budget Limit",
+    "Agence nom",
+    "Adresse",
+    "Ville",
+    "Code postal",
+    "Téléphone",
+    "Limite de commande",
+    "Limite de budget",
   ],
   sheetName: "Agencies",
   importEndpoint: "/api/agencies/import",

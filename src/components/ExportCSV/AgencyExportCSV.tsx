@@ -42,14 +42,13 @@ export const AgencyExportCSV = ({
   const { t } = useTranslation();
 
   const [columns, setColumns] = useState<ExportColumn[]>([
-    { label: "Store Name", value: "name", checked: true },
-    { label: "Store Address", value: "address", checked: true },
-    { label: "City", value: "city", checked: true },
-    { label: "Postal Code", value: "postal_code", checked: true },
-    { label: "Phone Number", value: "phone_number", checked: true },
-    { label: "Store Region", value: "city", checked: true },
-    { label: "Order Limit", value: "order_limit", checked: true },
-    { label: "Budget Limit", value: "budget_limit", checked: true },
+    { label: "Agence nom", value: "name", checked: true },
+    { label: "Adresse", value: "address", checked: true },
+    { label: "Ville", value: "city", checked: true },
+    { label: "Code postal", value: "postal_code", checked: true },
+    { label: "Téléphone", value: "phone_number", checked: true },
+    { label: "Limite de commande", value: "order_limit", checked: true },
+    { label: "Limite de budget", value: "budget_limit", checked: true },
   ]);
 
   const handleExport = () => {
