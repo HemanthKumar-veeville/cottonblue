@@ -94,12 +94,14 @@ const LabeledSelect = ({
   values,
   options,
   onChange,
+  t,
 }: {
   label: string;
   id: string;
   values: number[];
   options: Store[];
   onChange?: (values: number[]) => void;
+  t: any;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectedStores = options?.filter((store) => values?.includes(store.id));
@@ -121,7 +123,7 @@ const LabeledSelect = ({
           <div className="flex-1 font-medium text-gray-700 text-base leading-4 tracking-normal truncate">
             {selectedStores?.length > 0
               ? selectedStores.map((store) => store.name).join(", ")
-              : "Select Stores"}
+              : t("addUser.fields.stores")}
           </div>
           <div className="flex w-6 h-6 items-center justify-center shrink-0">
             <img
@@ -159,7 +161,7 @@ const LabeledSelect = ({
             ))}
             {!options?.length && (
               <div className="px-4 py-3 text-gray-500 text-center">
-                No stores available
+                {t("addUser.fields.noStoresAvailable")}
               </div>
             )}
           </div>
@@ -237,7 +239,7 @@ export default function AddUser() {
             })
           ).unwrap();
         } catch (error: any) {
-          toast.error(error?.message || "Failed to fetch user details");
+          toast.error(error?.message || t("addUser.messages.updateError"));
         } finally {
           setLoading(false);
         }
@@ -250,7 +252,7 @@ export default function AddUser() {
     };
     fetchStores();
     fetchUserDetails();
-  }, [isEditMode, id, selectedCompany?.dns, dispatch]);
+  }, [isEditMode, id, selectedCompany?.dns, dispatch, t]);
 
   // Update form data when selectedUser changes in edit mode
   useEffect(() => {
@@ -272,8 +274,7 @@ export default function AddUser() {
       !formData.email ||
       formData.store_ids.length === 0
     ) {
-      toast.error("Please fill in all required fields");
-
+      toast.error(t("addUser.validation.requiredFields"));
       return;
     }
 
@@ -403,6 +404,7 @@ export default function AddUser() {
                       store_ids: values,
                     }))
                   }
+                  t={t}
                 />
               </div>
             </div>

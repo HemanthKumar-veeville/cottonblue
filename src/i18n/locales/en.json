@@ -891,7 +891,10 @@
       "lastName": "Last Name",
       "email": "Email",
       "password": "Password",
-      "stores": "Select Stores"
+      "stores": "Select Stores",
+      "selectStores": "Select Stores",
+      "noStoresAvailable": "No stores available",
+      "noUsers": "No users found"
     },
     "validation": {
       "requiredFields": "Please fill in all required fields"
