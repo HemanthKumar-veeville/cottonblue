@@ -1264,5 +1264,9 @@
     "search": {
       "placeholder": "Search products..."
     }
+  },
+  "comingSoon": {
+    "title": "Coming Soon",
+    "description": "We're working hard to bring you something amazing. This feature is currently under development."
   }
 }

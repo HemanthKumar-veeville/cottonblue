@@ -1318,5 +1318,9 @@
     "search": {
       "placeholder": "Rechercher des produits..."
     }
+  },
+  "comingSoon": {
+    "title": "Bientôt Disponible",
+    "description": "Nous travaillons dur pour vous apporter quelque chose d'extraordinaire. Cette fonctionnalité est en cours de développement."
   }
 }
