@@ -117,7 +117,8 @@
       "link": "Groupe produits",
       "linkProducts": "Grouper les produits",
       "importCsv": "Importer CSV",
-      "exportCsv": "Exporter CSV"
+      "exportCsv": "Exporter CSV",
+      "importCsvRecommendation": "Veuillez vous assurer que le fichier suit le format requis (colonnes, types, etc.)"
     },
     "table": {
       "sku": "Ref.",
@@ -196,7 +197,7 @@
       }
     },
     "imageUpload": {
-      "dropImages": "Déposez vos images ici",
+      "dropImages": "Déposez vos .csv ici",
       "orClickToSearch": "Ou cliquer pour rechercher",
       "disabled": "Images désactivées",
       "clickToUpload": "Cliquer pour télécharger",
@@ -865,7 +866,7 @@
     "images": {
       "title": "Ajout des images",
       "recommendation": "Image recommandée : 1600×600 px (JPEG ou PNG, max 2 Mo). Les zones importantes doivent être centrées.",
-      "dropImages": "Déposez vos images ici",
+      "dropImages": "Déposez vos .csv ici",
       "orClickToSearch": "Ou cliquer pour rechercher",
       "uploadedImage": "Image téléchargée",
       "preview": "Aperçu du carrousel"

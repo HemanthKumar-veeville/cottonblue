@@ -141,14 +141,14 @@ export const ProductListSection = ({
         onClose={() => setIsImportModalOpen(false)}
         onImport={handleImport}
         templateColumns={[
-          "Product Name",
-          "Reference",
-          "Pack of",
-          "Pack Price",
-          "Total Packs",
-          "Suitable For",
-          "Size",
-          "Product Description",
+          "Nom du produit",
+          "Référence EAN",
+          "Quantité par lot",
+          "Total des lots",
+          "Prix du lot",
+          "Taille",
+          "Convient pour",
+          "Description",
         ]}
         sheetName="Products"
       />
@@ -158,14 +158,14 @@ export const ProductListSection = ({
         products={productList}
         sheetName="Products"
         templateColumns={[
-          "Product Name",
-          "Reference",
-          "Pack of",
-          "Pack Price",
-          "Total Packs",
-          "Suitable For",
-          "Size",
-          "Product Description",
+          "Nom du produit",
+          "Référence EAN",
+          "Quantité par lot",
+          "Total des lots",
+          "Prix du lot",
+          "Taille",
+          "Convient pour",
+          "Description",
         ]}
       />
     </section>

@@ -36,7 +36,7 @@ interface ExportCSVProps {
 
 const headerDisplayNames = {
   id: "Product ID",
-  name: "Product Name",
+  name: "Nom du produit",
   description: "Product Description",
   price: "Product Price",
   total_stock: "Total Stock",
@@ -81,14 +81,14 @@ export const ExportCSV = ({
         });
       } else {
         // Default fields if no template columns provided
-        initialFields["Product Name"] = true;
-        initialFields["EAN Reference"] = true;
-        initialFields["Pack of"] = true;
-        initialFields["Pack Price"] = true;
-        initialFields["Total Packs"] = true;
-        initialFields["Suitable For"] = true;
-        initialFields["Size"] = true;
-        initialFields["Product Description"] = true;
+        initialFields["Nom du produit"] = true;
+        initialFields["Référence EAN"] = true;
+        initialFields["Quantité par lot"] = true;
+        initialFields["Total des lots"] = true;
+        initialFields["Prix du lot"] = true;
+        initialFields["Convient pour"] = true;
+        initialFields["Taille"] = true;
+        initialFields["Description"] = true;
       }
       return initialFields;
     }
@@ -98,33 +98,34 @@ export const ExportCSV = ({
     try {
       // Filter products data based on selected fields
       const exportData = products.map((product) => {
+        console.log({ product });
         const filteredProduct: Record<string, any> = {};
         Object.entries(selectedFields).forEach(([field, isSelected]) => {
           if (isSelected) {
             // Map the display names to actual product fields
             switch (field) {
-              case "Product Name":
+              case "Nom du produit":
                 filteredProduct[field] = product.name;
                 break;
-              case "EAN Reference":
+              case "Référence EAN":
                 filteredProduct[field] = product.id;
                 break;
-              case "Pack of":
+              case "Quantité par lot":
                 filteredProduct[field] = product.total_stock;
                 break;
-              case "Pack Price":
+              case "Prix du lot":
                 filteredProduct[field] = product.price;
                 break;
-              case "Total Packs":
+              case "Total des lots":
                 filteredProduct[field] = product.total_stock;
                 break;
-              case "Suitable For":
+              case "Convient pour":
                 filteredProduct[field] = product.available_region;
                 break;
-              case "Size":
+              case "Taille":
                 filteredProduct[field] = "";
                 break;
-              case "Product Description":
+              case "Description":
                 filteredProduct[field] = product.description;
                 break;
               default:

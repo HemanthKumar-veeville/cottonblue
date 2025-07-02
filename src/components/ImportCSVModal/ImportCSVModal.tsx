@@ -6,6 +6,7 @@ import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
 import * as XLSX from "xlsx";
 import { getFormattedTimestamp } from "../../utils/dateUtils";
+import { useTranslation } from "react-i18next";
 
 export interface ImportCSVModalProps {
   isOpen: boolean;
@@ -15,13 +16,16 @@ export interface ImportCSVModalProps {
   sheetName: string;
 }
 
-const Header = ({ onClose }: { onClose: () => void }) => (
-  <DialogHeader className="flex items-center p-0 mb-8">
-    <DialogTitle className="text-xl font-semibold text-[#1E2324]">
-      Import CSV File
-    </DialogTitle>
-  </DialogHeader>
-);
+const Header = ({ onClose }: { onClose: () => void }) => {
+  const { t } = useTranslation();
+  return (
+    <DialogHeader className="flex items-center p-0 mb-8">
+      <DialogTitle className="text-xl font-semibold text-[#1E2324]">
+        {t("productList.actions.importCsv")}
+      </DialogTitle>
+    </DialogHeader>
+  );
+};
 
 const FileDropArea = ({
   onFileSelect,
@@ -30,6 +34,7 @@ const FileDropArea = ({
   onFileSelect: (file: File | null) => void;
   isImporting: boolean;
 }) => {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
@@ -45,10 +50,10 @@ const FileDropArea = ({
         setSelectedFile(file);
         onFileSelect(file);
       } else {
-        toast.error("Please select a valid CSV or Excel file");
+        toast.error(t("common.error"));
       }
     },
-    [onFileSelect]
+    [onFileSelect, t]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -87,10 +92,10 @@ const FileDropArea = ({
         ) : (
           <div className="space-y-1">
             <p className="text-base font-medium text-[#1E2324]">
-              Drop a file here
+              {t("carousel.images.dropImages")}
             </p>
             <p className="text-sm text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
-              or click to select one
+              {t("carousel.images.orClickToSearch")}
             </p>
           </div>
         )}
@@ -106,7 +111,7 @@ const FileDropArea = ({
           }}
           className="text-red-500 hover:text-red-600"
         >
-          Remove
+          {t("common.remove")}
         </Button>
       )}
     </div>
@@ -120,6 +125,7 @@ const Footer = ({
   templateColumns: string[];
   sheetName: string;
 }) => {
+  const { t } = useTranslation();
   const downloadTemplate = () => {
     // Create workbook
     const wb = XLSX.utils.book_new();
@@ -137,7 +143,7 @@ const Footer = ({
     // Generate and download the file with timestamp
     const timestamp = getFormattedTimestamp();
     XLSX.writeFile(wb, `${sheetName.toLowerCase()}_template_${timestamp}.xlsx`);
-    toast.success("Template downloaded successfully");
+    toast.success(t("common.success"));
   };
 
   return (
@@ -148,13 +154,11 @@ const Footer = ({
         onClick={downloadTemplate}
       >
         <Paperclip className="h-4 w-4" />
-        Download Template
+        {t("exportModal.download")}
       </Button>
       <div className="flex items-center gap-2 text-sm text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] leading-5">
         <Wrench className="h-4 w-4 flex-shrink-0" />
-        <span>
-          Make sure the file follows the required format (columns, types, etc.)
-        </span>
+        <span>{t("productList.actions.importCsvRecommendation")}</span>
       </div>
     </div>
   );
@@ -166,15 +170,18 @@ const ImportButton = ({
 }: {
   onImport: () => Promise<void>;
   disabled: boolean;
-}) => (
-  <Button
-    className="w-full mt-4 bg-[#07515f] text-white border-[color:var(--1-tokens-color-modes-border-primary)] hover:bg-[#07515f]/90 disabled:opacity-50 disabled:cursor-not-allowed"
-    onClick={onImport}
-    disabled={disabled}
-  >
-    Import
-  </Button>
-);
+}) => {
+  const { t } = useTranslation();
+  return (
+    <Button
+      className="w-full mt-4 bg-[#07515f] text-white border-[color:var(--1-tokens-color-modes-border-primary)] hover:bg-[#07515f]/90 disabled:opacity-50 disabled:cursor-not-allowed"
+      onClick={onImport}
+      disabled={disabled}
+    >
+      {t("productList.actions.importCsv")}
+    </Button>
+  );
+};
 
 const convertToCSV = async (file: File): Promise<File> => {
   return new Promise((resolve, reject) => {
@@ -216,6 +223,7 @@ export default function ImportCSVModal({
   templateColumns,
   sheetName,
 }: ImportCSVModalProps): JSX.Element {
+  const { t } = useTranslation();
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isImporting, setIsImporting] = useState(false);
 
@@ -239,10 +247,10 @@ export default function ImportCSVModal({
       }
 
       await onImport(fileToImport);
-      toast.success("File imported successfully");
+      toast.success(t("common.success"));
       onClose();
     } catch (error) {
-      toast.error("Error importing file");
+      toast.error(t("common.error"));
       console.error("Import error:", error);
     } finally {
       setIsImporting(false);
