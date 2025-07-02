@@ -201,22 +201,62 @@ function App() {
         ) : // Client routes
         isLoggedIn ? (
           <Route path="/" element={<ClientLayout />}>
-            <Route index element={<AdminClientHome />} />
-            <Route path="admin-dashboard" element={<ClientAdminDashboard />} />
+            <Route
+              index
+              element={isLoggedIn ? <AdminClientHome /> : <Navigate to="/" />}
+            />
+            <Route
+              path="admin-dashboard"
+              element={
+                isLoggedIn ? <ClientAdminDashboard /> : <Navigate to="/" />
+              }
+            />
             <Route
               path="validate-order/:store_id/:id"
-              element={<OrderValidation />}
+              element={isLoggedIn ? <OrderValidation /> : <Navigate to="/" />}
             />
-            <Route path="users" element={<ClientUserListSection />} />
-            <Route path="users/add" element={<ClientAddUser />} />
-            <Route path="users/edit/:id" element={<ClientAddUser />} />
-            <Route path="users/:id" element={<ClientUserDetails />} />
-            <Route path="product/:id" element={<ClientProduct />} />
-            <Route path="cart" element={<CartContainer />} />
-            <Route path="history" element={<History />} />
-            <Route path="order-details/:id" element={<OrderDetails />} />
-            <Route path="support" element={<ClientSupport />} />
-            <Route path="settings" element={<ClientSettings />} />
+            <Route
+              path="users"
+              element={
+                isLoggedIn ? <ClientUserListSection /> : <Navigate to="/" />
+              }
+            />
+            <Route
+              path="users/add"
+              element={isLoggedIn ? <ClientAddUser /> : <Navigate to="/" />}
+            />
+            <Route
+              path="users/edit/:id"
+              element={isLoggedIn ? <ClientAddUser /> : <Navigate to="/" />}
+            />
+            <Route
+              path="users/:id"
+              element={isLoggedIn ? <ClientUserDetails /> : <Navigate to="/" />}
+            />
+            <Route
+              path="product/:id"
+              element={isLoggedIn ? <ClientProduct /> : <Navigate to="/" />}
+            />
+            <Route
+              path="cart"
+              element={isLoggedIn ? <CartContainer /> : <Navigate to="/" />}
+            />
+            <Route
+              path="history"
+              element={isLoggedIn ? <History /> : <Navigate to="/" />}
+            />
+            <Route
+              path="order-details/:id"
+              element={isLoggedIn ? <OrderDetails /> : <Navigate to="/" />}
+            />
+            <Route
+              path="support"
+              element={isLoggedIn ? <ClientSupport /> : <Navigate to="/" />}
+            />
+            <Route
+              path="settings"
+              element={isLoggedIn ? <ClientSettings /> : <Navigate to="/" />}
+            />
           </Route>
         ) : (
           <Route path="/" element={<ClientLogin />} />
