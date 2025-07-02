@@ -160,12 +160,12 @@ const ProductInfo = ({ product }: { product: Product }) => {
   const productDetails = [
     {
       label: t("productDetails.info.sizes"),
-      value: availableSizes ?? "Not Available",
+      value: availableSizes ?? t("productDetails.notAvailable"),
       isSize: true,
     },
     {
       label: t("productDetails.info.suitableFor"),
-      value: product?.suitable_for ?? "Not Available",
+      value: product?.suitable_for ?? t("productDetails.notAvailable"),
     },
     ...(isWarehouse
       ? []
@@ -174,21 +174,25 @@ const ProductInfo = ({ product }: { product: Product }) => {
             label: t("productDetails.info.price"),
             value: product?.price_of_pack
               ? `${product.price_of_pack}€`
-              : "Not Available",
+              : t("productDetails.notAvailable"),
             isPrice: true,
           },
         ]),
     {
       label: t("productDetails.info.availableStock"),
-      value: product?.available_packs?.toString() ?? "Not Available",
+      value:
+        product?.available_packs?.toString() ??
+        t("productDetails.notAvailable"),
     },
     {
       label: t("productDetails.info.totalStock"),
-      value: product?.total_packs?.toString() ?? "Not Available",
+      value:
+        product?.total_packs?.toString() ?? t("productDetails.notAvailable"),
     },
     {
       label: t("productDetails.info.packQuantity"),
-      value: product?.pack_quantity?.toString() ?? "Not Available",
+      value:
+        product?.pack_quantity?.toString() ?? t("productDetails.notAvailable"),
     },
   ];
 
@@ -196,10 +200,10 @@ const ProductInfo = ({ product }: { product: Product }) => {
     <div className="flex flex-col w-full h-full">
       <div className="mb-4">
         <h2 className="font-heading-h3 font-bold text-gray-700 text-xl tracking-wide leading-6 mb-1">
-          {product?.name ?? "Not Available"}
+          {product?.name ?? t("productDetails.notAvailable")}
         </h2>
         <p className="font-label-small text-gray-500 text-xs tracking-wide leading-4">
-          Ref.: {product?.id ?? "Not Available"}
+          Ref.: {product?.id ?? t("productDetails.notAvailable")}
         </p>
       </div>
 
@@ -343,7 +347,7 @@ const ProductDescription = ({
     setIsExpanded(!isExpanded);
   };
 
-  const text = description ?? "Not Available";
+  const text = description ?? t("productDetails.notAvailable");
   const maxLength = 300;
   const shouldTruncate = text.length > maxLength;
 

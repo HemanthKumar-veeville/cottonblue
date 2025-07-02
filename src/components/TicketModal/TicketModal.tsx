@@ -225,7 +225,8 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
                 </div>
                 {ticket?.closed_at && (
                   <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
-                    Closed at: {new Date(ticket.closed_at).toLocaleDateString()}
+                    {t("tickets.modal.closedAt")}:{" "}
+                    {new Date(ticket.closed_at).toLocaleDateString()}
                   </span>
                 )}
               </div>

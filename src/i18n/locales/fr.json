@@ -344,9 +344,31 @@
       "weekly": "Hebdomadaire",
       "monthly": "Mensuel",
       "quarterly": "Trimestriel",
-      "week": "Semaine {{number}} ({{range}})",
-      "quarter": "T{{number}} ({{range}})",
-      "yearly": "Annuel"
+      "yearly": "Annuel",
+      "periods": {
+        "week": "Semaine {{number}}",
+        "weekRange": "{{startDate}} - {{endDate}}",
+        "month": {
+          "1": "Janvier",
+          "2": "Février",
+          "3": "Mars",
+          "4": "Avril",
+          "5": "Mai",
+          "6": "Juin",
+          "7": "Juillet",
+          "8": "Août",
+          "9": "Septembre",
+          "10": "Octobre",
+          "11": "Novembre",
+          "12": "Décembre"
+        },
+        "quarter": {
+          "1": "T1 (Jan - Mar)",
+          "2": "T2 (Avr - Juin)",
+          "3": "T3 (Juil - Sep)",
+          "4": "T4 (Oct - Déc)"
+        }
+      }
     },
     "actions": {
       "exportKPI": "Exporter les KPI"
@@ -704,7 +726,8 @@
       "readMore": "Lire la suite",
       "showLess": "Voir moins"
     },
-    "notFound": "Produit non trouvé"
+    "notFound": "Produit non trouvé",
+    "notAvailable": "Non disponible"
   },
   "tickets": {
     "title": "Tickets",
@@ -735,6 +758,7 @@
       "updatedAt": "Mis à jour le"
     },
     "modal": {
+      "closedAt": "Fermé le",
       "messages": {
         "support": "Support - CottonBlue :",
         "you": "Vous :",
