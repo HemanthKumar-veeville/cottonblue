@@ -248,7 +248,7 @@ const authSlice = createSlice({
       .addCase(getUser.fulfilled, (state, action) => {
         state.isLoading = false;
         state.user = action.payload;
-        state.isLoggedIn = true;
+        state.isLoggedIn = action.payload.logged_in;
         state.isClientAdmin = action.payload.company_admin;
         state.company = action.payload.company_name || null;
         if(action.payload.logged_in){
