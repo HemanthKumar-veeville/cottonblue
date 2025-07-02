@@ -152,10 +152,53 @@ const ProductInfo = ({ product }: { product: Product }) => {
   const dispatch = useAppDispatch();
   const { selectedCompany } = useAppSelector((state) => state.client);
   const isWarehouse = isWarehouseHostname();
-  const availableSizes = [
-    ...product?.linked_products,
-    { size: product?.size },
-  ].sort((a, b) => a.size.localeCompare(b.size));
+
+  // Define standard size order
+  const standardSizeOrder: { [key: string]: number } = {
+    XS: 1,
+    S: 2,
+    M: 3,
+    L: 4,
+    XL: 5,
+    "2XL": 6,
+    "3XL": 7,
+    "4XL": 8,
+    "5XL": 9,
+  };
+
+  // If the size is "Unique", only show that size
+  const availableSizes =
+    product?.size?.toUpperCase() === "UNIQUE"
+      ? [{ size: product.size }]
+      : [...(product?.linked_products || []), { size: product?.size || "" }]
+          .filter((item) => item.size) // Remove empty sizes
+          .sort((a, b) => {
+            const sizeA = a.size.toUpperCase();
+            const sizeB = b.size.toUpperCase();
+
+            // Try to parse as numbers first (for sizes like "38", "40", etc.)
+            const numA = parseFloat(sizeA);
+            const numB = parseFloat(sizeB);
+            if (!isNaN(numA) && !isNaN(numB)) {
+              return numA - numB;
+            }
+
+            // Check if both sizes are standard sizes
+            const isStandardA = standardSizeOrder.hasOwnProperty(sizeA);
+            const isStandardB = standardSizeOrder.hasOwnProperty(sizeB);
+
+            // If both are standard sizes, use the predefined order
+            if (isStandardA && isStandardB) {
+              return standardSizeOrder[sizeA] - standardSizeOrder[sizeB];
+            }
+
+            // If only one is a standard size, non-standard comes first
+            if (isStandardA) return 1;
+            if (isStandardB) return -1;
+
+            // For non-standard sizes, use alphabetical order
+            return sizeA.localeCompare(sizeB);
+          });
 
   const productDetails = [
     {
