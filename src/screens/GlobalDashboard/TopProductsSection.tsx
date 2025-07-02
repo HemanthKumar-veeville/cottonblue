@@ -57,8 +57,14 @@ const getTimeframeValues = (timeframe: TimeframeOption): string[] => {
       return ["1", "2", "3", "4"];
 
     case "Yearly":
-      // Generate next year and current year
-      return [String(currentYear + 1), String(currentYear)];
+      // Only return current year
+      return [
+        String(currentYear),
+        String(currentYear - 1),
+        String(currentYear - 2),
+        String(currentYear - 3),
+        String(currentYear - 4),
+      ];
 
     default:
       return [];
