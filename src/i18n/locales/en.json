@@ -1109,6 +1109,36 @@
       }
     }
   },
+  "companyNotRegistered": {
+    "title": "Company Not Registered",
+    "description": "Your company domain {domain} is not registered in our system. Please contact the administrator for assistance.",
+    "contactAdmin": "Contact Administrator"
+  },
+  "userDetails": {
+    "title": "User Details",
+    "fields": {
+      "id": "ID",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "role": "Role",
+      "stores": "Stores",
+      "status": "Status"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive"
+    },
+    "actions": {
+      "title": "Actions",
+      "modify": "Modify",
+      "activate": "Activate",
+      "deactivate": "Deactivate"
+    },
+    "notAvailable": "Not Available",
+    "notFound": "User not found",
+    "error": "Error loading user data"
+  },
   "warehouse": {
     "title": "Manage Warehouse",
     "search": {
@@ -1200,10 +1230,5 @@
     "search": {
       "placeholder": "Search products..."
     }
-  },
-  "companyNotRegistered": {
-    "title": "Company Not Registered",
-    "description": "Your company domain {domain} is not registered in our system. Please contact the administrator for assistance.",
-    "contactAdmin": "Contact Administrator"
   }
 }

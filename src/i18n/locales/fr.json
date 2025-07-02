@@ -1138,6 +1138,36 @@
       }
     }
   },
+  "companyNotRegistered": {
+    "title": "Entreprise non enregistrée",
+    "description": "Votre domaine d'entreprise {domain} n'est pas enregistré dans notre système. Veuillez contacter l'administrateur pour obtenir de l'aide.",
+    "contactAdmin": "Contacter l'administrateur"
+  },
+  "userDetails": {
+    "title": "Détails de l'utilisateur",
+    "fields": {
+      "id": "ID",
+      "firstName": "Prénom",
+      "lastName": "Nom",
+      "email": "Email",
+      "role": "Rôle",
+      "stores": "Magasins",
+      "status": "Statut"
+    },
+    "status": {
+      "active": "Actif",
+      "inactive": "Inactif"
+    },
+    "actions": {
+      "title": "Actions",
+      "modify": "Modifier",
+      "activate": "Activer",
+      "deactivate": "Désactiver"
+    },
+    "notAvailable": "Non disponible",
+    "notFound": "Utilisateur non trouvé",
+    "error": "Erreur lors du chargement des données de l'utilisateur"
+  },
   "warehouse": {
     "title": "Gérer l'entrepôt",
     "search": {
@@ -1254,10 +1284,5 @@
     "search": {
       "placeholder": "Rechercher des produits..."
     }
-  },
-  "companyNotRegistered": {
-    "title": "Entreprise non enregistrée",
-    "description": "Votre domaine d'entreprise {domain} n'est pas enregistré dans notre système. Veuillez contacter l'administrateur pour obtenir de l'aide.",
-    "contactAdmin": "Contacter l'administrateur"
   }
 }

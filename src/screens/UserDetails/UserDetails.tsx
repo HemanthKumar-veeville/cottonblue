@@ -14,6 +14,7 @@ import { getUserDetails, modifyUser } from "../../store/features/userSlice";
 import { Skeleton } from "../../components/Skeleton";
 import { fetchAllStores } from "../../store/features/agencySlice";
 import { useAppSelector } from "../../store/store";
+import { useTranslation } from "react-i18next";
 
 interface Store {
   id: number;
@@ -32,22 +33,24 @@ interface Store {
 }
 
 const UserDetailsCard = ({ user, stores }: { user: any; stores: Store[] }) => {
+  const { t } = useTranslation();
+
   const leftColumnDetails = [
     {
-      label: "ID",
-      value: user?.user_id || "Not Available",
+      label: t("userDetails.fields.id"),
+      value: user?.user_id || t("userDetails.notAvailable"),
     },
     {
-      label: "First Name",
-      value: user?.firstname || "Not Available",
+      label: t("userDetails.fields.firstName"),
+      value: user?.firstname || t("userDetails.notAvailable"),
     },
     {
-      label: "Last Name",
-      value: user?.lastname || "Not Available",
+      label: t("userDetails.fields.lastName"),
+      value: user?.lastname || t("userDetails.notAvailable"),
     },
     {
-      label: "Email",
-      value: user?.email || "Not Available",
+      label: t("userDetails.fields.email"),
+      value: user?.email || t("userDetails.notAvailable"),
     },
   ];
 
@@ -57,20 +60,22 @@ const UserDetailsCard = ({ user, stores }: { user: any; stores: Store[] }) => {
         const store = stores?.find((s) => s.id === storeId);
         return store?.name || `Store ${storeId}`;
       })
-      .join(", ") || "Not Available";
+      .join(", ") || t("userDetails.notAvailable");
 
   const rightColumnDetails = [
     {
-      label: "Role",
-      value: user?.role || "Not Available",
+      label: t("userDetails.fields.role"),
+      value: user?.role || t("userDetails.notAvailable"),
     },
     {
-      label: "Stores",
+      label: t("userDetails.fields.stores"),
       value: storeNames,
     },
     {
-      label: "Status",
-      value: user?.is_active ? "Active" : "Inactive",
+      label: t("userDetails.fields.status"),
+      value: user?.is_active
+        ? t("userDetails.status.active")
+        : t("userDetails.status.inactive"),
     },
   ];
 
@@ -78,7 +83,7 @@ const UserDetailsCard = ({ user, stores }: { user: any; stores: Store[] }) => {
     <Card className="w-full">
       <CardHeader>
         <CardTitle className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]">
-          User Details - {user.firstname} {user.lastname}
+          {t("userDetails.title")} - {user.firstname} {user.lastname}
         </CardTitle>
       </CardHeader>
       <CardContent>
@@ -104,7 +109,9 @@ const UserDetailsCard = ({ user, stores }: { user: any; stores: Store[] }) => {
                   </span>
                   <span
                     className={
-                      detail.label === "Status" ? "text-emerald-500" : ""
+                      detail.label === t("userDetails.fields.status")
+                        ? "text-emerald-500"
+                        : ""
                     }
                   >
                     {detail.value}
@@ -121,6 +128,7 @@ const UserDetailsCard = ({ user, stores }: { user: any; stores: Store[] }) => {
 };
 
 const ActionsBox = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
   const { id } = useParams<{ id: string }>();
@@ -162,12 +170,14 @@ const ActionsBox = () => {
   return (
     <Card className="w-full bg-[color:var(--1-tokens-color-modes-background-secondary)] border-[color:var(--1-tokens-color-modes-border-primary)]">
       <CardContent className="p-4 space-y-4">
-        <h3 className="font-text-medium text-black">Actions</h3>
+        <h3 className="font-text-medium text-black">
+          {t("userDetails.actions.title")}
+        </h3>
         <Button
           className="w-full bg-[#07515f] text-[color:var(--1-tokens-color-modes-button-primary-default-text)]"
           onClick={handleEdit}
         >
-          Modify
+          {t("userDetails.actions.modify")}
         </Button>
         <Button
           className={`w-full ${
@@ -177,7 +187,9 @@ const ActionsBox = () => {
           } text-[color:var(--1-tokens-color-modes-button-primary-default-text)]`}
           onClick={handleToggleActivation}
         >
-          {isActive ? "Deactivate" : "Activate"}
+          {isActive
+            ? t("userDetails.actions.deactivate")
+            : t("userDetails.actions.activate")}
         </Button>
       </CardContent>
     </Card>
@@ -185,6 +197,7 @@ const ActionsBox = () => {
 };
 
 function UserDetails() {
+  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { selectedCompany } = useAppSelector((state) => state.client);
   const { id } = useParams<{ id: string }>();
@@ -215,7 +228,9 @@ function UserDetails() {
       <div className="flex flex-col items-start gap-8 p-6">
         <Card className="w-full">
           <CardContent>
-            <div className="text-center py-4 text-red-600">{error}</div>
+            <div className="text-center py-4 text-red-600">
+              {t("userDetails.error")}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -227,7 +242,7 @@ function UserDetails() {
       <div className="flex flex-col items-start gap-8 p-6">
         <Card className="w-full">
           <CardContent>
-            <div className="text-center py-4">User not found</div>
+            <div className="text-center py-4">{t("userDetails.notFound")}</div>
           </CardContent>
         </Card>
       </div>
