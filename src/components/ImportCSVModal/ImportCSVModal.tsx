@@ -142,7 +142,10 @@ const Footer = ({
 
     // Generate and download the file with timestamp
     const timestamp = getFormattedTimestamp();
-    XLSX.writeFile(wb, `${sheetName.toLowerCase()}_template_${timestamp}.xlsx`);
+    const fileName = `${t(`files.${sheetName.toLowerCase()}`)}_${t(
+      "files.template"
+    )}_${timestamp}.xlsx`;
+    XLSX.writeFile(wb, fileName);
     toast.success(t("common.success"));
   };
 

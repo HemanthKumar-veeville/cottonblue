@@ -152,7 +152,10 @@ export const ExportCSV = ({
 
       // Save file with timestamp
       const timestamp = getFormattedTimestamp();
-      XLSX.writeFile(wb, `${sheetName.toLowerCase()}_${timestamp}.xlsx`);
+      const fileName = `${t(
+        `files.${sheetName.toLowerCase()}`
+      )}_${timestamp}.xlsx`;
+      XLSX.writeFile(wb, fileName);
       onClose();
     } catch (error) {
       console.error("Error exporting data:", error);

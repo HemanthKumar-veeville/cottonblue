@@ -95,9 +95,10 @@ export const OrderHistorySection = (): JSX.Element => {
 
     // Generate timestamp for filename
     const timestamp = new Date().toISOString().split("T")[0];
+    const fileName = `${t("files.orders")}_${timestamp}.xlsx`;
 
     // Save file
-    XLSX.writeFile(wb, `orders_${timestamp}.xlsx`);
+    XLSX.writeFile(wb, fileName);
   };
 
   return (

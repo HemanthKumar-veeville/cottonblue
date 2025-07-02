@@ -3,6 +3,14 @@
     "en": "English",
     "fr": "Français"
   },
+  "files": {
+    "orders": "commandes",
+    "products": "produits",
+    "agencies": "agences",
+    "template": "modele",
+    "error_logs": "journaux_erreurs",
+    "dashboard_report": "rapport_tableau_de_bord"
+  },
   "common": {
     "loading": "Chargement...",
     "viewAll": "Voir tout",

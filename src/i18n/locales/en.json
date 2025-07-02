@@ -3,6 +3,14 @@
     "en": "English",
     "fr": "Français"
   },
+  "files": {
+    "orders": "orders",
+    "products": "products",
+    "agencies": "agencies",
+    "template": "template",
+    "error_logs": "error_logs",
+    "dashboard_report": "dashboard_report"
+  },
   "common": {
     "loading": "Loading...",
     "viewAll": "View all",
