@@ -40,7 +40,7 @@ export const createTicket = createAsyncThunk(
 export const fetchTickets = createAsyncThunk(
   'tickets/fetchTickets',
   async ({ dnsPrefix, ticketStatus }: { dnsPrefix: string; ticketStatus?: string }) => {
-    const response = await ticketService.getTickets(dnsPrefix, ticketStatus);
+    const response = await ticketService.getTickets(dnsPrefix === "warehouse" ? "sedis" : dnsPrefix, ticketStatus);
     return response?.tickets || [];
   }
 );
