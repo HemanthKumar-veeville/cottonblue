@@ -19,6 +19,8 @@ import { fetchDashboard } from "../../../store/features/dashboardSlice";
 import { getHost } from "../../../utils/hostUtils";
 import { useEffect } from "react";
 import { useSelector } from "react-redux";
+import { Badge } from "../../../components/ui/badge";
+import { getOrdersForApproval } from "../../../store/features/cartSlice";
 
 let navItems = [
   {
@@ -79,16 +81,25 @@ const NavigationMenu = () => {
   const { buttonStyles } = useCompanyColors();
   const dispatch = useAppDispatch();
   const dns_prefix = getHost();
+  const { ordersForApproval } = useAppSelector(
+    (state: RootState) => state.cart
+  );
 
   useEffect(() => {
-    dispatch(
-      fetchDashboard({
-        dns_prefix,
-        filter_by: "monthly",
-        filter_value: new Date().getMonth() + 1,
-      })
-    );
-  }, [dispatch]);
+    if (isClientAdmin) {
+      dispatch(
+        fetchDashboard({
+          dns_prefix,
+          filter_by: "monthly",
+          filter_value: new Date().getMonth() + 1,
+        })
+      );
+    }
+
+    if (isClientAdmin) {
+      dispatch(getOrdersForApproval({ dns_prefix }));
+    }
+  }, [dispatch, dns_prefix, isClientAdmin]);
 
   return (
     <nav className="w-full space-y-2" style={buttonStyles}>
@@ -107,6 +118,12 @@ const NavigationMenu = () => {
           <span className="mt-[-1.00px] font-label-small text-wrap text-left">
             {t(item.label)}
           </span>
+          {item.path === "/admin-dashboard" &&
+            ordersForApproval?.length > 0 && (
+              <Badge className="ml-auto bg-red-500 text-white">
+                {ordersForApproval.length}
+              </Badge>
+            )}
         </Button>
       ))}
     </nav>

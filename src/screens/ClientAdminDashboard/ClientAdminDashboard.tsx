@@ -8,6 +8,7 @@ import { getHost } from "../../utils/hostUtils";
 import { OrdersSectionSkeleton } from "./OrdersSection";
 import { BudgetSectionSkeleton } from "./BudgetSection";
 import { fetchDashboard } from "../../store/features/dashboardSlice";
+
 import { useSelector } from "react-redux";
 import {
   Select,
@@ -299,6 +300,7 @@ export default function ClientAdminDashboard(): JSX.Element {
     getDefaultPeriodValue("Monthly")
   );
   const dispatch = useAppDispatch();
+  const { isClientAdmin } = useAppSelector((state) => state.auth);
 
   const { summary, loading: dashboardLoading } = useSelector(
     (state: RootState) => ({
@@ -328,13 +330,15 @@ export default function ClientAdminDashboard(): JSX.Element {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(
-      fetchDashboard({
-        dns_prefix,
-        filter_by: selectedTimeframe.toLowerCase(),
-        filter_value: selectedPeriod,
-      })
-    );
+    if (isClientAdmin) {
+      dispatch(
+        fetchDashboard({
+          dns_prefix,
+          filter_by: selectedTimeframe.toLowerCase(),
+          filter_value: selectedPeriod,
+        })
+      );
+    }
   }, [dispatch, selectedPeriod, selectedTimeframe]);
 
   const summaryData = summary?.dashboard_data;

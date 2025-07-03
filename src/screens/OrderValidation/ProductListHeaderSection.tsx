@@ -1,3 +1,4 @@
+import React, { useState } from "react";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
 import {
@@ -7,8 +8,8 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-import React, { useState } from "react";
 import { ChevronDown, ChevronUp, ImageOff } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface OrderItem {
   product_id: number;
@@ -26,6 +27,7 @@ const ProductListHeaderSection: React.FC<{ orderDetails: OrderItem[] }> = ({
     key: keyof OrderItem | null;
     direction: "asc" | "desc";
   }>({ key: null, direction: "asc" });
+  const { t } = useTranslation();
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -88,10 +90,11 @@ const ProductListHeaderSection: React.FC<{ orderDetails: OrderItem[] }> = ({
     <section className="flex flex-col items-start gap-8 p-4 w-full bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-200">
       <div className="flex justify-between items-center w-full">
         <h3 className="text-[length:var(--heading-h3-font-size)] font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
-          Ordered Products
+          {t("orderValidation.orderedProducts")}
         </h3>
         <div className="text-sm text-gray-600">
-          {selectedItems.length} of {orderDetails.length} selected
+          {selectedItems.length} {t("orderValidation.of")} {orderDetails.length}{" "}
+          {t("orderValidation.selected")}
         </div>
       </div>
 
@@ -103,14 +106,26 @@ const ProductListHeaderSection: React.FC<{ orderDetails: OrderItem[] }> = ({
                 <Checkbox
                   checked={selectedItems.length === orderDetails.length}
                   onCheckedChange={handleSelectAll}
-                  aria-label="Select all items"
+                  aria-label={t("common.selectAll")}
                 />
               </TableCell>
               {[
-                { key: "product_name" as const, label: "Product" },
-                { key: "product_id" as const, label: "Product ID" },
-                { key: "product_price" as const, label: "Unit Price" },
-                { key: "quantity" as const, label: "Quantity" },
+                {
+                  key: "product_name" as const,
+                  label: t("orderValidation.product"),
+                },
+                {
+                  key: "product_id" as const,
+                  label: t("orderValidation.productId"),
+                },
+                {
+                  key: "product_price" as const,
+                  label: t("orderValidation.unitPrice"),
+                },
+                {
+                  key: "quantity" as const,
+                  label: t("orderValidation.quantity"),
+                },
               ].map(({ key, label }) => (
                 <TableCell
                   key={key}
@@ -126,7 +141,7 @@ const ProductListHeaderSection: React.FC<{ orderDetails: OrderItem[] }> = ({
                 </TableCell>
               ))}
               <TableCell className="p-3 font-medium text-gray-800 text-sm tracking-wide">
-                Total
+                {t("orderValidation.total")}
               </TableCell>
             </TableRow>
           </TableHeader>
@@ -147,7 +162,7 @@ const ProductListHeaderSection: React.FC<{ orderDetails: OrderItem[] }> = ({
                   <Checkbox
                     checked={selectedItems.includes(item.product_id)}
                     onCheckedChange={() => handleSelectItem(item.product_id)}
-                    aria-label={`Select ${item.product_name}`}
+                    aria-label={`${t("common.select")} ${item.product_name}`}
                   />
                 </TableCell>
                 <TableCell className="p-3">

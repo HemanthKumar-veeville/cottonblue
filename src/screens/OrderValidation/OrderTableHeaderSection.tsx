@@ -13,6 +13,7 @@ import { StatusIcon } from "../../components/ui/status-icon";
 import ErrorState from "../../components/ErrorState";
 import { Skeleton } from "../../components/ui/skeleton";
 import { useCompanyColors } from "../../hooks/useCompanyColors";
+import { useTranslation } from "react-i18next";
 
 interface OrderItem {
   product_id: number;
@@ -29,6 +30,10 @@ interface OrderDetailsProps {
   store_name: string;
   store_address: string;
   order_items: OrderItem[];
+  ordered_user?: {
+    firstname: string;
+    lastname: string;
+  };
 }
 
 const OrderInfo: React.FC<{
@@ -56,6 +61,7 @@ const OrderTableHeaderSection: React.FC<{
 }> = ({ orderDetails, isLoading = false }) => {
   const navigate = useNavigate();
   const { buttonStyles } = useCompanyColors();
+  const { t } = useTranslation();
 
   if (!orderDetails && !isLoading) {
     return (
@@ -266,19 +272,19 @@ const OrderTableHeaderSection: React.FC<{
             size="icon"
             className="h-10 w-10 hover:bg-primary/10 transition-colors"
             onClick={() => navigate(-1)}
-            aria-label="Go back"
+            aria-label={t("common.previous")}
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
           <h3 className="text-[length:var(--heading-h3-font-size)] font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
-            Order Details
+            {t("orderValidation.orderDetails")}
           </h3>
         </div>
 
         {!isLoading && (
           <Button
             className="bg-[var(--primary-color)] hover:bg-[var(--primary-hover-color)]  border border-[var(--primary-color)] text-[var(--primary-text-color)] h-auto group transition-all duration-200"
-            aria-label="Download order form"
+            aria-label={t("orderValidation.downloadOrderForm")}
             onClick={handleDownloadOrderForm}
             style={{
               backgroundColor: "var(--primary-color)",
@@ -287,7 +293,7 @@ const OrderTableHeaderSection: React.FC<{
           >
             <Download className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
             <span className="font-label-medium font-medium text-base tracking-normal leading-normal">
-              Download Order Form
+              {t("orderValidation.downloadOrderForm")}
             </span>
           </Button>
         )}
@@ -298,12 +304,12 @@ const OrderTableHeaderSection: React.FC<{
           <div className="flex-1 space-y-4">
             <div className="space-y-2">
               <OrderInfo
-                label="Order ID"
+                label={t("orderValidation.orderId")}
                 value={orderDetails?.order_id?.toString() ?? ""}
                 isLoading={isLoading}
               />
               <OrderInfo
-                label="Date"
+                label={t("orderValidation.date")}
                 value={new Date(
                   orderDetails?.created_at ?? ""
                 ).toLocaleDateString("en-US", {
@@ -317,7 +323,7 @@ const OrderTableHeaderSection: React.FC<{
               />
               <div className="flex items-center gap-2 p-2 -mx-2 group transition-all duration-200 ease-in-out hover:bg-gray-50 rounded-md">
                 <span className="font-medium text-gray-600 group-hover:text-primary transition-colors">
-                  Status
+                  {t("orderValidation.status")}
                 </span>
                 {isLoading ? (
                   <Skeleton className="h-6 w-24" />
@@ -334,12 +340,19 @@ const OrderTableHeaderSection: React.FC<{
           <div className="flex-1 space-y-4">
             <div className="space-y-2">
               <OrderInfo
-                label="Store Name"
+                label={t("orderValidation.storeName")}
                 value={orderDetails?.store_name ?? ""}
                 isLoading={isLoading}
               />
               <OrderInfo
-                label="Store Address"
+                label={t("orderValidation.orderedBy")}
+                value={`${orderDetails?.ordered_user?.firstname ?? ""} ${
+                  orderDetails?.ordered_user?.lastname ?? ""
+                }`}
+                isLoading={isLoading}
+              />
+              <OrderInfo
+                label={t("orderValidation.storeAddress")}
                 value={orderDetails?.store_address ?? ""}
                 isLoading={isLoading}
               />
@@ -352,7 +365,7 @@ const OrderTableHeaderSection: React.FC<{
         <div className="flex flex-col sm:flex-row gap-4 w-full">
           <Button
             className="flex-1 bg-green-600 border border-green-700 hover:bg-green-600/90 h-auto group transition-all duration-200"
-            aria-label="Approve order"
+            aria-label={t("orderValidation.approveOrder")}
             onClick={handleApproveOrder}
             disabled={
               orderDetails?.order_status?.toLowerCase() !== "approval_pending"
@@ -360,13 +373,13 @@ const OrderTableHeaderSection: React.FC<{
           >
             <CheckCircle className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
             <span className="font-label-medium font-medium text-primary-text text-base tracking-normal leading-normal">
-              Approve Order
+              {t("orderValidation.approveOrder")}
             </span>
           </Button>
 
           <Button
             className="flex-1 bg-red-500 border border-red-600 hover:bg-red-600 text-white h-auto group transition-all duration-200"
-            aria-label="Reject order"
+            aria-label={t("orderValidation.rejectOrder")}
             onClick={handleRefuseOrder}
             disabled={
               orderDetails?.order_status?.toLowerCase() !== "approval_pending"
@@ -374,7 +387,7 @@ const OrderTableHeaderSection: React.FC<{
           >
             <XCircle className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
             <span className="font-label-medium font-medium text-base tracking-normal leading-normal">
-              Reject Order
+              {t("orderValidation.rejectOrder")}
             </span>
           </Button>
         </div>

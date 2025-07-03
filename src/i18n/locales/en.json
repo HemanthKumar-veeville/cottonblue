@@ -43,7 +43,9 @@
     },
     "confirm": "Confirm",
     "cancel": "Cancel",
-    "deleting": "Deleting..."
+    "deleting": "Deleting...",
+    "select": "Select",
+    "selectAll": "Select all items"
   },
   "header": {
     "adminManagement": "Admin Management",
@@ -1343,5 +1345,31 @@
   "comingSoon": {
     "title": "Coming Soon",
     "description": "We're working hard to bring you something amazing. This feature is currently under development."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "ordersToValidate": "{{count}} orders pending validation",
+    "clickToView": "Click to view and validate orders",
+    "noNotifications": "No new notifications"
+  },
+  "orderValidation": {
+    "orderDetails": "Order Details",
+    "downloadOrderForm": "Download Order Form",
+    "orderId": "Order ID",
+    "date": "Date",
+    "status": "Status",
+    "storeName": "Store Name",
+    "orderedBy": "Ordered By",
+    "storeAddress": "Store Address",
+    "approveOrder": "Approve Order",
+    "rejectOrder": "Reject Order",
+    "orderedProducts": "Ordered Products",
+    "product": "Product",
+    "productId": "Product ID",
+    "unitPrice": "Unit Price",
+    "quantity": "Quantity",
+    "total": "Total",
+    "selected": "selected",
+    "of": "of"
   }
 }

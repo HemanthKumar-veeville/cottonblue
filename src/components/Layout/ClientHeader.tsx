@@ -4,6 +4,7 @@ import {
   ShoppingCartIcon,
   UserIcon,
   Globe,
+  ClipboardListIcon,
 } from "lucide-react";
 import { Badge } from "../ui/badge";
 import { useTranslation } from "react-i18next";
@@ -17,13 +18,15 @@ import {
   SelectValue,
 } from "../ui/select";
 import { Input } from "../ui/input";
-import { useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   fetchAllStores,
   setSelectedStore,
 } from "../../store/features/agencySlice";
 import { getHost } from "../../utils/hostUtils";
 import { setSearchTerm } from "../../store/features/productSlice";
+import { getOrdersForApproval } from "../../store/features/cartSlice";
+import { Card } from "../ui/card";
 
 interface Store {
   id: string;
@@ -44,6 +47,9 @@ export const ClientHeader = () => {
   const { t, i18n } = useTranslation();
   const { user } = useAppSelector((state) => state.auth);
   const cart = useAppSelector((state) => state.cart);
+  const { ordersForApproval } = useAppSelector((state) => state.cart);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notificationRef = useRef<HTMLDivElement>(null);
   const items = cart?.items || [];
   const userName = user?.user_name;
   const isAdmin = user?.user_role === "admin";
@@ -96,6 +102,7 @@ export const ClientHeader = () => {
   useEffect(() => {
     if (dns && isAdmin) {
       dispatch(fetchAllStores(dns));
+      dispatch(getOrdersForApproval({ dns_prefix: dns }));
     }
   }, [dispatch, dns, isAdmin]);
 
@@ -139,6 +146,28 @@ export const ClientHeader = () => {
   }, 300);
 
   const adminPaths = ["/admin-dashboard", "/users", "/users/add"];
+
+  // Add click outside handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node)
+      ) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleNotificationClick = () => {
+    navigate("/admin-dashboard");
+    setShowNotifications(false);
+  };
 
   return (
     <div className="sticky top-0 z-50 flex w-full min-w-[320px] items-center justify-between px-4 md:px-6 lg:px-8 py-3 bg-defaultwhite border-b border-1-tokens-color-modes-common-neutral-lower shadow-sm backdrop-blur-sm bg-white/90">
@@ -239,13 +268,56 @@ export const ClientHeader = () => {
         </div>
 
         {/* Notifications */}
-        <div className="relative">
-          <div className="relative p-2.5 md:p-3 hover:bg-gray-100 active:bg-gray-200 rounded-md transition-all duration-200">
+        <div className="relative" ref={notificationRef}>
+          <div
+            className="relative p-2.5 md:p-3 hover:bg-gray-100 active:bg-gray-200 rounded-md transition-all duration-200 cursor-pointer"
+            onClick={() => setShowNotifications(!showNotifications)}
+          >
             <BellIcon className="w-5 h-5 md:w-6 md:h-6 text-gray-700" />
-            <Badge className="absolute -top-1 -right-1 min-w-[20px] h-[20px] flex items-center justify-center bg-defaultalert text-white text-xs font-semibold rounded-full">
-              9
-            </Badge>
+            {isAdmin && ordersForApproval?.length > 0 && (
+              <Badge className="absolute -top-1 -right-1 min-w-[20px] h-[20px] flex items-center justify-center bg-defaultalert text-white text-xs font-semibold rounded-full">
+                {ordersForApproval.length}
+              </Badge>
+            )}
           </div>
+
+          {showNotifications && (
+            <Card className="absolute right-0 top-[calc(100%+0.5rem)] w-[320px] shadow-lg border bg-gray-50 border-gray-200 rounded-lg overflow-hidden z-[60]">
+              <div className="p-3 border-b border-gray-200 bg-gray-50">
+                <h3 className="text-sm font-semibold text-gray-900">
+                  {t("notifications.title")}
+                </h3>
+              </div>
+              <div className="max-h-[400px] overflow-y-auto">
+                {isAdmin && ordersForApproval?.length > 0 ? (
+                  <div
+                    className="p-4 bg-gray-50 hover:bg-gray-100 cursor-pointer transition-all duration-200"
+                    onClick={handleNotificationClick}
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-blue-100 rounded-full flex-shrink-0">
+                        <ClipboardListIcon className="w-5 h-5 text-blue-600" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {t("notifications.ordersToValidate", {
+                            count: ordersForApproval.length,
+                          })}
+                        </p>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                          {t("notifications.clickToView")}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-4 text-center text-sm text-gray-500">
+                    {t("notifications.noNotifications")}
+                  </div>
+                )}
+              </div>
+            </Card>
+          )}
         </div>
 
         {/* Cart */}

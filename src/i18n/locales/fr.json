@@ -43,7 +43,9 @@
     },
     "confirm": "Confirmer",
     "cancel": "Annuler",
-    "deleting": "Suppression en cours..."
+    "deleting": "Suppression en cours...",
+    "select": "Sélectionner",
+    "selectAll": "Sélectionner tout"
   },
   "header": {
     "adminManagement": "Gestion des administrateurs",
@@ -1402,5 +1404,31 @@
   "comingSoon": {
     "title": "Bientôt Disponible",
     "description": "Nous travaillons dur pour vous apporter quelque chose d'extraordinaire. Cette fonctionnalité est en cours de développement."
+  },
+  "notifications": {
+    "title": "Notifications",
+    "ordersToValidate": "{{count}} commandes en attente de validation",
+    "clickToView": "Cliquez pour voir et valider les commandes",
+    "noNotifications": "Aucune nouvelle notification"
+  },
+  "orderValidation": {
+    "orderDetails": "Détails de la commande",
+    "downloadOrderForm": "Télécharger le bon de commande",
+    "orderId": "Numéro de commande",
+    "date": "Date",
+    "status": "Statut",
+    "storeName": "Nom du magasin",
+    "orderedBy": "Commandé par",
+    "storeAddress": "Adresse du magasin",
+    "approveOrder": "Approuver la commande",
+    "rejectOrder": "Rejeter la commande",
+    "orderedProducts": "Produits commandés",
+    "product": "Produit",
+    "productId": "ID du produit",
+    "unitPrice": "Prix unitaire",
+    "quantity": "Quantité",
+    "total": "Total",
+    "selected": "sélectionné",
+    "of": "sur"
   }
 }
