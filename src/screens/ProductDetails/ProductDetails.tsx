@@ -5,6 +5,9 @@ import {
   ImageOff,
   ChevronLeft,
   ChevronRight,
+  Trash2,
+  Power,
+  Edit,
 } from "lucide-react";
 import { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -13,11 +16,27 @@ import {
   getProductById,
   type Product,
   updateProduct,
+  deleteProduct,
 } from "../../store/features/productSlice";
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "../../components/Skeleton";
 import { cn } from "../../lib/utils";
 import { isWarehouseHostname } from "../../utils/hostUtils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
+
 const ProductHeader = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -318,6 +337,9 @@ const ProductActions = () => {
   const { currentProduct } = useAppSelector((state) => state.product);
   const isActive = currentProduct?.product?.is_active;
   const isWarehouse = isWarehouseHostname();
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
 
   if (isWarehouse) {
     return null;
@@ -344,38 +366,182 @@ const ProductActions = () => {
         dispatch(
           getProductById({ dnsPrefix: selectedCompany.dns, productId: id })
         );
+        setShowDeactivateDialog(false);
+      }
+    }
+  };
+
+  const handleDelete = async () => {
+    if (id && selectedCompany?.dns) {
+      setIsDeleting(true);
+      try {
+        await dispatch(
+          deleteProduct({
+            dnsPrefix: selectedCompany.dns,
+            productId: id,
+          })
+        ).unwrap();
+        // Navigate back to products list after successful deletion
+        navigate("/products");
+      } catch (error) {
+        console.error("Failed to delete product:", error);
+      } finally {
+        setIsDeleting(false);
+        setShowDeleteDialog(false);
       }
     }
   };
 
   return (
-    <div className="flex items-center gap-3">
-      <Button
-        className="flex-1 bg-[#07515f] text-white hover:bg-[#064a56] h-9 text-sm border-gray-300"
-        onClick={handleEdit}
+    <>
+      <div className="flex items-center gap-3">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                className="flex-1 bg-[#07515f] text-white hover:bg-[#064a56] h-9 text-sm border-gray-300"
+                onClick={handleEdit}
+              >
+                <Edit className="w-4 h-4 mr-2" />
+                <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5">
+                  {t("productDetails.actions.modify")}
+                </span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{t("productDetails.actions.tooltips.modify")}</p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant={isActive ? "destructive" : "default"}
+                className={`flex-1 h-9 text-sm ${
+                  isActive
+                    ? "bg-orange-500 hover:bg-orange-600"
+                    : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                }`}
+                onClick={() => setShowDeactivateDialog(true)}
+              >
+                <Power className="w-4 h-4 mr-2" />
+                <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5">
+                  {t(
+                    isActive
+                      ? "productDetails.actions.deactivate"
+                      : "productDetails.actions.activate"
+                  )}
+                </span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>
+                {t(
+                  isActive
+                    ? "productDetails.actions.tooltips.deactivate"
+                    : "productDetails.actions.tooltips.activate"
+                )}
+              </p>
+            </TooltipContent>
+          </Tooltip>
+
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                variant="destructive"
+                className="flex-1 h-9 text-sm bg-red-600 hover:bg-red-700"
+                onClick={() => setShowDeleteDialog(true)}
+                disabled={isDeleting}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5">
+                  {isDeleting
+                    ? t("common.deleting")
+                    : t("productDetails.actions.delete")}
+                </span>
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>{t("productDetails.actions.tooltips.delete")}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      </div>
+
+      {/* Deactivate Confirmation Dialog */}
+      <Dialog
+        open={showDeactivateDialog}
+        onOpenChange={setShowDeactivateDialog}
       >
-        <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5">
-          {t("productDetails.actions.modify")}
-        </span>
-      </Button>
-      <Button
-        variant={isActive ? "destructive" : "default"}
-        className={`flex-1 h-9 text-sm ${
-          isActive
-            ? "bg-red-600 hover:bg-red-700"
-            : "bg-emerald-600 hover:bg-emerald-700 text-white"
-        }`}
-        onClick={handleToggleActivation}
-      >
-        <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5">
-          {t(
-            isActive
-              ? "productDetails.actions.deactivate"
-              : "productDetails.actions.activate"
-          )}
-        </span>
-      </Button>
-    </div>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {isActive
+                ? t("productDetails.dialogs.deactivate.title")
+                : t("productDetails.dialogs.activate.title")}
+            </DialogTitle>
+            <DialogDescription>
+              {isActive
+                ? t("productDetails.dialogs.deactivate.description")
+                : t("productDetails.dialogs.activate.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeactivateDialog(false)}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant={isActive ? "destructive" : "default"}
+              className={
+                isActive
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-emerald-600 hover:bg-emerald-700 text-white"
+              }
+              onClick={handleToggleActivation}
+            >
+              {isActive
+                ? t("productDetails.actions.deactivate")
+                : t("productDetails.actions.activate")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {t("productDetails.dialogs.delete.title")}
+            </DialogTitle>
+            <DialogDescription>
+              {t("productDetails.dialogs.delete.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting
+                ? t("common.deleting")
+                : t("productDetails.actions.delete")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

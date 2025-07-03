@@ -42,6 +42,7 @@ interface AgencyState {
   error: string | null;
   registerSuccess: boolean;
   modifySuccess: boolean;
+  deleteSuccess: boolean;
   storeDetails: { store: Agency } | null;
   selectedStore: string | null;
 }
@@ -53,6 +54,7 @@ const initialState: AgencyState = {
   error: null,
   registerSuccess: false,
   modifySuccess: false,
+  deleteSuccess: false,
   storeDetails: null,
   selectedStore: null,
 };
@@ -93,6 +95,18 @@ export const modifyStore = createAsyncThunk(
   }
 );
 
+export const deleteStore = createAsyncThunk(
+  'agency/deleteStore',
+  async ({ dnsPrefix, storeId }: { dnsPrefix: string; storeId: string }, { rejectWithValue }) => {
+    try {
+      const response = await agencyService.deleteStore(dnsPrefix, storeId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to delete store');
+    }
+  }
+);
+
 export const fetchAllStores = createAsyncThunk(
   'agency/fetchAllStores',
   async (dnsPrefix: string, { rejectWithValue }) => {
@@ -127,6 +141,9 @@ const agencySlice = createSlice({
     },
     resetModifySuccess: (state) => {
       state.modifySuccess = false;
+    },
+    resetDeleteSuccess: (state) => {
+      state.deleteSuccess = false;
     },
     clearError: (state) => {
       state.error = null;
@@ -170,6 +187,22 @@ const agencySlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       })
+
+    // Delete store
+    builder
+      .addCase(deleteStore.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.deleteSuccess = false;
+      })
+      .addCase(deleteStore.fulfilled, (state) => {
+        state.loading = false;
+        state.deleteSuccess = true;
+      })
+      .addCase(deleteStore.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
       
     // Fetch all stores
     builder
@@ -203,5 +236,12 @@ const agencySlice = createSlice({
   },
 });
 
-export const { resetRegisterSuccess, resetModifySuccess, clearError, clearStoreDetails, setSelectedStore } = agencySlice.actions;
+export const { 
+  resetRegisterSuccess, 
+  resetModifySuccess, 
+  resetDeleteSuccess,
+  clearError, 
+  clearStoreDetails, 
+  setSelectedStore 
+} = agencySlice.actions;
 export default agencySlice.reducer;

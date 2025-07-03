@@ -43,5 +43,14 @@ export const agencyService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  deleteStore: async (dnsPrefix: string, storeId: string) => {
+    try {
+      const response = await axiosInstance.delete(`/${dnsPrefix}/store/${storeId}/delete`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 };

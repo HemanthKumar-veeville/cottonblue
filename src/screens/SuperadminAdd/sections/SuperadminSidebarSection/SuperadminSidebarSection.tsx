@@ -362,9 +362,16 @@ export const SuperadminSidebarSection = ({
           <img
             className="w-40 object-contain"
             alt="Logo"
-            src={companyLogo || "/img/image-280.png"}
+            src={
+              isWarehouse
+                ? "/img/Black_logo_sedis.png"
+                : companyLogo || "/img/image-280.png"
+            }
           />
-          <span className="font-text-small text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--text-small-font-size)] tracking-[var(--text-small-letter-spacing)] leading-[var(--text-small-line-height)] whitespace-nowrap">
+          <span
+            style={{ marginTop: isWarehouse ? "-8px" : "0px" }}
+            className="font-text-small text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--text-small-font-size)] tracking-[var(--text-small-letter-spacing)] leading-[var(--text-small-line-height)] whitespace-nowrap"
+          >
             {t("sidebar.admin")}
           </span>
         </div>

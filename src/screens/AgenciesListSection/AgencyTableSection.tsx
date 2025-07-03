@@ -17,6 +17,14 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
 import { useTranslation } from "react-i18next";
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -24,8 +32,12 @@ import { useAppDispatch, useAppSelector } from "../../store/store";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
-import { Store, MoreVertical, Eye, Edit, Power } from "lucide-react";
-import { fetchAllStores, modifyStore } from "../../store/features/agencySlice";
+import { Store, MoreVertical, Eye, Edit, Power, Trash2 } from "lucide-react";
+import {
+  fetchAllStores,
+  modifyStore,
+  deleteStore,
+} from "../../store/features/agencySlice";
 
 // Pagination data
 const paginationItems = [1, 2, 3, 4, 5];
@@ -68,6 +80,13 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>({});
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [agencyToDelete, setAgencyToDelete] = useState<Agency | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [showActivateDialog, setShowActivateDialog] = useState(false);
+  const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
+  const [agencyToToggle, setAgencyToToggle] = useState<Agency | null>(null);
+  const [isToggling, setIsToggling] = useState(false);
 
   // Ensure agencies is always an array
   const agenciesArray = Array.isArray(agencies) ? agencies : [];
@@ -191,20 +210,66 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
   const handleToggleActive = async (agency: any) => {
     if (!agency) return;
 
+    if (agency.is_active) {
+      setShowDeactivateDialog(true);
+    } else {
+      setShowActivateDialog(true);
+    }
+    setAgencyToToggle(agency);
+    setActiveDropdown(null);
+  };
+
+  const handleConfirmToggle = async () => {
+    if (!agencyToToggle || !selectedCompany?.dns) return;
+
+    setIsToggling(true);
     try {
       await dispatch(
         modifyStore({
-          dnsPrefix: selectedCompany?.dns,
-          storeId: agency?.id,
+          dnsPrefix: selectedCompany.dns,
+          storeId: agencyToToggle.id.toString(),
           data: {
-            is_active: !agency?.is_active,
+            is_active: !agencyToToggle.is_active,
           },
         })
       ).unwrap();
-      await dispatch(fetchAllStores(selectedCompany?.dns)).unwrap();
-      setActiveDropdown(null);
+      await dispatch(fetchAllStores(selectedCompany.dns)).unwrap();
     } catch (error) {
       console.error("Failed to toggle store status:", error);
+    } finally {
+      setIsToggling(false);
+      setShowActivateDialog(false);
+      setShowDeactivateDialog(false);
+      setAgencyToToggle(null);
+    }
+  };
+
+  const handleDeleteClick = (agency: Agency) => {
+    setAgencyToDelete(agency);
+    setShowDeleteDialog(true);
+    setActiveDropdown(null);
+  };
+
+  const handleDelete = async () => {
+    if (agencyToDelete?.id && selectedCompany?.dns) {
+      setIsDeleting(true);
+      try {
+        await dispatch(
+          deleteStore({
+            dnsPrefix: selectedCompany.dns,
+            storeId: agencyToDelete.id.toString(),
+          })
+        ).unwrap();
+        // Refresh the agencies list after successful deletion
+        dispatch(fetchAllStores(selectedCompany.dns));
+      } catch (error) {
+        console.error("Failed to delete agency:", error);
+      } finally {
+        setIsDeleting(false);
+        setShowDeleteDialog(false);
+        setAgencyToDelete(null);
+        setActiveDropdown(null);
+      }
     }
   };
 
@@ -428,6 +493,19 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                                       : t("clientTable.actions.activate")}
                                   </span>
                                 </button>
+                                <button
+                                  className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150 group"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteClick(agency);
+                                  }}
+                                  role="menuitem"
+                                >
+                                  <Trash2 className="mr-3 h-4 w-4 text-red-400 group-hover:text-red-600" />
+                                  <span className="font-medium">
+                                    {t("clientTable.actions.delete")}
+                                  </span>
+                                </button>
                               </div>
                             </div>
                           )}
@@ -529,6 +607,110 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("agencyTable.dialogs.delete.title")}</DialogTitle>
+            <DialogDescription>
+              {t("agencyTable.dialogs.delete.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteDialog(false);
+                setAgencyToDelete(null);
+              }}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting
+                ? t("common.deleting")
+                : t("clientTable.actions.delete")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Activate Confirmation Dialog */}
+      <Dialog open={showActivateDialog} onOpenChange={setShowActivateDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("agencyTable.dialogs.activate.title")}</DialogTitle>
+            <DialogDescription>
+              {t("agencyTable.dialogs.activate.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowActivateDialog(false);
+                setAgencyToToggle(null);
+              }}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="default"
+              className="bg-emerald-600 hover:bg-emerald-700 text-white"
+              onClick={handleConfirmToggle}
+              disabled={isToggling}
+            >
+              {isToggling
+                ? t("common.loading")
+                : t("clientTable.actions.activate")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Deactivate Confirmation Dialog */}
+      <Dialog
+        open={showDeactivateDialog}
+        onOpenChange={setShowDeactivateDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {t("agencyTable.dialogs.deactivate.title")}
+            </DialogTitle>
+            <DialogDescription>
+              {t("agencyTable.dialogs.deactivate.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeactivateDialog(false);
+                setAgencyToToggle(null);
+              }}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleConfirmToggle}
+              disabled={isToggling}
+            >
+              {isToggling
+                ? t("common.loading")
+                : t("clientTable.actions.deactivate")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };

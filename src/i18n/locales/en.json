@@ -42,7 +42,8 @@
       "december": "December"
     },
     "confirm": "Confirm",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "deleting": "Deleting..."
   },
   "header": {
     "adminManagement": "Admin Management",
@@ -151,7 +152,22 @@
       "actions": {
         "edit": "Edit",
         "activate": "Activate",
-        "deactivate": "Deactivate"
+        "deactivate": "Deactivate",
+        "delete": "Delete"
+      }
+    },
+    "dialogs": {
+      "delete": {
+        "title": "Delete Product",
+        "description": "Are you sure you want to delete this product? This action is irreversible and will permanently remove the product from the system."
+      },
+      "deactivate": {
+        "title": "Deactivate Product",
+        "description": "Are you sure you want to deactivate this product? It will no longer be visible to customers but can be reactivated later."
+      },
+      "activate": {
+        "title": "Activate Product",
+        "description": "Are you sure you want to activate this product? It will become visible to customers."
       }
     },
     "pagination": {
@@ -227,7 +243,7 @@
     }
   },
   "agencyDetails": {
-    "title": "Agency Details - {{name}} {{city}}",
+    "title": "Agency Details - {{name}}, {{city}}",
     "fields": {
       "id": "ID",
       "name": "Name",
@@ -248,9 +264,10 @@
     },
     "actions": {
       "title": "Actions",
-      "modify": "Modify Agency",
-      "activate": "Activate Agency",
-      "deactivate": "Deactivate Agency"
+      "modify": "Modify",
+      "activate": "Activate",
+      "deactivate": "Deactivate",
+      "delete": "Delete"
     },
     "orders": {
       "title": "Agency Orders",
@@ -266,6 +283,20 @@
         "delivered": "Delivered",
         "inProgress": "In Progress",
         "cancelled": "Cancelled"
+      }
+    },
+    "dialogs": {
+      "delete": {
+        "title": "Delete Agency",
+        "description": "Are you sure you want to delete this agency? This action cannot be undone."
+      },
+      "activate": {
+        "title": "Activate Agency",
+        "description": "Are you sure you want to activate this agency?"
+      },
+      "deactivate": {
+        "title": "Deactivate Agency",
+        "description": "Are you sure you want to deactivate this agency?"
       }
     }
   },
@@ -679,8 +710,8 @@
     "info": {
       "category": "Category",
       "sizes": "Available Sizes",
-      "soldBy": "Sold by",
-      "price": "Price",
+      "soldBy": "Sold By",
+      "price": "Pack Price",
       "stock": "Available Stock",
       "availableStock": "Available Stock",
       "totalStock": "Total Stock",
@@ -695,14 +726,35 @@
       "currency": "$"
     },
     "actions": {
+      "tooltips": {
+        "modify": "Edit product details and properties",
+        "delete": "Permanently remove this product",
+        "deactivate": "Hide product from customers (can be reactivated)",
+        "activate": "Make product visible to customers"
+      },
       "modify": "Modify Product",
-      "delete": "Delete",
-      "publish": "Publish",
-      "activate": "Activate Product",
+      "publish": "Publish Product",
+      "delete": "Delete Product",
       "deactivate": "Deactivate Product",
       "linkProducts": "Group Products",
-      "next": "Next"
+      "next": "Next",
+      "activate": "Activate Product"
     },
+    "dialogs": {
+      "delete": {
+        "title": "Delete Product",
+        "description": "Are you sure you want to delete this product? This action cannot be undone and will permanently remove the product from the system."
+      },
+      "deactivate": {
+        "title": "Deactivate Product",
+        "description": "Are you sure you want to deactivate this product? It will no longer be visible to customers but can be reactivated later."
+      },
+      "activate": {
+        "title": "Activate Product",
+        "description": "Are you sure you want to activate this product? It will become visible to customers."
+      }
+    },
+
     "description": {
       "title": "Description",
       "readMore": "Read More",
@@ -785,7 +837,8 @@
       "viewDetails": "View Details",
       "edit": "Edit",
       "activate": "Activate",
-      "deactivate": "Deactivate"
+      "deactivate": "Deactivate",
+      "delete": "Delete"
     },
     "noClients": "No Clients Found",
     "emptyMessage": "There are no clients in your list yet. Add your first client to get started.",
@@ -801,10 +854,24 @@
     }
   },
   "agencyTable": {
-    "noAgencies": "No Agencies Found",
+    "noAgencies": "No agencies found",
     "emptyMessage": "There are no agencies in your list yet. Add your first agency to get started.",
     "noSearchResults": "No agencies match your search criteria.",
-    "clearSearch": "Clear Search"
+    "clearSearch": "Clear search",
+    "dialogs": {
+      "delete": {
+        "title": "Delete Agency",
+        "description": "Are you sure you want to delete this agency? This action cannot be undone."
+      },
+      "activate": {
+        "title": "Activate Agency",
+        "description": "Are you sure you want to activate this agency? It will become accessible to users."
+      },
+      "deactivate": {
+        "title": "Deactivate Agency",
+        "description": "Are you sure you want to deactivate this agency? It will no longer be accessible to users but can be reactivated later."
+      }
+    }
   },
   "exportModal": {
     "title": "Export Agencies",

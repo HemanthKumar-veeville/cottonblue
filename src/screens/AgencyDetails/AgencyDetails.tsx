@@ -14,12 +14,24 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
-import { CheckCircle, Clock, FileText, XCircle } from "lucide-react";
+import {
+  CheckCircle,
+  Clock,
+  FileText,
+  XCircle,
+  Trash2,
+  Edit,
+  Power,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAppSelector } from "../../store/store";
 import { useAppDispatch } from "../../store/store";
-import { getStoreDetails, modifyStore } from "../../store/features/agencySlice";
+import {
+  getStoreDetails,
+  modifyStore,
+  deleteStore,
+} from "../../store/features/agencySlice";
 import { useTranslation } from "react-i18next";
 import { Skeleton } from "../../components/Skeleton";
 import Loader from "../../components/Loader";
@@ -29,6 +41,14 @@ import { StatusIcon } from "../../components/ui/status-icon";
 import { TFunction } from "i18next";
 import { getOrderStatusText } from "../../utils/statusUtil";
 import { StatusText } from "../../components/ui/status-text";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
 
 // Define proper types for our data
 interface Agency {
@@ -169,7 +189,7 @@ const StatisticsBox = ({
   const { t } = useTranslation();
 
   return (
-    <Card className="w-full bg-[color:var(--1-tokens-color-modes-background-secondary)] border-[color:var(--1-tokens-color-modes-border-primary)]">
+    <Card className="w-full h-full min-h-[14rem] bg-[color:var(--1-tokens-color-modes-background-secondary)] border-[color:var(--1-tokens-color-modes-border-primary)]">
       <CardContent className="p-4 space-y-2">
         <h3 className="font-text-medium text-black">
           {t("agencyDetails.statistics.title")}
@@ -199,21 +219,45 @@ const ActionsBox = () => {
   const { company_name } = useParams();
   const { storeDetails, loading } = useAppSelector((state) => state.agency);
   const [isLoading, setIsLoading] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showDeactivateDialog, setShowDeactivateDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const isActive = storeDetails?.store?.is_active;
 
   const handleModify = () => {
-    // Prepare the data to be passed to the AddClient component
     const prefillData = {
-      name: storeDetails?.name || "",
-      city: storeDetails?.city || "",
-      address: storeDetails?.address || "",
-      postal_code: storeDetails?.postal_code || "",
-      company_id: storeDetails?.company_id || "",
+      name: storeDetails?.store?.name || "",
+      city: storeDetails?.store?.city || "",
+      address: storeDetails?.store?.address || "",
+      postal_code: storeDetails?.store?.postal_code || "",
+      company_id: storeDetails?.store?.company_id || "",
       is_edit_mode: true,
     };
 
     navigate(`/agencies/edit/${storeDetails?.store?.id}`, {
       state: prefillData,
     });
+  };
+
+  const handleDelete = async () => {
+    if (!company_name || !storeDetails?.store?.id) return;
+
+    setIsDeleting(true);
+    try {
+      await dispatch(
+        deleteStore({
+          dnsPrefix: company_name,
+          storeId: storeDetails.store.id.toString(),
+        })
+      ).unwrap();
+      // Navigate back to agencies list after successful deletion
+      navigate("/agencies");
+    } catch (error) {
+      console.error("Failed to delete agency:", error);
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+    }
   };
 
   const handleToggleAgencyStatus = async () => {
@@ -224,7 +268,7 @@ const ActionsBox = () => {
       await dispatch(
         modifyStore({
           dnsPrefix: company_name!,
-          storeId: storeDetails?.store?.id,
+          storeId: storeDetails?.store?.id.toString(),
           data: {
             is_active: !storeDetails?.store?.is_active,
           },
@@ -235,9 +279,10 @@ const ActionsBox = () => {
       dispatch(
         getStoreDetails({
           dnsPrefix: company_name!,
-          storeId: storeDetails?.store?.id,
+          storeId: storeDetails?.store?.id.toString(),
         })
       );
+      setShowDeactivateDialog(false);
     } catch (error) {
       console.error("Failed to toggle store status:", error);
     } finally {
@@ -246,34 +291,130 @@ const ActionsBox = () => {
   };
 
   return (
-    <Card className="w-full bg-[color:var(--1-tokens-color-modes-background-secondary)] border-[color:var(--1-tokens-color-modes-border-primary)]">
+    <Card className="w-full min-h-[14rem] h-full bg-[color:var(--1-tokens-color-modes-background-secondary)] border-[color:var(--1-tokens-color-modes-border-primary)]">
       <CardContent className="p-4 space-y-4">
         <h3 className="font-text-medium text-black">
           {t("agencyDetails.actions.title")}
         </h3>
         <Button
-          className="w-full bg-[#07515f] text-[color:var(--1-tokens-color-modes-button-primary-default-text)]"
+          className="w-full bg-[#07515f] text-white hover:bg-[#064a56] h-9 text-sm border-gray-300"
           onClick={handleModify}
         >
-          {t("agencyDetails.actions.modify")}
+          <Edit className="w-4 h-4 mr-2" />
+          <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5">
+            {t("agencyDetails.actions.modify")}
+          </span>
         </Button>
         <Button
-          className="w-full bg-1-tokens-color-modes-common-danger-medium text-[color:var(--1-tokens-color-modes-button-primary-default-text)]"
-          onClick={handleToggleAgencyStatus}
+          variant={isActive ? "destructive" : "default"}
+          className={`w-full h-9 text-sm ${
+            isActive
+              ? "bg-orange-500 hover:bg-orange-600"
+              : "bg-emerald-600 hover:bg-emerald-700 text-white"
+          }`}
+          onClick={() => setShowDeactivateDialog(true)}
           disabled={isLoading}
         >
-          {isLoading ? (
-            <div className="flex items-center justify-center">
-              <Loader size="sm" className="mr-2" />
-              {t("common.loading")}
-            </div>
-          ) : storeDetails?.store?.is_active ? (
-            t("agencyDetails.actions.deactivate")
-          ) : (
-            t("agencyDetails.actions.activate")
-          )}
+          <Power className="w-4 h-4 mr-2" />
+          <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5">
+            {isLoading ? (
+              <div className="flex items-center justify-center">
+                <Loader size="sm" className="mr-2" />
+                {t("common.loading")}
+              </div>
+            ) : isActive ? (
+              t("agencyDetails.actions.deactivate")
+            ) : (
+              t("agencyDetails.actions.activate")
+            )}
+          </span>
+        </Button>
+        <Button
+          variant="destructive"
+          className="w-full h-9 text-sm bg-red-600 hover:bg-red-700"
+          onClick={() => setShowDeleteDialog(true)}
+          disabled={isDeleting}
+        >
+          <Trash2 className="w-4 h-4 mr-2" />
+          <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5">
+            {isDeleting
+              ? t("common.deleting")
+              : t("agencyDetails.actions.delete")}
+          </span>
         </Button>
       </CardContent>
+
+      {/* Deactivate Confirmation Dialog */}
+      <Dialog
+        open={showDeactivateDialog}
+        onOpenChange={setShowDeactivateDialog}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {isActive
+                ? t("agencyDetails.dialogs.deactivate.title")
+                : t("agencyDetails.dialogs.activate.title")}
+            </DialogTitle>
+            <DialogDescription>
+              {isActive
+                ? t("agencyDetails.dialogs.deactivate.description")
+                : t("agencyDetails.dialogs.activate.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeactivateDialog(false)}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant={isActive ? "destructive" : "default"}
+              className={
+                isActive
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-emerald-600 hover:bg-emerald-700 text-white"
+              }
+              onClick={handleToggleAgencyStatus}
+            >
+              {isActive
+                ? t("agencyDetails.actions.deactivate")
+                : t("agencyDetails.actions.activate")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("agencyDetails.dialogs.delete.title")}</DialogTitle>
+            <DialogDescription>
+              {t("agencyDetails.dialogs.delete.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting
+                ? t("common.deleting")
+                : t("agencyDetails.actions.delete")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 };

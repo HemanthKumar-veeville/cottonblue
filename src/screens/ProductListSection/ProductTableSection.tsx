@@ -18,6 +18,14 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
 import { useTranslation } from "react-i18next";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useAppSelector, useAppDispatch } from "../../store/store";
@@ -34,10 +42,12 @@ import {
   Edit,
   Power,
   ImageOff,
+  Trash2,
 } from "lucide-react";
 import {
   fetchAllProducts,
   updateProduct,
+  deleteProduct,
 } from "../../store/features/productSlice";
 export const ProductTableSection = ({
   isWarehouse,
@@ -49,11 +59,18 @@ export const ProductTableSection = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { products, loading, error } = useAppSelector((state) => state.product);
+  const { selectedCompany } = useAppSelector((state) => state.client);
   const productList = products?.products || [];
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showToggleDialog, setShowToggleDialog] = useState(false);
+  const [productToDelete, setProductToDelete] = useState<Product | null>(null);
+  const [productToToggle, setProductToToggle] = useState<Product | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingActive, setIsTogglingActive] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>({});
@@ -86,7 +103,6 @@ export const ProductTableSection = ({
 
   // Calculate total pages based on filtered products
   const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
-  const { selectedCompany } = useAppSelector((state) => state.client);
 
   // Calculate dropdown position
   const getDropdownPosition = (buttonElement: HTMLButtonElement | null) => {
@@ -151,20 +167,63 @@ export const ProductTableSection = ({
     setActiveDropdown(null);
   };
 
-  const handleToggleActive = async (product: any) => {
-    if (product.id && selectedCompany?.dns) {
-      await dispatch(
-        updateProduct({
-          dnsPrefix: selectedCompany.dns,
-          productId: product.id,
-          data: {
-            is_active: !product.is_active,
-          },
-        })
-      ).unwrap();
-      dispatch(fetchAllProducts(selectedCompany?.dns));
-      setActiveDropdown(null);
+  const handleToggleActiveClick = (product: Product) => {
+    setProductToToggle(product);
+    setShowToggleDialog(true);
+    setActiveDropdown(null);
+  };
+
+  const handleToggleActive = async () => {
+    if (productToToggle?.id && selectedCompany?.dns) {
+      setIsTogglingActive(true);
+      try {
+        await dispatch(
+          updateProduct({
+            dnsPrefix: selectedCompany.dns,
+            productId: productToToggle.id,
+            data: {
+              is_active: !productToToggle.is_active,
+            },
+          })
+        ).unwrap();
+        dispatch(fetchAllProducts(selectedCompany?.dns));
+      } catch (error) {
+        console.error("Failed to toggle product status:", error);
+      } finally {
+        setIsTogglingActive(false);
+        setShowToggleDialog(false);
+        setProductToToggle(null);
+      }
     }
+  };
+
+  const handleDelete = async () => {
+    if (productToDelete?.id && selectedCompany?.dns) {
+      setIsDeleting(true);
+      try {
+        await dispatch(
+          deleteProduct({
+            dnsPrefix: selectedCompany.dns,
+            productId: productToDelete.id.toString(),
+          })
+        ).unwrap();
+        // Refresh the products list after successful deletion
+        dispatch(fetchAllProducts(selectedCompany.dns));
+      } catch (error) {
+        console.error("Failed to delete product:", error);
+      } finally {
+        setIsDeleting(false);
+        setShowDeleteDialog(false);
+        setProductToDelete(null);
+        setActiveDropdown(null);
+      }
+    }
+  };
+
+  const handleDeleteClick = (product: Product) => {
+    setProductToDelete(product);
+    setShowDeleteDialog(true);
+    setActiveDropdown(null);
   };
 
   // Generate pagination items
@@ -416,7 +475,7 @@ export const ProductTableSection = ({
                                   }`}
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    handleToggleActive(product);
+                                    handleToggleActiveClick(product);
                                   }}
                                   role="menuitem"
                                 >
@@ -435,6 +494,19 @@ export const ProductTableSection = ({
                                       : t("productList.table.actions.activate")}
                                   </span>
                                 </button>
+                                <button
+                                  className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150 group"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteClick(product);
+                                  }}
+                                  role="menuitem"
+                                >
+                                  <Trash2 className="mr-3 h-4 w-4 text-red-400 group-hover:text-red-600" />
+                                  <span className="font-medium">
+                                    {t("productList.table.actions.delete")}
+                                  </span>
+                                </button>
                               </div>
                             </div>
                           )}
@@ -448,6 +520,90 @@ export const ProductTableSection = ({
           )}
         </div>
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("productList.dialogs.delete.title")}</DialogTitle>
+            <DialogDescription>
+              {t("productList.dialogs.delete.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteDialog(false);
+                setProductToDelete(null);
+              }}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting
+                ? t("common.deleting")
+                : t("productList.table.actions.delete")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Toggle Active Confirmation Dialog */}
+      <Dialog open={showToggleDialog} onOpenChange={setShowToggleDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {t(
+                `productList.dialogs.${
+                  productToToggle?.is_active ? "deactivate" : "activate"
+                }.title`
+              )}
+            </DialogTitle>
+            <DialogDescription>
+              {t(
+                `productList.dialogs.${
+                  productToToggle?.is_active ? "deactivate" : "activate"
+                }.description`
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowToggleDialog(false);
+                setProductToToggle(null);
+              }}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant={productToToggle?.is_active ? "destructive" : "default"}
+              className={
+                productToToggle?.is_active
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-emerald-600 hover:bg-emerald-700 text-white"
+              }
+              onClick={handleToggleActive}
+              disabled={isTogglingActive}
+            >
+              {isTogglingActive
+                ? t("common.loading")
+                : t(
+                    `productList.table.actions.${
+                      productToToggle?.is_active ? "deactivate" : "activate"
+                    }`
+                  )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {currentProducts.length > 0 && (
         <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">

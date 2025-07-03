@@ -42,7 +42,8 @@
       "december": "Décembre"
     },
     "confirm": "Confirmer",
-    "cancel": "Annuler"
+    "cancel": "Annuler",
+    "deleting": "Suppression en cours..."
   },
   "header": {
     "adminManagement": "Gestion des administrateurs",
@@ -152,7 +153,22 @@
       "actions": {
         "edit": "Modifier",
         "activate": "Activer",
-        "deactivate": "Désactiver"
+        "deactivate": "Désactiver",
+        "delete": "Supprimer"
+      }
+    },
+    "dialogs": {
+      "delete": {
+        "title": "Supprimer le produit",
+        "description": "Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible et supprimera définitivement le produit du système."
+      },
+      "deactivate": {
+        "title": "Désactiver le produit",
+        "description": "Êtes-vous sûr de vouloir désactiver ce produit ? Il ne sera plus visible pour les clients mais pourra être réactivé ultérieurement."
+      },
+      "activate": {
+        "title": "Activer le produit",
+        "description": "Êtes-vous sûr de vouloir activer ce produit ? Il deviendra visible pour les clients."
       }
     },
     "pagination": {
@@ -232,7 +248,7 @@
     }
   },
   "agencyDetails": {
-    "title": "Détail de l'agence - {{name}} {{city}}",
+    "title": "Détails de l'agence - {{name}}, {{city}}",
     "fields": {
       "id": "ID",
       "name": "Nom",
@@ -253,9 +269,10 @@
     },
     "actions": {
       "title": "Actions",
-      "modify": "Modifier l'agence",
-      "activate": "Activer l'agence",
-      "deactivate": "Désactiver l'agence"
+      "modify": "Modifier",
+      "activate": "Activer",
+      "deactivate": "Désactiver",
+      "delete": "Supprimer"
     },
     "orders": {
       "title": "Commandes de l'agence",
@@ -271,6 +288,20 @@
         "delivered": "Livrée",
         "inProgress": "En cours",
         "cancelled": "Annulée"
+      }
+    },
+    "dialogs": {
+      "delete": {
+        "title": "Supprimer l'agence",
+        "description": "Êtes-vous sûr de vouloir supprimer cette agence ? Cette action ne peut pas être annulée."
+      },
+      "activate": {
+        "title": "Activer l'agence",
+        "description": "Êtes-vous sûr de vouloir activer cette agence ?"
+      },
+      "deactivate": {
+        "title": "Désactiver l'agence",
+        "description": "Êtes-vous sûr de vouloir désactiver cette agence ?"
       }
     }
   },
@@ -721,14 +752,34 @@
       "currency": "€"
     },
     "actions": {
+      "tooltips": {
+        "modify": "Modifier les détails et propriétés du produit",
+        "delete": "Supprimer définitivement ce produit",
+        "deactivate": "Masquer le produit aux clients (peut être réactivé)",
+        "activate": "Rendre le produit visible aux clients"
+      },
       "modify": "Modifier le produit",
-      "delete": "Supprimer",
+      "delete": "Supprimer le produit",
+      "deactivate": "Désactiver le produit",
+      "activate": "Activer le produit",
       "publish": "Publier",
       "unpublish": "Dépublier",
-      "deactivate": "Désactiver",
-      "activate": "Activer",
-      "linkProducts": "Grouper les produits",
+      "linkProducts": "Groupes de produits",
       "next": "Suivant"
+    },
+    "dialogs": {
+      "delete": {
+        "title": "Supprimer le produit",
+        "description": "Êtes-vous sûr de vouloir supprimer ce produit ? Cette action est irréversible et supprimera définitivement le produit du système."
+      },
+      "deactivate": {
+        "title": "Désactiver le produit",
+        "description": "Êtes-vous sûr de vouloir désactiver ce produit ? Il ne sera plus visible pour les clients mais pourra être réactivé ultérieurement."
+      },
+      "activate": {
+        "title": "Activer le produit",
+        "description": "Êtes-vous sûr de vouloir activer ce produit ? Il deviendra visible pour les clients."
+      }
     },
     "description": {
       "title": "Description",
@@ -812,7 +863,8 @@
       "viewDetails": "Voir détails",
       "edit": "Modifier",
       "activate": "Activer",
-      "deactivate": "Désactiver"
+      "deactivate": "Désactiver",
+      "delete": "Supprimer"
     },
     "noClients": "Aucun client trouvé",
     "emptyMessage": "Il n'y a pas encore de clients dans votre liste. Ajoutez votre premier client pour commencer.",
@@ -831,7 +883,21 @@
     "noAgencies": "Aucune agence trouvée",
     "emptyMessage": "Il n'y a pas encore d'agences dans votre liste. Ajoutez votre première agence pour commencer.",
     "noSearchResults": "Aucune agence ne correspond à vos critères de recherche.",
-    "clearSearch": "Effacer la recherche"
+    "clearSearch": "Effacer la recherche",
+    "dialogs": {
+      "delete": {
+        "title": "Supprimer l'agence",
+        "description": "Êtes-vous sûr de vouloir supprimer cette agence ? Cette action ne peut pas être annulée."
+      },
+      "activate": {
+        "title": "Activer l'agence",
+        "description": "Êtes-vous sûr de vouloir activer cette agence ? Elle deviendra accessible aux utilisateurs."
+      },
+      "deactivate": {
+        "title": "Désactiver l'agence",
+        "description": "Êtes-vous sûr de vouloir désactiver cette agence ? Elle ne sera plus accessible aux utilisateurs mais pourra être réactivée ultérieurement."
+      }
+    }
   },
   "exportModal": {
     "title": "Exportation des agences",
