@@ -1392,7 +1392,8 @@
       "addStock": "Ajouter du stock",
       "quantity": "Quantité",
       "enterQuantity": "Entrer la quantité",
-      "add": "Ajouter"
+      "add": "Ajouter",
+      "remove": "Retirer"
     }
   },
   "stockManagement": {

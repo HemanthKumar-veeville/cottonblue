@@ -1328,12 +1328,13 @@
       "packQuantity": "Pack Quantity",
       "stockDetails": "Stock Details",
       "availablePacks": "Available Packs",
-      "totalPacks": "Total Packs",
-      "pricePerPack": "Price per Pack",
-      "addStock": "Add Stock",
+      "pricePerPack": "Price Per Pack",
+      "addStock": "Manage Stock",
       "quantity": "Quantity",
       "enterQuantity": "Enter quantity",
-      "add": "Add"
+      "add": "Add",
+      "remove": "Remove",
+      "exceedsAvailable": "Cannot remove more than available quantity"
     }
   },
   "stockManagement": {
