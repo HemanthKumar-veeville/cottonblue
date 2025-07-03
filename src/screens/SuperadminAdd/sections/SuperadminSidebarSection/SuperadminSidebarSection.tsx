@@ -13,7 +13,7 @@ import {
   UserPlusIcon,
   UsersIcon,
 } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useDispatch, useSelector } from "react-redux";
@@ -27,6 +27,8 @@ import {
   isDevHostname,
   isWarehouseHostname,
 } from "../../../../utils/hostUtils";
+import { Badge } from "../../../../components/ui/badge";
+import { fetchTickets } from "../../../../store/features/ticketSlice";
 
 const isDevDomain = isDevHostname();
 
@@ -35,6 +37,7 @@ interface NavItem {
   label: string;
   path: string;
   onClick?: () => void;
+  badge?: number;
 }
 
 interface NavSection {
@@ -42,11 +45,18 @@ interface NavSection {
   items: NavItem[];
 }
 
+enum TicketStatus {
+  OPEN = "open",
+  IN_PROGRESS = "in_progress",
+  CLOSED = "closed",
+}
+
 const NavButton = ({
   icon,
   label,
   path,
   onClick,
+  badge,
 }: NavItem & { onClick?: () => void }) => {
   const location = useLocation();
   const isActive = location.pathname === path;
@@ -71,6 +81,11 @@ const NavButton = ({
         >
           {label}
         </span>
+        {badge !== undefined && badge > 0 && (
+          <Badge className="bg-defaultalert text-white text-xs font-semibold rounded-full min-w-[20px] h-[20px] flex items-center justify-center">
+            {badge}
+          </Badge>
+        )}
       </button>
     );
   }
@@ -94,6 +109,11 @@ const NavButton = ({
       >
         {label}
       </span>
+      {badge !== undefined && badge > 0 && (
+        <Badge className="bg-defaultalert text-white text-xs font-semibold rounded-full min-w-[20px] h-[20px] flex items-center justify-center">
+          {badge}
+        </Badge>
+      )}
     </Link>
   );
 };
@@ -109,6 +129,31 @@ export const SuperadminSidebarSection = ({
   );
   const company = useSelector((state: RootState) => state.auth.company);
   const isWarehouse = isWarehouseHostname();
+  const { tickets } = useAppSelector((state: RootState) => state.ticket);
+
+  const openTickets = tickets?.filter(
+    (ticket: any) =>
+      ticket.ticket_status === TicketStatus.OPEN ||
+      ticket.ticket_status === TicketStatus.IN_PROGRESS
+  );
+
+  useEffect(() => {
+    const fetchTicketsData = async () => {
+      try {
+        await dispatch(
+          fetchTickets({
+            dnsPrefix: isWarehouse ? "warehouse" : "admin",
+            ticketStatus: undefined,
+          })
+        ).unwrap();
+      } catch (error) {
+        console.error("Failed to fetch tickets:", error);
+      }
+    };
+
+    fetchTicketsData();
+  }, [dispatch, isWarehouse]);
+
   const handleLogout = async () => {
     try {
       if (company) {
@@ -183,6 +228,7 @@ export const SuperadminSidebarSection = ({
           icon: <MessageSquareIcon className="w-4 h-4" />,
           label: t("sidebar.support.tickets"),
           path: "/support/tickets",
+          badge: openTickets?.length || 0,
         },
       ],
     },
@@ -289,6 +335,7 @@ export const SuperadminSidebarSection = ({
           icon: <MessageSquareIcon className="w-4 h-4" />,
           label: t("sidebar.support.tickets"),
           path: "/support/tickets",
+          badge: openTickets?.length || 0,
         },
       ],
     },
@@ -317,6 +364,7 @@ export const SuperadminSidebarSection = ({
           icon: <MessageSquareIcon className="w-4 h-4" />,
           label: t("sidebar.support.tickets"),
           path: "/support",
+          badge: openTickets?.length || 0,
         },
       ],
     },

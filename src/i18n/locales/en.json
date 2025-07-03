@@ -1351,7 +1351,16 @@
     "title": "Notifications",
     "ordersToValidate": "{{count}} orders pending validation",
     "clickToView": "Click to view and validate orders",
-    "noNotifications": "No new notifications"
+    "noNotifications": "No new notifications",
+    "ticketsToHandle": "{{count}} tickets pending",
+    "clickToViewTickets": "Click to view tickets",
+    "noTickets": "No new tickets",
+    "tickets": {
+      "title": "Support Tickets",
+      "newTickets": "{{count}} tickets pending",
+      "clickToView": "Click to view tickets",
+      "noTickets": "No new tickets"
+    }
   },
   "orderValidation": {
     "orderDetails": "Order Details",

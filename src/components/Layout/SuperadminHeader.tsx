@@ -1,4 +1,10 @@
-import React, { useState, createContext, useContext, useEffect } from "react";
+import React, {
+  useState,
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+} from "react";
 import { Badge } from "../ui/badge";
 import {
   Select,
@@ -19,6 +25,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { resetDashboard } from "../../store/features/dashboardSlice";
 import { setAdminMode } from "../../store/features/authSlice";
 import { isDevHostname, isWarehouseHostname } from "../../utils/hostUtils";
+import { Card } from "../ui/card";
+import { MessageSquareIcon } from "lucide-react";
+import { fetchTickets } from "../../store/features/ticketSlice";
 
 interface NavTabItem {
   id: number;
@@ -27,6 +36,12 @@ interface NavTabItem {
   active: boolean;
   isFirst?: boolean;
   isLast?: boolean;
+}
+
+enum TicketStatus {
+  OPEN = "open",
+  IN_PROGRESS = "in_progress",
+  CLOSED = "closed",
 }
 
 export const AdminModeContext = createContext<{
@@ -108,17 +123,64 @@ export const SuperadminHeader = (): JSX.Element => {
     (state) => state.client
   );
   const { stores } = useAppSelector((state) => state.agency);
+  const { tickets } = useAppSelector((state) => state.ticket);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const notificationRef = useRef<HTMLDivElement>(null);
   const [selectedStore, setSelectedStore] = useState<{
     id: string;
     name: string;
   } | null>(null);
+
+  const openTickets = tickets?.filter(
+    (ticket: any) =>
+      ticket.ticket_status === TicketStatus.OPEN ||
+      ticket.ticket_status === TicketStatus.IN_PROGRESS
+  );
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        notificationRef.current &&
+        !notificationRef.current.contains(event.target as Node)
+      ) {
+        setShowNotifications(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const fetchTicketsData = async () => {
+      try {
+        await dispatch(
+          fetchTickets({
+            dnsPrefix: isWarehouseHostname() ? "warehouse" : "admin",
+            ticketStatus: undefined,
+          })
+        ).unwrap();
+      } catch (error) {
+        console.error("Failed to fetch tickets:", error);
+      }
+    };
+
+    fetchTicketsData();
+  }, [dispatch]);
+
+  const handleNotificationClick = () => {
+    navigate("/support/tickets");
+    setShowNotifications(false);
+  };
+
   const storeList = stores?.stores?.map(
     (store: { id: string; name: string }) => ({
       id: store.id,
       name: store.name,
     })
   );
-  const pathname = useLocation().pathname;
 
   const companyList =
     companies?.companies?.map((company) => ({
@@ -167,6 +229,8 @@ export const SuperadminHeader = (): JSX.Element => {
     setSelectedStore(store);
     // Add any additional store selection logic here
   };
+
+  const pathname = useLocation().pathname;
 
   return (
     <header className="flex flex-col items-start relative flex-1 self-stretch grow bg-white">
@@ -248,13 +312,61 @@ export const SuperadminHeader = (): JSX.Element => {
               <SelectItem value="fr">{t("language.fr")}</SelectItem>
             </SelectContent>
           </Select>
-          <div className="flex items-center justify-center">
-            <div className="flex h-12 items-center justify-center p-3 relative">
+          <div
+            className="flex items-center justify-center relative"
+            ref={notificationRef}
+          >
+            <div
+              className="flex h-12 items-center justify-center p-3 relative cursor-pointer hover:bg-gray-100 rounded-full transition-colors duration-200"
+              onClick={() => setShowNotifications(!showNotifications)}
+            >
               <img className="w-6 h-6" alt="Bell" src="/img/bell.svg" />
-              <Badge className="absolute top-2 left-6 bg-red-500 rounded-xl">
-                <span className="text-white text-xs">9</span>
-              </Badge>
+              {openTickets?.length > 0 && (
+                <Badge className="absolute -top-1 -right-1 min-w-[20px] h-5 flex items-center justify-center bg-defaultalert rounded-full">
+                  <span className="text-white text-xs font-medium">
+                    {openTickets.length}
+                  </span>
+                </Badge>
+              )}
             </div>
+
+            {showNotifications && (
+              <Card className="absolute right-0 top-[calc(100%+0.5rem)] w-[320px] shadow-lg border bg-gray-50 border-gray-200 rounded-lg overflow-hidden z-[60]">
+                <div className="p-3 border-b border-gray-200 bg-gray-50">
+                  <h3 className="text-sm font-semibold text-gray-900">
+                    {t("notifications.title")}
+                  </h3>
+                </div>
+                <div className="max-h-[400px] overflow-y-auto">
+                  {openTickets?.length > 0 ? (
+                    <div
+                      className="p-4 bg-gray-50 hover:bg-gray-100 cursor-pointer transition-all duration-200"
+                      onClick={handleNotificationClick}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 bg-blue-100 rounded-full flex-shrink-0">
+                          <MessageSquareIcon className="w-5 h-5 text-blue-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-gray-900 truncate">
+                            {t("notifications.ticketsToHandle", {
+                              count: openTickets.length,
+                            })}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-0.5">
+                            {t("notifications.clickToView")}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="p-4 text-center text-sm text-gray-500">
+                      {t("notifications.noNotifications")}
+                    </div>
+                  )}
+                </div>
+              </Card>
+            )}
           </div>
         </div>
       </div>

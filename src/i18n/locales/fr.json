@@ -1410,7 +1410,16 @@
     "title": "Notifications",
     "ordersToValidate": "{{count}} commandes en attente de validation",
     "clickToView": "Cliquez pour voir et valider les commandes",
-    "noNotifications": "Aucune nouvelle notification"
+    "noNotifications": "Aucune nouvelle notification",
+    "ticketsToHandle": "{{count}} tickets en attente",
+    "clickToViewTickets": "Cliquez pour voir les tickets",
+    "noTickets": "Aucun nouveau ticket",
+    "tickets": {
+      "title": "Tickets de support",
+      "newTickets": "{{count}} tickets en attente",
+      "clickToView": "Cliquez pour voir les tickets",
+      "noTickets": "Aucun nouveau ticket"
+    }
   },
   "orderValidation": {
     "orderDetails": "Détails de la commande",
