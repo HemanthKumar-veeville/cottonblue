@@ -158,7 +158,7 @@ export const SuperadminHeader = (): JSX.Element => {
       try {
         await dispatch(
           fetchTickets({
-            dnsPrefix: isWarehouseHostname() ? "warehouse" : "admin",
+            dnsPrefix: isWarehouseHostname() ? "sedis" : "admin",
             ticketStatus: undefined,
           })
         ).unwrap();
