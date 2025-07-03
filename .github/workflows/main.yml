@@ -26,9 +26,11 @@ jobs:
       - name: Create .env file
         run: |
           if [ "${{ github.ref }}" == "refs/heads/main" ]; then
-            echo "VITE_API_URL=${{ secrets.PRODUCTION_VITE_API_URL }}" > .env
+            echo "VITE_API_URL=${{ secrets.PRODUCTION_VITE_API_URL }}" >> .env
+            echo "VITE_DOMAIN=${{ secrets.PRODUCTION_VITE_DOMAIN }}" >> .env
           else
-            echo "VITE_API_URL=${{ secrets.DEVELOPMENT_VITE_API_URL }}" > .env
+            echo "VITE_API_URL=${{ secrets.DEVELOPMENT_VITE_API_URL }}" >> .env
+            echo "VITE_DOMAIN=${{ secrets.DEVELOPMENT_VITE_DOMAIN }}" >> .env
           fi
         shell: bash
 
