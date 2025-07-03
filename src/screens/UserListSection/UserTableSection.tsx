@@ -17,6 +17,14 @@ import {
   TableHeader,
   TableRow,
 } from "../../components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
 import { useTranslation } from "react-i18next";
 import { useState, useMemo, useEffect, useRef } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/store";
@@ -24,8 +32,12 @@ import { useNavigate } from "react-router-dom";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
-import { Users, MoreVertical, Eye, Edit, Power } from "lucide-react";
-import { fetchUsers, modifyUser } from "../../store/features/userSlice";
+import { Users, MoreVertical, Eye, Edit, Power, Trash2 } from "lucide-react";
+import {
+  fetchUsers,
+  modifyUser,
+  deleteUser,
+} from "../../store/features/userSlice";
 
 interface UserData {
   firstname: string;
@@ -51,6 +63,12 @@ export const UserTableSection = ({
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showToggleDialog, setShowToggleDialog] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<UserData | null>(null);
+  const [userToToggle, setUserToToggle] = useState<UserData | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingActive, setIsTogglingActive] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
@@ -135,25 +153,62 @@ export const UserTableSection = ({
     setActiveDropdown(null);
   };
 
-  const handleToggleActive = async (user: any) => {
-    try {
-      if (user?.user_id && selectedCompany?.dns) {
+  const handleToggleClick = (user: UserData) => {
+    setUserToToggle(user);
+    setShowToggleDialog(true);
+    setActiveDropdown(null);
+  };
+
+  const handleToggleActive = async () => {
+    if (userToToggle?.user_id && selectedCompany?.dns) {
+      setIsTogglingActive(true);
+      try {
         await dispatch(
           modifyUser({
             dnsPrefix: selectedCompany.dns,
-            userId: user?.user_id,
+            userId: userToToggle.user_id,
             data: {
-              is_active: !user?.is_active,
+              is_active: !userToToggle.is_active,
             },
           })
         ).unwrap();
-        // Refresh users list after successful import
-        await dispatch(fetchUsers({ dnsPrefix: selectedCompany?.dns || "" }));
-        setActiveDropdown(null);
+        // Refresh users list after successful toggle
+        await dispatch(fetchUsers({ dnsPrefix: selectedCompany.dns }));
+      } catch (error) {
+        console.error("Failed to toggle user activation:", error);
+      } finally {
+        setIsTogglingActive(false);
+        setShowToggleDialog(false);
+        setUserToToggle(null);
       }
-    } catch (error: any) {
-      console.error("Failed to toggle user activation:", error);
-      // You might want to show an error toast/notification here
+    }
+  };
+
+  const handleDeleteClick = (user: UserData) => {
+    setUserToDelete(user);
+    setShowDeleteDialog(true);
+    setActiveDropdown(null);
+  };
+
+  const handleDelete = async () => {
+    if (userToDelete?.user_id && selectedCompany?.dns) {
+      setIsDeleting(true);
+      try {
+        await dispatch(
+          deleteUser({
+            dnsPrefix: selectedCompany.dns,
+            userId: userToDelete.user_id,
+          })
+        ).unwrap();
+        // Refresh users list after successful deletion
+        dispatch(fetchUsers({ dnsPrefix: selectedCompany.dns }));
+      } catch (error) {
+        console.error("Failed to delete user:", error);
+      } finally {
+        setIsDeleting(false);
+        setShowDeleteDialog(false);
+        setUserToDelete(null);
+      }
     }
   };
 
@@ -313,7 +368,7 @@ export const UserTableSection = ({
                                 }`}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleToggleActive(user);
+                                  handleToggleClick(user);
                                 }}
                                 role="menuitem"
                               >
@@ -328,6 +383,19 @@ export const UserTableSection = ({
                                   {user.is_active
                                     ? t("userList.actions.deactivate")
                                     : t("userList.actions.activate")}
+                                </span>
+                              </button>
+                              <button
+                                className="flex items-center w-full px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors duration-150 group"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteClick(user);
+                                }}
+                                role="menuitem"
+                              >
+                                <Trash2 className="mr-3 h-4 w-4 text-red-400 group-hover:text-red-600" />
+                                <span className="font-medium">
+                                  {t("userList.actions.delete")}
                                 </span>
                               </button>
                             </div>
@@ -412,6 +480,82 @@ export const UserTableSection = ({
           </div>
         </div>
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("userList.dialogs.delete.title")}</DialogTitle>
+            <DialogDescription>
+              {t("userList.dialogs.delete.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowDeleteDialog(false);
+                setUserToDelete(null);
+              }}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? t("common.deleting") : t("userList.actions.delete")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Toggle Confirmation Dialog */}
+      <Dialog open={showToggleDialog} onOpenChange={setShowToggleDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {userToToggle?.is_active
+                ? t("userList.dialogs.deactivate.title")
+                : t("userList.dialogs.activate.title")}
+            </DialogTitle>
+            <DialogDescription>
+              {userToToggle?.is_active
+                ? t("userList.dialogs.deactivate.description")
+                : t("userList.dialogs.activate.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowToggleDialog(false);
+                setUserToToggle(null);
+              }}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant={userToToggle?.is_active ? "destructive" : "default"}
+              className={
+                userToToggle?.is_active
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-emerald-600 hover:bg-emerald-700"
+              }
+              onClick={handleToggleActive}
+              disabled={isTogglingActive}
+            >
+              {isTogglingActive
+                ? t("common.processing")
+                : userToToggle?.is_active
+                ? t("userList.actions.deactivate")
+                : t("userList.actions.activate")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 };

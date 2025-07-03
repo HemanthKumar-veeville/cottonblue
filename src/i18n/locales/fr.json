@@ -988,7 +988,8 @@
       "activate": "Activer",
       "deactivate": "Désactiver",
       "active": "Actif",
-      "inactive": "Inactif"
+      "inactive": "Inactif",
+      "delete": "Supprimer"
     },
     "table": {
       "name": "Nom",
@@ -1008,7 +1009,13 @@
       "next": "Suivant"
     },
     "noUsers": "Aucun utilisateur trouvé",
-    "emptyMessage": "Il n'y a pas encore d'utilisateurs dans votre liste. Ajoutez votre premier utilisateur pour commencer."
+    "emptyMessage": "Il n'y a pas encore d'utilisateurs dans votre liste. Ajoutez votre premier utilisateur pour commencer.",
+    "dialogs": {
+      "delete": {
+        "title": "Supprimer l'utilisateur",
+        "description": "Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action ne peut pas être annulée."
+      }
+    }
   },
   "addUser": {
     "title": {
@@ -1262,11 +1269,18 @@
       "title": "Actions",
       "modify": "Modifier",
       "activate": "Activer",
-      "deactivate": "Désactiver"
+      "deactivate": "Désactiver",
+      "delete": "Supprimer"
     },
     "notAvailable": "Non disponible",
     "notFound": "Utilisateur non trouvé",
-    "error": "Erreur lors du chargement des données de l'utilisateur"
+    "error": "Erreur lors du chargement des données de l'utilisateur",
+    "dialogs": {
+      "delete": {
+        "title": "Supprimer l'utilisateur",
+        "description": "Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action ne peut pas être annulée."
+      }
+    }
   },
   "warehouse": {
     "title": "Gérer l'entrepôt",

@@ -960,7 +960,8 @@
       "exportCsv": "Export CSV",
       "edit": "Edit",
       "activate": "Activate",
-      "deactivate": "Deactivate"
+      "deactivate": "Deactivate",
+      "delete": "Delete"
     },
     "table": {
       "name": "Name",
@@ -1234,11 +1235,18 @@
       "title": "Actions",
       "modify": "Modify",
       "activate": "Activate",
-      "deactivate": "Deactivate"
+      "deactivate": "Deactivate",
+      "delete": "Delete"
     },
     "notAvailable": "Not Available",
     "notFound": "User not found",
-    "error": "Error loading user data"
+    "error": "Error loading user data",
+    "dialogs": {
+      "delete": {
+        "title": "Delete User",
+        "description": "Are you sure you want to delete this user? This action cannot be undone."
+      }
+    }
   },
   "warehouse": {
     "title": "Manage Warehouse",

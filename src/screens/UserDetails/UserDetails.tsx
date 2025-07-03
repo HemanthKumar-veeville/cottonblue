@@ -6,15 +6,27 @@ import {
   CardTitle,
 } from "../../components/ui/card";
 import { UserIcon } from "lucide-react";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
-import { getUserDetails, modifyUser } from "../../store/features/userSlice";
+import {
+  getUserDetails,
+  modifyUser,
+  deleteUser,
+} from "../../store/features/userSlice";
 import { Skeleton } from "../../components/Skeleton";
 import { fetchAllStores } from "../../store/features/agencySlice";
 import { useAppSelector } from "../../store/store";
 import { useTranslation } from "react-i18next";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
 
 interface Store {
   id: number;
@@ -134,7 +146,11 @@ const ActionsBox = () => {
   const { id } = useParams<{ id: string }>();
   const { selectedCompany } = useAppSelector((state) => state.client);
   const { selectedUser } = useAppSelector((state) => state.user);
-  const isActive = selectedUser?.user?.is_active;
+  const isActive = selectedUser?.is_active;
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showToggleDialog, setShowToggleDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isTogglingActive, setIsTogglingActive] = useState(false);
 
   const handleEdit = () => {
     navigate(`/users/edit/${id}`);
@@ -143,6 +159,7 @@ const ActionsBox = () => {
   const handleToggleActivation = async () => {
     try {
       if (id && selectedCompany?.dns) {
+        setIsTogglingActive(true);
         await dispatch(
           modifyUser({
             dnsPrefix: selectedCompany.dns,
@@ -163,36 +180,143 @@ const ActionsBox = () => {
       }
     } catch (error: any) {
       console.error("Failed to toggle user activation:", error);
-      // You might want to show an error toast/notification here
+    } finally {
+      setIsTogglingActive(false);
+      setShowToggleDialog(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (id && selectedCompany?.dns) {
+      setIsDeleting(true);
+      try {
+        await dispatch(
+          deleteUser({
+            dnsPrefix: selectedCompany.dns,
+            userId: id,
+          })
+        ).unwrap();
+        // Navigate back to users list after successful deletion
+        navigate("/users");
+      } catch (error) {
+        console.error("Failed to delete user:", error);
+      } finally {
+        setIsDeleting(false);
+        setShowDeleteDialog(false);
+      }
     }
   };
 
   return (
-    <Card className="w-full bg-[color:var(--1-tokens-color-modes-background-secondary)] border-[color:var(--1-tokens-color-modes-border-primary)]">
-      <CardContent className="p-4 space-y-4">
-        <h3 className="font-text-medium text-black">
-          {t("userDetails.actions.title")}
-        </h3>
-        <Button
-          className="w-full bg-[#07515f] text-[color:var(--1-tokens-color-modes-button-primary-default-text)]"
-          onClick={handleEdit}
-        >
-          {t("userDetails.actions.modify")}
-        </Button>
-        <Button
-          className={`w-full ${
-            isActive
-              ? "bg-1-tokens-color-modes-common-danger-medium"
-              : "bg-emerald-600"
-          } text-[color:var(--1-tokens-color-modes-button-primary-default-text)]`}
-          onClick={handleToggleActivation}
-        >
-          {isActive
-            ? t("userDetails.actions.deactivate")
-            : t("userDetails.actions.activate")}
-        </Button>
-      </CardContent>
-    </Card>
+    <>
+      <Card className="w-full bg-[color:var(--1-tokens-color-modes-background-secondary)] border-[color:var(--1-tokens-color-modes-border-primary)]">
+        <CardContent className="p-4 space-y-4">
+          <h3 className="font-text-medium text-black">
+            {t("userDetails.actions.title")}
+          </h3>
+          <Button
+            className="w-full bg-[#07515f] text-[color:var(--1-tokens-color-modes-button-primary-default-text)]"
+            onClick={handleEdit}
+          >
+            {t("userDetails.actions.modify")}
+          </Button>
+          <Button
+            className={`w-full ${
+              isActive
+                ? "bg-1-tokens-color-modes-common-danger-medium"
+                : "bg-emerald-600"
+            } text-[color:var(--1-tokens-color-modes-button-primary-default-text)]`}
+            onClick={() => setShowToggleDialog(true)}
+          >
+            {isActive
+              ? t("userDetails.actions.deactivate")
+              : t("userDetails.actions.activate")}
+          </Button>
+          <Button
+            variant="destructive"
+            className="w-full bg-red-600 hover:bg-red-700"
+            onClick={() => setShowDeleteDialog(true)}
+            disabled={isDeleting}
+          >
+            {isDeleting
+              ? t("common.deleting")
+              : t("userDetails.actions.delete")}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("userDetails.dialogs.delete.title")}</DialogTitle>
+            <DialogDescription>
+              {t("userDetails.dialogs.delete.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowDeleteDialog(false)}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting
+                ? t("common.deleting")
+                : t("userDetails.actions.delete")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Toggle Activation Confirmation Dialog */}
+      <Dialog open={showToggleDialog} onOpenChange={setShowToggleDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {isActive
+                ? t("userDetails.dialogs.deactivate.title")
+                : t("userDetails.dialogs.activate.title")}
+            </DialogTitle>
+            <DialogDescription>
+              {isActive
+                ? t("userDetails.dialogs.deactivate.description")
+                : t("userDetails.dialogs.activate.description")}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex gap-3">
+            <Button
+              variant="outline"
+              onClick={() => setShowToggleDialog(false)}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant={isActive ? "destructive" : "default"}
+              className={
+                isActive
+                  ? "bg-red-600 hover:bg-red-700"
+                  : "bg-emerald-600 hover:bg-emerald-700"
+              }
+              onClick={handleToggleActivation}
+              disabled={isTogglingActive}
+            >
+              {isTogglingActive
+                ? t("common.processing")
+                : isActive
+                ? t("userDetails.actions.deactivate")
+                : t("userDetails.actions.activate")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 };
 

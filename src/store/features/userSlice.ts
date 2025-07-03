@@ -3,6 +3,7 @@ import { userService, UserRegistrationData, FetchUsersParams, UserModificationDa
 
 interface UserState {
   currentUser: {
+    id: number;
     firstname: string;
     lastname: string;
     email: string;
@@ -10,6 +11,7 @@ interface UserState {
   } | null;
   users: {
     data: Array<{
+      id: number;
       firstname: string;
       lastname: string;
       email: string;
@@ -20,6 +22,7 @@ interface UserState {
     limit: number;
   };
   selectedUser: {
+    id: number;
     firstname: string;
     lastname: string;
     email: string;
@@ -102,6 +105,19 @@ export const modifyUser = createAsyncThunk(
   }
 );
 
+// Async thunk for deleting user
+export const deleteUser = createAsyncThunk(
+  'user/deleteUser',
+  async ({ dnsPrefix, userId }: { dnsPrefix: string; userId: string | number }, { rejectWithValue }) => {
+    try {
+      const response = await userService.deleteUser(dnsPrefix, userId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error?.response?.data?.message || 'Failed to delete user');
+    }
+  }
+);
+
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -174,6 +190,20 @@ const userSlice = createSlice({
         state.error = null;
       })
       .addCase(modifyUser.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      // Add cases for deleteUser
+      .addCase(deleteUser.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(deleteUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+       
+        state.error = null;
+      })
+      .addCase(deleteUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       });

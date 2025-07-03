@@ -142,5 +142,20 @@ export const userService = {
     } catch (error) {
       throw error;
     }
-  }
+  },
+
+  /**
+   * Delete a user by ID
+   * @param dnsPrefix DNS prefix of the company
+   * @param userId User ID to delete
+   * @returns Promise with deletion response
+   */
+  deleteUser: async (dnsPrefix: string, userId: string | number) => {
+    try {
+      const response = await axiosInstance.delete(`/${dnsPrefix}/user/${userId}/delete`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
