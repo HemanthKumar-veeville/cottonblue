@@ -3,64 +3,26 @@ import { createRoot } from "react-dom/client";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { Provider } from "react-redux";
 import { Toaster } from "react-hot-toast";
-import { store, useAppDispatch } from "./store/store";
+import { store, useAppDispatch, useAppSelector } from "./store/store";
 import { SuperadminLayout } from "./components/Layout/SuperadminLayout";
 import { AdminModeProvider } from "./components/Layout/SuperadminHeader";
-import { ProductSidebarSection } from "./screens/SuperadminAdd/sections/ProductSidebarSection/ProductSidebarSection";
-import ComingSoon from "./components/ComingSoon";
 import NotFound from "./components/NotFound";
-import Error from "./components/Error";
-import { ProductList } from "./screens/ProductList";
 import LoginPage from "./screens/Login/Login";
-import Carousel from "./screens/Carousel/Carousel";
-import Tickets from "./screens/Tickets/Tickets";
 import "./i18n/config";
-import AddClient from "./screens/AddClient/AddClient";
-import { ClientList } from "./screens/ClientList";
-import { useAppSelector } from "./store/store";
-import { getUser } from "./store/features/authSlice";
 import GlobalLoader from "./components/GlobalLoader";
-import { GlobalDashboard } from "./screens/GlobalDashboard/GlobalDashboard";
-import ClientDetails from "./screens/ClientDetails/ClientDetails";
-import AgencyDetails from "./screens/AgencyDetails/AgencyDetails";
-import { AgenciesList } from "./screens/AgenciesList";
-import AddAgency from "./screens/AddAgency/AddAgency";
-import { AdminClientHome } from "./screens/AdminClientHome/AdminClientHome";
 import { ClientLayout } from "./components/Layout/ClientLayout";
-import ClientProduct from "./screens/ClientProduct/ClientProduct";
-import CartContainer from "./screens/Cart/Cart";
-import History from "./screens/History/History";
-import OrderDetails from "./screens/OrderDetails/OrderDetails";
-import ClientSupport from "./screens/ClientSupport/ClientSupport";
 import ClientLogin from "./screens/ClientLogin/ClientLogin";
 import {
   isAdminHostname,
   isDevHostname,
   isWarehouseHostname,
+  getHost,
 } from "./utils/hostUtils";
-import ProductDetails from "./screens/ProductDetails/ProductDetails";
-import { getHost } from "./utils/hostUtils";
-import AddUser from "./screens/AddUser/AddUser";
-import { UserList } from "./screens/UserList";
-import UserDetails from "./screens/UserDetails/UserDetails";
-import ClientSettings from "./screens/ClientSettings/ClientSettings";
-import SuperAdminOrderHistory from "./screens/SuperAdminOrderHistory/SuperAdminOrderHistory";
-import SuperAdminOrderDetails from "./screens/SuperAdminOrderDetails/SuperAdminOrderDetails";
-import SuperAdminSettings from "./screens/SuperAdminSettings/SuperAdminSettings";
-import AddProduct_step_1 from "./screens/AddProduct/AddProduct_step_1";
-import ClientAdminDashboard from "./screens/ClientAdminDashboard/ClientAdminDashboard";
-import OrderValidation from "./screens/OrderValidation/OrderValidation";
-import { ClientDashboard } from "./screens/ClientDashboard/ClientDashboard";
-import LinkProducts from "./screens/LinkProducts/LinkProducts";
-import AddVariant from "./screens/AddVariant/AddVariant";
+import { getUser } from "./store/features/authSlice";
 import CreatePassword from "./screens/CreatePassword/CreatePassword";
-import { Warehouse } from "./screens/Warehouse/Warehouse";
-import ManageStock from "./screens/ManageStock/ManageStock";
-import ClientUserDetails from "./screens/UserDetails/ClientUserDetails";
-import { ClientUserListSection } from "./screens/UserListSection/ClientUserListSection";
-import ClientAddUser from "./screens/AddUser/ClientAddUser";
-import TestBoard from "./screens/TestBoard/TestBoard";
-import ErrorLogs from "./screens/ErrorLogs/ErrorLogs";
+import { adminRoutes } from "./routes/admin.routes";
+import { warehouseRoutes } from "./routes/warehouse.routes";
+import { clientRoutes } from "./routes/client.routes";
 
 function App() {
   const isLoggedIn = useAppSelector((state) => state.auth.user?.logged_in);
@@ -68,7 +30,6 @@ function App() {
   const isAdminDomain = isAdminHostname();
   const isWarehouse = isWarehouseHostname();
   const isDevDomain = isDevHostname();
-
   const dnsPrefix = getHost();
   const dispatch = useAppDispatch();
 
@@ -105,171 +66,74 @@ function App() {
       />
       <GlobalLoader />
       <Routes>
+        {/* Warehouse Routes */}
         {isWarehouse ? (
           isLoggedIn ? (
-            // Warehouse routes - only accessible when logged in
             <Route path="/" element={<SuperadminLayout />}>
-              <Route index element={<Navigate to="/warehouse" replace />} />
-              <Route path="warehouse" element={<Warehouse />} />
-              <Route path="products" element={<ProductList />} />
-              <Route path="products/:id" element={<ProductDetails />} />
-              <Route path="support" element={<ClientSupport />} />
-              <Route path="*" element={<NotFound />} />
+              {warehouseRoutes.map((route) => (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={route.element}
+                />
+              ))}
             </Route>
           ) : (
-            // Warehouse login route
             <Route path="/" element={<LoginPage />} />
           )
         ) : isAdminDomain ? (
           isLoggedIn && isSuperAdmin ? (
-            // Protected admin routes - only accessible when logged in as super admin
             <Route path="/" element={<SuperadminLayout />}>
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<GlobalDashboard />} />
-              <Route path="client-dashboard" element={<ClientDashboard />} />
-              <Route
-                path="order-history"
-                element={<SuperAdminOrderHistory />}
-              />
-              <Route
-                path="order-details/:store_id/:id"
-                element={<SuperAdminOrderDetails />}
-              />
-              <Route path="products" element={<ProductList />} />
-              <Route path="manage-stock" element={<ManageStock />} />
-              <Route
-                path="products/add"
-                element={<ProductSidebarSection mode="add" />}
-              />
-              <Route
-                path="products/allot-store/:id"
-                element={<AddProduct_step_1 />}
-              />
-              <Route
-                path="products/allot-store-edit/:id"
-                element={<AddProduct_step_1 />}
-              />
-              <Route path="products/add-variant/:id" element={<AddVariant />} />
-              <Route
-                path="products/link-products/:id"
-                element={<LinkProducts />}
-              />
-              <Route
-                path="products/edit/:id"
-                element={<ProductSidebarSection mode="edit" />}
-              />
-              <Route path="products/:id" element={<ProductDetails />} />
-              <Route path="products/stock" element={<ComingSoon />} />
-              <Route path="products/carousel" element={<Carousel />} />
-              <Route path="warehouse" element={<Warehouse />} />
-              <Route path="customers" element={<ClientList />} />
-              <Route path="customers/edit" element={<AddClient />} />
-              <Route path="customers/add" element={<AddClient />} />
-              <Route
-                path="customers/:company_name"
-                element={<ClientDetails />}
-              />
-              <Route path="agencies" element={<AgenciesList />} />
-              <Route path="agencies/edit/:id" element={<AddAgency />} />
-              <Route path="agencies/add" element={<AddAgency />} />
-              <Route path="users" element={<UserList />} />
-              <Route path="users/add" element={<AddUser />} />
-              <Route path="users/edit/:id" element={<AddUser />} />
-              <Route path="users/:id" element={<UserDetails />} />
-              <Route
-                path="customers/:company_name/agencies/:agency_id"
-                element={<AgencyDetails />}
-              />
-              <Route path="support/tickets" element={<Tickets />} />
-              <Route path="settings" element={<SuperAdminSettings />} />
-              {isDevDomain && (
-                <>
-                  <Route path="test-board" element={<TestBoard />} />
-                  <Route path="error-logs" element={<ErrorLogs />} />
-                </>
-              )}
-              <Route path="logout" element={<ComingSoon />} />
-              <Route path="analytics" element={<ComingSoon />} />
-              <Route path="reports" element={<ComingSoon />} />
-              <Route path="integrations" element={<ComingSoon />} />
-              <Route path="error" element={<Error />} />
+              {adminRoutes.map((route) => (
+                <Route
+                  key={route.path}
+                  path={route.path}
+                  element={
+                    isDevDomain ||
+                    !["test-board", "error-logs"].includes(route.path) ? (
+                      route.element
+                    ) : (
+                      <NotFound />
+                    )
+                  }
+                />
+              ))}
             </Route>
           ) : (
-            // Admin login route
             <Route path="/" element={<LoginPage />} />
           )
-        ) : // Client routes
+        ) : // Client Routes
         isLoggedIn ? (
           <Route path="/" element={<ClientLayout />}>
-            <Route
-              index
-              element={isLoggedIn ? <AdminClientHome /> : <Navigate to="/" />}
-            />
-            <Route
-              path="admin-dashboard"
-              element={
-                isLoggedIn ? <ClientAdminDashboard /> : <Navigate to="/" />
-              }
-            />
-            <Route
-              path="validate-order/:store_id/:id"
-              element={isLoggedIn ? <OrderValidation /> : <Navigate to="/" />}
-            />
-            <Route
-              path="users"
-              element={
-                isLoggedIn ? <ClientUserListSection /> : <Navigate to="/" />
-              }
-            />
-            <Route
-              path="users/add"
-              element={isLoggedIn ? <ClientAddUser /> : <Navigate to="/" />}
-            />
-            <Route
-              path="users/edit/:id"
-              element={isLoggedIn ? <ClientAddUser /> : <Navigate to="/" />}
-            />
-            <Route
-              path="users/:id"
-              element={isLoggedIn ? <ClientUserDetails /> : <Navigate to="/" />}
-            />
-            <Route
-              path="product/:id"
-              element={isLoggedIn ? <ClientProduct /> : <Navigate to="/" />}
-            />
-            <Route
-              path="cart"
-              element={isLoggedIn ? <CartContainer /> : <Navigate to="/" />}
-            />
-            <Route
-              path="history"
-              element={isLoggedIn ? <History /> : <Navigate to="/" />}
-            />
-            <Route
-              path="order-details/:id"
-              element={isLoggedIn ? <OrderDetails /> : <Navigate to="/" />}
-            />
-            <Route
-              path="support"
-              element={isLoggedIn ? <ClientSupport /> : <Navigate to="/" />}
-            />
-            <Route
-              path="settings"
-              element={isLoggedIn ? <ClientSettings /> : <Navigate to="/" />}
-            />
+            {clientRoutes.map((route) => (
+              <Route
+                key={route.path}
+                path={route.path}
+                element={route.element}
+              />
+            ))}
           </Route>
         ) : (
           <Route path="/" element={<ClientLogin />} />
         )}
 
-        {/* 404 Route - Must be last */}
-        {isAdminDomain ? (
-          <Route path="/" element={<LoginPage />} />
-        ) : (
-          <Route path="/" element={<ClientLogin />} />
-        )}
+        {/* Common Routes */}
         <Route path="/create-password" element={<CreatePassword />} />
         <Route path="/reset-password" element={<CreatePassword />} />
+
+        {/* 404 Route - Must be last */}
+        <Route
+          path="*"
+          element={
+            isAdminDomain ? (
+              <Navigate to="/" />
+            ) : isWarehouse ? (
+              <Navigate to="/" />
+            ) : (
+              <ClientLogin />
+            )
+          }
+        />
       </Routes>
     </BrowserRouter>
   );
