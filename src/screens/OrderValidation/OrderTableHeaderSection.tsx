@@ -281,7 +281,7 @@ const OrderTableHeaderSection: React.FC<{
           </h3>
         </div>
 
-        {!isLoading && (
+        {/* {!isLoading && (
           <Button
             className="bg-[var(--primary-color)] hover:bg-[var(--primary-hover-color)]  border border-[var(--primary-color)] text-[var(--primary-text-color)] h-auto group transition-all duration-200"
             aria-label={t("orderValidation.downloadOrderForm")}
@@ -296,7 +296,7 @@ const OrderTableHeaderSection: React.FC<{
               {t("orderValidation.downloadOrderForm")}
             </span>
           </Button>
-        )}
+        )} */}
       </div>
 
       <CardContent className="p-0">
