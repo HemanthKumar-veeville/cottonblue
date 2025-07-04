@@ -30,6 +30,11 @@ import EmptyState from "../../components/EmptyState";
 import * as XLSX from "xlsx";
 import { jsPDF } from "jspdf";
 import { getOrderStatusColor } from "../../utils/statusUtil";
+import dayjs from "dayjs";
+import ExcelJS from "exceljs";
+import { Buffer } from "buffer";
+import { ChevronDown } from "lucide-react";
+import { useRef } from "react";
 
 interface OrderItem {
   product_id: number;
@@ -374,17 +379,276 @@ const OrderRow = ({
   );
 };
 
+// --- DownloadDropdown copied from OrderHistorySection ---
+const DownloadDropdown = ({
+  onDownloadCSV,
+  onDownloadExcel,
+  disabled,
+  defaultLabel,
+  options,
+}: {
+  onDownloadCSV: () => void;
+  onDownloadExcel: () => void;
+  disabled: boolean;
+  defaultLabel: string;
+  options: { label: string; onClick: () => void; icon?: React.ReactNode }[];
+}) => {
+  const [open, setOpen] = useState(false);
+  const [selectedLabel, setSelectedLabel] = useState(defaultLabel);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  return (
+    <div className="relative inline-block text-left">
+      <Button
+        ref={buttonRef}
+        variant="ghost"
+        className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[#07515f] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
+        disabled={disabled}
+        onClick={() => setOpen((v) => !v)}
+        style={{
+          backgroundColor: "#07515f",
+          color: "#fff",
+          borderColor: "#07515f",
+        }}
+      >
+        <DownloadIcon className="w-6 h-6 text-white mr-2" />
+        <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-white [font-style:var(--label-smaller-font-style)]">
+          {selectedLabel}
+        </span>
+        <ChevronDown className="ml-2 h-4 w-4 text-white" />
+      </Button>
+      {open && (
+        <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+          <div className="py-1">
+            {options.map((opt, idx) => (
+              <button
+                key={idx}
+                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                onClick={() => {
+                  opt.onClick();
+                  setSelectedLabel(opt.label);
+                  setOpen(false);
+                }}
+              >
+                <span>{opt.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const SuperAdminOrderHistorySection = (): JSX.Element => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const orders = useSelector((state: any) => state.cart.orders);
   const loading = useSelector((state: any) => state.cart.loading);
   const error = useSelector((state: any) => state.cart.error);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // You can adjust this value as needed
-
+  const itemsPerPage = 10;
   const orderList = orders ?? [];
+
+  // Polyfill Buffer for ExcelJS if needed
+  if (typeof window !== "undefined" && !(window as any).Buffer) {
+    (window as any).Buffer = Buffer;
+  }
+
+  // --- Download Handlers ---
+  const handleDownloadOrdersCSV = () => {
+    if (!orderList?.length) return;
+    try {
+      const rows: Record<string, any>[] = [];
+      orderList.forEach((order: any) => {
+        const { order_items, ...orderFields } = order;
+        // Format created_at as date and time if present
+        if (orderFields.created_at) {
+          const date = dayjs(orderFields.created_at);
+          orderFields.created_at = date.isValid()
+            ? date.format("YYYY-MM-DD")
+            : orderFields.created_at;
+        }
+        // Translate order_status if present
+        if (orderFields.order_status) {
+          orderFields.order_status =
+            t("order_status." + orderFields.order_status) ||
+            orderFields.order_status;
+        }
+        if (Array.isArray(order_items) && order_items.length > 0) {
+          order_items.forEach((item: any) => {
+            const row: Record<string, any> = { ...orderFields };
+            Object.entries(item).forEach(([itemKey, itemValue]) => {
+              if (itemKey !== "product_images") {
+                row[itemKey] = itemValue;
+              }
+            });
+            rows.push(row);
+          });
+        } else {
+          rows.push({ ...orderFields });
+        }
+      });
+      const headerMap: Record<string, string> = {
+        created_at: t("csv.created_at"),
+        order_id: t("csv.order_id"),
+        order_status: t("csv.order_status"),
+        // No total_amount in this data structure
+        // Add more fields as needed
+        product_id: t("csv.order_items.product_id"),
+        product_name: t("csv.order_items.product_name"),
+        quantity: t("csv.order_items.quantity"),
+      };
+      const keySet = new Set<string>();
+      rows.forEach((row) => {
+        Object.keys(row).forEach((key) => keySet.add(key));
+      });
+      const allKeysRaw = Array.from(keySet).filter(
+        (key) => key !== "product_images"
+      );
+      let allKeys = allKeysRaw;
+      const headers = allKeys.map((key) => headerMap[key] || key);
+      const data = rows.map((row) =>
+        allKeys.map((key) => (row[key] !== undefined ? row[key] : ""))
+      );
+      const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
+      const csvContent = XLSX.utils.sheet_to_csv(worksheet);
+      const utf8Bom = "\uFEFF";
+      const csvBlob = new Blob([utf8Bom + csvContent], {
+        type: "text/csv;charset=utf-8;",
+      });
+      const link = document.createElement("a");
+      const now = dayjs();
+      const isFrench = typeof i18n !== "undefined" && i18n.language === "fr";
+      const dateStr = now.format("YYYY-MM-DD_HH-mm-ss");
+      const fileName = isFrench
+        ? `commandes_${dateStr}.csv`
+        : `orders_${dateStr}.csv`;
+      link.href = URL.createObjectURL(csvBlob);
+      link.download = fileName;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } catch (error) {
+      console.error("Error downloading orders:", error);
+    }
+  };
+
+  const handleDownloadOrdersExcel = async () => {
+    if (!orderList?.length) return;
+    try {
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet("Orders");
+      const rows: Record<string, any>[] = [];
+      orderList.forEach((order: any) => {
+        const { order_items, ...orderFields } = order;
+        if (orderFields.created_at) {
+          const date = dayjs(orderFields.created_at);
+          orderFields.created_at = date.isValid()
+            ? date.format("YYYY-MM-DD")
+            : orderFields.created_at;
+        }
+        if (orderFields.order_status) {
+          orderFields.order_status =
+            t("order_status." + orderFields.order_status) ||
+            orderFields.order_status;
+        }
+        if (Array.isArray(order_items) && order_items.length > 0) {
+          order_items.forEach((item: any) => {
+            const row: Record<string, any> = { ...orderFields };
+            Object.entries(item).forEach(([itemKey, itemValue]) => {
+              if (itemKey !== "product_images") {
+                row[itemKey] = itemValue;
+              }
+            });
+            rows.push(row);
+          });
+        } else {
+          rows.push({ ...orderFields });
+        }
+      });
+      const headerMap: Record<string, string> = {
+        created_at: t("csv.created_at"),
+        order_id: t("csv.order_id"),
+        order_status: t("csv.order_status"),
+        product_id: t("csv.order_items.product_id"),
+        product_name: t("csv.order_items.product_name"),
+        quantity: t("csv.order_items.quantity"),
+      };
+      const keySet = new Set<string>();
+      rows.forEach((row) => {
+        Object.keys(row).forEach((key) => keySet.add(key));
+      });
+      const allKeysRaw = Array.from(keySet).filter(
+        (key) => key !== "product_images"
+      );
+      let allKeys = allKeysRaw;
+      const headers = allKeys.map((key) => headerMap[key] || key);
+      worksheet.addRow(headers);
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i];
+        const rowData = allKeys.map((key) => {
+          if (key === "created_at" && row[key]) {
+            const date = dayjs(row[key]);
+            return date.isValid() ? date.format("YYYY-MM-DD") : row[key];
+          }
+          if (key === "order_status" && row[key]) {
+            return t(row[key]) || row[key];
+          }
+          return row[key] !== undefined ? row[key] : "";
+        });
+        worksheet.addRow(rowData);
+      }
+      const headerRow = worksheet.getRow(1);
+      headerRow.font = { bold: true };
+      headerRow.alignment = { horizontal: "center", vertical: "middle" };
+      headerRow.height = 30;
+      worksheet.eachRow((row, rowNumber) => {
+        row.alignment = { horizontal: "left", vertical: "middle" };
+        row.height = 20;
+        row.eachCell((cell) => {
+          cell.border = {
+            top: { style: "thin" },
+            left: { style: "thin" },
+            bottom: { style: "thin" },
+            right: { style: "thin" },
+          };
+          cell.alignment = {
+            horizontal: rowNumber === 1 ? "center" : "left",
+            vertical: "middle",
+            wrapText: true,
+            indent: 1,
+          };
+        });
+      });
+      Array.from(worksheet.columns ?? []).forEach((col, idx) => {
+        let maxLength = headers[idx].length;
+        col.eachCell?.({ includeEmpty: true }, (cell: any) => {
+          const cellValue = cell.value ? cell.value.toString() : "";
+          if (cellValue.length > maxLength) maxLength = cellValue.length;
+        });
+        col.width = Math.max(12, Math.min(40, maxLength + 6));
+      });
+      worksheet.views = [{ state: "frozen", ySplit: 1 }];
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      });
+      const link = document.createElement("a");
+      const now = dayjs();
+      const isFrench = typeof i18n !== "undefined" && i18n.language === "fr";
+      const dateStr = now.format("YYYY-MM-DD_HH-mm-ss");
+      const fileName = isFrench
+        ? `commandes_${dateStr}.xlsx`
+        : `orders_${dateStr}.xlsx`;
+      link.href = URL.createObjectURL(blob);
+      link.download = fileName;
+      link.click();
+      URL.revokeObjectURL(link.href);
+    } catch (error) {
+      console.error("Error downloading orders as Excel:", error);
+    }
+  };
+
   console.log({ orderList });
   // Filter orders based on search query
   const filteredOrders = useMemo(() => {
@@ -614,7 +878,7 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
 
   return (
     <section className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
-      <header>
+      <header className="flex items-center justify-between w-full">
         <h3 className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] font-[number:var(--heading-h3-font-weight)] [font-style:var(--heading-h3-font-style)]">
           {t("history.superAdmin.orderHistory.title")}
         </h3>
@@ -635,16 +899,22 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
           </div>
         </div>
 
-        <Button
-          className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[#07515f] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)]"
-          disabled={loading || selectedOrders.length === 0}
-          onClick={handleDownloadInvoices}
-        >
-          <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-primary-default-text)] [font-style:var(--label-smaller-font-style)]">
-            {t("history.superAdmin.orderHistory.downloadSelectedInvoices")}
-          </span>
-          <DownloadIcon className="w-6 h-6" />
-        </Button>
+        <DownloadDropdown
+          defaultLabel={t("orderHistoryExport.downloadAsCSV")}
+          disabled={loading || !orderList?.length}
+          onDownloadCSV={handleDownloadOrdersCSV}
+          onDownloadExcel={handleDownloadOrdersExcel}
+          options={[
+            {
+              label: t("orderHistoryExport.downloadAsCSV"),
+              onClick: handleDownloadOrdersCSV,
+            },
+            {
+              label: t("orderHistoryExport.downloadAsExcel"),
+              onClick: handleDownloadOrdersExcel,
+            },
+          ]}
+        />
       </div>
 
       <div className="flex flex-col h-full">
@@ -703,7 +973,9 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
             <Pagination className="flex items-center justify-between w-full mx-auto">
               <PaginationPrevious
                 href="#"
-                onClick={(e) => {
+                onClick={(
+                  e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+                ) => {
                   e.preventDefault();
                   handlePageChange(currentPage - 1);
                 }}
@@ -724,7 +996,9 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
                   <PaginationItem key={item.page}>
                     <PaginationLink
                       href="#"
-                      onClick={(e) => {
+                      onClick={(
+                        e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+                      ) => {
                         e.preventDefault();
                         handlePageChange(item.page);
                       }}
@@ -746,7 +1020,9 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
                     <PaginationItem>
                       <PaginationLink
                         href="#"
-                        onClick={(e) => {
+                        onClick={(
+                          e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+                        ) => {
                           e.preventDefault();
                           handlePageChange(totalPages);
                         }}
@@ -761,7 +1037,9 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
 
               <PaginationNext
                 href="#"
-                onClick={(e) => {
+                onClick={(
+                  e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
+                ) => {
                   e.preventDefault();
                   handlePageChange(currentPage + 1);
                 }}
