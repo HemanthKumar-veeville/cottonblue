@@ -1,58 +1,5 @@
 import { jsPDF } from "jspdf";
 
-// Updated interfaces to match provided data
-interface OrderItem {
-  product_id: number;
-  product_name: string;
-  product_images: string[] | null;
-  product_size: string;
-  product_suitable_for: string;
-  product_price: number;
-  quantity: number;
-}
-
-interface OrderedUser {
-  user_id: number;
-  firstname: string;
-  lastname: string;
-  email: string;
-}
-
-interface Order {
-  order_id: number;
-  vat_number: string;
-  created_at: string;
-  order_status: string;
-  store_name: string;
-  store_address: string;
-  order_items: OrderItem[];
-  ordered_user: OrderedUser;
-}
-
-// Helper: Convert image URL to base64
-const getBase64FromUrl = async (url: string): Promise<string> => {
-  const response = await fetch(url);
-  const blob = await response.blob();
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(blob);
-  });
-};
-
-// Helper: Convert HEX to RGB
-const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16),
-      }
-    : { r: 0, g: 0, b: 0 };
-};
-
 // Import the static logo
 import cottonblueLogo from '../../static/img/cotton_cropped_logo.png';
 
@@ -70,6 +17,17 @@ export const handleDownloadInvoice = async (
   const pageWidth = doc.internal.pageSize.width;
   const leftMargin = 20;
   let yPos = 10;
+
+  const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result
+      ? {
+          r: parseInt(result[1], 16),
+          g: parseInt(result[2], 16),
+          b: parseInt(result[3], 16),
+        }
+      : { r: 0, g: 0, b: 0 };
+  };
 
   const bgColor = hexToRgb(company_bg_color);
   const textColor = hexToRgb(company_text_color);
@@ -128,9 +86,9 @@ export const handleDownloadInvoice = async (
   doc.setFontSize(10);
   doc.setTextColor(80, 80, 80);
   doc.text("Facturer à", leftMargin, yPos);
-  doc.setFont(undefined, "bold");
+  doc.setFont('helvetica', "bold");
   doc.text(String(order?.store_name ?? 'NA'), leftMargin, Number(yPos + 7));
-  doc.setFont(undefined, "normal");
+  doc.setFont('helvetica', "normal");
   doc.setFontSize(10);
   doc.text(String(order?.store_address ?? 'NA'), leftMargin, Number(yPos + 13));
   if (order?.ordered_user?.email !== undefined) {
@@ -149,12 +107,12 @@ export const handleDownloadInvoice = async (
   doc.setFontSize(10);
   doc.text(String('Date'), boxX + 6, Number(boxY + 7));
   doc.text(String('Référence'), boxX + boxW / 2 + 6, Number(boxY + 7));
-  doc.setFont(undefined, "bold");
+  doc.setFont('helvetica', "bold");
   doc.setTextColor(0, 0, 0);
   const date = order?.created_at ? new Date(order.created_at).toLocaleDateString("fr-FR") : "NA";
   doc.text(String(date ?? 'NA'), boxX + 6, Number(boxY + 14));
   doc.text(String(`#${order?.order_id ?? 'NA'}`), boxX + boxW / 2 + 6, Number(boxY + 14));
-  doc.setFont(undefined, "normal");
+  doc.setFont('helvetica', "normal");
   yPos += boxH + 8;
 
   // --- PRODUCT TABLE ---
