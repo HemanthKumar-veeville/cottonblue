@@ -1,220 +1,246 @@
 import { jsPDF } from "jspdf";
 
+// Updated interfaces to match provided data
 interface OrderItem {
   product_id: number;
   product_name: string;
-  product_image: string;
+  product_images: string[] | null;
+  product_size: string;
+  product_suitable_for: string;
   product_price: number;
   quantity: number;
 }
 
-interface Order {
-  createdAt: string;
-  orderId: number;
-  orderItems: OrderItem[];
-  orderStatus: string;
-  storeAddress: string;
-  storeName: string;
+interface OrderedUser {
+  user_id: number;
+  firstname: string;
+  lastname: string;
+  email: string;
 }
 
-// Helper function to convert URL to base64
+interface Order {
+  order_id: number;
+  vat_number: string;
+  created_at: string;
+  order_status: string;
+  store_name: string;
+  store_address: string;
+  order_items: OrderItem[];
+  ordered_user: OrderedUser;
+}
+
+// Helper: Convert image URL to base64
 const getBase64FromUrl = async (url: string): Promise<string> => {
-  const response = await fetch(url, {
-    mode: 'no-cors',
-    cache: 'no-cache',
-    headers: {
-      'Access-Control-Allow-Origin': '*'
-    }
-  });
+  const response = await fetch(url);
   const blob = await response.blob();
   return new Promise((resolve, reject) => {
-    try {
-      const reader = new FileReader();
-      reader.onload = () => {
-        const result = reader.result as string;
-        resolve(result);
-      };
-      reader.onerror = reject;
-      reader.readAsDataURL(blob);
-    } catch (error) {
-      reject(error);
-    }
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
   });
 };
 
-// Helper function to convert hex color to RGB
+// Helper: Convert HEX to RGB
 const hexToRgb = (hex: string): { r: number; g: number; b: number } => {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result ? {
-    r: parseInt(result[1], 16),
-    g: parseInt(result[2], 16),
-    b: parseInt(result[3], 16)
-  } : { r: 0, g: 0, b: 0 };
+  return result
+    ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16),
+      }
+    : { r: 0, g: 0, b: 0 };
 };
 
+// Import the static logo
+import cottonblueLogo from '../../static/img/cotton_cropped_logo.png';
+
 export const handleDownloadInvoice = async (
-  order: Order,
+  order: any,
   company_bg_color: string,
   company_text_color: string,
-  company_logo: string,
   company_name: string,
+  company_address: string,
+  company_vat_number: string,
+  company_contact_email: string,
+  company_phone: string
 ) => {
-  // Initialize PDF document
   const doc = new jsPDF();
-  
-  // Set initial y position and margins
-  let yPos = 15;
-  const leftMargin = 20;
   const pageWidth = doc.internal.pageSize.width;
-  
-  // Convert hex colors to RGB for jsPDF
+  const leftMargin = 20;
+  let yPos = 10;
+
   const bgColor = hexToRgb(company_bg_color);
   const textColor = hexToRgb(company_text_color);
-  
-  // Add company header background
-  doc.setFillColor(bgColor.r, bgColor.g, bgColor.b);
-  doc.rect(0, 0, pageWidth, 40, 'F');
-  
-  // Add company logo with error handling
+  const lightBg = { r: 240, g: 250, b: 252 }; // light blue for boxes
+  const darkBg = bgColor; // for total row
+
+  const currencyFormat = new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency: "EUR",
+  });
+
+  // --- HEADER ---
+  // Static logo (left)
+  // Original logo size: 1324x264 px, fit within 100px height
+  const logoOriginalWidthPx = 1324;
+  const logoOriginalHeightPx = 264;
+  const maxLogoHeightPx = 15;
+  const scale = maxLogoHeightPx / logoOriginalHeightPx;
+  const logoWidthPx = logoOriginalWidthPx * scale;
+  const logoHeightPx = logoOriginalHeightPx * scale;
+  const pxToPt = 0.75; // jsPDF default: 1 px = 0.75 pt
+  const logoWidth = logoWidthPx * pxToPt;
+  const logoHeight = logoHeightPx * pxToPt;
+
+  // Company info (right)
+  doc.setFontSize(11);
+  doc.setTextColor(80, 80, 80);
+  const companyInfo = [
+    company_name ?? "NA",
+    company_address.split(',')[0] ?? "NA",
+    company_address.split(',')[1] ?? "NA",
+    company_vat_number ? `N° VAT: ${company_vat_number}` : "",
+    company_phone ?? "",
+    company_contact_email ?? "",
+  ].filter((line) => !!line);
+  let infoY = yPos + 2;
+  const companyInfoLineHeight = 6;
+  const companyInfoBlockHeight = companyInfo.length * companyInfoLineHeight;
+
+  // Draw logo (left)
   try {
-    let logoData = company_logo;
-    
-    // If it's a URL and not already a base64 string, convert it
-    if (!company_logo.startsWith('data:image/')) {
-      logoData = await getBase64FromUrl(company_logo);
-    }
-    
-    // Add the image with proper dimensions
-    const logoWidth = 50;
-    const logoHeight = 30;
-    
-    // Determine image format
-    const format = logoData.includes('data:image/png') ? 'PNG' : 'JPEG';
-    
-    // Add the image to the PDF
-    doc.addImage(
-      logoData,
-      format,
-      leftMargin,
-      5,
-      logoWidth,
-      logoHeight,
-      undefined,
-      'FAST'
-    );
-  } catch (error) {
-    console.error('Error adding logo:', error);
-    // If logo fails, add a placeholder text
-    doc.setTextColor(textColor.r, textColor.g, textColor.b);
-    doc.setFontSize(12);
-    doc.text('Logo', leftMargin, 20);
-  }
-  
-  // Add company name with custom color and enhanced styling
-  doc.setTextColor(textColor.r, textColor.g, textColor.b);
-  doc.setFontSize(24);
-  doc.setFont('helvetica', 'bold');
-  const companyNameWidth = doc.getTextWidth(company_name);
-  doc.text(company_name, (pageWidth - companyNameWidth) / 2, 25); // Centered
-  
-  // Reset font
-  doc.setFont('helvetica', 'normal');
-  
-  // Add a subtle divider line
-  yPos = 45;
-  doc.setDrawColor(bgColor.r, bgColor.g, bgColor.b);
-  doc.line(leftMargin, yPos, pageWidth - leftMargin, yPos);
-  
-  // Reset text color for main content
-  doc.setTextColor(0, 0, 0);
-  
-  // Add Order Details
-  yPos += 15;
-  doc.setFontSize(16);
-  doc.setTextColor(bgColor.r, bgColor.g, bgColor.b);
-  doc.text('ORDER DETAILS', leftMargin, yPos);
-  
-  // Add colored rectangle behind order info
-  doc.setFillColor(bgColor.r, bgColor.g, bgColor.b);
-  doc.rect(leftMargin, yPos + 5, pageWidth - 40, 30, 'F');
-  
-  // Order basic info
-  doc.setFontSize(12);
-  doc.setTextColor(textColor.r, textColor.g, textColor.b);
-  yPos += 20;
-  doc.text(`Order ID: #${order.orderId}`, leftMargin + 5, yPos);
-  doc.text(`Date: ${new Date(order.createdAt).toLocaleDateString()}`, pageWidth - 100, yPos);
-  doc.text(`Status: ${order.orderStatus}`, leftMargin + 5, yPos + 10);
-  
-  // Reset text color for main content
-  doc.setTextColor(0, 0, 0);
-  
-  // Store Information
-  yPos += 30;
-  doc.setFontSize(14);
-  doc.setTextColor(bgColor.r, bgColor.g, bgColor.b);
-  doc.text('Store Information:', leftMargin, yPos);
-  doc.setTextColor(0, 0, 0);
-  doc.setFontSize(12);
-  yPos += 10;
-  doc.text(`Store Name: ${order.storeName}`, leftMargin, yPos);
-  yPos += 10;
-  doc.text(`Address: ${order.storeAddress}`, leftMargin, yPos);
-  
-  // Items Table Header
-  yPos += 20;
-  const tableHeaders = ['Product', 'Price', 'Quantity', 'Total'];
-  const columnWidths = [80, 30, 30, 30];
-  
-  // Add table header with background
-  doc.setFillColor(bgColor.r, bgColor.g, bgColor.b);
-  doc.rect(leftMargin, yPos, pageWidth - 40, 10, 'F');
-  
-  // Add header text
-  doc.setTextColor(textColor.r, textColor.g, textColor.b);
-  let xPos = leftMargin + 5;
-  tableHeaders.forEach((header, index) => {
-    doc.text(header, xPos, yPos + 7);
-    xPos += columnWidths[index];
+    doc.addImage(cottonblueLogo, "PNG", leftMargin, yPos, logoWidth, logoHeight);
+  } catch {}
+
+  // Draw company info (right)
+  companyInfo.forEach((line, i) => {
+    doc.text(String(line ?? 'NA'), pageWidth - leftMargin - 2, Number(infoY + i * companyInfoLineHeight), { align: "right" });
   });
-  
-  // Reset text color for table content
-  doc.setTextColor(0, 0, 0);
-  
-  // Add table content
-  yPos += 15;
-  let totalAmount = 0;
-  
-  order.orderItems.forEach((item) => {
-    const itemTotal = item.product_price * item.quantity;
-    totalAmount += itemTotal;
-    
-    xPos = leftMargin + 5;
-    doc.text(item.product_name, xPos, yPos);
-    doc.text(`$${item.product_price}`, xPos + columnWidths[0], yPos);
-    doc.text(item.quantity.toString(), xPos + columnWidths[0] + columnWidths[1], yPos);
-    doc.text(`$${itemTotal}`, xPos + columnWidths[0] + columnWidths[1] + columnWidths[2], yPos);
-    
-    yPos += 10;
-  });
-  
-  // Add total
-  yPos += 10;
-  doc.setFillColor(bgColor.r, bgColor.g, bgColor.b);
-  doc.rect(pageWidth - 90, yPos - 5, 70, 10, 'F');
-  doc.setTextColor(textColor.r, textColor.g, textColor.b);
-  doc.text(`Total Amount: $${totalAmount}`, pageWidth - 85, yPos);
-  
-  // Add footer
-  const footerText = 'Thank you for your business!';
+
+  // Calculate header height as the max of logo and company info block
+  const headerHeight = Math.max(logoHeight, companyInfoBlockHeight);
+  yPos += headerHeight + 6; // Add a little extra spacing after header
+
+  // --- BILLING SECTION ---
+  // Facturer à (left)
   doc.setFontSize(10);
-  doc.setTextColor(bgColor.r, bgColor.g, bgColor.b);
-  doc.text(
-    footerText,
-    pageWidth / 2 - doc.getTextWidth(footerText) / 2,
-    doc.internal.pageSize.height - 20
-  );
-  
-  // Save the PDF
-  doc.save(`Order_${order.orderId}_${new Date().toISOString().split('T')[0]}.pdf`);
+  doc.setTextColor(80, 80, 80);
+  doc.text("Facturer à", leftMargin, yPos);
+  doc.setFont(undefined, "bold");
+  doc.text(String(order?.store_name ?? 'NA'), leftMargin, Number(yPos + 7));
+  doc.setFont(undefined, "normal");
+  doc.setFontSize(10);
+  doc.text(String(order?.store_address ?? 'NA'), leftMargin, Number(yPos + 13));
+  if (order?.ordered_user?.email !== undefined) {
+    doc.text(String(order?.ordered_user?.email ?? 'NA'), leftMargin, Number(yPos + 19));
+  }
+  yPos += 25;
+
+  // --- DATE & REFERENCE BOX (right, light background, rounded) ---
+  const boxX = leftMargin;
+  const boxY = yPos;
+  const boxW = 90;
+  const boxH = 18;
+  doc.setFillColor(lightBg.r, lightBg.g, lightBg.b);
+  doc.roundedRect(boxX, boxY, boxW, boxH, 4, 4, 'F');
+  doc.setTextColor(120, 140, 150);
+  doc.setFontSize(10);
+  doc.text(String('Date'), boxX + 6, Number(boxY + 7));
+  doc.text(String('Référence'), boxX + boxW / 2 + 6, Number(boxY + 7));
+  doc.setFont(undefined, "bold");
+  doc.setTextColor(0, 0, 0);
+  const date = order?.created_at ? new Date(order.created_at).toLocaleDateString("fr-FR") : "NA";
+  doc.text(String(date ?? 'NA'), boxX + 6, Number(boxY + 14));
+  doc.text(String(`#${order?.order_id ?? 'NA'}`), boxX + boxW / 2 + 6, Number(boxY + 14));
+  doc.setFont(undefined, "normal");
+  yPos += boxH + 8;
+
+  // --- PRODUCT TABLE ---
+  // Table header (light background, rounded top)
+  const tableX = leftMargin;
+  const tableY = yPos;
+  const tableW = pageWidth - 2 * leftMargin;
+  const rowH = 10;
+  const colWidths = [tableW * 0.40, tableW * 0.15, tableW * 0.15, tableW * 0.20]; // Product, Qty, Price, Total
+  doc.setFillColor(lightBg.r, lightBg.g, lightBg.b);
+  doc.roundedRect(tableX, tableY, tableW, rowH, 4, 4, 'F');
+  doc.setTextColor(120, 140, 150);
+  doc.setFontSize(10);
+  let colX = tableX + 4;
+  ["Produit", "Qté", "Prix", "Total"].forEach((header, i) => {
+    if (header === "Prix" || header === "Total") {
+      // Right align header at the end of the column
+      doc.text(String(header ?? 'NA'), colX + colWidths[i] - 4, Number(tableY + 7), { align: 'right' });
+    } else {
+      // Left align for other headers
+      doc.text(String(header ?? 'NA'), colX, Number(tableY + 7));
+    }
+    colX += colWidths[i];
+  });
+  yPos += rowH;
+
+  // Table rows
+  doc.setTextColor(0, 0, 0);
+  doc.setFontSize(11);
+  (order?.order_items ?? []).forEach((item: any, idx: number) => {
+    let x = tableX + 4;
+    let y = yPos + rowH * idx;
+    doc.text(String(item?.product_name ?? 'NA'), x, Number(y + 7));
+    x += colWidths[0];
+    doc.text(String(item?.quantity ?? 'NA'), x, Number(y + 7));
+    x += colWidths[1];
+    // Right align 'Prix' in its column
+    doc.text(String(currencyFormat.format(item?.product_price ?? 0)), x + colWidths[2] - 4, Number(y + 7), { align: 'right' });
+    x += colWidths[2];
+    const itemTotal = (item?.product_price ?? 0) * (item?.quantity ?? 0);
+    // Right align 'Total' in its column
+    doc.text(String(currencyFormat.format(itemTotal)), x + colWidths[3] - 4, Number(y + 7), { align: 'right' });
+  });
+  yPos += rowH * (order?.order_items?.length ?? 1);
+
+  // Add vertical spacing before summary rows to prevent overlap
+  yPos += 6;
+
+  // Calculate totals before using them in summary rows
+  const totalAmount = (order?.order_items ?? []).reduce((sum: number, item: any) => sum + (item?.product_price ?? 0) * (item?.quantity ?? 0), 0);
+  const tax = totalAmount * 0.1;
+  const grandTotal = totalAmount + tax;
+
+  // --- SUMMARY ROWS ---
+  // Tax row (light background)
+  doc.setFillColor(lightBg.r, lightBg.g, lightBg.b);
+  doc.rect(tableX, yPos, tableW, rowH, 'F');
+  doc.setTextColor(120, 140, 150);
+  // Calculate the start and end of the last column
+  const lastColStartX = tableX + tableW - colWidths[3];
+  const lastColEndX = tableX + tableW;
+  const firstColStartX = tableX + 4;
+  const firstColEndX = tableX + colWidths[0];
+
+  const labelPadding = 4;
+  const valuePadding = 8;
+  // Label: left-aligned within the last column, with padding
+  doc.text('Taxe (10%)', firstColStartX + labelPadding, yPos + 7, { align: 'left' });
+  // Value: right-aligned at the end of the last column, with padding
+  const taxValue = String(currencyFormat.format(tax));
+  doc.setTextColor(0, 0, 0);
+  doc.text(taxValue, lastColEndX - valuePadding, yPos + 7, { align: 'right' });
+  yPos += rowH;
+
+  // Total row (dark background, white text, rounded bottom)
+  doc.setFillColor(darkBg.r, darkBg.g, darkBg.b);
+  doc.roundedRect(tableX, yPos, tableW, rowH, 0, 0, 'F');
+  doc.setTextColor(255, 255, 255);
+  doc.setFont('helvetica', "bold");
+  // Label: left-aligned within the last column, with padding
+  doc.text('Total', firstColStartX + labelPadding, yPos + 7, { align: 'left' });
+  // Value: right-aligned at the end of the last column, with padding
+  const grandTotalValue = String(currencyFormat.format(grandTotal));
+  doc.text(grandTotalValue, lastColEndX - valuePadding, yPos + 7, { align: 'right' });
+  doc.setFont('helvetica', "normal");
+
+  // --- END ---
+  doc.save(`Order_${order?.order_id ?? "NA"}_${order?.created_at ? order.created_at.split(" ")[0] : "NA"}.pdf`);
 };
