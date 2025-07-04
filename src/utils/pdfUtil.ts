@@ -242,5 +242,10 @@ export const handleDownloadInvoice = async (
   doc.setFont('helvetica', "normal");
 
   // --- END ---
-  doc.save(`Order_${order?.order_id ?? "NA"}_${order?.created_at ? order.created_at.split(" ")[0] : "NA"}.pdf`);
+  // Format current date and time in French for filename
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("fr-FR").replace(/\//g, "-");
+  const timeStr = now.toLocaleTimeString("fr-FR", { hour12: false }).replace(/:/g, "-");
+  const fileName = `Facture_${order?.order_id ?? "NA"}_${dateStr}_${timeStr}.pdf`;
+  doc.save(fileName);
 };
