@@ -630,6 +630,10 @@
     "empty": {
       "title": "No Orders Yet",
       "description": "You haven't placed any orders yet. Start shopping to see your order history here."
+    },
+    "orderHistoryExport": {
+      "downloadAsCSV": "Download as CSV",
+      "downloadAsExcel": "Download as XLSX"
     }
   },
   "orderDetails": {
@@ -1381,5 +1385,21 @@
     "total": "Total",
     "selected": "selected",
     "of": "of"
+  },
+  "csv": {
+    "created_at": "Created At",
+    "order_id": "Order ID",
+    "order_status": "Order Status",
+    "total_amount": "Total Amount",
+    "order_items": {
+      "amount": "Amount",
+      "price_of_pack": "Price per Pack",
+      "product_id": "Product ID",
+      "product_images": "Product Image",
+      "product_name": "Product Name",
+      "product_size": "Product Size",
+      "product_suitable_for": "Suitable For",
+      "quantity": "Quantity"
+    }
   }
 }

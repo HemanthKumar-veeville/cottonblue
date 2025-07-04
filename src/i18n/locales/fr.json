@@ -1440,5 +1440,25 @@
     "total": "Total",
     "selected": "sélectionné",
     "of": "sur"
+  },
+  "csv": {
+    "created_at": "Créé le",
+    "order_id": "N°commande",
+    "order_status": "Statut",
+    "total_amount": "Montant total",
+    "order_items": {
+      "amount": "Montant",
+      "price_of_pack": "Prix par lot",
+      "product_id": "ID du produit",
+      "product_images": "Image du produit",
+      "product_name": "Nom du produit",
+      "product_size": "Taille du produit",
+      "product_suitable_for": "Convient à",
+      "quantity": "Quantité"
+    }
+  },
+  "orderHistoryExport": {
+    "downloadAsCSV": "Télécharger en CSV",
+    "downloadAsExcel": "Télécharger en XLSX"
   }
 }
