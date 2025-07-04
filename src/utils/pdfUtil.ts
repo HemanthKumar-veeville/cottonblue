@@ -59,7 +59,7 @@ export const handleDownloadInvoice = async (
     company_name ?? "NA",
     company_address.split(',')[0] ?? "NA",
     company_address.split(',')[1] ?? "NA",
-    company_vat_number ? `N° VAT: ${company_vat_number}` : "",
+    company_vat_number ? `N° VAT: FR75432481893` : "",
     company_phone ?? "",
     company_contact_email ?? "",
   ].filter((line) => !!line);
@@ -86,15 +86,27 @@ export const handleDownloadInvoice = async (
   doc.setFontSize(10);
   doc.setTextColor(80, 80, 80);
   doc.text("Facturer à", leftMargin, yPos);
+  if (order?.ordered_user?.name !== undefined) {
+    doc.text(String(order?.ordered_user?.name ?? 'NA'), leftMargin, Number(yPos + 7));
+  }
   doc.setFont('helvetica', "bold");
-  doc.text(String(order?.store_name ?? 'NA'), leftMargin, Number(yPos + 7));
+  doc.text(String(order?.store_name ?? 'NA'), leftMargin, Number(yPos + 13));
   doc.setFont('helvetica', "normal");
   doc.setFontSize(10);
-  doc.text(String(order?.store_address ?? 'NA'), leftMargin, Number(yPos + 13));
-  if (order?.ordered_user?.email !== undefined) {
-    doc.text(String(order?.ordered_user?.email ?? 'NA'), leftMargin, Number(yPos + 19));
+  doc.text(String(order?.store_address ?? 'NA'), leftMargin, Number(yPos + 19));
+  if (order?.ordered_user?.phone !== undefined) {
+    doc.text(String(order?.ordered_user?.phone ?? 'NA'), leftMargin, Number(yPos + 25));
   }
-  yPos += 25;
+  if (order?.ordered_user?.email !== undefined) {
+    doc.text(String(order?.ordered_user?.email ?? 'NA'), leftMargin, Number(yPos + 31));
+  }
+  yPos += 32;
+  doc.setFont('helvetica', "bold");
+  if (company_vat_number !== undefined) {
+    doc.text(String(`N° VAT: ${company_vat_number}`), leftMargin, Number(yPos + 7));
+  }
+  doc.setFont('helvetica', "normal");
+  yPos += 13;
 
   // --- DATE & REFERENCE BOX (right, light background, rounded) ---
   const boxX = leftMargin;
@@ -105,6 +117,7 @@ export const handleDownloadInvoice = async (
   doc.roundedRect(boxX, boxY, boxW, boxH, 4, 4, 'F');
   doc.setTextColor(120, 140, 150);
   doc.setFontSize(10);
+  doc.setFont('helvetica', "bold");
   doc.text(String('Date'), boxX + 6, Number(boxY + 7));
   doc.text(String('Référence'), boxX + boxW / 2 + 6, Number(boxY + 7));
   doc.setFont('helvetica', "bold");
@@ -117,6 +130,7 @@ export const handleDownloadInvoice = async (
 
   // --- PRODUCT TABLE ---
   // Table header (light background, rounded top)
+  doc.setFont('helvetica', "bold");
   const tableX = leftMargin;
   const tableY = yPos;
   const tableW = pageWidth - 2 * leftMargin;
@@ -138,7 +152,7 @@ export const handleDownloadInvoice = async (
     colX += colWidths[i];
   });
   yPos += rowH;
-
+  doc.setFont('helvetica', "normal");
   // Table rows
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(11);
@@ -150,9 +164,9 @@ export const handleDownloadInvoice = async (
     doc.text(String(item?.quantity ?? 'NA'), x, Number(y + 7));
     x += colWidths[1];
     // Right align 'Prix' in its column
-    doc.text(String(currencyFormat.format(item?.product_price ?? 0)), x + colWidths[2] - 4, Number(y + 7), { align: 'right' });
+    doc.text(String(currencyFormat.format(item?.product_price || item?.price_of_pack || 0)), x + colWidths[2] - 4, Number(y + 7), { align: 'right' });
     x += colWidths[2];
-    const itemTotal = (item?.product_price ?? 0) * (item?.quantity ?? 0);
+    const itemTotal = (item?.product_price || item?.price_of_pack || 0) * (item?.quantity ?? 0);
     // Right align 'Total' in its column
     doc.text(String(currencyFormat.format(itemTotal)), x + colWidths[3] - 4, Number(y + 7), { align: 'right' });
   });
@@ -162,7 +176,7 @@ export const handleDownloadInvoice = async (
   yPos += 6;
 
   // Calculate totals before using them in summary rows
-  const totalAmount = (order?.order_items ?? []).reduce((sum: number, item: any) => sum + (item?.product_price ?? 0) * (item?.quantity ?? 0), 0);
+  const totalAmount = (order?.order_items ?? []).reduce((sum: number, item: any) => sum + (item?.product_price || item?.price_of_pack || 0) * (item?.quantity ?? 0), 0);
   const tax = totalAmount * 0.1;
   const grandTotal = totalAmount + tax;
 
@@ -184,7 +198,7 @@ export const handleDownloadInvoice = async (
   // Value: right-aligned at the end of the last column, with padding
   const taxValue = String(currencyFormat.format(tax));
   doc.setTextColor(0, 0, 0);
-  doc.text(taxValue, lastColEndX - valuePadding, yPos + 7, { align: 'right' });
+  doc.text(taxValue, lastColEndX - valuePadding -8, yPos + 7, { align: 'right' });
   yPos += rowH;
 
   // Total row (dark background, white text, rounded bottom)
@@ -196,7 +210,7 @@ export const handleDownloadInvoice = async (
   doc.text('Total', firstColStartX + labelPadding, yPos + 7, { align: 'left' });
   // Value: right-aligned at the end of the last column, with padding
   const grandTotalValue = String(currencyFormat.format(grandTotal));
-  doc.text(grandTotalValue, lastColEndX - valuePadding, yPos + 7, { align: 'right' });
+  doc.text(grandTotalValue, lastColEndX - valuePadding -8, yPos + 7, { align: 'right' });
   doc.setFont('helvetica', "normal");
 
   // --- END ---

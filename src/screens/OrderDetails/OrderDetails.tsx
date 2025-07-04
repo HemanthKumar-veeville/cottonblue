@@ -1,8 +1,7 @@
-import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
 import { Checkbox } from "../../components/ui/checkbox";
-import { ArrowLeft, Download, ImageOff, Package2 } from "lucide-react";
+import { ArrowLeft, Download, ImageOff } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -11,8 +10,6 @@ import { getOrder } from "../../store/features/cartSlice";
 import { useAppSelector, AppDispatch } from "../../store/store";
 import { getHost } from "../../utils/hostUtils";
 import { Skeleton } from "../../components/Skeleton";
-import { jsPDF } from "jspdf";
-import { TFunction } from "i18next";
 import { getOrderStatusText } from "../../utils/statusUtil";
 import { StatusText } from "../../components/ui/status-text";
 import { StatusIcon } from "../../components/ui/status-icon";
@@ -46,12 +43,19 @@ const OrderHeader = ({ order }: { order: any }) => {
         className="bg-[var(--primary-color)] hover:bg-[var(--primary-hover-color)] border border-[var(--primary-color)] text-white"
         onClick={() =>
           handleDownloadInvoice(
-            order,
+            {
+              ...order,
+              ordered_user: {
+                email: order?.company_email,
+                phone: order?.company_phone,
+                name: order?.company_name,
+              },
+            },
             "#07505e",
             "#ffffff",
             "Cotton Blue",
             "121 Rue du 8 Mai 1945, Villeneuve-d'Ascq - 59650",
-            "FRXX999999999",
+            order?.vat_number ?? "FRXX999999999",
             "contact@cotton-blue.com",
             "03 20 41 09 09"
           )
@@ -178,106 +182,6 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
         </div>
       </CardContent>
     </Card>
-  );
-};
-
-const ProductTableHeader = () => {
-  const { t } = useTranslation();
-  return (
-    <div className="bg-[#eaf8e7] rounded-md mb-2">
-      <div className="flex items-center justify-between p-2">
-        <div className="w-11 flex items-center justify-center">
-          <Checkbox className="h-5 w-5 rounded border-[1.5px]" />
-        </div>
-        <div className="w-[203px] flex items-center">
-          <span className="text-sm text-[#1e2324]">
-            {t("orderDetails.products.table.product")}
-          </span>
-        </div>
-        <div className="w-[129px] flex items-center justify-center">
-          <span className="text-sm text-[#1e2324]">
-            {t("orderDetails.products.table.ref")}
-          </span>
-        </div>
-        <div className="w-[145px] flex items-center justify-center">
-          <span className="text-sm text-[#1e2324]">
-            {t("orderDetails.products.table.unitPrice")}
-          </span>
-        </div>
-        <div className="w-[145px] flex items-center justify-center">
-          <span className="text-sm text-[#1e2324]">
-            {t("orderDetails.products.table.quantity")}
-          </span>
-        </div>
-        <div className="w-[145px] flex items-center justify-center">
-          <span className="text-sm text-[#1e2324]">
-            {t("orderDetails.products.table.total")}
-          </span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const ProductRow = ({ product }: { product: any }) => {
-  const { t } = useTranslation();
-  return (
-    <div className="flex items-center justify-between px-2 py-3 border-b border-primary-neutal-300">
-      <div className="w-11 flex items-center justify-center">
-        <Checkbox className="h-5 w-5 rounded border-[1.5px]" />
-      </div>
-      <div className="w-[203px] flex items-center gap-3 px-3">
-        <div className="w-10 h-10 rounded overflow-hidden border border-primary-neutal-200 flex items-center justify-center bg-gray-50">
-          {product?.product_images &&
-          product?.product_images.length > 0 &&
-          product?.product_images[0] ? (
-            <img
-              src={product?.product_images[0]}
-              alt={product?.product_name ?? "Product"}
-              className="w-[30px] h-[29px] object-cover"
-              onError={(e) => {
-                e.currentTarget.style.display = "none";
-                e.currentTarget.parentElement
-                  ?.querySelector(".placeholder-icon")
-                  ?.classList.remove("hidden");
-              }}
-            />
-          ) : null}
-          <div
-            className={`placeholder-icon ${
-              product?.product_image ? "hidden" : ""
-            } text-gray-400`}
-          >
-            <Package2 className="w-5 h-5" />
-          </div>
-        </div>
-        <span className="text-base text-coolgray-100">
-          {product?.product_name ?? t("common.notAvailable")}
-        </span>
-      </div>
-      <div className="w-[129px] flex items-center justify-center">
-        <span className="text-sm text-coolgray-100">
-          {product?.product_id ?? t("common.notAvailable")}
-        </span>
-      </div>
-      <div className="w-[145px] flex items-center justify-center">
-        <span className="text-[15px] text-black">
-          {product?.product_price
-            ? `${product.product_price}€`
-            : t("common.notAvailable")}
-        </span>
-      </div>
-      <div className="w-[145px] flex items-center justify-center">
-        <span className="text-[15px] text-black">{product?.quantity ?? 0}</span>
-      </div>
-      <div className="w-[145px] flex items-center justify-center">
-        <span className="text-[15px]">
-          {product?.product_price && product?.quantity
-            ? `${(product.product_price * product.quantity).toFixed(2)}€`
-            : t("common.notAvailable")}
-        </span>
-      </div>
-    </div>
   );
 };
 
@@ -440,7 +344,6 @@ const ProductTable = ({ order }: { order: any }) => {
 };
 
 export default function OrderDetails() {
-  const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
   const { id } = useParams();
   const dns_prefix = getHost();

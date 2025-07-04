@@ -195,6 +195,12 @@ const initialState: CartState = {
   error: null,
   total: 0,
   orders: [],
+  store_name: "",
+  store_address: "",
+  company_name: "",
+  company_phone: "",
+  company_email: "",
+  vat_number: "",
   currentOrderId: null,
   currentOrder: null,
   cartId: null,
@@ -324,6 +330,12 @@ const cartSlice = createSlice({
       .addCase(getAllOrders.fulfilled, (state, action) => {
         state.loading = false;
         state.orders = action.payload.orders;
+        state.store_name = action.payload.store_name;
+        state.store_address = action.payload.store_address;
+        state.company_name = action.payload.company_name;
+        state.company_phone = action.payload.company_phone;
+        state.company_email = action.payload.company_email;
+        state.vat_number = action.payload.vat_number;
       })
       .addCase(getAllOrders.rejected, (state, action) => {
         state.loading = false;
@@ -338,6 +350,12 @@ const cartSlice = createSlice({
       .addCase(getOrder.fulfilled, (state, action) => {
         state.loading = false;
         state.currentOrder = action.payload;
+        state.store_name = action.payload.store_name;
+        state.store_address = action.payload.store_address;
+        state.company_name = action.payload.company_name;
+        state.company_phone = action.payload.company_phone;
+        state.company_email = action.payload.company_email;
+        state.vat_number = action.payload.vat_number;
       })
       .addCase(getOrder.rejected, (state, action) => {
         state.loading = false;
