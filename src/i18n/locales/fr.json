@@ -672,7 +672,8 @@
       "storeAddress": "Adresse du magasin",
       "totalItems": "Total des articles",
       "totalQuantity": "Quantité totale",
-      "store": "Magasin"
+      "store": "Magasin",
+      "vatNumber": "Numéro de VAT"
     },
     "products": {
       "title": "Produits commandés",

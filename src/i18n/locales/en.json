@@ -650,7 +650,8 @@
       "storeAddress": "Store Address",
       "totalItems": "Total Items",
       "totalQuantity": "Total Quantity",
-      "store": "Store"
+      "store": "Store",
+      "vatNumber": "VAT Number"
     },
     "products": {
       "title": "Ordered Products",

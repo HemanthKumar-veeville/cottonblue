@@ -357,6 +357,11 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
                 isStatus={false}
               />
               <OrderInfo
+                label={t("orderDetails.fields.vatNumber")}
+                value={order?.vat_number ?? t("common.notAvailable")}
+                isStatus={false}
+              />
+              <OrderInfo
                 label={t("orderDetails.fields.shippingAddress")}
                 value={order?.store_address ?? t("common.notAvailable")}
                 isStatus={false}
