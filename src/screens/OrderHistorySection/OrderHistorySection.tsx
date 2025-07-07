@@ -87,6 +87,7 @@ export const OrderHistorySection = (): JSX.Element => {
     if (!orderList?.length) return;
     try {
       const rows: Record<string, any>[] = [];
+      let currentOrderId: string | null = null;
       orderList.forEach((order: any) => {
         const { order_items, ...orderFields } = order;
         // Format created_at as date and time if present
@@ -103,8 +104,21 @@ export const OrderHistorySection = (): JSX.Element => {
             orderFields.order_status;
         }
         if (Array.isArray(order_items) && order_items.length > 0) {
-          order_items.forEach((item: any) => {
-            const row: Record<string, any> = { ...orderFields };
+          order_items.forEach((item: any, index: number) => {
+            const row: Record<string, any> = {};
+            // Include order fields for all rows except total_amount
+            if (currentOrderId !== order.order_id || index === 0) {
+              Object.entries(orderFields).forEach(([key, value]) => {
+                if (key !== "total_amount") {
+                  row[key] = value;
+                }
+              });
+              currentOrderId = order.order_id;
+            }
+            // Add total_amount only to the last product row
+            if (index === order_items.length - 1) {
+              row.total_amount = orderFields.total_amount;
+            }
             Object.entries(item).forEach(([itemKey, itemValue]) => {
               if (itemKey !== "product_images") {
                 row[itemKey] = itemValue;
@@ -176,6 +190,9 @@ export const OrderHistorySection = (): JSX.Element => {
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet("Orders");
       const rows: Record<string, any>[] = [];
+      let currentOrderId: string | null = null;
+      let isAlternateOrder = false;
+
       orderList.forEach((order: any) => {
         const { order_items, ...orderFields } = order;
         // Format created_at as date and time if present
@@ -192,8 +209,24 @@ export const OrderHistorySection = (): JSX.Element => {
             orderFields.order_status;
         }
         if (Array.isArray(order_items) && order_items.length > 0) {
-          order_items.forEach((item: any) => {
-            const row: Record<string, any> = { ...orderFields };
+          order_items.forEach((item: any, index: number) => {
+            const row: Record<string, any> = {};
+            // Include order fields for all rows except total_amount
+            if (currentOrderId !== order.order_id || index === 0) {
+              Object.entries(orderFields).forEach(([key, value]) => {
+                if (key !== "total_amount") {
+                  row[key] = value;
+                }
+              });
+              currentOrderId = order.order_id;
+              if (index === 0) {
+                isAlternateOrder = !isAlternateOrder;
+              }
+            }
+            // Add total_amount only to the last product row
+            if (index === order_items.length - 1) {
+              row.total_amount = orderFields.total_amount;
+            }
             Object.entries(item).forEach(([itemKey, itemValue]) => {
               if (itemKey !== "product_images") {
                 row[itemKey] = itemValue;
@@ -203,8 +236,10 @@ export const OrderHistorySection = (): JSX.Element => {
           });
         } else {
           rows.push({ ...orderFields });
+          isAlternateOrder = !isAlternateOrder;
         }
       });
+
       const headerMap: Record<string, string> = {
         created_at: t("csv.created_at"),
         order_id: t("csv.order_id"),
@@ -247,18 +282,22 @@ export const OrderHistorySection = (): JSX.Element => {
           }
           return row[key] !== undefined ? row[key] : "";
         });
-        worksheet.addRow(rowData);
-      }
-      // Style header row
-      const headerRow = worksheet.getRow(1);
-      headerRow.font = { bold: true };
-      headerRow.alignment = { horizontal: "center", vertical: "middle" };
-      headerRow.height = 30;
-      // Style all data rows
-      worksheet.eachRow((row, rowNumber) => {
-        row.alignment = { horizontal: "left", vertical: "middle" };
-        row.height = 20;
-        row.eachCell((cell) => {
+
+        const excelRow = worksheet.addRow(rowData);
+
+        // Apply alternating colors
+        if (row.isAlternate) {
+          excelRow.eachCell((cell) => {
+            cell.fill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FFECF5F7" }, // Light cyan color
+            };
+          });
+        }
+
+        // Apply cell formatting
+        excelRow.eachCell((cell) => {
           cell.border = {
             top: { style: "thin" },
             left: { style: "thin" },
@@ -266,13 +305,32 @@ export const OrderHistorySection = (): JSX.Element => {
             right: { style: "thin" },
           };
           cell.alignment = {
-            horizontal: rowNumber === 1 ? "center" : "left",
+            horizontal: "left",
             vertical: "middle",
             wrapText: true,
             indent: 1,
           };
         });
+      }
+
+      // Format header row
+      const headerRow = worksheet.getRow(1);
+      headerRow.font = { bold: true };
+      headerRow.alignment = { horizontal: "center", vertical: "middle" };
+      headerRow.height = 30;
+      headerRow.eachCell((cell) => {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF07515F" }, // Dark cyan color
+          bgColor: { argb: "FF07515F" },
+        };
+        cell.font = {
+          bold: true,
+          color: { argb: "FFFFFFFF" }, // White text
+        };
       });
+
       // Set column widths based on max content length
       Array.from(worksheet.columns ?? []).forEach((col, idx) => {
         let maxLength = headers[idx].length;
