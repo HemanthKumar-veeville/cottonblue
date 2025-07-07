@@ -45,6 +45,7 @@ interface AgencyState {
   deleteSuccess: boolean;
   storeDetails: { store: Agency } | null;
   selectedStore: string | null;
+  previousPath: string | null;
 }
 
 // Initial state
@@ -57,6 +58,7 @@ const initialState: AgencyState = {
   deleteSuccess: false,
   storeDetails: null,
   selectedStore: null,
+  previousPath: null,
 };
 
 // Create async thunks for API calls
@@ -154,6 +156,9 @@ const agencySlice = createSlice({
     setSelectedStore: (state, action) => {
       state.selectedStore = action.payload;
     },
+    setPreviousPath: (state, action) => {
+      state.previousPath = action.payload;
+    },
   },
   extraReducers: (builder) => {
     // Register store
@@ -242,6 +247,7 @@ export const {
   resetDeleteSuccess,
   clearError, 
   clearStoreDetails, 
-  setSelectedStore 
+  setSelectedStore,
+  setPreviousPath
 } = agencySlice.actions;
 export default agencySlice.reducer;

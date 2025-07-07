@@ -15,6 +15,7 @@ import {
   registerStore,
   modifyStore,
   getStoreDetails,
+  setPreviousPath,
 } from "../../store/features/agencySlice";
 import type { Agency } from "../../store/features/agencySlice";
 import { useAppDispatch } from "../../store/store";
@@ -133,7 +134,7 @@ export default function AddAgency() {
   const location = useLocation();
   const { id } = useParams();
   const { selectedCompany } = useAppSelector((state) => state.client);
-  const { storeDetails, loading, error } = useAppSelector(
+  const { storeDetails, loading, error, previousPath } = useAppSelector(
     (state) => state.agency
   );
   const { t } = useTranslation();
@@ -374,7 +375,12 @@ export default function AddAgency() {
           },
         });
       }
-      navigate("/agencies");
+      if (previousPath) {
+        navigate(previousPath);
+        dispatch(setPreviousPath(null));
+      } else {
+        navigate("/agencies");
+      }
     } catch (error) {
       console.error("Form submission error:", error);
       toast.error(

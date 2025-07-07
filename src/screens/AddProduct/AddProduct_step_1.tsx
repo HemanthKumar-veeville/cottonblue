@@ -10,10 +10,11 @@ import {
   Loader2,
   Check,
   ImageOff,
+  Plus,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/utils";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import {
   getProductById,
   Product,
@@ -22,7 +23,11 @@ import {
   allocateMultipleProductsToStores,
 } from "../../store/features/productSlice";
 import { useAppDispatch, useAppSelector } from "../../store/store";
-import { fetchAllStores, Agency } from "../../store/features/agencySlice";
+import {
+  fetchAllStores,
+  Agency,
+  setPreviousPath,
+} from "../../store/features/agencySlice";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
 
@@ -161,18 +166,38 @@ const StoreSelectionSkeleton = () => (
   </div>
 );
 
-const EmptyState = () => (
-  <div className="flex flex-col items-center justify-center h-[340px] w-full">
-    <Store className="w-12 h-12 text-gray-300 mb-4" />
-    <h3 className="text-lg font-semibold text-gray-700 mb-2">
-      No Stores Available
-    </h3>
-    <p className="text-sm text-gray-500 text-center max-w-md">
-      There are no stores available at the moment. Please add stores to your
-      account to continue.
-    </p>
-  </div>
-);
+const EmptyState = () => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+
+  const handleCreateStore = () => {
+    dispatch(setPreviousPath(location.pathname));
+    navigate("/agencies/add");
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center h-[340px] w-full">
+      <Store className="w-12 h-12 text-gray-300 mb-4" />
+      <h3 className="text-lg font-semibold text-gray-700 mb-2">
+        No Stores Available
+      </h3>
+      <p className="text-sm text-gray-500 text-center max-w-md mb-6">
+        There are no stores available at the moment. Please add stores to your
+        account to continue.
+      </p>
+      <Button
+        onClick={handleCreateStore}
+        className="inline-flex items-center gap-2 bg-[#07515f] hover:bg-[#064a56] text-white transition-colors duration-200"
+      >
+        <Plus className="w-4 h-4" />
+        <span className="font-label-medium font-bold text-sm tracking-wide leading-5">
+          Create Store
+        </span>
+      </Button>
+    </div>
+  );
+};
 
 const StoreList = ({
   stores,
@@ -181,6 +206,15 @@ const StoreList = ({
   stores: StoreWithSelection[];
   onToggleStore: (storeId: string) => void;
 }) => {
+  const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const location = useLocation();
+
+  const handleCreateStore = () => {
+    dispatch(setPreviousPath(location.pathname));
+    navigate("/agencies/add");
+  };
+
   if (stores.length === 0) {
     return <EmptyState />;
   }
@@ -229,6 +263,24 @@ const StoreList = ({
             </div>
           </motion.div>
         ))}
+
+        {/* Create Store Card */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+          onClick={handleCreateStore}
+          className="flex items-center justify-center p-3 border-2 border-dashed border-gray-300 rounded-md hover:border-[#07515f] hover:bg-gray-50 transition-all duration-200 bg-white shadow-sm cursor-pointer group"
+        >
+          <div className="flex flex-col items-center gap-2">
+            <div className="p-2 rounded-full bg-gray-100 group-hover:bg-[#07515f]/10 transition-colors duration-200">
+              <Plus className="w-5 h-5 text-gray-500 group-hover:text-[#07515f] transition-colors duration-200" />
+            </div>
+            <span className="font-label-medium font-bold text-gray-600 group-hover:text-[#07515f] text-sm tracking-wide leading-5">
+              Create Store
+            </span>
+          </div>
+        </motion.div>
       </div>
     </div>
   );
