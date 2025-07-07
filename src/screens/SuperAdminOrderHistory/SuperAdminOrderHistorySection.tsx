@@ -124,14 +124,6 @@ const OrderRow = ({
   const company_name = useSelector((state: any) => state.cart.company_name);
   const vat_number = useSelector((state: any) => state.cart.vat_number);
 
-  // Calculate total price for the order
-  const totalPrice = order?.order_items?.reduce(
-    (sum: number, item: OrderItem) => {
-      return sum + (item?.product_price ?? 0) * (item?.quantity ?? 0);
-    },
-    0
-  );
-
   // Format date
   const formattedDate = order?.created_at
     ? new Date(order.created_at).toLocaleDateString()
@@ -164,9 +156,9 @@ const OrderRow = ({
           {order?.store_name}
         </span>
       </TableCell>
-      <TableCell className="w-[145px] text-left">
+      <TableCell className="w-[145px] flex justify-end items-center text-right">
         <span className="font-text-smaller text-black">
-          {totalPrice ?? t("common.notAvailable")}
+          {`${order?.total_amount} €` ?? t("common.notAvailable")}
         </span>
       </TableCell>
       <TableCell className="w-[145px] text-left">
@@ -316,8 +308,21 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
             orderFields.order_status;
         }
         if (Array.isArray(order_items) && order_items.length > 0) {
-          order_items.forEach((item: any) => {
-            const row: Record<string, any> = { ...orderFields };
+          order_items.forEach((item: any, index: number) => {
+            const row: Record<string, any> = {};
+            // Include order fields for the first item, except total_amount
+            if (index === 0) {
+              Object.entries(orderFields).forEach(([key, value]) => {
+                if (key !== "total_amount") {
+                  row[key] = value;
+                }
+              });
+            }
+            // Include total_amount only for the last item
+            if (index === order_items.length - 1) {
+              row["total_amount"] = orderFields.total_amount;
+            }
+            // Always include product-specific fields
             Object.entries(item).forEach(([itemKey, itemValue]) => {
               if (itemKey !== "product_images") {
                 row[itemKey] = itemValue;
@@ -333,20 +338,38 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
         created_at: t("csv.created_at"),
         order_id: t("csv.order_id"),
         order_status: t("csv.order_status"),
-        // No total_amount in this data structure
-        // Add more fields as needed
+        store_id: t("csv.store_id"),
+        company_id: t("csv.company_id"),
+        vat_number: t("csv.vat_number"),
+        company_name: t("csv.company_name"),
+        company_phone: t("csv.company_phone"),
+        company_email: t("csv.company_email"),
+        store_name: t("csv.store_name"),
+        store_address: t("csv.store_address"),
+        product_price: t("csv.order_items.product_price"),
         product_id: t("csv.order_items.product_id"),
         product_name: t("csv.order_items.product_name"),
         quantity: t("csv.order_items.quantity"),
+        amount: t("csv.amount"),
+        total_amount: t("csv.total_amount"),
       };
       const keySet = new Set<string>();
       rows.forEach((row) => {
         Object.keys(row).forEach((key) => keySet.add(key));
       });
       const allKeysRaw = Array.from(keySet).filter(
-        (key) => key !== "product_images"
+        (key) => key !== "product_images" && key !== "company_dns_prefix"
       );
-      let allKeys = allKeysRaw;
+      // Ensure amount and total_amount are at the end
+      let allKeys = allKeysRaw.filter(
+        (key) => key !== "amount" && key !== "total_amount"
+      );
+      if (allKeysRaw.includes("amount")) {
+        allKeys.push("amount");
+      }
+      if (allKeysRaw.includes("total_amount")) {
+        allKeys.push("total_amount");
+      }
       const headers = allKeys.map((key) => headerMap[key] || key);
       const data = rows.map((row) =>
         allKeys.map((key) => (row[key] !== undefined ? row[key] : ""))
@@ -379,6 +402,8 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet("Orders");
       const rows: Record<string, any>[] = [];
+      let currentOrderStartRow = 2; // Start after header row
+
       orderList.forEach((order: any) => {
         const { order_items, ...orderFields } = order;
         if (orderFields.created_at) {
@@ -393,8 +418,21 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
             orderFields.order_status;
         }
         if (Array.isArray(order_items) && order_items.length > 0) {
-          order_items.forEach((item: any) => {
-            const row: Record<string, any> = { ...orderFields };
+          order_items.forEach((item: any, index: number) => {
+            const row: Record<string, any> = {};
+            // Include order fields for the first item, except total_amount
+            if (index === 0) {
+              Object.entries(orderFields).forEach(([key, value]) => {
+                if (key !== "total_amount") {
+                  row[key] = value;
+                }
+              });
+            }
+            // Include total_amount only for the last item
+            if (index === order_items.length - 1) {
+              row["total_amount"] = orderFields.total_amount;
+            }
+            // Always include product-specific fields
             Object.entries(item).forEach(([itemKey, itemValue]) => {
               if (itemKey !== "product_images") {
                 row[itemKey] = itemValue;
@@ -406,26 +444,52 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
           rows.push({ ...orderFields });
         }
       });
+
       const headerMap: Record<string, string> = {
         created_at: t("csv.created_at"),
         order_id: t("csv.order_id"),
         order_status: t("csv.order_status"),
+        store_id: t("csv.store_id"),
+        company_id: t("csv.company_id"),
+        vat_number: t("csv.vat_number"),
+        company_name: t("csv.company_name"),
+        company_phone: t("csv.company_phone"),
+        company_email: t("csv.company_email"),
+        store_name: t("csv.store_name"),
+        store_address: t("csv.store_address"),
+        product_price: t("csv.order_items.product_price"),
         product_id: t("csv.order_items.product_id"),
         product_name: t("csv.order_items.product_name"),
         quantity: t("csv.order_items.quantity"),
+        amount: t("csv.amount"),
+        total_amount: t("csv.total_amount"),
       };
+
       const keySet = new Set<string>();
       rows.forEach((row) => {
         Object.keys(row).forEach((key) => keySet.add(key));
       });
       const allKeysRaw = Array.from(keySet).filter(
-        (key) => key !== "product_images"
+        (key) => key !== "product_images" && key !== "company_dns_prefix"
       );
-      let allKeys = allKeysRaw;
+      let allKeys = allKeysRaw.filter(
+        (key) => key !== "amount" && key !== "total_amount"
+      );
+      if (allKeysRaw.includes("amount")) {
+        allKeys.push("amount");
+      }
+      if (allKeysRaw.includes("total_amount")) {
+        allKeys.push("total_amount");
+      }
+
       const headers = allKeys.map((key) => headerMap[key] || key);
       worksheet.addRow(headers);
-      for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
+
+      let currentOrderId: number | null = null;
+      let isAlternateOrder = false;
+
+      // Add rows and apply formatting
+      rows.forEach((row, index) => {
         const rowData = allKeys.map((key) => {
           if (key === "created_at" && row[key]) {
             const date = dayjs(row[key]);
@@ -434,18 +498,34 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
           if (key === "order_status" && row[key]) {
             return t(row[key]) || row[key];
           }
-          return row[key] !== undefined ? row[key] : "";
+          return row[key] !== undefined &&
+            row[key] !== null &&
+            key !== "company_dns_prefix"
+            ? row[key]
+            : "";
         });
-        worksheet.addRow(rowData);
-      }
-      const headerRow = worksheet.getRow(1);
-      headerRow.font = { bold: true };
-      headerRow.alignment = { horizontal: "center", vertical: "middle" };
-      headerRow.height = 30;
-      worksheet.eachRow((row, rowNumber) => {
-        row.alignment = { horizontal: "left", vertical: "middle" };
-        row.height = 20;
-        row.eachCell((cell) => {
+
+        const excelRow = worksheet.addRow(rowData);
+
+        // Check if this is a new order
+        if (row.order_id && row.order_id !== currentOrderId) {
+          currentOrderId = row.order_id;
+          isAlternateOrder = !isAlternateOrder;
+        }
+
+        // Apply alternating colors for different orders
+        if (isAlternateOrder) {
+          excelRow.eachCell((cell) => {
+            cell.fill = {
+              type: "pattern",
+              pattern: "solid",
+              fgColor: { argb: "FFECF5F7" }, // Light cyan color
+            };
+          });
+        }
+
+        // Apply cell formatting
+        excelRow.eachCell((cell) => {
           cell.border = {
             top: { style: "thin" },
             left: { style: "thin" },
@@ -453,13 +533,33 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
             right: { style: "thin" },
           };
           cell.alignment = {
-            horizontal: rowNumber === 1 ? "center" : "left",
+            horizontal: "left",
             vertical: "middle",
             wrapText: true,
             indent: 1,
           };
         });
       });
+
+      // Format header row
+      const headerRow = worksheet.getRow(1);
+      headerRow.font = { bold: true };
+      headerRow.alignment = { horizontal: "center", vertical: "middle" };
+      headerRow.height = 30;
+      headerRow.eachCell((cell) => {
+        cell.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "FF07515F" }, // Dark cyan color
+          bgColor: { argb: "FF07515F" },
+        };
+        cell.font = {
+          bold: true,
+          color: { argb: "FFFFFFFF" }, // White text
+        };
+      });
+
+      // Set column widths
       Array.from(worksheet.columns ?? []).forEach((col, idx) => {
         let maxLength = headers[idx].length;
         col.eachCell?.({ includeEmpty: true }, (cell: any) => {
@@ -468,7 +568,10 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
         });
         col.width = Math.max(12, Math.min(40, maxLength + 6));
       });
+
+      // Freeze the header row
       worksheet.views = [{ state: "frozen", ySplit: 1 }];
+
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], {
         type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -785,9 +888,9 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
                 ].map((key, index) => (
                   <TableHead
                     key={index}
-                    className={`${
-                      index === 5 ? "w-[69px]" : "w-[145px]"
-                    } text-left text-[#1e2324] font-text-small`}
+                    className={`${index === 5 ? "w-[69px]" : "w-[145px]"} ${
+                      index === 3 ? "text-center" : "text-left"
+                    } text-[#1e2324] font-text-small`}
                   >
                     {t(`history.superAdmin.orderHistory.${key}`)}
                   </TableHead>
