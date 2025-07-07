@@ -1079,7 +1079,9 @@
       "phonePlaceholder": "Enter phone number",
       "validationEmail": "Admin email",
       "emailPlaceholder": "Enter email address",
-      "clientEmailPlaceholder": "Enter client email address"
+      "clientEmailPlaceholder": "Enter client email address",
+      "vatNumber": "VAT Number",
+      "vatNumberPlaceholder": "Enter VAT number"
     },
     "buttons": {
       "login": "Login",
@@ -1089,7 +1091,8 @@
       "urlPreview": "The link will be:",
       "requiredFields": "Please fill in all required fields",
       "clientAddedSuccess": "Client added successfully!",
-      "clientUpdatedSuccess": "Client updated successfully!"
+      "clientUpdatedSuccess": "Client updated successfully!",
+      "invalidVatNumber": "VAT number must be 13 characters: 2 letters followed by 11 numbers"
     }
   },
   "clientAdminDashboard": {

@@ -10,6 +10,7 @@ export interface CompanyModificationData {
   logo?: File;
   color_code?: string;
   is_active?: boolean;
+  vat_number?: string;
 }
 
 interface ClientState {

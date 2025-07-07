@@ -17,6 +17,7 @@ export interface ClientRegistrationData {
   Admin_last_name: string;
   Admin_mobile: string;
   email: string;
+  vat_number: string;
 }
 
 // Interface for carousel creation data
@@ -58,6 +59,7 @@ export const clientService = {
     formData.append('Admin_lname', data.Admin_last_name);
     formData.append('Admin_mobile', data.Admin_mobile);
     formData.append('email', data.email);
+    formData.append('vat_number', data.vat_number);
     
 
     // Make API request to register client

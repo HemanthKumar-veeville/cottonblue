@@ -19,6 +19,7 @@ import {
   Mail,
   Phone,
   ArrowLeft,
+  Hash,
 } from "lucide-react";
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import { HexColorPicker } from "react-colorful";
@@ -59,6 +60,7 @@ const initialFormData = {
     email: "",
     adminMobile: "",
   },
+  vat_number: "",
 };
 
 const SectionHeader = ({ title }: { title: string }) => (
@@ -474,11 +476,13 @@ const ClientForm = () => {
       adminMobile: company?.phone_number || "",
       clientEmail: company?.email || "",
     },
+    vat_number: company?.vat_number || "",
   };
 
   const [formData, setFormData] = useState(initialFormState);
   const [logoFile, setLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [vatNumberError, setVatNumberError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Function to check if form data has changed
@@ -655,7 +659,41 @@ const ClientForm = () => {
     },
   };
 
+  // Add VAT number validation function
+  const validateVatNumber = (vatNumber: string): boolean => {
+    if (!vatNumber) return true; // Allow empty VAT number
+
+    // Check length
+    if (vatNumber.length !== 13) return false;
+
+    // Check first two characters are letters
+    const firstTwoChars = vatNumber.slice(0, 2);
+    if (!/^[A-Z]{2}$/.test(firstTwoChars)) return false;
+
+    // Check remaining characters are numbers
+    const remainingChars = vatNumber.slice(2);
+    if (!/^\d{11}$/.test(remainingChars)) return false;
+
+    return true;
+  };
+
   const handleNext = async () => {
+    // Validate VAT number if provided
+    if (formData.vat_number && !validateVatNumber(formData.vat_number)) {
+      toast.error(
+        t("addClient.messages.invalidVatNumber") || "Invalid VAT number format",
+        {
+          duration: 6000,
+          position: "top-right",
+          style: {
+            background: "#EF4444",
+            color: "#fff",
+          },
+        }
+      );
+      return;
+    }
+
     // Validate required fields
     const requiredFields = [
       { value: formData.name, name: t("addClient.fields.client") },
@@ -739,6 +777,7 @@ const ClientForm = () => {
       Admin_mobile: formData.validation.adminMobile,
       email: formData.validation.clientEmail,
       color_code: formData.brandColors.background || "#324b6b",
+      vat_number: formData.vat_number,
     };
 
     if (isEditMode) {
@@ -771,6 +810,7 @@ const ClientForm = () => {
         Admin_mobile: company?.phone_number || "",
         color_code: company?.bg_color_code || "",
         email: company?.email || "",
+        vat_number: company?.vat_number || "",
       };
 
       // Get only modified fields
@@ -1197,6 +1237,46 @@ const ClientForm = () => {
                     {t("addClient.fields.adminEmail")}
                     <span className="text-red-500 ml-1">*</span>
                   </span>
+                </div>
+                <div className="relative w-full">
+                  <Input
+                    type="text"
+                    className={cn(
+                      "pl-10 py-2 font-text-medium text-[16px] leading-[24px]",
+                      vatNumberError && "border-red-500"
+                    )}
+                    defaultValue={formData.vat_number}
+                    placeholder={t("addClient.fields.vatNumberPlaceholder")}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setFormData((prev) => ({
+                        ...prev,
+                        vat_number: value,
+                      }));
+
+                      // Clear error if empty or validate
+                      if (!value) {
+                        setVatNumberError(null);
+                      } else if (!validateVatNumber(value)) {
+                        setVatNumberError(
+                          t("addClient.messages.invalidVatNumber") ||
+                            "VAT number must be 13 characters: 2 letters followed by 11 numbers"
+                        );
+                      } else {
+                        setVatNumberError(null);
+                      }
+                    }}
+                    data-testid="input-vat-number"
+                  />
+                  <Hash className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
+                  <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
+                    {t("addClient.fields.vatNumber")}
+                  </span>
+                  {vatNumberError && (
+                    <p className="text-red-500 text-xs mt-1">
+                      {vatNumberError}
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

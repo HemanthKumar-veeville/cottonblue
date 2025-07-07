@@ -1109,7 +1109,9 @@
       "phonePlaceholder": "Entrez le numéro de téléphone",
       "validationEmail": "Email de validation N+1",
       "emailPlaceholder": "Entrez l'adresse email",
-      "clientEmailPlaceholder": "Entrez l'adresse email du client"
+      "clientEmailPlaceholder": "Entrez l'adresse email du client",
+      "vatNumber": "Numéro de VAT",
+      "vatNumberPlaceholder": "Entrez le numéro de VAT"
     },
     "buttons": {
       "login": "Connexion",
@@ -1119,7 +1121,8 @@
       "urlPreview": "Le lien sera :",
       "requiredFields": "Veuillez remplir tous les champs obligatoires",
       "clientAddedSuccess": "Client ajouté avec succès !",
-      "clientUpdatedSuccess": "Client mis à jour avec succès !"
+      "clientUpdatedSuccess": "Client mis à jour avec succès !",
+      "invalidVatNumber": "Le numéro de TVA doit comporter 13 caractères : 2 lettres suivies de 11 chiffres"
     }
   },
   "clientAdminDashboard": {
@@ -1215,6 +1218,7 @@
       "createdAt": "Créé le",
       "updatedAt": "Mis à jour le",
       "colors": "Couleurs du thème",
+      "vatNumber": "Numéro de VAT",
       "background": "Couleur de fond",
       "text": "Couleur du texte"
     },

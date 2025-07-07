@@ -133,6 +133,11 @@ const CompanyInfo = ({ company }: { company: Company }) => {
       label: t("companyDetails.info.address"),
       value: company?.address ?? "Not Available",
     },
+    {
+      icon: <Hash className="w-4 h-4" />,
+      label: t("companyDetails.info.vatNumber"),
+      value: company?.vat_number ?? "Not Available",
+    },
   ];
 
   return (
