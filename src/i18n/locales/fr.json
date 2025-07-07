@@ -931,7 +931,8 @@
       "adminPassword": "Mot de passe ADMIN",
       "clientPassword": "Mot de passe CLIENT",
       "validationEmail": "Email de validation N+1",
-      "phoneNumber": "Numéro de téléphone"
+      "phoneNumber": "Numéro de téléphone",
+      "phonePlaceholder": "Entrez le numéro de téléphone"
     },
     "limits": {
       "orderLimit": "Limite de commande",
