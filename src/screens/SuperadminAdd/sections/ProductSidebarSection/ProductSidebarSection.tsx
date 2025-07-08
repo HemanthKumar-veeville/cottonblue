@@ -848,7 +848,8 @@ export const ProductSidebarSection = ({
                             className="h-[175px] pt-6 pr-3 pb-2 pl-3 border-gray-300"
                             maxLength={500}
                           />
-                          <span className="absolute bottom-2 right-2 text-xs text-gray-500">
+                          <span className="absolute bottom-2 right-2 text-xs text-gray-500 mt-2 z-10 bg-white">
+                            {field.value?.length || 0}/500{" "}
                             {t("productSidebar.form.descriptionHint")}
                           </span>
                         </div>

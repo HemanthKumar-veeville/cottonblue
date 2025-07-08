@@ -156,10 +156,7 @@ const ticketSlice = createSlice({
       })
       .addCase(replyToTicket.fulfilled, (state, action) => {
         state.status = 'succeeded';
-        // If we have the current ticket loaded, update its messages
-        if (state.currentTicket) {
-          state.currentTicket = action.payload;
-        }
+        state.error = null;
       })
       .addCase(replyToTicket.rejected, (state, action) => {
         state.status = 'failed';

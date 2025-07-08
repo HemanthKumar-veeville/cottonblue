@@ -67,7 +67,7 @@ const AgencyListSectionBase = ({
           <Input
             className="pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] pr-12 py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)] rounded-[var(--2-tokens-screen-modes-input-border-radius)]"
             placeholder={t("agencyList.search.placeholder", {
-              defaultValue: "Search across all fields...",
+              defaultValue: t("agencyList.search.placeholder"),
             })}
             value={searchTerm}
             onChange={handleSearchChange}

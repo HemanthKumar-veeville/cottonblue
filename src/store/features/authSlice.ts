@@ -8,6 +8,7 @@ interface AuthState {
   companyLogo: string | null;
   isLoading: boolean;
   error: string | null;
+  loginError: string | null;
   isLoggedIn: boolean;
   isAdmin: boolean;
   isClientAdmin: boolean;
@@ -26,6 +27,7 @@ const initialState: AuthState = {
   companyLogo: null,
   isLoading: false,
   error: null,
+  loginError: null,
   isLoggedIn: false,
   user: null,
   isAdmin: false,
@@ -192,7 +194,7 @@ const authSlice = createSlice({
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload as string;
+        state.loginError = action.payload as string;
       })
       // Logout
       .addCase(logout.pending, (state) => {

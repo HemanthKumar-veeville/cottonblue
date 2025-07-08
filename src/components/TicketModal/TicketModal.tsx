@@ -141,6 +141,7 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
           data: { message: description },
         })
       ).unwrap();
+      await dispatch(getTicketById({ dnsPrefix: dns, ticketId }));
       setDescription("");
     } catch (error) {
       console.error("Failed to reply to ticket:", error);
@@ -209,6 +210,18 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
           <CardContent className="p-3">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium text-black">{`Créé par: `}</span>
+                  <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
+                    {`${ticket?.raised_by?.firstname} ${ticket?.raised_by?.lastname}`}
+                  </span>{" "}
+                  <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
+                    |
+                  </span>
+                  <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
+                    {ticket?.raised_by?.email}
+                  </span>
+                </div>
                 <div className="flex items-center gap-2">
                   <Badge
                     className={`${getTicketStatusColor(

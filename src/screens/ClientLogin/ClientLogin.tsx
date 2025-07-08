@@ -193,6 +193,7 @@ export default function ClientLogin() {
   const navigate = useNavigate();
   const {
     isLoading,
+    loginError,
     error,
     company,
     companyLogo,
@@ -266,6 +267,11 @@ export default function ClientLogin() {
                 isLoading={isLoading}
                 onForgotPasswordClick={() => setIsForgotPassword(true)}
               />
+            )}
+            {loginError && (
+              <div className="text-red-500 text-sm w-full text-center">
+                {loginError}
+              </div>
             )}
             {error && (
               <div className="text-red-500 text-sm w-full text-center">

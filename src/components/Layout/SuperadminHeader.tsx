@@ -278,22 +278,29 @@ export const SuperadminHeader = (): JSX.Element => {
                   id="company-dropdown"
                   className="hidden absolute top-full left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50"
                 >
-                  {companyList.map((company) => (
-                    <div
-                      key={company.id}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
-                      onClick={() => {
-                        handleCompanySelect(company);
-                        const dropdown =
-                          document.getElementById("company-dropdown");
-                        if (dropdown) {
-                          dropdown.classList.add("hidden");
-                        }
-                      }}
-                    >
-                      {company.name}
+                  {companyList &&
+                    companyList?.length > 0 &&
+                    companyList.map((company) => (
+                      <div
+                        key={company.id}
+                        className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                        onClick={() => {
+                          handleCompanySelect(company);
+                          const dropdown =
+                            document.getElementById("company-dropdown");
+                          if (dropdown) {
+                            dropdown.classList.add("hidden");
+                          }
+                        }}
+                      >
+                        {company.name}
+                      </div>
+                    ))}
+                  {companyList && companyList?.length === 0 && (
+                    <div className="px-4 py-2 text-gray-500">
+                      {t("common.noCompanies")}
                     </div>
-                  ))}
+                  )}
                 </div>
               </div>
             </div>

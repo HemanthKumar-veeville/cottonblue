@@ -2,8 +2,11 @@ import React, { useEffect } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { isAdminHostname } from "../utils/hostUtils";
+import { useTranslation } from "react-i18next";
+
 const NotFound: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (isAdminHostname()) {
@@ -21,11 +24,9 @@ const NotFound: React.FC = () => {
       >
         <h1 className="text-9xl font-bold text-gray-900 mb-4">404</h1>
         <h2 className="text-2xl md:text-3xl font-semibold text-gray-800 mb-4">
-          Page Not Found
+          {t("notFound.title")}
         </h2>
-        <p className="text-gray-600 mb-8">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
+        <p className="text-gray-600 mb-8">{t("notFound.description")}</p>
         <div className="relative w-48 h-48 mx-auto mb-8">
           <div className="absolute inset-0 border-8 border-gray-300 rounded-full"></div>
           <div className="absolute inset-4 border-8 border-gray-400 rounded-full"></div>
@@ -35,7 +36,7 @@ const NotFound: React.FC = () => {
           onClick={() => window.history.back()}
           className="px-6 py-3 bg-gray-900 text-white rounded-lg hover:bg-gray-800 transition-colors duration-200"
         >
-          Go Back
+          {t("notFound.button")}
         </button>
       </motion.div>
     </div>

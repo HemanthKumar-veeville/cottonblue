@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { AlertCircle } from "lucide-react";
 import { Button } from "./ui/button";
+import { useTranslation } from "react-i18next";
 
 interface ErrorStateProps {
   title?: string;
@@ -17,6 +18,8 @@ const ErrorState: React.FC<ErrorStateProps> = ({
   className = "",
   variant = "inline",
 }) => {
+  const { t } = useTranslation();
+
   if (variant === "inline") {
     return (
       <motion.div
@@ -34,7 +37,7 @@ const ErrorState: React.FC<ErrorStateProps> = ({
               onClick={onRetry}
               className="ml-2 text-red-600 hover:text-red-700 hover:bg-red-50"
             >
-              Retry
+              {t("errorState.retry")}
             </Button>
           )}
         </div>
@@ -61,7 +64,7 @@ const ErrorState: React.FC<ErrorStateProps> = ({
             variant="destructive"
             className="hover:bg-red-700"
           >
-            Try Again
+            {t("errorState.retry")}
           </Button>
         )}
       </div>

@@ -3,6 +3,14 @@
     "en": "English",
     "fr": "Français"
   },
+  "notFound": {
+    "title": "Page non trouvée",
+    "description": "La page que vous cherchez n'existe pas ou a été déplacée.",
+    "button": "Retour"
+  },
+  "errorState": {
+    "retry": "Réessayer"
+  },
   "files": {
     "orders": "commandes",
     "products": "produits",
@@ -45,7 +53,8 @@
     "cancel": "Annuler",
     "deleting": "Suppression en cours...",
     "select": "Sélectionner",
-    "selectAll": "Sélectionner tout"
+    "selectAll": "Sélectionner tout",
+    "noCompanies": "Aucune entreprise trouvée"
   },
   "header": {
     "adminManagement": "Gestion des administrateurs",
@@ -120,6 +129,8 @@
   },
   "productList": {
     "title": "Liste des produits",
+    "noProducts": "Aucun produit",
+    "emptyMessage": "Il n'y a pas de produits à afficher pour le moment. Les produits apparaîtront ici une fois que les données de vente seront disponibles.",
     "search": {
       "placeholder": "Rechercher une agence"
     },
@@ -247,6 +258,11 @@
       "createSuccess": "Produit créé avec succès",
       "updateSuccess": "Produit mis à jour avec succès",
       "mainImageUpdated": "Image principale mise à jour avec succès"
+    }
+  },
+  "agencyList": {
+    "search": {
+      "placeholder": "Rechercher une agence"
     }
   },
   "agencyDetails": {
@@ -379,6 +395,8 @@
     "topClients": "Meilleurs clients",
     "latestTickets": "Derniers tickets",
     "noTopProducts": "Aucun produit populaire",
+    "noTopClients": "Aucun client",
+    "noTopClientsDescription": "Il n'y a pas de clients à afficher pour le moment. Les clients apparaîtront ici une fois que les données de vente seront disponibles.",
     "noTopProductsDescription": "Il n'y a pas de produits les plus vendus à afficher pour le moment. Les produits apparaîtront ici une fois que les données de vente seront disponibles.",
     "timeframes": {
       "selectTimeframe": "Sélectionner la période",
@@ -505,7 +523,14 @@
   "addProduct": {
     "step1": {
       "title": "Choisir le magasin",
-      "description": "Sélectionnez le magasin où le produit sera stocké"
+      "description": "Sélectionnez le magasin où le produit sera stocké",
+      "availableStores": "Magasins disponibles",
+      "searchStores": "Rechercher un magasin",
+      "selectAllStores": "Sélectionner tous les magasins",
+      "noStoresAvailable": "Aucun magasin disponible",
+      "noStoresAvailableDescription": "Il n'y a pas de magasins disponibles pour le moment. Veuillez ajouter des magasins à votre compte pour continuer.",
+      "createStore": "Créer un magasin",
+      "publishing": "Publication en cours..."
     },
     "variants": {
       "title": "Variantes du produit",

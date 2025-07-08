@@ -105,38 +105,42 @@ const StoreSelectionControls = ({
   onSearch: (query: string) => void;
   onSelectAll: (checked: boolean) => void;
   allSelected: boolean;
-}) => (
-  <div className="w-3/4">
-    <div className="flex gap-4">
-      <div className="flex-1 relative">
-        <FormField label="Available stores">
-          <div className="relative">
-            <Input
-              placeholder="Search stores..."
-              className="pl-10 pr-4 py-2 h-auto transition-all duration-200 focus:ring-2 focus:ring-[#07515f] focus:border-transparent"
-              onChange={(e) => onSearch(e.target.value)}
-            />
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-          </div>
-        </FormField>
-      </div>
-      <div className="flex items-center gap-2 px-2">
-        <Checkbox
-          id="selectAll"
-          className="w-4 h-4 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
-          checked={allSelected}
-          onCheckedChange={(checked: boolean) => onSelectAll(checked)}
-        />
-        <label
-          htmlFor="selectAll"
-          className="font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5"
-        >
-          Select All Stores
-        </label>
+}) => {
+  const { t } = useTranslation();
+
+  return (
+    <div className="w-3/4">
+      <div className="flex gap-4">
+        <div className="flex-1 relative">
+          <FormField label={t("addProduct.step1.availableStores")}>
+            <div className="relative">
+              <Input
+                placeholder={t("addProduct.step1.searchStores")}
+                className="pl-10 pr-4 py-2 h-auto transition-all duration-200 focus:ring-2 focus:ring-[#07515f] focus:border-transparent"
+                onChange={(e) => onSearch(e.target.value)}
+              />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+            </div>
+          </FormField>
+        </div>
+        <div className="flex items-center gap-2 px-2">
+          <Checkbox
+            id="selectAll"
+            className="w-4 h-4 border-gray-300 data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
+            checked={allSelected}
+            onCheckedChange={(checked: boolean) => onSelectAll(checked)}
+          />
+          <label
+            htmlFor="selectAll"
+            className="font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5"
+          >
+            {t("addProduct.step1.selectAllStores")}
+          </label>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
 // Store Selection Skeleton Component
 const StoreSelectionSkeleton = () => (
@@ -170,6 +174,7 @@ const EmptyState = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const handleCreateStore = () => {
     dispatch(setPreviousPath(location.pathname));
@@ -180,11 +185,10 @@ const EmptyState = () => {
     <div className="flex flex-col items-center justify-center h-[340px] w-full">
       <Store className="w-12 h-12 text-gray-300 mb-4" />
       <h3 className="text-lg font-semibold text-gray-700 mb-2">
-        No Stores Available
+        {t("addProduct.step1.noStoresAvailable")}
       </h3>
       <p className="text-sm text-gray-500 text-center max-w-md mb-6">
-        There are no stores available at the moment. Please add stores to your
-        account to continue.
+        {t("addProduct.step1.noStoresAvailableDescription")}
       </p>
       <Button
         onClick={handleCreateStore}
@@ -192,7 +196,7 @@ const EmptyState = () => {
       >
         <Plus className="w-4 h-4" />
         <span className="font-label-medium font-bold text-sm tracking-wide leading-5">
-          Create Store
+          {t("addProduct.step1.createStore")}
         </span>
       </Button>
     </div>
@@ -209,6 +213,7 @@ const StoreList = ({
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const location = useLocation();
+  const { t } = useTranslation();
 
   const handleCreateStore = () => {
     dispatch(setPreviousPath(location.pathname));
@@ -277,7 +282,7 @@ const StoreList = ({
               <Plus className="w-5 h-5 text-gray-500 group-hover:text-[#07515f] transition-colors duration-200" />
             </div>
             <span className="font-label-medium font-bold text-gray-600 group-hover:text-[#07515f] text-sm tracking-wide leading-5">
-              Create Store
+              {t("addProduct.step1.createStore")}
             </span>
           </div>
         </motion.div>
@@ -530,7 +535,7 @@ const ProductDetails = () => {
                 <div className="flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
                   <span className="font-label-medium font-bold text-white text-sm tracking-wide leading-5 whitespace-nowrap">
-                    Publishing...
+                    {t("addProduct.step1.publishing")}
                   </span>
                 </div>
               ) : (
