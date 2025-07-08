@@ -1151,46 +1151,39 @@ const ClientForm = () => {
                   </span>
                   <div className="relative">
                     <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 z-10" />
-                    <PhoneInput
-                      country={"fr"}
-                      preferredCountries={["fr", "de", "gb", "it", "es"]}
-                      value={formData.validation.adminMobile}
-                      placeholder={t("addClient.fields.phonePlaceholder")}
-                      onChange={(phone) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          validation: {
-                            ...prev.validation,
-                            adminMobile: phone,
-                          },
-                        }))
-                      }
-                      containerStyle={phoneInputStyles.container}
-                      inputStyle={{
-                        ...phoneInputStyles.inputStyle,
-                        paddingLeft: "48px",
-                      }}
-                      buttonStyle={{
-                        ...phoneInputStyles.buttonStyle,
-                        display: "none",
-                      }}
-                      dropdownStyle={phoneInputStyles.dropdownStyle}
-                      enableSearch={true}
-                      searchPlaceholder="Search country..."
-                      searchStyle={{
-                        width: "100%",
-                        height: "36px",
-                        borderRadius: "4px",
-                        border: "1px solid #e2e8f0",
-                        padding: "0 10px",
-                        marginTop: "5px",
-                      }}
-                      inputProps={{
-                        required: true,
-                        name: "phone",
-                        "data-testid": "input-admin-mobile",
-                      }}
-                    />
+                    <div className="relative">
+                      <Input
+                        type="tel"
+                        className="pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
+                        value={formData.validation.adminMobile}
+                        placeholder={t("addClient.fields.phonePlaceholder")}
+                        onChange={(e) => {
+                          // Only allow digits and limit to 10
+                          const digitsOnly = e.target.value.replace(/\D/g, "");
+                          if (digitsOnly.length <= 10) {
+                            // Format with spaces: XX XX XX XX XX
+                            const formatted = digitsOnly
+                              .replace(/(\d{2})(?=\d)/g, "$1 ")
+                              .trim();
+                            setFormData((prev) => ({
+                              ...prev,
+                              validation: {
+                                ...prev.validation,
+                                adminMobile: formatted,
+                              },
+                            }));
+                          }
+                        }}
+                        maxLength={14} // 10 digits + 4 spaces
+                        required
+                        data-testid="input-admin-mobile"
+                      />
+                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4" />
+                      <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
+                        {t("addClient.fields.adminMobile")}
+                        <span className="text-red-500 ml-1">*</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
                 <div className="relative w-full">
