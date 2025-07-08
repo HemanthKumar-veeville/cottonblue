@@ -33,6 +33,8 @@ import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
 import { Users, MoreVertical, Eye, Edit, Power, Trash2 } from "lucide-react";
+import { Badge } from "../../components/ui/badge";
+
 import {
   fetchUsers,
   modifyUser,
@@ -284,10 +286,12 @@ export const UserTableSection = ({
                     <TableCell className="w-[145px] text-left font-text-smaller text-black">
                       {user.email}
                     </TableCell>
-                    <TableCell className="w-[145px] text-left font-text-smaller text-black">
-                      {user.is_active
-                        ? t("userList.table.active")
-                        : t("userList.table.inactive")}
+                    <TableCell className="w-[145px] text-left font-text-smaller text-black align-middle">
+                      <Badge variant={user.is_active ? "active" : "inactive"}>
+                        {user.is_active
+                          ? t("productList.table.active")
+                          : t("productList.table.inactive")}
+                      </Badge>
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-smaller text-black">
                       {user.role || "User"}

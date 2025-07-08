@@ -251,17 +251,17 @@ export const AgencyExportCSV = ({
           </div>
           <div className="flex justify-end">
             <ExportDropdown
-              defaultLabel={t("exportModal.export", "Export")}
+              defaultLabel={t("exportCSV.export", "Export")}
               disabled={agencies?.length === 0}
               onExportCSV={handleExportCSV}
               onExportExcel={handleExportExcel}
               options={[
                 {
-                  label: t("exportModal.exportAsCSV", "Export as CSV"),
+                  label: t("exportCSV.exportAsCSV", "Export as CSV"),
                   onClick: handleExportCSV,
                 },
                 {
-                  label: t("exportModal.exportAsExcel", "Export as Excel"),
+                  label: t("exportCSV.exportAsExcel", "Export as Excel"),
                   onClick: handleExportExcel,
                 },
               ]}

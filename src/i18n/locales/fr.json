@@ -21,6 +21,7 @@
   },
   "common": {
     "loading": "Chargement...",
+    "processing": "Traitement en cours...",
     "viewAll": "Voir tout",
     "next": "Suivant",
     "previous": "Précédent",
@@ -1043,6 +1044,14 @@
       "delete": {
         "title": "Supprimer l'utilisateur",
         "description": "Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action ne peut pas être annulée."
+      },
+      "deactivate": {
+        "title": "Désactiver l'utilisateur",
+        "description": "Êtes-vous sûr de vouloir désactiver cet utilisateur ? Il ne pourra plus se connecter à l'application."
+      },
+      "activate": {
+        "title": "Activer l'utilisateur",
+        "description": "Êtes-vous sûr de vouloir activer cet utilisateur ? Il pourra se connecter à l'application."
       }
     }
   },
@@ -1218,7 +1227,9 @@
   },
   "exportCSV": {
     "title": "Exporter les produits",
-    "export": "Exporter"
+    "export": "Exporter",
+    "exportAsCSV": "Exporter en CSV",
+    "exportAsExcel": "Exporter en Excel"
   },
   "userSidebar": {
     "messages": {
