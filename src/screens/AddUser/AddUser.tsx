@@ -268,12 +268,7 @@ export default function AddUser() {
 
   const handleSubmit = async () => {
     // Validate required fields
-    if (
-      !formData.firstname ||
-      !formData.lastname ||
-      !formData.email ||
-      formData.store_ids.length === 0
-    ) {
+    if (!formData.firstname || !formData.lastname || !formData.email) {
       toast.error(t("addUser.validation.requiredFields"));
       return;
     }

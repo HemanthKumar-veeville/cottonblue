@@ -825,6 +825,7 @@
       "id": "ID",
       "name": "Name",
       "email": "Email",
+      "adminEmail": "Admin Email",
       "phone": "Phone",
       "city": "City",
       "address": "Address",

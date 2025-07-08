@@ -14,9 +14,11 @@ import {
 import { AppDispatch, useAppSelector } from "../../store/store";
 import { AlertCircle } from "lucide-react";
 import { Button } from "../../components/ui/button";
+import { useTranslation } from "react-i18next";
 
 const TestBoard: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
+  const { t } = useTranslation();
   const { health } = useAppSelector((state) => state.test);
   const loading = useSelector(selectLoading);
   const error = useSelector(selectError);
@@ -47,17 +49,16 @@ const TestBoard: React.FC = () => {
             <AlertCircle className="w-12 h-12 text-red-600" />
           </div>
           <h2 className="text-2xl font-bold text-gray-900">
-            Test Server Unavailable
+            {t("testBoard.serverUnavailable")}
           </h2>
           <p className="text-gray-600">
-            The test server appears to be offline. Please ensure it's running
-            and try again.
+            {t("testBoard.serverUnavailableDescription")}
           </p>
           <Button
             onClick={getServerHealth}
             className="mt-2 bg-[#07515f] hover:bg-[#064751] transition-colors"
           >
-            Retry Connection
+            {t("testBoard.retryConnection")}
           </Button>
         </div>
       </main>

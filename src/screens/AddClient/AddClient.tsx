@@ -574,6 +574,12 @@ const ClientForm = () => {
     };
   }, [dispatch]);
 
+  useEffect(() => {
+    if (!isEditMode) {
+      dispatch(resetState());
+    }
+  }, [isEditMode]);
+
   // Handle success state
   useEffect(() => {
     if (success) {

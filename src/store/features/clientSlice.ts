@@ -176,6 +176,7 @@ const clientSlice = createSlice({
       state.error = null;
       state.success = false;
       state.carousel = null;
+      state.companyDetails = null;
     },
     setSelectedCompany: (state, action) => {
       state.selectedCompany = action.payload;

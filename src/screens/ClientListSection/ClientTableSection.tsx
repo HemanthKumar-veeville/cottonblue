@@ -230,7 +230,7 @@ export const ClientTableSection = ({
                     {t("clientTable.columns.name")}
                   </TableHead>
                   <TableHead className="w-[200px] text-left text-[#1e2324] font-text-small">
-                    {t("clientTable.columns.email")}
+                    {t("clientTable.columns.adminEmail")}
                   </TableHead>
                   <TableHead className="w-[130px] text-left text-[#1e2324] font-text-small">
                     {t("clientTable.columns.phone")}
@@ -284,7 +284,7 @@ export const ClientTableSection = ({
                         </button>
                       </TableCell>
                       <TableCell className="w-[200px] text-left font-text-smaller text-black">
-                        {client.email || "-"}
+                        {client.admin_email || "-"}
                       </TableCell>
                       <TableCell className="w-[130px] text-left font-text-smaller text-black">
                         {client.phone_number}

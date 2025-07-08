@@ -11,6 +11,11 @@
   "errorState": {
     "retry": "Réessayer"
   },
+  "testBoard": {
+    "serverUnavailable": "Serveur de test indisponible",
+    "serverUnavailableDescription": "Le serveur de test semble être hors ligne. Veuillez vous assurer qu'il est en cours d'exécution et réessayer.",
+    "retryConnection": "Réessayer la connexion"
+  },
   "files": {
     "orders": "commandes",
     "products": "produits",
@@ -873,6 +878,7 @@
       "id": "ID",
       "name": "Nom",
       "email": "Email",
+      "adminEmail": "Email Admin",
       "phone": "Téléphone",
       "city": "Ville",
       "address": "Adresse",
