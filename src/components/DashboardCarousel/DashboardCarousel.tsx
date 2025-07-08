@@ -73,7 +73,7 @@ export const DashboardCarousel = (): JSX.Element => {
 
   return (
     <div className="flex flex-col items-center justify-center gap-2.5 w-full mb-8">
-      <div className="flex h-[300px] items-center justify-center w-full rounded-[var(--2-tokens-screen-modes-button-border-radius)] [background:linear-gradient(0deg,rgba(242,237,227,1)_0%,rgba(242,237,227,1)_100%)] overflow-hidden">
+      <div className="flex h-[600px] items-center justify-center w-full rounded-[var(--2-tokens-screen-modes-button-border-radius)] [background:linear-gradient(0deg,rgba(242,237,227,1)_0%,rgba(242,237,227,1)_100%)] overflow-hidden">
         <div className="flex h-full items-center justify-center">
           {imageUrls.map((imageUrl, index) => (
             <div
