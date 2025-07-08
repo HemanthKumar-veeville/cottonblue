@@ -251,7 +251,7 @@ const authSlice = createSlice({
         state.isLoading = false;
         state.user = action.payload;
         state.isLoggedIn = action.payload.logged_in;
-        state.isClientAdmin = action.payload.company_admin;
+        state.isClientAdmin = action.payload.company_admin || action.payload.super_admin;
         state.company = action.payload.company_name || null;
         if(action.payload.logged_in){
           state.companyColor = action.payload.company_bg_color;

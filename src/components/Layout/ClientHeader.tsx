@@ -52,7 +52,7 @@ export const ClientHeader = () => {
   const notificationRef = useRef<HTMLDivElement>(null);
   const items = cart?.items || [];
   const userName = user?.user_name;
-  const isAdmin = user?.user_role === "admin";
+  const isAdmin = user?.super_admin || user?.company_admin;
   const storeIds = user?.store_details || [];
   const { stores, selectedStore } = useAppSelector((state) => state.agency);
   const storeList = stores?.stores;
