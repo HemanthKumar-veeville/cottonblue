@@ -65,7 +65,11 @@ const bottomNavItems = [
 
 const LogoSection = ({ companyLogo }: { companyLogo: string }) => (
   <div className="flex flex-col items-end justify-center w-full">
-    <img className="w-full h-9" alt="Logo vert" src={companyLogo} />
+    <img
+      className="w-full h-auto object-contain"
+      alt="Logo vert"
+      src={companyLogo}
+    />
     <div className="w-fit font-text-small text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]">
       by Cotton Blue
     </div>
