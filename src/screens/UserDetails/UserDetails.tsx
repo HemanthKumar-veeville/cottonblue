@@ -122,7 +122,9 @@ const UserDetailsCard = ({ user, stores }: { user: any; stores: Store[] }) => {
                   <span
                     className={
                       detail.label === t("userDetails.fields.status")
-                        ? "text-emerald-500"
+                        ? user.is_active
+                          ? "text-emerald-500"
+                          : "text-red-500"
                         : ""
                     }
                   >
@@ -146,7 +148,7 @@ const ActionsBox = () => {
   const { id } = useParams<{ id: string }>();
   const { selectedCompany } = useAppSelector((state) => state.client);
   const { selectedUser } = useAppSelector((state) => state.user);
-  const isActive = selectedUser?.is_active;
+  const isActive = selectedUser?.user?.is_active;
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showToggleDialog, setShowToggleDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
