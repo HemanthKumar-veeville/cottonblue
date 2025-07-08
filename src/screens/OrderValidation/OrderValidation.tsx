@@ -133,23 +133,6 @@ export default function Container(): JSX.Element {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] w-full">
-        <div className="bg-error/10 text-error rounded-lg p-6 max-w-md text-center">
-          <h3 className="font-bold text-lg mb-2">Error Loading Order</h3>
-          <p className="text-sm">{error}</p>
-          <button
-            onClick={() => window.location.reload()}
-            className="mt-4 px-4 py-2 bg-error text-white rounded-md hover:bg-error/90 transition-colors"
-          >
-            Try Again
-          </button>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <main className="flex flex-col w-full max-w-[1208px] mx-auto gap-8 px-4 py-6 md:px-6 lg:px-8">
       <SectionWrapper>

@@ -379,14 +379,6 @@ export default function SuperAdminOrderDetails() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="text-center py-4 text-[color:var(--1-tokens-color-modes-common-danger-medium)]">
-        {error}
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col items-start gap-6 p-6">
       <OrderDetailsCard order={currentOrder} />

@@ -307,16 +307,6 @@ const ClientDetails = (): JSX.Element => {
     return <Skeleton variant="details" />;
   }
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-center gap-8 p-6">
-        <div className="text-center py-4 text-red-600 font-label-small text-sm tracking-wide leading-5">
-          {error}
-        </div>
-      </div>
-    );
-  }
-
   if (!company) {
     return (
       <div className="flex flex-col items-center gap-8 p-6">

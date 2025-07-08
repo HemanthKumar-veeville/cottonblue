@@ -372,10 +372,6 @@ export default function OrderDetails() {
     );
   }
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
   return (
     <div className="flex flex-col items-start gap-2.5 p-2.5">
       <OrderDetailsCard order={currentOrder} />

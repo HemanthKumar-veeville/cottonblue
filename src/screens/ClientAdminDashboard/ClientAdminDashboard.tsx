@@ -371,10 +371,6 @@ export default function ClientAdminDashboard(): JSX.Element {
     setSelectedPeriod(getDefaultPeriodValue(timeframe));
   };
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
   const isLoading = ordersLoading || dashboardLoading;
 
   return (

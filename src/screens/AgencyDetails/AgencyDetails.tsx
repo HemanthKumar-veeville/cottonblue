@@ -843,10 +843,6 @@ const AgencyDetails = (): JSX.Element => {
     );
   }
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
   return (
     <div className="flex flex-col items-start gap-8 p-6">
       <AgencyDetailsCard store={store} orders={orders} />

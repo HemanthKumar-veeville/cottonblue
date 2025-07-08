@@ -349,20 +349,6 @@ function UserDetails() {
     );
   }
 
-  if (error) {
-    return (
-      <div className="flex flex-col items-start gap-8 p-6">
-        <Card className="w-full">
-          <CardContent>
-            <div className="text-center py-4 text-red-600">
-              {t("userDetails.error")}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   if (!user) {
     return (
       <div className="flex flex-col items-start gap-8 p-6">

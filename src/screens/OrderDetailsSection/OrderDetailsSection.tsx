@@ -233,10 +233,6 @@ export const OrderDetailsSection = (): JSX.Element => {
     return <Skeleton variant="table" />;
   }
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
-
   if (!orderList.length) {
     return (
       <div className="h-full flex items-center justify-center bg-white">
