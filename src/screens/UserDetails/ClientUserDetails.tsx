@@ -2,13 +2,14 @@ import { Button } from "../../components/ui/button";
 import { useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { AppDispatch } from "../../store";
+import { AppDispatch } from "../../store/store";
 import { getUserDetails, modifyUser } from "../../store/features/userSlice";
 import { Skeleton } from "../../components/ui/skeleton";
 import { fetchAllStores } from "../../store/features/agencySlice";
 import { useAppSelector } from "../../store/store";
 import { getHost } from "../../utils/hostUtils";
 import { useCompanyColors } from "../../hooks/useCompanyColors";
+import { useTranslation } from "react-i18next";
 
 interface Store {
   id: number;
@@ -33,22 +34,23 @@ const UserDetailsSection = ({
   user: any;
   stores: Store[];
 }) => {
+  const { t } = useTranslation();
   const leftColumnDetails = [
     {
-      label: "ID",
-      value: user?.user_id || "Not Available",
+      label: t("userDetails.fields.id"),
+      value: user?.user_id || t("common.notAvailable"),
     },
     {
-      label: "First Name",
-      value: user?.firstname || "Not Available",
+      label: t("userDetails.fields.firstName"),
+      value: user?.firstname || t("common.notAvailable"),
     },
     {
-      label: "Last Name",
-      value: user?.lastname || "Not Available",
+      label: t("userDetails.fields.lastName"),
+      value: user?.lastname || t("common.notAvailable"),
     },
     {
-      label: "Email",
-      value: user?.email || "Not Available",
+      label: t("userDetails.fields.email"),
+      value: user?.email || t("common.notAvailable"),
     },
   ];
 
@@ -58,20 +60,22 @@ const UserDetailsSection = ({
         const store = stores?.find((s) => s.id === storeId);
         return store?.name || `Store ${storeId}`;
       })
-      .join(", ") || "Not Available";
+      .join(", ") || t("common.notAvailable");
 
   const rightColumnDetails = [
     {
-      label: "Role",
-      value: user?.role || "Not Available",
+      label: t("userDetails.fields.role"),
+      value: user?.role || t("common.notAvailable"),
     },
     {
-      label: "Stores",
+      label: t("userDetails.fields.stores"),
       value: storeNames,
     },
     {
-      label: "Status",
-      value: user?.is_active ? "Active" : "Inactive",
+      label: t("userDetails.fields.status"),
+      value: user?.is_active
+        ? t("userDetails.status.active")
+        : t("userDetails.status.inactive"),
     },
   ];
 
@@ -79,7 +83,7 @@ const UserDetailsSection = ({
     <section className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
       <header className="flex items-center justify-between w-full">
         <h2 className="text-[length:var(--heading-h3-font-size)] font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[#1e2324] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)]">
-          User Details - {user.firstname} {user.lastname}
+          {t("userDetails.title")} - {user.firstname} {user.lastname}
         </h2>
       </header>
 
@@ -99,8 +103,8 @@ const UserDetailsSection = ({
                 <span className="text-sm text-[#6b7280]">{detail.label}</span>
                 <p
                   className={`font-medium ${
-                    detail.label === "Status"
-                      ? detail.value === "Active"
+                    detail.label === t("userDetails.fields.status")
+                      ? detail.value === t("userDetails.status.active")
                         ? "text-[#00b85b]"
                         : "text-[#ef4444]"
                       : "text-[#1e2324]"
@@ -128,6 +132,8 @@ const ActionsSection = () => {
   const host = getHost();
   const dns = selectedCompany?.dns || host;
   const { buttonStyles } = useCompanyColors();
+  const { t } = useTranslation();
+
   const handleEdit = () => {
     navigate(`/users/edit/${id}`);
   };
@@ -162,13 +168,15 @@ const ActionsSection = () => {
       style={buttonStyles}
       className="bg-[var(--primary-light-color)] p-4 rounded-[var(--2-tokens-screen-modes-common-spacing-XS)]"
     >
-      <h3 className="text-sm font-medium text-[#1e2324] mb-4">Actions</h3>
+      <h3 className="text-sm font-medium text-[#1e2324] mb-4">
+        {t("userDetails.actions.title")}
+      </h3>
       <div className="flex flex-col sm:flex-row gap-4 w-full">
         <Button
           className="flex-1 bg-[#00b85b] hover:bg-[#00a050] text-white transition-colors"
           onClick={handleEdit}
         >
-          Modify
+          {t("userDetails.actions.modify")}
         </Button>
         <Button
           className={`flex-1 ${
@@ -178,7 +186,9 @@ const ActionsSection = () => {
           } text-white transition-colors`}
           onClick={handleToggleActivation}
         >
-          {isActive ? "Deactivate" : "Activate"}
+          {isActive
+            ? t("userDetails.actions.deactivate")
+            : t("userDetails.actions.activate")}
         </Button>
       </div>
     </div>
@@ -225,6 +235,7 @@ function ClientUserDetails() {
   const storeList = stores?.stores || [];
   const host = getHost();
   const dns = selectedCompany?.dns || host;
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (id && dns) {
@@ -240,13 +251,13 @@ function ClientUserDetails() {
       ) : error ? (
         <div className="flex flex-col items-center justify-center min-h-[60vh] w-full">
           <div className="bg-[#fef2f2] text-[#ef4444] rounded-[var(--2-tokens-screen-modes-common-spacing-XS)] p-6 max-w-md text-center">
-            <h3 className="font-bold text-lg mb-2">Error Loading User</h3>
+            <h3 className="font-bold text-lg mb-2">{t("userDetails.error")}</h3>
             <p className="text-sm">{error}</p>
             <button
               onClick={() => window.location.reload()}
               className="mt-4 px-4 py-2 bg-[#ef4444] text-white rounded-md hover:bg-[#dc2626] transition-colors"
             >
-              Try Again
+              {t("errorState.retry")}
             </button>
           </div>
         </div>
@@ -254,10 +265,10 @@ function ClientUserDetails() {
         <div className="flex flex-col items-center justify-center min-h-[60vh] w-full">
           <div className="bg-[#eaf8e7] rounded-[var(--2-tokens-screen-modes-common-spacing-XS)] p-6 max-w-md text-center">
             <h3 className="font-bold text-lg mb-2 text-[#1e2324]">
-              User Not Found
+              {t("userDetails.notFound")}
             </h3>
             <p className="text-sm text-[#6b7280]">
-              The requested user could not be found.
+              {t("userList.emptyMessage")}
             </p>
           </div>
         </div>

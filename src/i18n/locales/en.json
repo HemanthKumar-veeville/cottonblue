@@ -530,7 +530,7 @@
     "summary": {
       "totalHT": "Total excl. VAT",
       "shippingCost": "Shipping cost",
-      "totalTTC": "Total incl. VAT"
+      "totalTTC": "Total"
     },
     "shipping": {
       "title": "Your shipping address",

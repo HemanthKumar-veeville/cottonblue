@@ -278,30 +278,11 @@ const OrderSummary = () => {
   return (
     <div className="mt-auto">
       <div className="flex justify-end items-center gap-4 px-2 py-3">
-        <div className="flex w-[200px] items-center justify-between">
-          <span className="text-black text-base font-normal">
-            {t("cart.summary.totalHT")}
-          </span>
-          <span className="font-bold text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] text-base p-2.5">
-            {totalHT.toFixed(2)}€
-          </span>
-        </div>
-      </div>
-      <div className="flex justify-end items-center gap-4 px-2 py-3">
-        <div className="flex w-[200px] items-center justify-between">
-          <span className="text-black text-base font-normal">
-            {t("cart.summary.shippingCost")}
-          </span>
-          <span className="font-bold text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] text-base p-2.5">
-            {shippingCost.toFixed(2)}€
-          </span>
-        </div>
-      </div>
-      <div className="flex justify-end items-center gap-4 px-2 py-3">
-        <div className="flex w-[200px] items-center justify-between">
-          <span className="text-black text-base font-normal">
+        <div className="flex w-[200px] items-center justify-between border-t border-gray-200 pt-2">
+          <span className="font-bold text-black text-base">
             {t("cart.summary.totalTTC")}
           </span>
+          <span className="font-normal text-black text-base">-</span>
           <span className="font-bold text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] text-base p-2.5">
             {totalTTC.toFixed(2)}€
           </span>
@@ -460,7 +441,7 @@ export default function CartContainer(): JSX.Element {
           className="flex-[2] p-0 border-0 rounded-lg overflow-hidden"
           style={buttonStyles}
         >
-          <CardContent className="p-0 h-full flex flex-col">
+          <CardContent className="p-0 h-[65vh] flex flex-col">
             <div className="h-full flex flex-col">
               <div className="bg-[var(--primary-light-color)] rounded-md">
                 <Table>
@@ -489,7 +470,7 @@ export default function CartContainer(): JSX.Element {
                 </Table>
               </div>
 
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
                 <Table>
                   <TableBody>
                     {items.map((product) => (

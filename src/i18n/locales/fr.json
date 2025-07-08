@@ -566,7 +566,7 @@
     "summary": {
       "totalHT": "Total HT",
       "shippingCost": "Frais de livraison",
-      "totalTTC": "Total TTC"
+      "totalTTC": "Total"
     },
     "shipping": {
       "title": "Votre adresse de livraison",
