@@ -329,11 +329,9 @@ const ProductDetails = () => {
         })
       ).unwrap();
 
-      toast.success(t("addProduct.success.productsLinked"));
       // Navigate to the product details page
       navigate(`/products/${id}`);
     } catch (error) {
-      toast.error(t("addProduct.errors.linkingFailed"));
       console.error("Failed to link products:", error);
     } finally {
       setIsSubmitting(false);

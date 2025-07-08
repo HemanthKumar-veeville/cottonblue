@@ -95,7 +95,6 @@ const ProductRow = ({ product }: { product: CartItem }) => {
         dispatch(
           addToCart({ product: productDetails!, quantity: product.quantity })
         );
-        toast.error(t("cart.error.deleteFailed"));
       }
     }
   };
@@ -121,7 +120,6 @@ const ProductRow = ({ product }: { product: CartItem }) => {
         } catch (error) {
           // Revert optimistic update
           dispatch(addToCart({ product: productDetails!, quantity: -1 }));
-          toast.error(t("cart.error.addFailed"));
         }
       }
     } else if (amount < 0 && newQuantity >= 0) {
@@ -141,7 +139,6 @@ const ProductRow = ({ product }: { product: CartItem }) => {
         } catch (error) {
           // Revert optimistic update
           dispatch(addToCart({ product: productDetails!, quantity: 1 }));
-          toast.error(t("cart.error.removeFailed"));
         }
       }
     } else if (newQuantity > (productDetails?.available_packs ?? 0)) {
@@ -409,11 +406,9 @@ export default function CartContainer(): JSX.Element {
         })
       ).unwrap();
 
-      // If successful, show success message and redirect to orders page
-      toast.success(t("cart.success.orderCreated"));
       navigate("/history");
     } catch (error) {
-      toast.error(t("cart.error.orderCreationFailed"));
+      console.error(error);
     }
   };
 

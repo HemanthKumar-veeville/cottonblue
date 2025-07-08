@@ -202,8 +202,6 @@ const ProductPage = () => {
 
           // Restore the local quantity
           setLocalQuantity(localQuantity - amount);
-
-          toast.error(t("cart.error.updateFailed"));
         }
       } else if (localQuantity > 0) {
         setLocalQuantity(localQuantity + amount);
@@ -254,8 +252,6 @@ const ProductPage = () => {
 
         // Restore the local quantity
         setLocalQuantity(quantityToAdd);
-
-        toast.error(t("cart.error.addFailed"));
       }
     }
   };
@@ -835,7 +831,7 @@ const RelatedProductCard = ({
 
         setLocalQuantity(0);
       } catch (error) {
-        toast.error(t("cart.error.addFailed"));
+        console.error(error);
       }
     }
   };

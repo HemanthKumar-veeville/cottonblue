@@ -241,12 +241,6 @@ export const ProductTableSection = ({
         <div className="w-full">
           {loading ? (
             <Skeleton variant="table" />
-          ) : error ? (
-            <ErrorState
-              message={error}
-              variant="inline"
-              onRetry={() => window.location.reload()}
-            />
           ) : currentProducts.length === 0 ? (
             <EmptyState
               icon={Package}

@@ -367,10 +367,8 @@ const ProductDetails = () => {
       ).unwrap();
 
       navigate(`/products/allot-store-edit/${id}`);
-
-      toast.success(t("addProduct.variants.success"));
     } catch (error: any) {
-      toast.error(error.message || t("addProduct.variants.error"));
+      console.error(error);
     } finally {
       setIsSubmitting(false);
     }

@@ -220,12 +220,6 @@ export const UserTableSection = ({
         <div className="w-full relative">
           {loading ? (
             <Skeleton variant="table" />
-          ) : error ? (
-            <ErrorState
-              message={error}
-              variant="inline"
-              onRetry={() => window.location.reload()}
-            />
           ) : currentUsers.length === 0 ? (
             <EmptyState
               icon={Users}

@@ -277,28 +277,12 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
     return <Skeleton variant="table" />;
   }
 
-  if (error) {
-    return (
-      <ErrorState
-        message={error}
-        variant="inline"
-        onRetry={() => window.location.reload()}
-      />
-    );
-  }
-
   return (
     <section className="flex flex-col h-full">
       <div className="flex-grow overflow-auto pb-24">
         <div className="w-full">
           {loading ? (
             <Skeleton variant="table" />
-          ) : error ? (
-            <ErrorState
-              message={error}
-              variant="inline"
-              onRetry={() => window.location.reload()}
-            />
           ) : currentAgencies.length === 0 ? (
             <EmptyState
               icon={Store}

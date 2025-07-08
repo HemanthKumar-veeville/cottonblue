@@ -82,7 +82,7 @@ export const ClientUserListSection = (): JSX.Element => {
       );
 
       if (registerUser.fulfilled.match(resultAction)) {
-        toast.success(t("userSidebar.messages.published"));
+        console.log("User created successfully");
       } else {
         throw new Error(
           resultAction.error?.message || t("userSidebar.messages.publishError")

@@ -58,7 +58,7 @@ export const ProductListSection = ({
       );
 
       if (createProduct.fulfilled.match(resultAction)) {
-        toast.success(t("productSidebar.messages.published"));
+        console.log("Product created successfully");
       } else {
         throw new Error(
           resultAction.error?.message ||

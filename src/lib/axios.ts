@@ -33,7 +33,7 @@ axiosInstance.interceptors.response.use(
     // Show success toast only for non-GET requests and non-addToCart endpoints
     if (response.config.method !== 'get' && !response.config.url?.includes('add-to-cart')) {
       // Check if there's a custom success message in the response
-      const message = response.data?.message || 'Operation successful';
+      const message = "Opération réussie";
       toast.success(message, {
         duration: 5000,
         position: 'top-right',

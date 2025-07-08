@@ -63,19 +63,6 @@ const OrderTableHeaderSection: React.FC<{
   const { buttonStyles } = useCompanyColors();
   const { t } = useTranslation();
 
-  if (!orderDetails && !isLoading) {
-    return (
-      <Card className="w-full p-6 md:p-8 shadow-lg">
-        <ErrorState
-          title="Order Not Found"
-          message="The order details are not available. Please try again or contact support if the issue persists."
-          onRetry={() => window.location.reload()}
-          variant="inline"
-        />
-      </Card>
-    );
-  }
-
   const dispatch = useAppDispatch();
   const dns_prefix = getHost();
   const handleApproveOrder = async () => {
@@ -86,10 +73,9 @@ const OrderTableHeaderSection: React.FC<{
           order_id: orderDetails?.order_id?.toString() ?? "",
         })
       ).unwrap();
-      toast.success("Order approved successfully");
       navigate(-1);
     } catch (error) {
-      toast.error("Failed to approve order");
+      console.error(error);
     }
   };
 
@@ -101,10 +87,10 @@ const OrderTableHeaderSection: React.FC<{
           order_id: orderDetails?.order_id?.toString() ?? "",
         })
       ).unwrap();
-      toast.success("Order refused successfully");
+
       navigate(-1);
     } catch (error) {
-      toast.error("Failed to refuse order");
+      console.error(error);
     }
   };
 

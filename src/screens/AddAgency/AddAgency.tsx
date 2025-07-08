@@ -351,14 +351,6 @@ export default function AddAgency() {
             data: changedFields,
           })
         ).unwrap();
-        toast.success("Agency updated successfully", {
-          duration: 5000,
-          position: "top-right",
-          style: {
-            background: "#10B981",
-            color: "#fff",
-          },
-        });
       } else {
         await dispatch(
           registerStore({
@@ -366,14 +358,6 @@ export default function AddAgency() {
             data: baseData,
           })
         ).unwrap();
-        toast.success("Agency added successfully", {
-          duration: 5000,
-          position: "top-right",
-          style: {
-            background: "#10B981",
-            color: "#fff",
-          },
-        });
       }
       if (previousPath) {
         navigate(previousPath);
@@ -383,17 +367,6 @@ export default function AddAgency() {
       }
     } catch (error) {
       console.error("Form submission error:", error);
-      toast.error(
-        isEditMode ? "Failed to update agency" : "Failed to add agency",
-        {
-          duration: 6000,
-          position: "top-right",
-          style: {
-            background: "#EF4444",
-            color: "#fff",
-          },
-        }
-      );
     }
   };
 

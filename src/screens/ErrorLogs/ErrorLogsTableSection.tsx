@@ -152,12 +152,6 @@ export const ErrorLogsTableSection = ({
         <div className="w-full">
           {isLoading ? (
             <Skeleton variant="table" />
-          ) : error ? (
-            <ErrorState
-              message="Failed to fetch error logs"
-              variant="inline"
-              onRetry={() => dispatch(getErrorLogs())}
-            />
           ) : currentLogs.length === 0 ? (
             <EmptyState
               icon={AlertTriangle}

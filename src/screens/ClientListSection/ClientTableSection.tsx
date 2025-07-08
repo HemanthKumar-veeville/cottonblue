@@ -193,12 +193,6 @@ export const ClientTableSection = ({
         <div className="w-full">
           {loading ? (
             <Skeleton variant="table" />
-          ) : error ? (
-            <ErrorState
-              message={error}
-              variant="inline"
-              onRetry={() => window.location.reload()}
-            />
           ) : currentCompanies.length === 0 ? (
             <EmptyState
               icon={Users}

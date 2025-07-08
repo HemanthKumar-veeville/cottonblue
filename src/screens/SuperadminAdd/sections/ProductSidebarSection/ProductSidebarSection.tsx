@@ -656,7 +656,6 @@ export const ProductSidebarSection = ({
         const productId = resultAction?.product_id;
 
         if (productId) {
-          toast.success(t("productSidebar.messages.updateSuccess"));
           navigate(`/products/add-variant/${productId}`);
         }
       } else {
@@ -686,13 +685,11 @@ export const ProductSidebarSection = ({
         const productId = resultAction?.product_id;
 
         if (productId) {
-          toast.success(t("productSidebar.messages.createSuccess"));
           navigate(`/products/add-variant/${productId}`);
         }
       }
     } catch (error: any) {
-      console.error("Error:", error);
-      toast.error(error.message || "An unexpected error occurred");
+      console.error(error);
     }
   };
 

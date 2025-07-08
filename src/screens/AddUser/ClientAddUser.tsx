@@ -240,7 +240,7 @@ export default function ClientAddUser() {
             })
           ).unwrap();
         } catch (error: any) {
-          toast.error(error?.message || "Failed to fetch user details");
+          console.error(error);
         } finally {
           setLoading(false);
         }
@@ -313,19 +313,9 @@ export default function ClientAddUser() {
         ).unwrap();
       }
 
-      toast.success(
-        isEditMode
-          ? t("addUser.messages.updateSuccess")
-          : t("addUser.messages.addSuccess")
-      );
       navigate("/users");
     } catch (error: any) {
-      toast.error(
-        error?.message ||
-          (isEditMode
-            ? t("addUser.messages.updateError")
-            : t("addUser.messages.addError"))
-      );
+      console.error(error);
     } finally {
       setLoading(false);
     }

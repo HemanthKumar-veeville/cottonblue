@@ -416,14 +416,12 @@ const ProductDetails = () => {
 
       if (response?.product_id) {
         const productId = id;
-        toast.success(t("addProduct.success.storesAllocated"));
         // Navigate to next step
         navigate(`/products/${productId}`);
       } else {
         throw new Error(response.message);
       }
     } catch (error) {
-      toast.error(t("addProduct.errors.allocationFailed"));
       console.error("Failed to allocate product to stores:", error);
     } finally {
       setIsSubmitting(false);

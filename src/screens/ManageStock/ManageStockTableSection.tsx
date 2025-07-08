@@ -107,12 +107,6 @@ export const ManageStockTableSection = ({
         <div className="w-full">
           {loading ? (
             <Skeleton variant="table" />
-          ) : error ? (
-            <ErrorState
-              message={error}
-              variant="inline"
-              onRetry={() => window.location.reload()}
-            />
           ) : currentStocks.length === 0 ? (
             <EmptyState
               icon={Package}

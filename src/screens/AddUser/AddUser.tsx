@@ -239,7 +239,7 @@ export default function AddUser() {
             })
           ).unwrap();
         } catch (error: any) {
-          toast.error(error?.message || t("addUser.messages.updateError"));
+          console.error(error);
         } finally {
           setLoading(false);
         }
@@ -313,19 +313,9 @@ export default function AddUser() {
         ).unwrap();
       }
 
-      toast.success(
-        isEditMode
-          ? t("addUser.messages.updateSuccess")
-          : t("addUser.messages.addSuccess")
-      );
       navigate("/users");
     } catch (error: any) {
-      toast.error(
-        error?.message ||
-          (isEditMode
-            ? t("addUser.messages.updateError")
-            : t("addUser.messages.addError"))
-      );
+      console.error(error);
     } finally {
       setLoading(false);
     }

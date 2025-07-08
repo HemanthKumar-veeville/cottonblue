@@ -577,36 +577,9 @@ const ClientForm = () => {
   // Handle success state
   useEffect(() => {
     if (success) {
-      toast.success(
-        isEditMode
-          ? t("addClient.messages.clientUpdatedSuccess")
-          : t("addClient.messages.clientAddedSuccess"),
-        {
-          duration: 5000,
-          position: "top-right",
-          style: {
-            background: "#10B981", // Green color
-            color: "#fff",
-          },
-        }
-      );
       navigate("/customers");
     }
   }, [success, navigate, isEditMode, t]);
-
-  // Handle error state
-  useEffect(() => {
-    if (error) {
-      toast.error(error, {
-        duration: 6000,
-        position: "top-right",
-        style: {
-          background: "#EF4444", // Red color
-          color: "#fff",
-        },
-      });
-    }
-  }, [error]);
 
   const handleLogoUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

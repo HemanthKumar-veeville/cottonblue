@@ -275,9 +275,8 @@ export default function Container(): JSX.Element {
 
         // Refresh carousel data after update
         await dispatch(getCarousel(selectedCompany.dns));
-        toast.success(t("carousel.messages.updateSuccess"));
       } catch (error) {
-        toast.error(t("carousel.messages.updateError"));
+        console.error(error);
         // Revert the state on error
         if (type === "is_active") setIsActive(!value);
         if (type === "auto_play") setAutoPlay(!value);
@@ -338,9 +337,8 @@ export default function Container(): JSX.Element {
 
         // Refresh carousel data
         await dispatch(getCarousel(selectedCompany.dns));
-        toast.success(t("carousel.messages.updateSuccess"));
       } catch (error) {
-        toast.error(t("carousel.messages.updateError"));
+        console.error(error);
         // Revert the preview on error
         setImages((prev) => {
           const newImages = [...prev];
@@ -388,13 +386,12 @@ export default function Container(): JSX.Element {
             }
             return [...newImages];
           });
-          toast.success(t("carousel.messages.deleteSuccess"));
 
           // Refresh carousel data
           dispatch(getCarousel(selectedCompany.dns));
         })
         .catch(() => {
-          toast.error(t("carousel.messages.deleteError"));
+          console.error(error);
         });
     },
     [dispatch, selectedCompany?.dns, carousel?.image_urls, t]
@@ -424,9 +421,8 @@ export default function Container(): JSX.Element {
         })
       ).unwrap();
       await dispatch(getCarousel(selectedCompany.dns));
-      toast.success(t("carousel.messages.saveSuccess"));
     } catch (error) {
-      toast.error(t("carousel.messages.saveError"));
+      console.error(error);
     } finally {
       setIsSubmitting(false);
     }

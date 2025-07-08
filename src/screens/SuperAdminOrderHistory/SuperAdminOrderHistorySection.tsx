@@ -754,16 +754,6 @@ export const SuperAdminOrderHistorySection = (): JSX.Element => {
     );
   }
 
-  if (error) {
-    return (
-      <ErrorState
-        message={error}
-        variant="inline"
-        onRetry={() => window.location.reload()}
-      />
-    );
-  }
-
   if (orderList.length === 0) {
     return (
       <section className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">

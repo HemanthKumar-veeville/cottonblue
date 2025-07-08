@@ -218,12 +218,6 @@ export const WarehouseTableSection = ({
           <div className="w-full">
             {loading ? (
               <Skeleton variant="table" />
-            ) : error ? (
-              <ErrorState
-                message={error}
-                variant="inline"
-                onRetry={() => window.location.reload()}
-              />
             ) : currentOrders.length === 0 ? (
               <div className="flex flex-col items-center justify-center">
                 <EmptyState
