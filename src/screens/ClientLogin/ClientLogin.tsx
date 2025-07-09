@@ -284,7 +284,14 @@ export default function ClientLogin() {
     return <CompanyNotRegistered error={error} />;
   }
 
-  if (isLoading || userLoading) {
+  // Show skeleton until all required company data is available
+  if (
+    isLoading ||
+    userLoading ||
+    !companyColor ||
+    !companyTextColor ||
+    !company
+  ) {
     return <LoginSkeleton />;
   }
 
