@@ -224,7 +224,7 @@
           "general": "Général",
           "men": "Hommes",
           "women": "Femmes",
-          "unisex": "Unisexe"
+          "unisex": "Mixte"
         },
         "size": {
           "unique": "Unique",
@@ -1356,7 +1356,7 @@
     },
     "actions": {
       "addOrder": "Ajouter une commande",
-      "viewDetails": "Voir les détails",
+      "viewDetails": "détails",
       "edit": "Modifier",
       "prepare": "Préparer la commande",
       "complete": "Terminer la commande",
@@ -1383,7 +1383,11 @@
         "customer": "Client",
         "store": "Magasin",
         "date": "Date",
-        "status": "Statut"
+        "status": "Statut",
+        "storeName": "Magasin",
+        "storeAddress": "Adresse",
+        "storePhone": "Téléphone",
+        "vatNumber": "VAT"
       },
       "actions": {
         "prepare": "Préparer la commande",
@@ -1396,7 +1400,8 @@
       "date": "Date",
       "store": "Magasin",
       "status": "Statut",
-      "actions": "Actions"
+      "actions": "Actions",
+      "address": "Adresse"
     },
     "status": {
       "confirmed": "Confirmée",

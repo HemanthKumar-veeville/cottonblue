@@ -236,7 +236,7 @@ export const ClientUserTableSection = ({
                         : t("userList.table.user")}
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-smaller text-[#1e2324]">
-                      {user.store_ids?.length || 0}
+                      {user.store_ids?.length || "tout"}
                     </TableCell>
                     <TableCell className="w-[145px] text-left">
                       <div className="relative inline-flex items-center">

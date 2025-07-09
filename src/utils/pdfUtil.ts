@@ -194,7 +194,7 @@ export const handleDownloadInvoice = async (
   const labelPadding = 4;
   const valuePadding = 8;
   // Label: left-aligned within the last column, with padding
-  doc.text('Taxe (10%)', firstColStartX + labelPadding, yPos + 7, { align: 'left' });
+  // doc.text('Taxe (10%)', firstColStartX + labelPadding, yPos + 7, { align: 'left' });
   // Value: right-aligned at the end of the last column, with padding
   const taxValue = String(currencyFormat.format(tax));
   doc.setTextColor(0, 0, 0);

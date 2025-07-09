@@ -61,13 +61,16 @@ export const PopupOrder = ({
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent
-        className="flex flex-col gap-8 p-8 bg-white max-w-full w-auto"
+        className="flex flex-col gap-4 p-8 bg-white max-w-full w-auto"
         data-model-id="3548:17449"
       >
         <PopupOrderHeader orderId={orderId} onClose={onClose} />
         <OrderDetailsHeaderSection order={order} />
         <Separator className="bg-gray-200" />
-        <OrderSummaryHeaderSection products={order?.order_items} />
+        <OrderSummaryHeaderSection
+          products={order?.order_items}
+          totalAmount={order?.total_amount}
+        />
         <Separator className="bg-gray-200" />
         <div className="flex justify-end">
           <ActionButtonSection orderId={orderId} isLoading={isLoading} />

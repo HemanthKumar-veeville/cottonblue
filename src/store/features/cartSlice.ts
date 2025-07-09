@@ -336,6 +336,7 @@ const cartSlice = createSlice({
         state.company_phone = action.payload.company_phone;
         state.company_email = action.payload.company_email;
         state.vat_number = action.payload.vat_number;
+        state.store_phone = action.payload.store_phone;
       })
       .addCase(getAllOrders.rejected, (state, action) => {
         state.loading = false;

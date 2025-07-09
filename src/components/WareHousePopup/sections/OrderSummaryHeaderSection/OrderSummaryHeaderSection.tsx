@@ -20,8 +20,10 @@ interface OrderItem {
 
 const OrderSummaryHeaderSection = ({
   products,
+  totalAmount,
 }: {
   products: any;
+  totalAmount: number;
 }): JSX.Element => {
   const { t } = useTranslation();
 
@@ -130,6 +132,16 @@ const OrderSummaryHeaderSection = ({
               ))}
             </TableBody>
           </Table>
+        </div>
+      </div>
+      <div className="flex justify-end mt-4">
+        <div className="flex flex-row justify-between items-center w-[150px]">
+          <span className="font-medium text-1-tokens-color-modes-common-neutral-hightest">
+            Total HT :
+          </span>
+          <span className="font-medium text-1-tokens-color-modes-common-neutral-hightest">
+            €{totalAmount}
+          </span>
         </div>
       </div>
     </section>

@@ -291,7 +291,7 @@ export const UserTableSection = ({
                       {user.role || "User"}
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-smaller text-black">
-                      {user.store_ids?.length || 0} stores
+                      {user.store_ids?.length || "tout"}
                     </TableCell>
                     <TableCell className="w-[145px] text-left">
                       <div className="relative inline-flex items-center">

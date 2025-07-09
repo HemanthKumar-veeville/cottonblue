@@ -95,6 +95,7 @@ export const WarehouseTableSection = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+  const { store_address } = useAppSelector((state) => state.cart);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -259,8 +260,11 @@ export const WarehouseTableSection = ({
                     <TableHead className="w-[140px] px-4 py-3 text-left text-[#1e2324] font-text-small">
                       {t("warehouse.columns.date")}
                     </TableHead>
-                    <TableHead className="w-[280px] px-4 py-3 text-left text-[#1e2324] font-text-small">
+                    <TableHead className="w-[140px] px-4 py-3 text-left text-[#1e2324] font-text-small">
                       {t("warehouse.columns.store")}
+                    </TableHead>
+                    <TableHead className="w-[280px] px-4 py-3 text-left text-[#1e2324] font-text-small">
+                      {t("warehouse.columns.address")}
                     </TableHead>
                     <TableHead className="w-[120px] px-4 py-3 text-center text-[#1e2324] font-text-small">
                       {t("warehouse.columns.status")}
@@ -298,7 +302,7 @@ export const WarehouseTableSection = ({
                       <TableCell className="w-[140px] px-4 py-3 text-left text-gray-600">
                         {new Date(order.created_at).toLocaleDateString()}
                       </TableCell>
-                      <TableCell className="w-[280px] px-4 py-3 text-left">
+                      <TableCell className="w-[140px] px-4 py-3 text-left">
                         {activeStoreFilter ? (
                           <span className="text-gray-900 font-medium">
                             {activeStoreFilter.name}
@@ -319,8 +323,11 @@ export const WarehouseTableSection = ({
                           </button>
                         )}
                       </TableCell>
+                      <TableCell className="w-[280px] px-4 py-3 text-left whitespace-normal">
+                        {order?.store_address || store_address}
+                      </TableCell>
                       <TableCell className="w-[120px] px-4 py-3">
-                        <div className="flex justify-start">
+                        <div className="flex justify-center">
                           <button
                             onClick={() =>
                               handleStatusClick(order.order_status)
