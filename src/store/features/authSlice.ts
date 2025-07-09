@@ -257,6 +257,7 @@ const authSlice = createSlice({
           state.companyColor = action.payload.company_bg_color;
           state.companyTextColor = action.payload.company_text_color;
           state.companyLogo = action.payload.company_logo;
+          state.company = action.payload.company_name
         }
       })
       .addCase(getUser.rejected, (state, action) => {
