@@ -35,14 +35,11 @@ export const ProductListSection = ({
   const { selectedCompany } = useAppSelector((state) => state.client);
   const { adminMode } = useSelector((state: RootState) => state.auth);
 
-  const productList = products?.products || [];
+  const productList = products?.products?.product_list || [];
+  const totalProducts = products?.products?.total || 0;
+  const currentPage = products?.products?.page || 1;
+  const itemsPerPage = 10;
   const dnsPrefix = adminMode ? "admin" : selectedCompany?.dns || "admin";
-  // Fetch products on component mount
-  useEffect(() => {
-    if (dnsPrefix) {
-      dispatch(fetchAllProducts(dnsPrefix));
-    }
-  }, [dispatch, dnsPrefix]);
 
   const handleImport = async (file: File) => {
     try {
@@ -67,7 +64,13 @@ export const ProductListSection = ({
       }
 
       // Refresh products list after successful import
-      dispatch(fetchAllProducts(dnsPrefix));
+      dispatch(
+        fetchAllProducts({
+          dnsPrefix,
+          page: 1,
+          limit: 10,
+        })
+      );
     } catch (error) {
       console.error("Error importing CSV:", error);
       throw error;

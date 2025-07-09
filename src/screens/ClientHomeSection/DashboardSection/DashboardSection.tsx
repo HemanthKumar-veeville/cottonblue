@@ -429,7 +429,8 @@ export const DashboardSection = (): JSX.Element => {
     (state) => state.product
   );
   const productList =
-    products?.products?.filter((product) => !product.linked) || [];
+    products?.products?.product_list?.filter((product) => !product.linked) ||
+    [];
 
   // Filter products based on search term
   const filteredProducts = productList.filter((product) => {

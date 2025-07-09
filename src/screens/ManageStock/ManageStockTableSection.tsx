@@ -19,13 +19,14 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { useTranslation } from "react-i18next";
-import { useState, useMemo } from "react";
-import { useAppSelector } from "../../store/store";
+import { useState, useMemo, useEffect } from "react";
+import { useAppSelector, useAppDispatch } from "../../store/store";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
 import { ImageOff, Package, PlusCircle } from "lucide-react";
 import { ProductStockPopup } from "../../components/ProductStockPopup/ProductStockPopup";
+import { fetchAllProducts } from "../../store/features/productSlice";
 
 export const ManageStockTableSection = ({
   searchQuery,
@@ -33,13 +34,29 @@ export const ManageStockTableSection = ({
   searchQuery: string;
 }): JSX.Element => {
   const { t } = useTranslation();
+  const dispatch = useAppDispatch();
   const { products, loading, error } = useAppSelector((state) => state.product);
-  const productList = products?.products || [];
+  const { selectedCompany } = useAppSelector((state) => state.client);
+  const dnsPrefix = selectedCompany?.dns || "admin";
+  const productList = products?.products?.product_list || [];
+  const totalProducts = products?.products?.total || 0;
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedStocks, setSelectedStocks] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const ITEMS_PER_PAGE = 25;
+  const ITEMS_PER_PAGE = 10;
+
+  useEffect(() => {
+    if (dnsPrefix) {
+      dispatch(
+        fetchAllProducts({
+          dnsPrefix,
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+        })
+      );
+    }
+  }, [dispatch, dnsPrefix, currentPage]);
 
   // Filter stocks based on search query
   const filteredStocks = useMemo(() => {
@@ -62,21 +79,15 @@ export const ManageStockTableSection = ({
     });
   }, [productList, searchQuery]);
 
-  // Get current page stocks
-  const currentStocks = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredStocks.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredStocks, currentPage]);
-
-  // Calculate total pages
-  const totalPages = Math.ceil(filteredStocks.length / ITEMS_PER_PAGE);
+  // Calculate total pages based on total products from API
+  const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
 
   // Handle select all checkbox
   const handleSelectAll = () => {
     if (selectAll) {
       setSelectedStocks([]);
     } else {
-      setSelectedStocks(currentStocks.map((stock) => stock.id));
+      setSelectedStocks(filteredStocks.map((stock) => stock.id));
     }
     setSelectAll(!selectAll);
   };
@@ -92,14 +103,23 @@ export const ManageStockTableSection = ({
     });
   };
 
-  // Generate pagination items
+  // Generate pagination items with a maximum of 5 visible pages
   const paginationItems = useMemo(() => {
+    const maxVisiblePages = 5;
     const items = [];
-    for (let i = 1; i <= totalPages; i++) {
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
       items.push(i);
     }
+
     return items;
-  }, [totalPages]);
+  }, [currentPage, totalPages]);
 
   return (
     <section className="flex flex-col h-full">
@@ -107,7 +127,7 @@ export const ManageStockTableSection = ({
         <div className="w-full">
           {loading ? (
             <Skeleton variant="table" />
-          ) : currentStocks.length === 0 ? (
+          ) : filteredStocks.length === 0 ? (
             <EmptyState
               icon={Package}
               title={t("productList.noProducts")}
@@ -162,7 +182,7 @@ export const ManageStockTableSection = ({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {currentStocks.map((stock: any) => (
+                  {filteredStocks.map((stock) => (
                     <TableRow
                       key={stock.id}
                       className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
@@ -258,18 +278,22 @@ export const ManageStockTableSection = ({
         </div>
       </div>
 
-      {currentStocks.length > 0 && (
+      {filteredStocks.length > 0 && (
         <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
           <div className="px-6 max-w-[calc(100%-2rem)]">
             <Pagination className="flex items-center justify-between w-full mx-auto">
               <PaginationPrevious
                 href="#"
-                className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-[15px] ${
+                  currentPage === 1
+                    ? "opacity-50 cursor-not-allowed text-gray-400"
+                    : "text-black hover:bg-gray-50"
+                }`}
                 onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
                 disabled={currentPage === 1}
               >
                 <img
-                  className="w-6 h-6"
+                  className={`w-6 h-6 ${currentPage === 1 ? "opacity-50" : ""}`}
                   alt="Arrow left"
                   src="/img/arrow-left-sm.svg"
                 />
@@ -292,7 +316,7 @@ export const ManageStockTableSection = ({
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-                {totalPages > 5 && (
+                {totalPages > 5 && currentPage < totalPages - 2 && (
                   <>
                     <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
                     <PaginationItem>
@@ -310,7 +334,11 @@ export const ManageStockTableSection = ({
 
               <PaginationNext
                 href="#"
-                className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px]"
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-[15px] ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed text-gray-400"
+                    : "text-black hover:bg-gray-50"
+                }`}
                 onClick={() =>
                   setCurrentPage((prev) => Math.min(totalPages, prev + 1))
                 }
@@ -318,7 +346,9 @@ export const ManageStockTableSection = ({
               >
                 {t("productList.pagination.next")}
                 <img
-                  className="w-6 h-6 rotate-180"
+                  className={`w-6 h-6 rotate-180 ${
+                    currentPage === totalPages ? "opacity-50" : ""
+                  }`}
                   alt="Arrow right"
                   src="/img/arrow-left-sm-1.svg"
                 />

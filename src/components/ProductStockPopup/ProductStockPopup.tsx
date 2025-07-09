@@ -131,13 +131,19 @@ const AddStockSection = ({
         operation === "add" ? parseInt(quantity) : -parseInt(quantity);
       await dispatch(
         addProductQuantity({
-          dnsPrefix: selectedCompany.dns,
+          dnsPrefix: selectedCompany?.dns,
           productId: productId.toString(),
           quantity: quantityValue,
         })
       );
       setQuantity("");
-      await dispatch(fetchAllProducts(selectedCompany.dns));
+      await dispatch(
+        fetchAllProducts({
+          dnsPrefix: selectedCompany?.dns,
+          page: 1,
+          limit: 10,
+        })
+      );
     }
   };
 
@@ -243,7 +249,9 @@ export const ProductStockPopup = ({
 }: ProductStockPopupProps): JSX.Element => {
   const { products, loading } = useAppSelector((state) => state.product);
   const product =
-    products?.products.find((product: any) => product.id === productId) || null;
+    products?.products?.product_list.find(
+      (product: any) => product.id === productId
+    ) || null;
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="flex flex-col gap-6 p-8 bg-white max-w-[800px] rounded-lg shadow-lg border border-[color:var(--1-tokens-color-modes-common-neutral-lower)]">

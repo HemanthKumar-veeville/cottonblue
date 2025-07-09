@@ -60,7 +60,9 @@ export const ProductTableSection = ({
   const navigate = useNavigate();
   const { products, loading, error } = useAppSelector((state) => state.product);
   const { selectedCompany } = useAppSelector((state) => state.client);
-  const productList = products?.products || [];
+  const productList = products?.products?.product_list || [];
+  const totalProducts = products?.products?.total || 0;
+  const ITEMS_PER_PAGE = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedProducts, setSelectedProducts] = useState<number[]>([]);
   const [selectAll, setSelectAll] = useState(false);
@@ -75,7 +77,19 @@ export const ProductTableSection = ({
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<{ [key: number]: HTMLButtonElement | null }>({});
   const dispatch = useAppDispatch();
-  const ITEMS_PER_PAGE = 25;
+
+  // Fetch products when page changes
+  useEffect(() => {
+    if (selectedCompany?.dns) {
+      dispatch(
+        fetchAllProducts({
+          dnsPrefix: selectedCompany.dns,
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+        })
+      );
+    }
+  }, [dispatch, selectedCompany?.dns, currentPage]);
 
   // Filter products based on search query
   const filteredProducts = useMemo(() => {
@@ -95,14 +109,26 @@ export const ProductTableSection = ({
     });
   }, [productList, searchQuery]);
 
-  // Get current page products from filtered list
-  const currentProducts = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredProducts.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredProducts, currentPage]);
+  // Calculate total pages based on total products from API
+  const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
 
-  // Calculate total pages based on filtered products
-  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  // Generate pagination items with a maximum of 5 visible pages
+  const paginationItems = useMemo(() => {
+    const maxVisiblePages = 5;
+    const items = [];
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      items.push(i);
+    }
+
+    return items;
+  }, [currentPage, totalPages]);
 
   // Calculate dropdown position
   const getDropdownPosition = (buttonElement: HTMLButtonElement | null) => {
@@ -136,7 +162,7 @@ export const ProductTableSection = ({
     if (selectAll) {
       setSelectedProducts([]);
     } else {
-      setSelectedProducts(currentProducts.map((product) => product.id));
+      setSelectedProducts(filteredProducts.map((product) => product.id));
     }
     setSelectAll(!selectAll);
   };
@@ -186,7 +212,13 @@ export const ProductTableSection = ({
             },
           })
         ).unwrap();
-        dispatch(fetchAllProducts(selectedCompany?.dns));
+        dispatch(
+          fetchAllProducts({
+            dnsPrefix: selectedCompany.dns,
+            page: currentPage,
+            limit: ITEMS_PER_PAGE,
+          })
+        );
       } catch (error) {
         console.error("Failed to toggle product status:", error);
       } finally {
@@ -226,22 +258,13 @@ export const ProductTableSection = ({
     setActiveDropdown(null);
   };
 
-  // Generate pagination items
-  const paginationItems = useMemo(() => {
-    const items = [];
-    for (let i = 1; i <= totalPages; i++) {
-      items.push(i);
-    }
-    return items;
-  }, [totalPages]);
-
   return (
     <section className="flex flex-col h-full">
       <div className="flex-grow overflow-auto pb-24">
         <div className="w-full">
           {loading ? (
             <Skeleton variant="table" />
-          ) : currentProducts.length === 0 ? (
+          ) : filteredProducts.length === 0 ? (
             <EmptyState
               icon={Package}
               title={t("productTable.noProducts")}
@@ -302,7 +325,7 @@ export const ProductTableSection = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentProducts.map((product: Product) => (
+                {filteredProducts.map((product: Product) => (
                   <TableRow
                     key={product.id}
                     className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
@@ -515,6 +538,86 @@ export const ProductTableSection = ({
         </div>
       </div>
 
+      {filteredProducts.length > 0 && (
+        <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
+          <div className="px-6 max-w-[calc(100%-2rem)]">
+            <Pagination className="flex items-center justify-between w-full mx-auto">
+              <PaginationPrevious
+                href="#"
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-[15px] ${
+                  currentPage === 1
+                    ? "opacity-50 cursor-not-allowed text-gray-400"
+                    : "text-black hover:bg-gray-50"
+                }`}
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+              >
+                <img
+                  className={`w-6 h-6 ${currentPage === 1 ? "opacity-50" : ""}`}
+                  alt="Arrow left"
+                  src="/img/arrow-left-sm.svg"
+                />
+                {t("productList.pagination.previous")}
+              </PaginationPrevious>
+
+              <PaginationContent className="flex items-center gap-3">
+                {paginationItems.map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#"
+                      className={`flex items-center justify-center w-9 h-9 rounded ${
+                        page === currentPage
+                          ? "bg-cyan-100 font-bold text-[#1e2324]"
+                          : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                      }`}
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                {totalPages > 5 && currentPage < totalPages - 2 && (
+                  <>
+                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        onClick={() => setCurrentPage(totalPages)}
+                      >
+                        {totalPages}
+                      </PaginationLink>
+                    </PaginationItem>
+                  </>
+                )}
+              </PaginationContent>
+
+              <PaginationNext
+                href="#"
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-[15px] ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed text-gray-400"
+                    : "text-black hover:bg-gray-50"
+                }`}
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
+                disabled={currentPage === totalPages}
+              >
+                {t("productList.pagination.next")}
+                <img
+                  className={`w-6 h-6 rotate-180 ${
+                    currentPage === totalPages ? "opacity-50" : ""
+                  }`}
+                  alt="Arrow right"
+                  src="/img/arrow-left-sm-1.svg"
+                />
+              </PaginationNext>
+            </Pagination>
+          </div>
+        </div>
+      )}
+
       {/* Delete Confirmation Dialog */}
       <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <DialogContent>
@@ -598,76 +701,6 @@ export const ProductTableSection = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      {currentProducts.length > 0 && (
-        <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
-          <div className="px-6 max-w-[calc(100%-2rem)]">
-            <Pagination className="flex items-center justify-between w-full mx-auto">
-              <PaginationPrevious
-                href="#"
-                className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                disabled={currentPage === 1}
-              >
-                <img
-                  className="w-6 h-6"
-                  alt="Arrow left"
-                  src="/img/arrow-left-sm.svg"
-                />
-                {t("productList.pagination.previous")}
-              </PaginationPrevious>
-
-              <PaginationContent className="flex items-center gap-3">
-                {paginationItems.map((page) => (
-                  <PaginationItem key={page}>
-                    <PaginationLink
-                      href="#"
-                      className={`flex items-center justify-center w-9 h-9 rounded ${
-                        page === currentPage
-                          ? "bg-cyan-100 font-bold text-[#1e2324]"
-                          : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                      }`}
-                      onClick={() => setCurrentPage(page)}
-                    >
-                      {page}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                {totalPages > 5 && (
-                  <>
-                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
-                    <PaginationItem>
-                      <PaginationLink
-                        href="#"
-                        className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                        onClick={() => setCurrentPage(totalPages)}
-                      >
-                        {totalPages}
-                      </PaginationLink>
-                    </PaginationItem>
-                  </>
-                )}
-              </PaginationContent>
-
-              <PaginationNext
-                href="#"
-                className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px]"
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                }
-                disabled={currentPage === totalPages}
-              >
-                {t("productList.pagination.next")}
-                <img
-                  className="w-6 h-6 rotate-180"
-                  alt="Arrow right"
-                  src="/img/arrow-left-sm-1.svg"
-                />
-              </PaginationNext>
-            </Pagination>
-          </div>
-        </div>
-      )}
     </section>
   );
 };

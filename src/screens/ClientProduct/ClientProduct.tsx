@@ -133,7 +133,7 @@ const ProductPage = () => {
   const dnsPrefix = getHost();
   const { selectedStore } = useAppSelector((state) => state.agency);
   const product = currentProduct?.product || ({} as Product);
-  const otherProducts = products?.products || [];
+  const otherProducts = products?.products?.product_list || [];
   const cart = useAppSelector((state) => state.cart);
   const items = cart?.items || [];
 

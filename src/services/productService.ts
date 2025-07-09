@@ -75,10 +75,17 @@ export const productService = {
   /**
    * Get all products for a company
    * @param dnsPrefix DNS prefix of the company
+   * @param page Page number (1-based)
+   * @param limit Number of items per page
    * @returns Promise with products data
    */
-  getAllProducts: async (dnsPrefix: string) => {
-    return axiosInstance.get(`/${dnsPrefix}/all/products`);
+  getAllProducts: async (dnsPrefix: string, page: number = 1, limit: number = 25) => {
+    return axiosInstance.get(`/${dnsPrefix}/all/products`, {
+      params: {
+        page,
+        limit
+      }
+    });
   },
 
   /**

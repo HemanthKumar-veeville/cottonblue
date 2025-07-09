@@ -228,7 +228,7 @@ const ProductDetails = () => {
   } = useAppSelector((state) => state.product);
   const product = currentProduct?.product as Product;
   const linkedProducts = product?.linked_products;
-  const productsList = products?.products || [];
+  const productsList = products?.products?.product_list || [];
   const [searchQuery, setSearchQuery] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [productsWithSelection, setProductsWithSelection] = useState<

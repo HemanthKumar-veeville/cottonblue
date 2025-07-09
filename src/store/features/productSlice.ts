@@ -87,9 +87,9 @@ export const createProduct = createAsyncThunk(
 
 export const fetchAllProducts = createAsyncThunk(
   'product/fetchAllProducts',
-  async (dnsPrefix: string, { rejectWithValue }) => {
+  async ({ dnsPrefix, page = 1, limit = 10 }: { dnsPrefix: string; page?: number; limit?: number }, { rejectWithValue }) => {
     try {
-      const response = await productService.getAllProducts(dnsPrefix);
+      const response = await productService.getAllProducts(dnsPrefix, page, limit);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch products');
