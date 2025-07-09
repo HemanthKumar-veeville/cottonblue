@@ -235,6 +235,7 @@ export default function ClientLogin() {
     companyColor,
     companyTextColor,
   } = useAppSelector((state) => state.auth);
+  const { isLoading: userLoading } = useAppSelector((state) => state.user);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isForgotPassword, setIsForgotPassword] = useState(false);
@@ -276,7 +277,7 @@ export default function ClientLogin() {
     return <CompanyNotRegistered error={error} />;
   }
 
-  if (isLoading) {
+  if (isLoading || userLoading) {
     return <LoginSkeleton />;
   }
 
