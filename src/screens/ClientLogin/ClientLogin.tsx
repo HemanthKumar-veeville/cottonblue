@@ -236,7 +236,6 @@ export default function ClientLogin() {
     isLoading,
     loginError,
     error,
-    company,
     companyLogo,
     forgotPasswordEmailSent,
     companyColor,
@@ -290,7 +289,7 @@ export default function ClientLogin() {
     userLoading ||
     !companyColor ||
     !companyTextColor ||
-    !company
+    !companyLogo
   ) {
     return <LoginSkeleton />;
   }
