@@ -82,17 +82,20 @@ export const handleDownloadInvoice = async (
   yPos += headerHeight + 6; // Add a little extra spacing after header
 
   // --- BILLING SECTION ---
-  // Facturer à (left)
-  doc.setFontSize(10);
+  // Bon de commande
+  doc.setFontSize(17);
   doc.setTextColor(80, 80, 80);
-  doc.text("Facturer à", leftMargin, yPos);
+  doc.setFont('helvetica', "bold");
+  doc.text("Bon de commande", leftMargin, yPos);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', "normal");
   if (order?.ordered_user?.name !== undefined) {
     doc.text(String(order?.ordered_user?.name ?? 'NA'), leftMargin, Number(yPos + 7));
   }
   doc.setFont('helvetica', "bold");
   doc.text(String(order?.store_name ?? 'NA'), leftMargin, Number(yPos + 13));
   doc.setFont('helvetica', "normal");
-  doc.setFontSize(10);
+  doc.setFontSize(11);
   doc.text(String(order?.store_address ?? 'NA'), leftMargin, Number(yPos + 19));
   if (order?.ordered_user?.phone !== undefined) {
     doc.text(String(order?.ordered_user?.phone ?? 'NA'), leftMargin, Number(yPos + 25));
@@ -116,7 +119,7 @@ export const handleDownloadInvoice = async (
   doc.setFillColor(lightBg.r, lightBg.g, lightBg.b);
   doc.roundedRect(boxX, boxY, boxW, boxH, 4, 4, 'F');
   doc.setTextColor(120, 140, 150);
-  doc.setFontSize(10);
+  doc.setFontSize(11);
   doc.setFont('helvetica', "bold");
   doc.text(String('Date'), boxX + 6, Number(boxY + 7));
   doc.text(String('Référence'), boxX + boxW / 2 + 6, Number(boxY + 7));
@@ -139,7 +142,7 @@ export const handleDownloadInvoice = async (
   doc.setFillColor(lightBg.r, lightBg.g, lightBg.b);
   doc.roundedRect(tableX, tableY, tableW, rowH, 4, 4, 'F');
   doc.setTextColor(120, 140, 150);
-  doc.setFontSize(10);
+  doc.setFontSize(11);
   let colX = tableX + 4;
   ["Produit", "Qté", "Prix", "Total"].forEach((header, i) => {
     if (header === "Prix" || header === "Total") {
@@ -177,8 +180,8 @@ export const handleDownloadInvoice = async (
 
   // Calculate totals before using them in summary rows
   const totalAmount = (order?.order_items ?? []).reduce((sum: number, item: any) => sum + (item?.product_price || item?.price_of_pack || 0) * (item?.quantity ?? 0), 0);
-  const tax = totalAmount * 0.1;
-  const grandTotal = totalAmount + tax;
+  // const tax = totalAmount * 0.1;
+  const grandTotal = totalAmount;
 
   // --- SUMMARY ROWS ---
   // Tax row (light background)
@@ -196,9 +199,9 @@ export const handleDownloadInvoice = async (
   // Label: left-aligned within the last column, with padding
   // doc.text('Taxe (10%)', firstColStartX + labelPadding, yPos + 7, { align: 'left' });
   // Value: right-aligned at the end of the last column, with padding
-  const taxValue = String(currencyFormat.format(tax));
+  // const taxValue = String(currencyFormat.format(tax));
   doc.setTextColor(0, 0, 0);
-  doc.text(taxValue, lastColEndX - valuePadding -8, yPos + 7, { align: 'right' });
+  // doc.text(taxValue, lastColEndX - valuePadding -8, yPos + 7, { align: 'right' });
   yPos += rowH;
 
   // Total row (dark background, white text, rounded bottom)
@@ -207,7 +210,7 @@ export const handleDownloadInvoice = async (
   doc.setTextColor(255, 255, 255);
   doc.setFont('helvetica', "bold");
   // Label: left-aligned within the last column, with padding
-  doc.text('Total', firstColStartX + labelPadding, yPos + 7, { align: 'left' });
+  doc.text('Total HT', firstColStartX + labelPadding, yPos + 7, { align: 'left' });
   // Value: right-aligned at the end of the last column, with padding
   const grandTotalValue = String(currencyFormat.format(grandTotal));
   doc.text(grandTotalValue, lastColEndX - valuePadding -8, yPos + 7, { align: 'right' });
@@ -218,6 +221,6 @@ export const handleDownloadInvoice = async (
   const now = new Date();
   const dateStr = now.toLocaleDateString("fr-FR").replace(/\//g, "-");
   const timeStr = now.toLocaleTimeString("fr-FR", { hour12: false }).replace(/:/g, "-");
-  const fileName = `Facture_${order?.order_id ?? "NA"}_${dateStr}_${timeStr}.pdf`;
+  const fileName = `Bon_de_commande_${order?.order_id ?? "NA"}_${dateStr}_${timeStr}.pdf`;
   doc.save(fileName);
 };
