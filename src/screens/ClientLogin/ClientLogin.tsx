@@ -14,6 +14,7 @@ import Loader from "../../components/Loader";
 import { getHost } from "../../utils/hostUtils";
 import { Eye, EyeOff } from "lucide-react";
 import CompanyNotRegistered from "../../components/CompanyNotRegistered";
+import { Skeleton } from "../../components/ui/skeleton";
 
 const LogoSection = ({ companyLogo }: { companyLogo: string | null }) => {
   const { t } = useTranslation();
@@ -187,6 +188,39 @@ const ForgotPasswordInputSection = ({
   );
 };
 
+const LoginSkeleton = () => {
+  return (
+    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50">
+      <Card className="w-[400px] bg-white rounded-[var(--2-tokens-screen-modes-button-border-radius)]">
+        <CardContent className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-XL)] pt-[var(--2-tokens-screen-modes-common-spacing-XL)] pr-[var(--2-tokens-screen-modes-common-spacing-l)] pb-[var(--2-tokens-screen-modes-common-spacing-XL)] pl-[var(--2-tokens-screen-modes-common-spacing-l)]">
+          {/* Logo Section */}
+          <div className="flex flex-col items-center justify-center w-full">
+            <Skeleton className="w-[300px] h-[100px] mb-2" />
+            <Skeleton className="w-[150px] h-[20px]" />
+          </div>
+
+          <div className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-2xl)] w-full">
+            {/* Greeting Section */}
+            <div className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-XS)]">
+              <Skeleton className="h-[40px] w-[200px]" />
+            </div>
+
+            {/* Form Section */}
+            <div className="flex flex-col items-start gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
+              <Skeleton className="h-[40px] w-full" />
+              <Skeleton className="h-[40px] w-full" />
+              <div className="w-full flex justify-end">
+                <Skeleton className="h-[20px] w-[120px]" />
+              </div>
+              <Skeleton className="h-[40px] w-full" />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
 export default function ClientLogin() {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -240,6 +274,10 @@ export default function ClientLogin() {
 
   if (error) {
     return <CompanyNotRegistered error={error} />;
+  }
+
+  if (isLoading) {
+    return <LoginSkeleton />;
   }
 
   return (
