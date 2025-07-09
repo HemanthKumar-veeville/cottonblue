@@ -483,7 +483,7 @@ export const DashboardSection = (): JSX.Element => {
             })
           );
         } else {
-          dispatch(fetchAllProducts(dnsPrefix));
+          dispatch(fetchAllProducts({ dnsPrefix, page: 1, limit: 100 }));
         }
       }
     }

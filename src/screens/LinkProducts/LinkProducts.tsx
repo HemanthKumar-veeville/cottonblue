@@ -237,7 +237,13 @@ const ProductDetails = () => {
 
   useEffect(() => {
     if (selectedCompany?.dns) {
-      dispatch(fetchAllProducts(selectedCompany.dns));
+      dispatch(
+        fetchAllProducts({
+          dnsPrefix: selectedCompany.dns,
+          page: 1,
+          limit: 100,
+        })
+      );
     }
   }, [dispatch, selectedCompany?.dns]);
 
