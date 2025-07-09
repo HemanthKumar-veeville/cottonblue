@@ -117,8 +117,8 @@ const LoginInputSection = ({
         type="submit"
         disabled={isLoading}
         style={{
-          backgroundColor: companyColor || "#00b85b",
-          color: companyTextColor || "#fff",
+          backgroundColor: companyColor,
+          color: companyTextColor,
         }}
         className="w-full py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] hover:opacity-90 transition-colors duration-200 rounded-[var(--2-tokens-screen-modes-button-border-radius)] font-label-medium text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] disabled:opacity-70 disabled:cursor-not-allowed"
       >
@@ -149,6 +149,9 @@ const ForgotPasswordInputSection = ({
   onBackToLogin: () => void;
 }) => {
   const { t } = useTranslation();
+  const { companyColor, companyTextColor } = useAppSelector(
+    (state) => state.auth
+  );
   return (
     <form
       onSubmit={onSubmit}
@@ -173,7 +176,11 @@ const ForgotPasswordInputSection = ({
       <Button
         type="submit"
         disabled={isLoading || !email}
-        className="w-full py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] bg-[#00b85b] hover:bg-[#009e4f] transition-colors duration-200 rounded-[var(--2-tokens-screen-modes-button-border-radius)] font-label-medium text-[color:var(--1-tokens-color-modes-button-primary-default-text)] text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] disabled:opacity-70 disabled:cursor-not-allowed"
+        style={{
+          backgroundColor: companyColor,
+          color: companyTextColor,
+        }}
+        className="w-full py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] hover:opacity-90 transition-colors duration-200 rounded-[var(--2-tokens-screen-modes-button-border-radius)] font-label-medium text-[length:var(--label-medium-font-size)] tracking-[var(--label-medium-letter-spacing)] leading-[var(--label-medium-line-height)] disabled:opacity-70 disabled:cursor-not-allowed"
       >
         {isLoading ? (
           <div className="flex items-center justify-center">
