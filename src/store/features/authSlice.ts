@@ -252,12 +252,12 @@ const authSlice = createSlice({
         state.user = action.payload;
         state.isLoggedIn = action.payload.logged_in;
         state.isClientAdmin = action.payload.company_admin || action.payload.super_admin;
-        state.company = action.payload.company_name || null;
+        state.company = action.payload.company || null;
         if(action.payload.logged_in){
           state.companyColor = action.payload.company_bg_color;
           state.companyTextColor = action.payload.company_text_color;
           state.companyLogo = action.payload.company_logo;
-          state.company = action.payload.company_name
+          state.company = action.payload.company
         }
       })
       .addCase(getUser.rejected, (state, action) => {
