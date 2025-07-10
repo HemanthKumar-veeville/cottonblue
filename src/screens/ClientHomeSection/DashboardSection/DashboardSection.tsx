@@ -428,8 +428,11 @@ export const DashboardSection = (): JSX.Element => {
   const { products, loading, searchTerm } = useAppSelector(
     (state) => state.product
   );
+
   const productList =
-    products?.products?.filter((product) => !product.linked) || [];
+    products?.products?.length > 0
+      ? products?.products?.filter((product) => !product.linked)
+      : [];
 
   // Filter products based on search term
   const filteredProducts = productList.filter((product) => {
