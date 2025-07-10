@@ -50,28 +50,7 @@ export const ClientUserListSection = ({
   const dnsPrefix = host;
 
   // Filter users based on search query
-  const filteredUsers = useMemo(() => {
-    if (!searchQuery?.trim()) return userList;
-
-    const searchTerms = searchQuery.toLowerCase().trim().split(/\s+/);
-
-    return userList.filter((user) => {
-      const searchableFields = [
-        user.firstname,
-        user.lastname,
-        user.email,
-        user.role,
-        user.department,
-        user.phone_number,
-        user.is_active ? "active" : "inactive",
-        `${user.store_ids?.length || 0} stores`,
-      ].map((field) => String(field).toLowerCase());
-
-      return searchTerms.every((term) =>
-        searchableFields.some((field) => field.includes(term))
-      );
-    });
-  }, [userList, searchQuery]);
+  const filteredUsers = userList;
 
   const handleImport = async (file: File) => {
     try {

@@ -16,7 +16,7 @@ export const ClientUserList = (): JSX.Element => {
   console.log({ dnsPrefix });
   // Fetch users when page changes or search query changes
   useEffect(() => {
-    if (dnsPrefix) {
+    if (dnsPrefix && searchQuery?.trim()?.length >= 3) {
       if (searchQuery.trim() !== "") {
         setCurrentPage(1);
       }
@@ -26,7 +26,22 @@ export const ClientUserList = (): JSX.Element => {
           params: {
             page: currentPage,
             limit: ITEMS_PER_PAGE,
-            search: searchQuery.trim(),
+            search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
+          },
+        })
+      );
+    }
+    if (dnsPrefix && searchQuery?.trim()?.length === 0) {
+      if (searchQuery.trim() !== "") {
+        setCurrentPage(1);
+      }
+      dispatch(
+        fetchUsers({
+          dnsPrefix: dnsPrefix,
+          params: {
+            page: currentPage,
+            limit: ITEMS_PER_PAGE,
+            search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
           },
         })
       );

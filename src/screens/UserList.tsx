@@ -13,7 +13,7 @@ export const UserList = (): JSX.Element => {
 
   // Fetch users when page changes
   useEffect(() => {
-    if (selectedCompany?.dns) {
+    if (selectedCompany?.dns && searchQuery?.trim()?.length >= 3) {
       if (searchQuery.trim() !== "") {
         setCurrentPage(1);
       }
@@ -23,7 +23,22 @@ export const UserList = (): JSX.Element => {
           params: {
             page: currentPage,
             limit: ITEMS_PER_PAGE,
-            search: searchQuery.trim(),
+            search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
+          },
+        })
+      );
+    }
+    if (selectedCompany?.dns && searchQuery?.trim()?.length === 0) {
+      if (searchQuery.trim() !== "") {
+        setCurrentPage(1);
+      }
+      dispatch(
+        fetchUsers({
+          dnsPrefix: selectedCompany.dns,
+          params: {
+            page: currentPage,
+            limit: ITEMS_PER_PAGE,
+            search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
           },
         })
       );
