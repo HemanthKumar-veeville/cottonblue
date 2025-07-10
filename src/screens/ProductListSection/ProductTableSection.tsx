@@ -80,34 +80,33 @@ export const ProductTableSection = ({
 
   // Fetch products when page changes
   useEffect(() => {
-    if (selectedCompany?.dns) {
+    if (selectedCompany?.dns && searchQuery?.trim()?.length >= 3) {
+      if (searchQuery.trim() !== "") {
+        setCurrentPage(1);
+      }
       dispatch(
         fetchAllProducts({
           dnsPrefix: selectedCompany.dns,
           page: currentPage,
           limit: ITEMS_PER_PAGE,
+          searchQuery: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
         })
       );
     }
-  }, [dispatch, selectedCompany?.dns, currentPage]);
+    if (selectedCompany?.dns && searchQuery?.trim()?.length === 0) {
+      dispatch(
+        fetchAllProducts({
+          dnsPrefix: selectedCompany.dns,
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+          searchQuery: "",
+        })
+      );
+    }
+  }, [dispatch, selectedCompany?.dns, currentPage, searchQuery]);
 
   // Filter products based on search query
-  const filteredProducts = useMemo(() => {
-    if (!searchQuery) return productList;
-
-    const query = searchQuery.toLowerCase();
-    return productList.filter((product) => {
-      return (
-        product.name?.toLowerCase().includes(query) ||
-        product.id?.toString().includes(query) ||
-        product.suitable_for?.toLowerCase().includes(query) ||
-        product.size?.toLowerCase().includes(query) ||
-        product.pack_quantity?.toString().includes(query) ||
-        product.available_packs?.toString().includes(query) ||
-        product.price_of_pack?.toString().includes(query)
-      );
-    });
-  }, [productList, searchQuery]);
+  const filteredProducts = productList;
 
   // Calculate total pages based on total products from API
   const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
