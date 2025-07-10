@@ -53,15 +53,24 @@ interface UserData {
   phone_number?: string;
 }
 
+interface UserTableSectionProps {
+  filteredUsers: UserData[];
+  currentPage: number;
+  totalItems: number;
+  itemsPerPage: number;
+  onPageChange: (page: number) => void;
+}
+
 export const UserTableSection = ({
   filteredUsers,
-}: {
-  filteredUsers: UserData[];
-}): JSX.Element => {
+  currentPage,
+  totalItems,
+  itemsPerPage,
+  onPageChange,
+}: UserTableSectionProps): JSX.Element => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { isLoading: loading, error } = useAppSelector((state) => state.user);
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -76,8 +85,7 @@ export const UserTableSection = ({
   const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
   const dispatch = useAppDispatch();
   const { selectedCompany } = useAppSelector((state) => state.client);
-  const ITEMS_PER_PAGE = 5;
-
+  console.log({ totalItems });
   // Calculate dropdown position
   const getDropdownPosition = (buttonElement: HTMLButtonElement | null) => {
     if (!buttonElement) return { top: 0, right: 0 };
@@ -89,20 +97,14 @@ export const UserTableSection = ({
   };
 
   // Calculate total pages
-  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
-
-  // Get current page users
-  const currentUsers = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredUsers, currentPage]);
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   // Handle select all checkbox
   const handleSelectAll = () => {
     if (selectAll) {
       setSelectedUsers([]);
     } else {
-      setSelectedUsers(currentUsers.map((user) => user.email));
+      setSelectedUsers(filteredUsers.map((user) => user.email));
     }
     setSelectAll(!selectAll);
   };
@@ -118,14 +120,23 @@ export const UserTableSection = ({
     });
   };
 
-  // Generate pagination items
+  // Generate pagination items with a maximum of 5 visible pages
   const paginationItems = useMemo(() => {
+    const maxVisiblePages = 5;
     const items = [];
-    for (let i = 1; i <= totalPages; i++) {
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
       items.push(i);
     }
+
     return items;
-  }, [totalPages]);
+  }, [currentPage, totalPages]);
 
   // Add click outside handler
   useEffect(() => {
@@ -175,7 +186,12 @@ export const UserTableSection = ({
           })
         ).unwrap();
         // Refresh users list after successful toggle
-        await dispatch(fetchUsers({ dnsPrefix: selectedCompany.dns }));
+        await dispatch(
+          fetchUsers({
+            dnsPrefix: selectedCompany.dns,
+            params: { page: currentPage, limit: itemsPerPage },
+          })
+        );
       } catch (error) {
         console.error("Failed to toggle user activation:", error);
       } finally {
@@ -203,7 +219,12 @@ export const UserTableSection = ({
           })
         ).unwrap();
         // Refresh users list after successful deletion
-        dispatch(fetchUsers({ dnsPrefix: selectedCompany.dns }));
+        dispatch(
+          fetchUsers({
+            dnsPrefix: selectedCompany.dns,
+            params: { page: currentPage, limit: itemsPerPage },
+          })
+        );
       } catch (error) {
         console.error("Failed to delete user:", error);
       } finally {
@@ -220,7 +241,7 @@ export const UserTableSection = ({
         <div className="w-full relative">
           {loading ? (
             <Skeleton variant="table" />
-          ) : currentUsers.length === 0 ? (
+          ) : filteredUsers.length === 0 ? (
             <EmptyState
               icon={Users}
               title={t("userTable.noUsers")}
@@ -260,7 +281,7 @@ export const UserTableSection = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentUsers.map((user: UserData) => (
+                {filteredUsers.map((user: UserData) => (
                   <TableRow
                     key={user.email}
                     className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
@@ -409,18 +430,22 @@ export const UserTableSection = ({
         </div>
       </div>
 
-      {!loading && !error && currentUsers.length > 0 && (
+      {!loading && !error && filteredUsers.length > 0 && (
         <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
           <div className="px-6 max-w-[calc(100%-2rem)]">
             <Pagination className="flex items-center justify-between w-full mx-auto">
               <PaginationPrevious
                 href="#"
-                className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-[15px] ${
+                  currentPage === 1
+                    ? "opacity-50 cursor-not-allowed text-gray-400"
+                    : "text-black hover:bg-gray-50"
+                }`}
+                onClick={() => onPageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
               >
                 <img
-                  className="w-6 h-6"
+                  className={`w-6 h-6 ${currentPage === 1 ? "opacity-50" : ""}`}
                   alt="Arrow left"
                   src="/img/arrow-left-sm.svg"
                 />
@@ -437,20 +462,20 @@ export const UserTableSection = ({
                           ? "bg-cyan-100 font-bold text-[#1e2324]"
                           : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
                       }`}
-                      onClick={() => setCurrentPage(page)}
+                      onClick={() => onPageChange(page)}
                     >
                       {page}
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-                {totalPages > 5 && (
+                {totalPages > 5 && currentPage < totalPages - 2 && (
                   <>
                     <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
                     <PaginationItem>
                       <PaginationLink
                         href="#"
                         className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                        onClick={() => setCurrentPage(totalPages)}
+                        onClick={() => onPageChange(totalPages)}
                       >
                         {totalPages}
                       </PaginationLink>
@@ -461,15 +486,21 @@ export const UserTableSection = ({
 
               <PaginationNext
                 href="#"
-                className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px]"
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-[15px] ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed text-gray-400"
+                    : "text-black hover:bg-gray-50"
+                }`}
                 onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                  onPageChange(Math.min(totalPages, currentPage + 1))
                 }
                 disabled={currentPage === totalPages}
               >
                 {t("userList.pagination.next")}
                 <img
-                  className="w-6 h-6 rotate-180"
+                  className={`w-6 h-6 rotate-180 ${
+                    currentPage === totalPages ? "opacity-50" : ""
+                  }`}
                   alt="Arrow right"
                   src="/img/arrow-left-sm-1.svg"
                 />

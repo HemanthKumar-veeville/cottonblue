@@ -172,16 +172,16 @@ const VariantTable = ({
                   <SelectItem value="XL">
                     {t("productSidebar.form.options.size.XL")}
                   </SelectItem>
-                  <SelectItem value="2XL">
+                  <SelectItem value="XXL">
                     {t("productSidebar.form.options.size.2XL")}
                   </SelectItem>
-                  <SelectItem value="3XL">
+                  <SelectItem value="XXXL">
                     {t("productSidebar.form.options.size.3XL")}
                   </SelectItem>
-                  <SelectItem value="4XL">
+                  <SelectItem value="XXXXL">
                     {t("productSidebar.form.options.size.4XL")}
                   </SelectItem>
-                  <SelectItem value="5XL">
+                  <SelectItem value="XXXXXL">
                     {t("productSidebar.form.options.size.5XL")}
                   </SelectItem>
                 </SelectContent>

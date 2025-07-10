@@ -2,7 +2,7 @@ import { DownloadIcon, PlusIcon, SearchIcon, UploadIcon } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { useTranslation } from "react-i18next";
-import { useState, useEffect, useMemo } from "react";
+import { useMemo, useState } from "react";
 import ImportCSVModal from "../../components/ImportCSVModal/ImportCSVModal";
 import { ExportCSV } from "../../components/ExportCSV/ExportCSV";
 import { useAppDispatch, useAppSelector } from "../../store/store";
@@ -11,22 +11,33 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { UserTableSection } from "./UserTableSection";
 
-export const UserListSection = (): JSX.Element => {
+interface UserListSectionProps {
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  itemsPerPage: number;
+}
+
+export const UserListSection = ({
+  searchQuery,
+  setSearchQuery,
+  currentPage,
+  setCurrentPage,
+  itemsPerPage,
+}: UserListSectionProps): JSX.Element => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   // Get users from Redux store
-  const {
-    users,
-    isLoading: loading,
-    error,
-  } = useAppSelector((state) => state.user);
+  const usersData = useAppSelector((state) => state.user);
   const { selectedCompany } = useAppSelector((state) => state.client);
-  const userList = users?.users || [];
+  const userList = usersData?.users?.users || [];
+  const total = usersData?.users?.total_users || 0;
+  const page = usersData?.users?.page || 1;
 
   // Filter users based on search query
   const filteredUsers = useMemo(() => {
@@ -46,26 +57,18 @@ export const UserListSection = (): JSX.Element => {
         `${user.store_ids?.length || 0} stores`,
       ].map((field) => String(field).toLowerCase());
 
-      // Check if all search terms match any of the fields
       return searchTerms.every((term) =>
         searchableFields.some((field) => field.includes(term))
       );
     });
   }, [userList, searchQuery]);
 
-  // Fetch users on component mount
-  useEffect(() => {
-    if (selectedCompany?.dns) {
-      dispatch(fetchUsers({ dnsPrefix: selectedCompany?.dns }));
-    }
-  }, [dispatch, selectedCompany?.dns]);
-
   const handleImport = async (file: File) => {
     try {
       const formData = new FormData();
       formData.append("csv_file", file);
       formData.append("company_id", selectedCompany!.id);
-      // Dispatch register user action
+
       const resultAction = await dispatch(
         registerUser({
           dnsPrefix: selectedCompany!.dns,
@@ -82,7 +85,16 @@ export const UserListSection = (): JSX.Element => {
       }
 
       // Refresh users list after successful import
-      dispatch(fetchUsers({ dnsPrefix: selectedCompany?.dns || "" }));
+      dispatch(
+        fetchUsers({
+          dnsPrefix: selectedCompany?.dns || "",
+          params: {
+            page: currentPage,
+            limit: itemsPerPage,
+            search: searchQuery.trim(),
+          },
+        })
+      );
     } catch (error) {
       console.error("Error importing CSV:", error);
       throw error;
@@ -91,6 +103,10 @@ export const UserListSection = (): JSX.Element => {
 
   const handleCreateUser = () => {
     navigate("/users/add");
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   return (
@@ -127,7 +143,13 @@ export const UserListSection = (): JSX.Element => {
         </div>
       </div>
 
-      <UserTableSection filteredUsers={filteredUsers} />
+      <UserTableSection
+        filteredUsers={filteredUsers}
+        currentPage={currentPage}
+        totalItems={total}
+        itemsPerPage={itemsPerPage}
+        onPageChange={handlePageChange}
+      />
 
       <ImportCSVModal
         isOpen={isImportModalOpen}

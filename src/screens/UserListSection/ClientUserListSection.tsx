@@ -19,26 +19,39 @@ const Heading = ({ text }: { text: string }) => (
   </h3>
 );
 
-export const ClientUserListSection = (): JSX.Element => {
+interface ClientUserListSectionProps {
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  itemsPerPage: number;
+}
+
+export const ClientUserListSection = ({
+  searchQuery,
+  setSearchQuery,
+  currentPage,
+  setCurrentPage,
+  itemsPerPage,
+}: ClientUserListSectionProps): JSX.Element => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [searchQuery, setSearchQuery] = useState("");
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   // Get users from Redux store
-  const {
-    users,
-    isLoading: loading,
-    error,
-  } = useAppSelector((state) => state.user);
+  const usersData = useAppSelector((state) => state.user);
   const { selectedCompany } = useAppSelector((state) => state.client);
-  const userList = users?.users || [];
+  const userList = usersData?.users?.users || [];
+  const total = usersData?.users?.total_users || 0;
+  const page = usersData?.users?.page || 1;
   const host = getHost();
+  const dnsPrefix = host;
+
   // Filter users based on search query
   const filteredUsers = useMemo(() => {
-    if (!searchQuery.trim()) return userList;
+    if (!searchQuery?.trim()) return userList;
 
     const searchTerms = searchQuery.toLowerCase().trim().split(/\s+/);
 
@@ -54,29 +67,21 @@ export const ClientUserListSection = (): JSX.Element => {
         `${user.store_ids?.length || 0} stores`,
       ].map((field) => String(field).toLowerCase());
 
-      // Check if all search terms match any of the fields
       return searchTerms.every((term) =>
         searchableFields.some((field) => field.includes(term))
       );
     });
   }, [userList, searchQuery]);
 
-  // Fetch users on component mount
-  useEffect(() => {
-    if (selectedCompany?.dns || host) {
-      dispatch(fetchUsers({ dnsPrefix: selectedCompany?.dns || host }));
-    }
-  }, [dispatch, selectedCompany?.dns, host]);
-
   const handleImport = async (file: File) => {
     try {
       const formData = new FormData();
       formData.append("csv_file", file);
       formData.append("company_id", selectedCompany!.id);
-      // Dispatch register user action
+
       const resultAction = await dispatch(
         registerUser({
-          dnsPrefix: selectedCompany!.dns,
+          dnsPrefix: dnsPrefix,
           data: formData as any,
         }) as any
       );
@@ -90,7 +95,16 @@ export const ClientUserListSection = (): JSX.Element => {
       }
 
       // Refresh users list after successful import
-      dispatch(fetchUsers({ dnsPrefix: selectedCompany?.dns || "" }));
+      dispatch(
+        fetchUsers({
+          dnsPrefix: dnsPrefix || "",
+          params: {
+            page: currentPage,
+            limit: itemsPerPage,
+            search: searchQuery?.trim() || "",
+          },
+        })
+      );
     } catch (error) {
       console.error("Error importing CSV:", error);
       throw error;
@@ -99,6 +113,10 @@ export const ClientUserListSection = (): JSX.Element => {
 
   const handleCreateUser = () => {
     navigate("/users/add");
+  };
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
   };
 
   const { buttonStyles } = useCompanyColors();
@@ -143,7 +161,13 @@ export const ClientUserListSection = (): JSX.Element => {
         </div>
       </div>
 
-      <ClientUserTableSection filteredUsers={filteredUsers} />
+      <ClientUserTableSection
+        filteredUsers={filteredUsers}
+        currentPage={currentPage}
+        totalItems={total}
+        itemsPerPage={itemsPerPage}
+        onPageChange={handlePageChange}
+      />
 
       <ImportCSVModal
         isOpen={isImportModalOpen}

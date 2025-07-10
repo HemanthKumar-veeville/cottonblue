@@ -1,7 +1,7 @@
 export const isAdminHostname = (): boolean => {
   const hostname = window.location.hostname;
-  // return hostname.startsWith('admin.') || hostname.startsWith('dev.');
-  return hostname.startsWith('admin.') || hostname === 'localhost' || hostname.startsWith("dev.") ;
+  return hostname.startsWith('admin.') || hostname.startsWith('dev.');
+  // return hostname.startsWith('admin.') || hostname === 'localhost' || hostname.startsWith("dev.") ;
 }; 
 
 export const isWarehouseHostname = (): boolean => {
@@ -12,7 +12,7 @@ export const isWarehouseHostname = (): boolean => {
 
 export const getHost = (): string => {
   const hostname = window.location.hostname;
-  return hostname === 'localhost' ? 'admin' : hostname.split('.')[0];
+  return hostname === 'localhost' ? 'chronodrive' : hostname.split('.')[0];
 };
 
 export const isDevHostname = (): boolean => {

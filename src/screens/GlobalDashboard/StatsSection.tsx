@@ -63,11 +63,6 @@ const StatsSection: React.FC = () => {
       titleKey: "dashboard.stats.registeredUsers",
       value: stats?.total_users,
     },
-    {
-      icon: Clock,
-      titleKey: "dashboard.stats.averageDeliveryTime",
-      value: stats?.average_delivery_time || "2.3 j",
-    },
   ];
 
   return (

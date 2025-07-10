@@ -190,7 +190,9 @@ const FormSelect = ({
           <Select value={value} onValueChange={onChange}>
             <SelectTrigger className="w-full">
               <SelectValue
-                placeholder={t("productSidebar.form.selectPlaceholder")}
+                placeholder={t("productSidebar.form.selectPlaceholder", {
+                  label: label,
+                })}
               />
             </SelectTrigger>
             <SelectContent>
@@ -266,7 +268,6 @@ export const ProductSidebarSection = ({
   const FORM_FIELDS = {
     suitable_for: {
       options: [
-        t("productSidebar.form.options.suitableFor.general"),
         t("productSidebar.form.options.suitableFor.men"),
         t("productSidebar.form.options.suitableFor.women"),
         t("productSidebar.form.options.suitableFor.unisex"),

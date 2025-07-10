@@ -218,10 +218,10 @@
       "reference": "Référence (EAN)",
       "description": "Description",
       "descriptionHint": "Maximum 500 caractères",
-      "selectPlaceholder": "Sélectionner une taille",
+      "selectPlaceholder": "Sélectionner une {{label}}",
       "options": {
         "suitableFor": {
-          "general": "Général",
+          "mixed": "Mixte",
           "men": "Hommes",
           "women": "Femmes",
           "unisex": "Mixte"
@@ -233,10 +233,10 @@
           "M": "M",
           "L": "L",
           "XL": "XL",
-          "2XL": "2XL",
-          "3XL": "3XL",
-          "4XL": "4XL",
-          "5XL": "5XL"
+          "2XL": "XXL",
+          "3XL": "XXXL",
+          "4XL": "XXXXL",
+          "5XL": "XXXXXL"
         }
       }
     },
@@ -780,7 +780,7 @@
     },
     "values": {
       "free": "Gratuit",
-      "general": "Général",
+      "mixed": "Mixte",
       "unit": "unité",
       "units": "unités",
       "currency": "€"

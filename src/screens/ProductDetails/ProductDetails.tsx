@@ -179,10 +179,10 @@ const ProductInfo = ({ product }: { product: Product }) => {
     M: 3,
     L: 4,
     XL: 5,
-    "2XL": 6,
-    "3XL": 7,
-    "4XL": 8,
-    "5XL": 9,
+    XXL: 6,
+    XXXL: 7,
+    XXXXL: 8,
+    XXXXXL: 9,
   };
 
   // If the size is "Unique", only show that size

@@ -199,7 +199,7 @@
       "selectPlaceholder": "Select an option",
       "options": {
         "suitableFor": {
-          "general": "General",
+          "mixed": "Mixed",
           "men": "Men",
           "women": "Women",
           "unisex": "Unisex"
@@ -211,10 +211,10 @@
           "M": "M",
           "L": "L",
           "XL": "XL",
-          "2XL": "2XL",
-          "3XL": "3XL",
-          "4XL": "4XL",
-          "5XL": "5XL"
+          "2XL": "XXL",
+          "3XL": "XXXL",
+          "4XL": "XXXXL",
+          "5XL": "XXXXXL"
         }
       }
     },
@@ -727,7 +727,7 @@
     },
     "values": {
       "free": "Free",
-      "general": "General",
+      "mixed": "Mixed",
       "unit": "unit",
       "units": "units",
       "currency": "$"

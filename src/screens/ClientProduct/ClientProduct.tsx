@@ -133,7 +133,7 @@ const ProductPage = () => {
   const dnsPrefix = getHost();
   const { selectedStore } = useAppSelector((state) => state.agency);
   const product = currentProduct?.product || ({} as Product);
-  const otherProducts = products?.products?.product_list || [];
+  const otherProducts = products?.products || [];
   const cart = useAppSelector((state) => state.cart);
   const items = cart?.items || [];
 
@@ -506,10 +506,10 @@ const ProductInfo = ({
     M: 3,
     L: 4,
     XL: 5,
-    "2XL": 6,
-    "3XL": 7,
-    "4XL": 8,
-    "5XL": 9,
+    XXL: 6,
+    XXXL: 7,
+    XXXXL: 8,
+    XXXXXL: 9,
   };
 
   // If the size is "Unique", only show that size

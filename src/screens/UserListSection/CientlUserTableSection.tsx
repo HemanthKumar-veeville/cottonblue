@@ -40,51 +40,47 @@ interface UserData {
   phone_number?: string;
 }
 
+interface ClientUserTableSectionProps {
+  filteredUsers: UserData[];
+  currentPage: number;
+  totalItems: number;
+  itemsPerPage: number;
+  onPageChange: (page: number) => void;
+}
+
 export const ClientUserTableSection = ({
   filteredUsers,
-}: {
-  filteredUsers: UserData[];
-}): JSX.Element => {
+  currentPage,
+  totalItems,
+  itemsPerPage,
+  onPageChange,
+}: ClientUserTableSectionProps): JSX.Element => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { isLoading: loading, error } = useAppSelector((state) => state.user);
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [selectAll, setSelectAll] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
+  const [showToggleDialog, setShowToggleDialog] = useState(false);
+  const [userToToggle, setUserToToggle] = useState<UserData | null>(null);
+  const [isTogglingActive, setIsTogglingActive] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
   const buttonRefs = useRef<{ [key: string]: HTMLButtonElement | null }>({});
   const dispatch = useAppDispatch();
   const { selectedCompany } = useAppSelector((state) => state.client);
-  const ITEMS_PER_PAGE = 5;
   const host = getHost();
-  const dnsPrefix = host || selectedCompany?.dns;
-  // Calculate dropdown position
-  const getDropdownPosition = (buttonElement: HTMLButtonElement | null) => {
-    if (!buttonElement) return { top: 0, right: 0 };
-    const rect = buttonElement.getBoundingClientRect();
-    return {
-      top: rect.bottom + 8,
-      right: window.innerWidth - rect.right,
-    };
-  };
+  const dnsPrefix = selectedCompany?.dns || host;
 
   // Calculate total pages
-  const totalPages = Math.ceil(filteredUsers.length / ITEMS_PER_PAGE);
-
-  // Get current page users
-  const currentUsers = useMemo(() => {
-    const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-    return filteredUsers.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [filteredUsers, currentPage]);
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
   // Handle select all checkbox
   const handleSelectAll = () => {
     if (selectAll) {
       setSelectedUsers([]);
     } else {
-      setSelectedUsers(currentUsers.map((user) => user.email));
+      setSelectedUsers(filteredUsers.map((user) => user.email));
     }
     setSelectAll(!selectAll);
   };
@@ -100,14 +96,23 @@ export const ClientUserTableSection = ({
     });
   };
 
-  // Generate pagination items
+  // Generate pagination items with a maximum of 5 visible pages
   const paginationItems = useMemo(() => {
+    const maxVisiblePages = 5;
     const items = [];
-    for (let i = 1; i <= totalPages; i++) {
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
       items.push(i);
     }
+
     return items;
-  }, [totalPages]);
+  }, [currentPage, totalPages]);
 
   // Add click outside handler
   useEffect(() => {
@@ -126,6 +131,16 @@ export const ClientUserTableSection = ({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  // Calculate dropdown position
+  const getDropdownPosition = (buttonElement: HTMLButtonElement | null) => {
+    if (!buttonElement) return { top: 0, right: 0 };
+    const rect = buttonElement.getBoundingClientRect();
+    return {
+      top: rect.bottom + 8,
+      right: window.innerWidth - rect.right,
+    };
+  };
+
   // Handle actions
   const handleViewDetails = (userId: string) => {
     navigate(`/users/${encodeURIComponent(userId)}`);
@@ -137,25 +152,39 @@ export const ClientUserTableSection = ({
     setActiveDropdown(null);
   };
 
-  const handleToggleActive = async (user: any) => {
-    try {
-      if (user?.user_id && dnsPrefix) {
+  const handleToggleClick = (user: UserData) => {
+    setUserToToggle(user);
+    setShowToggleDialog(true);
+    setActiveDropdown(null);
+  };
+
+  const handleToggleActive = async () => {
+    if (userToToggle?.user_id && dnsPrefix) {
+      setIsTogglingActive(true);
+      try {
         await dispatch(
           modifyUser({
             dnsPrefix: dnsPrefix,
-            userId: user?.user_id,
+            userId: userToToggle.user_id,
             data: {
-              is_active: !user?.is_active,
+              is_active: !userToToggle.is_active,
             },
           })
         ).unwrap();
-        // Refresh users list after successful import
-        await dispatch(fetchUsers({ dnsPrefix: dnsPrefix || "" }));
-        setActiveDropdown(null);
+        // Refresh users list after successful toggle
+        await dispatch(
+          fetchUsers({
+            dnsPrefix: dnsPrefix,
+            params: { page: currentPage, limit: itemsPerPage },
+          })
+        );
+      } catch (error) {
+        console.error("Failed to toggle user activation:", error);
+      } finally {
+        setIsTogglingActive(false);
+        setShowToggleDialog(false);
+        setUserToToggle(null);
       }
-    } catch (error: any) {
-      console.error("Failed to toggle user activation:", error);
-      // You might want to show an error toast/notification here
     }
   };
 
@@ -165,7 +194,7 @@ export const ClientUserTableSection = ({
         <div className="w-full relative">
           {loading ? (
             <Skeleton variant="table" />
-          ) : currentUsers.length === 0 ? (
+          ) : filteredUsers.length === 0 ? (
             <EmptyState
               icon={Users}
               title={t("userTable.noUsers")}
@@ -205,7 +234,7 @@ export const ClientUserTableSection = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentUsers.map((user: UserData) => (
+                {filteredUsers.map((user: UserData) => (
                   <TableRow
                     key={user.email}
                     className="border-b border-[#e5e7eb] py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
@@ -313,7 +342,7 @@ export const ClientUserTableSection = ({
                                 }`}
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleToggleActive(user);
+                                  handleToggleClick(user);
                                 }}
                                 role="menuitem"
                               >
@@ -343,7 +372,7 @@ export const ClientUserTableSection = ({
         </div>
       </div>
 
-      {!loading && !error && currentUsers.length > 0 && (
+      {!loading && !error && filteredUsers.length > 0 && (
         <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-[#e5e7eb] py-4">
           <div className="px-6 max-w-[calc(100%-2rem)]">
             <Pagination className="flex items-center justify-between w-full mx-auto">
@@ -354,7 +383,7 @@ export const ClientUserTableSection = ({
                     ? "opacity-50 cursor-not-allowed"
                     : "cursor-pointer"
                 }`}
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                onClick={() => onPageChange(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
               >
                 <img
@@ -375,7 +404,7 @@ export const ClientUserTableSection = ({
                           ? "bg-cyan-100 font-bold text-[#1e2324]"
                           : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
                       }`}
-                      onClick={() => setCurrentPage(page)}
+                      onClick={() => onPageChange(page)}
                     >
                       {page}
                     </PaginationLink>
@@ -388,7 +417,7 @@ export const ClientUserTableSection = ({
                       <PaginationLink
                         href="#"
                         className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                        onClick={() => setCurrentPage(totalPages)}
+                        onClick={() => onPageChange(totalPages)}
                       >
                         {totalPages}
                       </PaginationLink>
@@ -405,7 +434,7 @@ export const ClientUserTableSection = ({
                     : "cursor-pointer"
                 }`}
                 onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                  onPageChange(Math.min(totalPages, currentPage + 1))
                 }
                 disabled={currentPage === totalPages}
               >
