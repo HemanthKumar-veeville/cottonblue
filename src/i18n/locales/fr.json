@@ -1345,6 +1345,10 @@
     "search": {
       "placeholder": "Rechercher une commande"
     },
+    "empty": {
+      "title": "Aucune commande trouvée",
+      "description": "Il n'y a pas encore de commandes dans votre liste. Ajoutez votre première commande pour commencer."
+    },
     "confirmation": {
       "title": "Confirmer l'action",
       "process": "Êtes-vous sûr de vouloir traiter {{count}} commandes ?",

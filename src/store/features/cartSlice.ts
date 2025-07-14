@@ -113,13 +113,19 @@ export const getAllOrders = createAsyncThunk(
   async ({ 
     dns_prefix, 
     store_id,
-    status
+    status,
+    page,
+    limit,
+    search
   }: { 
     dns_prefix: string; 
     store_id: string;
     status?: string;
+    page?: number;
+    limit?: number;
+    search?: string;
   }) => {
-    const response = await cartService.getAllOrders(dns_prefix, store_id, status);
+    const response = await cartService.getAllOrders(dns_prefix, store_id, status, page, limit, search);
     return response.data;
   }
 );
@@ -167,8 +173,9 @@ export const refuseOrder = createAsyncThunk(
 
 export const getAllCompanyOrders = createAsyncThunk(
   'cart/getAllCompanyOrders',
-  async ({ dns_prefix, status }: { dns_prefix: string; status?: string }) => {
-    const response = await cartService.getAllCompanyOrders(dns_prefix, status);
+  async ({ dns_prefix, status, page, limit, search }: { dns_prefix: string; status?: string, page?: number, limit?: number, search?: string }) => {
+    const response = await cartService.getAllCompanyOrders(dns_prefix, status, page, limit, search);
+    
     return response.data;
   }
 );
@@ -195,6 +202,8 @@ const initialState: CartState = {
   error: null,
   total: 0,
   orders: [],
+  totalOrders: 0,
+  currentPage: 1,
   store_name: "",
   store_address: "",
   company_name: "",
@@ -337,6 +346,8 @@ const cartSlice = createSlice({
         state.company_email = action.payload.company_email;
         state.vat_number = action.payload.vat_number;
         state.store_phone = action.payload.store_phone;
+        state.totalOrders = action.payload.total_orders;
+        state.currentPage = action.payload.page;
       })
       .addCase(getAllOrders.rejected, (state, action) => {
         state.loading = false;
@@ -417,6 +428,8 @@ const cartSlice = createSlice({
       .addCase(getAllCompanyOrders.fulfilled, (state, action) => {
         state.loading = false;
         state.orders = action.payload.orders;
+        state.totalOrders = action.payload.total_orders;
+        state.currentPage = action.payload.page;
       })
       .addCase(getAllCompanyOrders.rejected, (state, action) => {
         state.loading = false;

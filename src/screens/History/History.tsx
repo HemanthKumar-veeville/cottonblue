@@ -14,7 +14,15 @@ export default function History(): JSX.Element {
   console.log({ orders });
   useEffect(() => {
     if (selectedStore) {
-      dispatch(getAllOrders({ dns_prefix, store_id: selectedStore }));
+      dispatch(
+        getAllOrders({
+          dns_prefix,
+          store_id: selectedStore,
+          page: 1,
+          limit: 10,
+          search: "",
+        })
+      );
     }
   }, [dispatch, selectedStore]);
 

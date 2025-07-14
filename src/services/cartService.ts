@@ -165,9 +165,12 @@ export const cartService = {
   getAllOrders: async (
     dns_prefix: string,
     store_id: string,
-    status: string
+    status: string,
+    page: number,
+    limit: number,
+    search: string
   ): Promise<GetAllOrdersResponse> => {
-    const queryParams = status ? `?status=${status}` : '';
+    const queryParams = status ? `?status=${status}&page=${page}&limit=${limit}&search=${search}` : `?page=${page}&limit=${limit}&search=${search}`;
     return axiosInstance.get(`/${dns_prefix}/all/orders/${store_id}${queryParams}`);
   },
 
@@ -231,9 +234,12 @@ export const cartService = {
    */
   getAllCompanyOrders: async (
     dns_prefix: string,
-    status?: string
+    status?: string,
+    page?: number,
+    limit?: number,
+    search?: string
   ): Promise<GetAllCompanyOrdersResponse> => {
-    const queryParams = status ? `?status=${status}` : '';
+    const queryParams = status ? `?status=${status}&page=${page}&limit=${limit}&search=${search}` : `?page=${page}&limit=${limit}&search=${search}`;
     return axiosInstance.get(`/${dns_prefix}/all/orders${queryParams}`);
   },
 

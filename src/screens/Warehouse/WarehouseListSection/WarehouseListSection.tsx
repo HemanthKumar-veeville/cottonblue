@@ -9,7 +9,7 @@ import {
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { AppDispatch, useAppSelector } from "../../../store/store";
 import { changeOrderStatus } from "../../../store/features/cartSlice";
@@ -20,6 +20,7 @@ import { getOrderStatusText } from "../../../utils/statusUtil";
 interface StoreFilter {
   id: string;
   name: string;
+  dns_prefix: string;
 }
 
 interface WarehouseListSectionProps {
@@ -49,6 +50,15 @@ export const WarehouseListSection = ({
   const { selectedCompany } = useAppSelector((state) => state.client);
   const dns_prefix = selectedCompany?.dns || "admin";
 
+  // Debounce search term
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onSearch(searchTerm);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm, onSearch]);
+
   // Add state for confirmation dialogs
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
@@ -60,11 +70,9 @@ export const WarehouseListSection = ({
     orderIds: [],
   });
 
-  // Handle search input change
+  // Handle search input change with debounce
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchTerm(value);
-    onSearch(value);
+    setSearchTerm(e.target.value);
   };
 
   const handleProcessOrders = (orderIds: number[]) => {
@@ -140,16 +148,42 @@ export const WarehouseListSection = ({
 
       <div className="flex flex-col gap-4 w-full">
         <div className="flex items-center justify-between w-full">
-          <div className="relative w-[400px]">
-            <Input
-              className="pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] pr-12 py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)] rounded-[var(--2-tokens-screen-modes-input-border-radius)]"
-              placeholder={t("warehouse.search.placeholder")}
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
-            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center w-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)] h-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)]">
-              <SearchIcon className="w-5 h-5 text-[color:var(--1-tokens-color-modes-input-primary-default-icon)]" />
+          <div className="flex items-center gap-4">
+            <div className="relative w-[400px]">
+              <Input
+                className="pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] pr-12 py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)] rounded-[var(--2-tokens-screen-modes-input-border-radius)]"
+                placeholder={t("warehouse.search.placeholder")}
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center w-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)] h-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)]">
+                <SearchIcon className="w-5 h-5 text-[color:var(--1-tokens-color-modes-input-primary-default-icon)]" />
+              </div>
             </div>
+
+            {activeStoreFilter && (
+              <Button
+                variant="ghost"
+                onClick={onClearFilter}
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              >
+                {activeStoreFilter.name}
+                <span className="sr-only">{t("common.remove")}</span>
+                <XIcon className="w-4 h-4" />
+              </Button>
+            )}
+
+            {activeStatusFilter && (
+              <Button
+                variant="ghost"
+                onClick={onClearStatusFilter}
+                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+              >
+                {t(`warehouse.status.${activeStatusFilter}`)}
+                <span className="sr-only">{t("common.remove")}</span>
+                <XIcon className="w-4 h-4" />
+              </Button>
+            )}
           </div>
 
           <div className="flex items-center gap-3">
