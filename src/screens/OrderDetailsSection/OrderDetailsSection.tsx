@@ -157,23 +157,29 @@ const OrderRow = ({
   );
 };
 
-export const OrderDetailsSection = (): JSX.Element => {
+export const OrderDetailsSection = ({
+  currentPage,
+  itemsPerPage,
+  setCurrentPage,
+}: {
+  currentPage: number;
+  itemsPerPage: number;
+  setCurrentPage: (page: number) => void;
+}): JSX.Element => {
   const { t } = useTranslation();
 
   const orders = useSelector((state: any) => state.cart.orders);
+  const totalOrders = useSelector((state: any) => state.cart.totalOrders);
   const loading = useSelector((state: any) => state.cart.loading);
   const error = useSelector((state: any) => state.cart.error);
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const ordersPerPage = 10; // Number of orders to show per page
   const { buttonStyles } = useCompanyColors();
   const orderList = orders || [];
-  const totalPages = Math.ceil(orderList.length / ordersPerPage);
+  const totalPages = Math.ceil(totalOrders / itemsPerPage);
 
-  // Get current orders
-  const indexOfLastOrder = currentPage * ordersPerPage;
-  const indexOfFirstOrder = indexOfLastOrder - ordersPerPage;
-  const currentOrders = orderList.slice(indexOfFirstOrder, indexOfLastOrder);
+  // Remove client-side pagination since we're getting paginated data from API
+  const currentOrders = orderList;
+  console.log({ currentPage, totalPages });
 
   // Generate pagination items
   const generatePaginationItems = () => {

@@ -1,35 +1,61 @@
 import { OrderDetailsSection } from "../OrderDetailsSection/OrderDetailsSection";
 import { OrderHistorySection } from "../OrderHistorySection/OrderHistorySection";
-import { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { getAllOrders } from "../../store/features/cartSlice";
 import { getHost } from "../../utils/hostUtils";
-import { useAppSelector } from "../../store/store";
+import { useAppSelector, AppDispatch } from "../../store/store";
 
 export default function History(): JSX.Element {
-  const dispatch = useDispatch();
+  const dispatch = useDispatch<AppDispatch>();
   const dns_prefix = getHost();
   const { selectedStore } = useAppSelector((state) => state.agency);
-  const orders = useSelector((state: any) => state.cart.orders);
-  console.log({ orders });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const ITEMS_PER_PAGE = 10;
+
   useEffect(() => {
     if (selectedStore) {
-      dispatch(
-        getAllOrders({
-          dns_prefix,
-          store_id: selectedStore,
-          page: 1,
-          limit: 10,
-          search: "",
-        })
-      );
+      if (searchQuery.trim() !== "") {
+        setCurrentPage(1);
+      }
+      searchQuery?.trim()?.length >= 3
+        ? dispatch(
+            getAllOrders({
+              dns_prefix,
+              store_id: selectedStore,
+              page: currentPage,
+              limit: ITEMS_PER_PAGE,
+              search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
+            })
+          )
+        : searchQuery?.trim()?.length === 0 &&
+          dispatch(
+            getAllOrders({
+              dns_prefix,
+              store_id: selectedStore,
+              page: currentPage,
+              limit: ITEMS_PER_PAGE,
+              search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
+            })
+          );
     }
-  }, [dispatch, selectedStore]);
+  }, [dispatch, selectedStore, currentPage, searchQuery, dns_prefix]);
 
   return (
     <main className="flex flex-col w-full gap-8 p-6">
-      <OrderHistorySection />
-      <OrderDetailsSection />
+      <OrderHistorySection
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        currentPage={currentPage}
+        setCurrentPage={setCurrentPage}
+        itemsPerPage={ITEMS_PER_PAGE}
+      />
+      <OrderDetailsSection
+        currentPage={currentPage}
+        itemsPerPage={ITEMS_PER_PAGE}
+        setCurrentPage={setCurrentPage}
+      />
     </main>
   );
 }

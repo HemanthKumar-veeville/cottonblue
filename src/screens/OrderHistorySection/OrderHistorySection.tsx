@@ -8,6 +8,17 @@ import ExcelJS from "exceljs";
 import { useState, useRef } from "react";
 import { Buffer } from "buffer";
 import dayjs from "dayjs";
+import { Input } from "../../components/ui/input";
+import { SearchIcon } from "lucide-react";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../../components/ui/pagination";
 
 const Heading = ({ text }: { text: string }) => (
   <h3 className="text-[length:var(--heading-h3-font-size)] font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
@@ -72,10 +83,26 @@ const DownloadDropdown = ({
   );
 };
 
-export const OrderHistorySection = (): JSX.Element => {
+interface OrderHistorySectionProps {
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  itemsPerPage: number;
+}
+
+export const OrderHistorySection = ({
+  searchQuery,
+  setSearchQuery,
+  currentPage,
+  setCurrentPage,
+  itemsPerPage = 10,
+}: OrderHistorySectionProps): JSX.Element => {
   const { t, i18n } = useTranslation();
   const orders = useSelector((state: any) => state.cart.orders);
   const loading = useSelector((state: any) => state.cart.loading);
+  const error = useSelector((state: any) => state.cart.error);
+  const total = useSelector((state: any) => state.cart.totalOrders);
   const { buttonStyles } = useCompanyColors();
   const orderList = orders || [];
 
@@ -362,28 +389,144 @@ export const OrderHistorySection = (): JSX.Element => {
     }
   };
 
+  // Generate pagination items
+  const getPaginationItems = () => {
+    const items = [];
+    const maxVisiblePages = 5;
+    const totalPages = Math.ceil(total / itemsPerPage);
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      items.push({ page: i, active: i === currentPage });
+    }
+
+    return items;
+  };
+
+  const handlePageChange = (page: number) => {
+    const totalPages = Math.ceil(total / itemsPerPage);
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
+
   return (
-    <header
-      className="flex items-center justify-between w-full"
-      style={buttonStyles}
-    >
-      <Heading text={t("history.title")} />
-      <DownloadDropdown
-        defaultLabel={t("orderHistoryExport.downloadAsCSV")}
-        disabled={loading || !orderList?.length}
-        onDownloadCSV={handleDownloadOrdersCSV}
-        onDownloadExcel={handleDownloadOrdersExcel}
-        options={[
-          {
-            label: t("orderHistoryExport.downloadAsCSV"),
-            onClick: handleDownloadOrdersCSV,
-          },
-          {
-            label: t("orderHistoryExport.downloadAsExcel"),
-            onClick: handleDownloadOrdersExcel,
-          },
-        ]}
-      />
+    <header className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
+      <div
+        className="flex items-center justify-between w-full"
+        style={buttonStyles}
+      >
+        <Heading text={t("history.title")} />
+        <div className="flex items-center gap-4">
+          <DownloadDropdown
+            defaultLabel={t("orderHistoryExport.downloadAsCSV")}
+            disabled={loading || !orderList?.length}
+            onDownloadCSV={handleDownloadOrdersCSV}
+            onDownloadExcel={handleDownloadOrdersExcel}
+            options={[
+              {
+                label: t("orderHistoryExport.downloadAsCSV"),
+                onClick: handleDownloadOrdersCSV,
+              },
+              {
+                label: t("orderHistoryExport.downloadAsExcel"),
+                onClick: handleDownloadOrdersExcel,
+              },
+            ]}
+          />
+        </div>
+      </div>
+
+      {!loading && !error && orderList.length > 0 && (
+        <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
+          <div className="px-6 max-w-[calc(100%-2rem)]">
+            <Pagination className="flex items-center justify-between w-full mx-auto">
+              <PaginationPrevious
+                href="#"
+                onClick={(e: React.MouseEvent) => {
+                  e.preventDefault();
+                  handlePageChange(currentPage - 1);
+                }}
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px] ${
+                  currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+              >
+                <img
+                  className="w-6 h-6"
+                  alt="Arrow left"
+                  src="/img/arrow-left-sm.svg"
+                />
+                {t("history.table.previous")}
+              </PaginationPrevious>
+
+              <PaginationContent className="flex items-center gap-3">
+                {getPaginationItems().map((item) => (
+                  <PaginationItem key={item.page}>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e: React.MouseEvent) => {
+                        e.preventDefault();
+                        handlePageChange(item.page);
+                      }}
+                      className={`flex items-center justify-center w-9 h-9 rounded ${
+                        item.active
+                          ? "bg-cyan-100 font-bold text-[#1e2324]"
+                          : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                      }`}
+                    >
+                      {item.page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                {total / itemsPerPage >
+                  getPaginationItems()[getPaginationItems().length - 1]
+                    ?.page && (
+                  <>
+                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        onClick={(e: React.MouseEvent) => {
+                          e.preventDefault();
+                          handlePageChange(Math.ceil(total / itemsPerPage));
+                        }}
+                        className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                      >
+                        {Math.ceil(total / itemsPerPage)}
+                      </PaginationLink>
+                    </PaginationItem>
+                  </>
+                )}
+              </PaginationContent>
+
+              <PaginationNext
+                href="#"
+                onClick={(e: React.MouseEvent) => {
+                  e.preventDefault();
+                  handlePageChange(currentPage + 1);
+                }}
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px] ${
+                  currentPage === Math.ceil(total / itemsPerPage)
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
+                }`}
+              >
+                {t("history.table.next")}
+                <img
+                  className="w-6 h-6 rotate-180"
+                  alt="Arrow right"
+                  src="/img/arrow-left-sm-1.svg"
+                />
+              </PaginationNext>
+            </Pagination>
+          </div>
+        </div>
+      )}
     </header>
   );
 };
