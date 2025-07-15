@@ -900,6 +900,8 @@
       "postalCode": "Postal code",
       "city": "City",
       "address": "Address",
+      "address1": "Address Line 1",
+      "address2": "Address Line 2",
       "addressComment": "Address comment",
       "storeRegion": "Store Region",
       "region": {

@@ -953,6 +953,8 @@
       "postalCode": "Code postal",
       "city": "Ville",
       "address": "Adresse",
+      "address1": "Numéro et rue",
+      "address2": "Complément d'adresse",
       "addressComment": "Commentaire sur l'adresse",
       "storeRegion": "Région du magasin",
       "region": {

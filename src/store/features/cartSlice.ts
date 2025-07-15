@@ -114,9 +114,9 @@ export const getAllOrders = createAsyncThunk(
     dns_prefix, 
     store_id,
     status,
-    page,
-    limit,
-    search
+    page = 1,
+    limit = 10,
+    search = ""
   }: { 
     dns_prefix: string; 
     store_id: string;

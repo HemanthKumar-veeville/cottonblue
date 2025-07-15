@@ -25,6 +25,7 @@ interface FormData {
   company_id: string;
   store_name: string;
   store_address: string;
+  store_address2: string;
   city: string;
   postal_code: string;
   phone_number: string;
@@ -45,6 +46,7 @@ interface InitialAgencyData {
   company_id: string;
   store_name: string;
   store_address: string;
+  store_address2: string;
   city: string;
   postal_code: string;
   phone_number: string;
@@ -146,6 +148,7 @@ export default function AddAgency() {
     company_id: selectedCompany?.id || "",
     store_name: "",
     store_address: "",
+    store_address2: "",
     city: "",
     postal_code: "",
     phone_number: "",
@@ -183,6 +186,7 @@ export default function AddAgency() {
         company_id: store.company_id?.toString() ?? "",
         store_name: store.name ?? "",
         store_address: store.address ?? "",
+        store_address2: store.address2 ?? "",
         city: store.city ?? "",
         postal_code: store.postal_code ?? "",
         phone_number: store.phone_number ?? "",
@@ -207,6 +211,7 @@ export default function AddAgency() {
         company_id: store.company_id?.toString() ?? "",
         store_name: store.name ?? "",
         store_address: store.address ?? "",
+        store_address2: store.address2 ?? "",
         city: store.city ?? "",
         postal_code: store.postal_code ?? "",
         phone_number: store.phone_number ?? "",
@@ -237,6 +242,7 @@ export default function AddAgency() {
     const hasDataChanged =
       formData.store_name !== initialData.store_name ||
       formData.store_address !== initialData.store_address ||
+      formData.store_address2 !== initialData.store_address2 ||
       formData.city !== initialData.city ||
       formData.postal_code !== initialData.postal_code ||
       formData.phone_number !== initialData.phone_number ||
@@ -261,6 +267,9 @@ export default function AddAgency() {
     }
     if (formData.store_address !== initialData.store_address) {
       changes.store_address = formData.store_address;
+    }
+    if (formData.store_address2 !== initialData.store_address2) {
+      changes.store_address2 = formData.store_address2;
     }
     if (formData.city !== initialData.city) {
       changes.city = formData.city;
@@ -321,6 +330,7 @@ export default function AddAgency() {
         company_id: selectedCompany?.id,
         store_name: formData?.store_name?.trim(),
         store_address: formData?.store_address?.trim(),
+        store_address2: formData?.store_address2?.trim(),
         city: formData?.city?.trim(),
         postal_code: formData?.postal_code,
         phone_number: formData?.phone_number,
@@ -467,6 +477,7 @@ export default function AddAgency() {
                   className="min-h-[100px] pt-6 pr-3 pb-2 pl-3 font-text-medium text-[16px] leading-[24px] bg-white rounded-lg border border-gray-300"
                   value={formData.store_address}
                   required={true}
+                  maxLength={30}
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
@@ -475,8 +486,33 @@ export default function AddAgency() {
                   }
                 />
                 <span className="absolute -top-[10px] left-4 px-2 text-xs font-medium text-gray-600 bg-white">
-                  {t("addAgency.fields.address")}{" "}
+                  {t("addAgency.fields.address1")}{" "}
                   <span className="text-red-500">*</span>
+                </span>
+                <span className="absolute bottom-2 right-2 text-xs text-gray-500 mt-2 z-10 bg-white">
+                  {formData.store_address?.length || 0}/30
+                </span>
+              </div>
+            </div>
+
+            <div className="relative w-full">
+              <div className="relative">
+                <Textarea
+                  className="min-h-[100px] pt-6 pr-3 pb-2 pl-3 font-text-medium text-[16px] leading-[24px] bg-white rounded-lg border border-gray-300"
+                  value={formData.store_address2}
+                  maxLength={30}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      store_address2: e.target.value,
+                    }))
+                  }
+                />
+                <span className="absolute -top-[10px] left-4 px-2 text-xs font-medium text-gray-600 bg-white">
+                  {t("addAgency.fields.address2")}
+                </span>
+                <span className="absolute bottom-2 right-2 text-xs text-gray-500 mt-2 z-10 bg-white">
+                  {formData.store_address2?.length || 0}/30
                 </span>
               </div>
             </div>
