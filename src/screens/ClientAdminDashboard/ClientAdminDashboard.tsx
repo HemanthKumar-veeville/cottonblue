@@ -47,7 +47,7 @@ const getTimeframeValues = (timeframe: TimeframeOption): string[] => {
 
     case "Yearly":
       // Generate next year and current year
-      return [String(currentYear + 1), String(currentYear)];
+      return [String(currentYear - 1), String(currentYear)];
 
     default:
       return [];
@@ -65,38 +65,12 @@ interface PeriodSelectProps {
   onChange: (value: string) => void;
 }
 
-const getTimeframeLabel = (value: string): string => {
-  switch (value) {
-    case "1":
-      return "January";
-    case "2":
-      return "February";
-    case "3":
-      return "March";
-    case "4":
-      return "April";
-    case "5":
-      return "May";
-    case "6":
-      return "June";
-    case "7":
-      return "July";
-    case "8":
-      return "August";
-    case "9":
-      return "September";
-    case "10":
-      return "October";
-    case "11":
-      return "November";
-    case "12":
-      return "December";
-    default:
-      return value;
-  }
+const getTimeframeLabel = (value: string, t: any): string => {
+  const monthKey = `dashboard.timeframes.periods.month.${value}`;
+  return t(monthKey);
 };
 
-const getWeekLabel = (value: string): string => {
+const getWeekLabel = (value: string, t: any): string => {
   const currentYear = new Date().getFullYear();
   const weekNumber = parseInt(value);
 
@@ -115,54 +89,34 @@ const getWeekLabel = (value: string): string => {
   const formatDate = (date: Date) => {
     const month = date.toLocaleString("default", { month: "short" });
     const day = String(date.getDate()).padStart(2, "0");
-    // Ensure exact spacing: 3 chars for month + 1 space + 2 chars for day = 6 chars total
     return `${month.substring(0, 3)} ${day}`;
   };
 
-  // Pad the week number to ensure consistent width
-  const paddedWeek = String(value).padStart(2, "0");
-  // Use a consistent number of spaces between components
-  return `Week ${paddedWeek}  (${formatDate(weekStart)} - ${formatDate(
-    weekEnd
-  )})`;
+  // Use translation for "Week" and format
+  return t("dashboard.timeframes.periods.week", {
+    number: String(value).padStart(2, "0"),
+    startDate: formatDate(weekStart),
+    endDate: formatDate(weekEnd),
+  });
 };
 
-const getQuarterLabel = (value: string): string => {
-  const currentYear = new Date().getFullYear();
-  const quarterNumber = parseInt(value);
-
-  // Define quarter start and end months
-  const startMonth = (quarterNumber - 1) * 3;
-  const endMonth = startMonth + 2;
-
-  // Get month names
-  const startDate = new Date(currentYear, startMonth, 1);
-  const endDate = new Date(currentYear, endMonth, 1);
-
-  // Format the months with fixed width
-  const formatMonth = (date: Date) => {
-    return date.toLocaleString("default", { month: "short" }).substring(0, 3);
-  };
-
-  // Pad quarter number for consistency
-  const paddedQuarter = String(value).padStart(2, "0");
-
-  return `Q${paddedQuarter}  (${formatMonth(startDate)} - ${formatMonth(
-    endDate
-  )})`;
+const getQuarterLabel = (value: string, t: any): string => {
+  const quarterKey = `dashboard.timeframes.periods.quarter.${value}`;
+  return t(quarterKey);
 };
 
 const getDisplayLabel = (
   option: string,
-  timeframe: TimeframeOption
+  timeframe: TimeframeOption,
+  t: any
 ): string => {
   switch (timeframe) {
     case "Monthly":
-      return getTimeframeLabel(option);
+      return getTimeframeLabel(option, t);
     case "Weekly":
-      return getWeekLabel(option);
+      return getWeekLabel(option, t);
     case "Quarterly":
-      return getQuarterLabel(option);
+      return getQuarterLabel(option, t);
     default:
       return option;
   }
@@ -217,7 +171,7 @@ const PeriodSelect: React.FC<PeriodSelectProps> = ({
             placeholder={t("dashboard.timeframes.selectPeriod")}
             className="text-[#475569] text-sm font-medium truncate font-mono"
           >
-            {getDisplayLabel(value, timeframe)}
+            {getDisplayLabel(value, timeframe, t)}
           </SelectValue>
         </SelectTrigger>
         <SelectContent className="rounded-md border-[#E2E8F0] shadow-md min-w-[320px] max-h-[300px]">
@@ -227,7 +181,7 @@ const PeriodSelect: React.FC<PeriodSelectProps> = ({
               value={option}
               className="text-sm font-medium text-[#475569] hover:bg-[#F8FAFC] hover:text-[#07515F] transition-all duration-200 cursor-pointer px-4 py-2 font-mono"
             >
-              {getDisplayLabel(option, timeframe)}
+              {getDisplayLabel(option, timeframe, t)}
             </SelectItem>
           ))}
         </SelectContent>
