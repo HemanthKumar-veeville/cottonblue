@@ -52,5 +52,14 @@ export const agencyService = {
     } catch (error) {
       throw error;
     }
+  },
+
+  getStoreBudget: async (dnsPrefix: string, storeId: string) => {
+    try {
+      const response = await axiosInstance.get(`/${dnsPrefix}/store_budget/${storeId}`);
+      return response.data;
+    } catch (error) {
+      throw error;
+    }
   }
 };

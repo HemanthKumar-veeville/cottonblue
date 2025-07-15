@@ -21,6 +21,7 @@ import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Badge } from "../../../components/ui/badge";
 import { getOrdersForApproval } from "../../../store/features/cartSlice";
+import { getStoreBudget } from "../../../store/features/agencySlice";
 
 let navItems = [
   {
@@ -208,7 +209,74 @@ const BudgetSection = () => {
     </section>
   );
 };
+const StoreBudgetSection = () => {
+  const { t } = useTranslation();
+  const { storeBudget } = useAppSelector((state) => state.agency);
+  const storeBudgetData = storeBudget?.budget;
 
+  const currentMonthOrders = storeBudgetData?.order_count || "-";
+  const currentMonthAmount = storeBudgetData?.current_month_expenses || "-";
+  const monthlyOrderLimit = storeBudgetData?.order_limit || "-";
+  const monthlyExpenseLimit = storeBudgetData?.budget || "-";
+
+  const budgetCards = [
+    {
+      title: "sidebar.budget.expenses",
+      value: (
+        <>
+          <span className="text-emerald-500 text-2xl font-bold">
+            {currentMonthAmount}€/
+          </span>
+          <span className="text-lg leading-[19.8px]">
+            {monthlyExpenseLimit}€
+          </span>
+        </>
+      ),
+    },
+    {
+      title: "sidebar.budget.orders",
+      value: (
+        <>
+          <span className="text-red-500 text-2xl font-bold">
+            {currentMonthOrders}/
+          </span>
+          <span className="text-lg leading-[19.8px]">{monthlyOrderLimit}</span>
+        </>
+      ),
+    },
+  ];
+  return (
+    <section className="flex flex-col items-start gap-6 w-full">
+      <div className="flex items-center justify-between w-full">
+        <h2 className="w-fit font-bold text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-lg leading-7">
+          {t("sidebar.budget.title")}
+        </h2>
+        <HelpCircleIcon className="w-6 h-6" />
+      </div>
+      <div className="flex flex-col items-start gap-3 w-full">
+        {budgetCards.map((card, index) => (
+          <Card
+            key={index}
+            className="w-full border-1-tokens-color-modes-border-secondary"
+          >
+            <CardContent className="flex flex-col items-center gap-4 p-4">
+              <div className="flex items-center gap-4 w-full">
+                <div className="flex flex-col items-start gap-2 flex-1">
+                  <div className="w-fit mt-[-1.00px] font-text-medium text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)]">
+                    {t(card.title)}
+                  </div>
+                  <div className="flex items-center gap-2 w-full">
+                    <div className="flex-1 mt-[-1.00px]">{card.value}</div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </section>
+  );
+};
 const BottomNavigation = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -259,6 +327,17 @@ export const ClientSidebarSection = (): JSX.Element => {
   const { user } = useAppSelector((state) => state.auth);
   const companyLogo = user?.company_logo;
   const { isClientAdmin } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+  const dns_prefix = getHost();
+  const { selectedStore } = useAppSelector((state) => state.agency);
+
+  useEffect(() => {
+    if (!isClientAdmin && selectedStore) {
+      dispatch(
+        getStoreBudget({ dnsPrefix: dns_prefix, storeId: selectedStore })
+      );
+    }
+  }, [isClientAdmin, selectedStore, dispatch, dns_prefix]);
 
   return (
     <aside className="flex flex-col w-64 min-h-screen bg-defaultwhite border-r border-solid border-1-tokens-color-modes-common-neutral-lower overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full relative">
@@ -269,6 +348,7 @@ export const ClientSidebarSection = (): JSX.Element => {
         <div className="flex-1 space-y-10 px-4">
           <NavigationMenu />
           {isClientAdmin && <BudgetSection />}
+          {!isClientAdmin && <StoreBudgetSection />}
         </div>
         <div className="sticky bottom-0 bg-defaultwhite px-4 pb-8 border-t border-1-tokens-color-modes-common-neutral-lower pt-8">
           <BottomNavigation />

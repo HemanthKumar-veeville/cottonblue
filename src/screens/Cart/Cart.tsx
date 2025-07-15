@@ -23,6 +23,7 @@ import {
   convertCartToOrder,
   CartItem,
 } from "../../store/features/cartSlice";
+import { getStoreBudget } from "../../store/features/agencySlice";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import EmptyState from "../../components/EmptyState";
@@ -304,7 +305,7 @@ export default function CartContainer(): JSX.Element {
     store_details: StoreDetails | null;
   };
   const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
+  const { user, isClientAdmin } = useAppSelector((state) => state.auth);
   const userEmail = user?.user_email;
   const dnsPrefix = getHost();
   const { selectedStore } = useAppSelector((state) => state.agency);
@@ -386,6 +387,9 @@ export default function CartContainer(): JSX.Element {
           comments: comments,
         })
       ).unwrap();
+      if (!isClientAdmin && selectedStore) {
+        await dispatch(getStoreBudget({ dnsPrefix, storeId: selectedStore }));
+      }
 
       navigate("/history");
     } catch (error) {

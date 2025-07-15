@@ -35,6 +35,12 @@ interface StoreData {
   budget_limit?: number | null;
 }
 
+interface StoreBudget {
+  total_budget: number;
+  used_budget: number;
+  remaining_budget: number;
+}
+
 // Define the state interface
 interface AgencyState {
   stores: Agency[] | { stores?: Agency[] } | any;
@@ -46,6 +52,7 @@ interface AgencyState {
   storeDetails: { store: Agency } | null;
   selectedStore: string | null;
   previousPath: string | null;
+  storeBudget: StoreBudget | null;
 }
 
 // Initial state
@@ -59,6 +66,7 @@ const initialState: AgencyState = {
   storeDetails: null,
   selectedStore: null,
   previousPath: null,
+  storeBudget: null,
 };
 
 // Create async thunks for API calls
@@ -133,6 +141,18 @@ export const getStoreDetails = createAsyncThunk(
   }
 );
 
+export const getStoreBudget = createAsyncThunk(
+  'agency/getStoreBudget',
+  async ({ dnsPrefix, storeId }: { dnsPrefix: string; storeId: string }, { rejectWithValue }) => {
+    try {
+      const response = await agencyService.getStoreBudget(dnsPrefix, storeId);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to fetch store budget');
+    }
+  }
+);
+
 // Create the slice
 const agencySlice = createSlice({
   name: 'agency',
@@ -158,6 +178,9 @@ const agencySlice = createSlice({
     },
     setPreviousPath: (state, action) => {
       state.previousPath = action.payload;
+    },
+    clearStoreBudget: (state) => {
+      state.storeBudget = null;
     },
   },
   extraReducers: (builder) => {
@@ -238,6 +261,21 @@ const agencySlice = createSlice({
         state.loading = false;
         state.error = action.payload as string;
       });
+
+    // Get store budget
+    builder
+      .addCase(getStoreBudget.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getStoreBudget.fulfilled, (state, action) => {
+        state.loading = false;
+        state.storeBudget = action.payload;
+      })
+      .addCase(getStoreBudget.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 
@@ -248,6 +286,7 @@ export const {
   clearError, 
   clearStoreDetails, 
   setSelectedStore,
-  setPreviousPath
+  setPreviousPath,
+  clearStoreBudget
 } = agencySlice.actions;
 export default agencySlice.reducer;
