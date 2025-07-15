@@ -7,8 +7,8 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        active: "bg-emerald-50 text-emerald-700 border border-emerald-200",
-        inactive: "bg-rose-50 text-rose-700 border border-rose-200",
+        active: "bg-emerald-50 text-emerald-700 border border-emerald-50",
+        inactive: "bg-rose-50 text-rose-700 border border-rose-50",
       },
     },
     defaultVariants: {
