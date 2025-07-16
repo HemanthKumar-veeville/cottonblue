@@ -416,6 +416,15 @@ export const WarehouseTableSection = ({
           </div>
         </div>
       )}
+      {/* Popup Order */}
+      {selectedOrderId && (
+        <PopupOrder
+          orderId={selectedOrderId}
+          onClose={handleClosePopup}
+          open={isPopupOpen}
+          isLoading={loading}
+        />
+      )}
     </div>
   );
 };

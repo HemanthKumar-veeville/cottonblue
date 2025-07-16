@@ -160,30 +160,6 @@ export const WarehouseListSection = ({
                 <SearchIcon className="w-5 h-5 text-[color:var(--1-tokens-color-modes-input-primary-default-icon)]" />
               </div>
             </div>
-
-            {activeStoreFilter && (
-              <Button
-                variant="ghost"
-                onClick={onClearFilter}
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-              >
-                {activeStoreFilter.name}
-                <span className="sr-only">{t("common.remove")}</span>
-                <XIcon className="w-4 h-4" />
-              </Button>
-            )}
-
-            {activeStatusFilter && (
-              <Button
-                variant="ghost"
-                onClick={onClearStatusFilter}
-                className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-              >
-                {t(`warehouse.status.${activeStatusFilter}`)}
-                <span className="sr-only">{t("common.remove")}</span>
-                <XIcon className="w-4 h-4" />
-              </Button>
-            )}
           </div>
 
           <div className="flex items-center gap-3">
