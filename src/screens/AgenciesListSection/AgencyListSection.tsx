@@ -127,6 +127,7 @@ const csvConfig = {
   templateColumns: [
     "Agence nom",
     "Adresse",
+    "Complément d'adresse",
     "Ville",
     "Code postal",
     "Téléphone",
