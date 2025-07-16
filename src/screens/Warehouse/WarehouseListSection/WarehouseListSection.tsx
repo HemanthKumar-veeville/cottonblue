@@ -169,42 +169,6 @@ export const WarehouseListSection = ({
               disabled={selectedOrders.length === 0}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
                 selectedOrders.length === 0
-                  ? "text-amber-400 border-amber-200 bg-amber-50 cursor-not-allowed opacity-75"
-                  : "text-amber-600 border-amber-600 hover:bg-amber-50 hover:text-amber-600"
-              }`}
-              onClick={() => {
-                if (selectedOrders.length > 0) {
-                  handleProcessOrders(selectedOrders);
-                }
-              }}
-            >
-              <PackageIcon className="h-4 w-4" />
-              <span>{t("warehouse.popup.actions.prepare")}</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="default"
-              disabled={selectedOrders.length === 0}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
-                selectedOrders.length === 0
-                  ? "text-green-400 border-green-200 bg-green-50 cursor-not-allowed opacity-75"
-                  : "text-green-600 border-green-600 hover:bg-green-50 hover:text-green-600"
-              }`}
-              onClick={() => {
-                if (selectedOrders.length > 0) {
-                  handleShipOrders(selectedOrders);
-                }
-              }}
-            >
-              <TruckIcon className="h-4 w-4" />
-              <span>{t("warehouse.popup.actions.complete")}</span>
-            </Button>
-            <Button
-              variant="outline"
-              size="default"
-              disabled={selectedOrders.length === 0}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
-                selectedOrders.length === 0
                   ? "text-red-400 border-red-200 bg-red-50 cursor-not-allowed opacity-75"
                   : "text-red-600 border-red-600 hover:bg-red-50 hover:text-red-600"
               }`}
@@ -215,7 +179,7 @@ export const WarehouseListSection = ({
               }}
             >
               <XCircleIcon className="h-4 w-4" />
-              <span>{t("warehouse.popup.actions.cancel")}</span>
+              <span>{t("warehouse.popup.actions.hold")}</span>
             </Button>
           </div>
         </div>

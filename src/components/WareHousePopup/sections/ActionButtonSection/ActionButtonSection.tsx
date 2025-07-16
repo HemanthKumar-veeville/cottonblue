@@ -35,17 +35,7 @@ const ActionButtonSection = ({
 
   const actionButtons: ActionButton[] = [
     {
-      translationKey: "warehouse.popup.actions.prepare",
-      icon: <PackageIcon className="h-4 w-4" />,
-      variant: "prepare",
-    },
-    {
-      translationKey: "warehouse.popup.actions.complete",
-      icon: <TruckIcon className="h-4 w-4" />,
-      variant: "complete",
-    },
-    {
-      translationKey: "warehouse.popup.actions.cancel",
+      translationKey: "warehouse.popup.actions.hold",
       icon: <XIcon className="h-4 w-4" />,
       variant: "cancel",
     },

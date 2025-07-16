@@ -1309,7 +1309,8 @@
       "actions": {
         "prepare": "Prepare Order",
         "complete": "Complete Order",
-        "cancel": "Cancel Order"
+        "cancel": "Cancel Order",
+        "hold": "Hold Order"
       }
     }
   },

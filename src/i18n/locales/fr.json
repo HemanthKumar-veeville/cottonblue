@@ -1398,7 +1398,8 @@
       "actions": {
         "prepare": "Préparer la commande",
         "complete": "Terminer la commande",
-        "cancel": "Annuler la commande"
+        "cancel": "Annuler la commande",
+        "hold": "Mettre en attente"
       }
     },
     "columns": {
