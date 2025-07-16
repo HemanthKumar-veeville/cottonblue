@@ -302,6 +302,7 @@ export const ProductSidebarSection = ({
         name: "productId",
         label: "productSidebar.form.productId",
         type: "text",
+        required: true,
       },
     ],
     attributes: [
@@ -587,6 +588,11 @@ export const ProductSidebarSection = ({
         if (!mainImage) {
           throw new Error("Main image is required");
         }
+      }
+
+      // Validate reference (EAN)
+      if (!data.productId?.trim()) {
+        throw new Error("Reference (EAN) is required");
       }
 
       const baseData: BaseProductData = {
