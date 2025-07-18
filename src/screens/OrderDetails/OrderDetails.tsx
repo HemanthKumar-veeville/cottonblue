@@ -230,13 +230,7 @@ const ProductTable = ({ order }: { order: any }) => {
           <div className="bg-[var(--primary-light-color)] rounded-md mb-2">
             <div className="flex items-center justify-between p-2">
               <div className="w-11 flex items-center justify-center">
-                <Checkbox
-                  checked={isAllSelected}
-                  onCheckedChange={(checked: boolean | "indeterminate") =>
-                    handleSelectAll(checked === true)
-                  }
-                  className="h-5 w-5 rounded border-[1.5px]"
-                />
+                <span className="text-sm text-[#1e2324]">Indéfini</span>
               </div>
               <div className="w-[203px] flex items-center">
                 <span className="text-sm text-[#1e2324]">
@@ -266,19 +260,13 @@ const ProductTable = ({ order }: { order: any }) => {
             </div>
           </div>
           <div className="overflow-y-auto">
-            {order.order_items.map((product: any) => (
+            {order.order_items.map((product: any, index: number) => (
               <div
                 key={product.product_id}
                 className="flex items-center justify-between px-2 py-3 border-b border-primary-neutal-300"
               >
                 <div className="w-11 flex items-center justify-center">
-                  <Checkbox
-                    checked={selectedProducts.includes(product.product_id)}
-                    onCheckedChange={(checked: boolean | "indeterminate") =>
-                      handleSelectProduct(product.product_id, checked === true)
-                    }
-                    className="h-5 w-5 rounded border-[1.5px]"
-                  />
+                  <span className="text-sm text-[#1e2324]">{index + 1}</span>
                 </div>
                 <div className="w-[203px] flex items-center gap-3 px-3">
                   <div className="w-10 h-10 rounded overflow-hidden border border-primary-neutal-200 flex items-center justify-center bg-gray-50">
@@ -305,7 +293,7 @@ const ProductTable = ({ order }: { order: any }) => {
                     )}
                   </div>
                   <span className="text-base text-coolgray-100">
-                    {product?.product_name ?? t("common.notAvailable")}
+                    {`${product?.product_name} - ${product?.product_suitable_for} - ${product?.product_size}`}
                   </span>
                 </div>
                 <div className="w-[129px] flex items-center justify-center">

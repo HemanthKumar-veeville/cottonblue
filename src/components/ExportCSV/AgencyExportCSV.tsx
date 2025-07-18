@@ -102,8 +102,16 @@ export const AgencyExportCSV = ({
     { label: "Ville", value: "city", checked: true },
     { label: "Code postal", value: "postal_code", checked: true },
     { label: "Téléphone", value: "phone_number", checked: true },
-    { label: "Limite de commande", value: "order_limit", checked: true },
-    { label: "Limite de budget", value: "budget_limit", checked: true },
+    {
+      label: "Limite de commande par mois",
+      value: "order_limit",
+      checked: true,
+    },
+    {
+      label: "Limite de budget par mois",
+      value: "budget_limit",
+      checked: true,
+    },
   ]);
 
   const handleExportCSV = () => {

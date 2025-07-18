@@ -92,24 +92,17 @@ const ProductListHeaderSection: React.FC<{ orderDetails: OrderItem[] }> = ({
         <h3 className="text-[length:var(--heading-h3-font-size)] font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
           {t("orderValidation.orderedProducts")}
         </h3>
-        <div className="text-sm text-gray-600">
-          {selectedItems.length} {t("orderValidation.of")} {orderDetails.length}{" "}
-          {t("orderValidation.selected")}
-        </div>
       </div>
 
       <div className="w-full overflow-x-auto rounded-lg border border-gray-200">
         <Table>
           <TableHeader className="bg-gray-50">
             <TableRow className="hover:bg-gray-50/80 transition-colors">
-              <TableCell className="w-11 p-2">
-                <Checkbox
-                  checked={selectedItems.length === orderDetails.length}
-                  onCheckedChange={handleSelectAll}
-                  aria-label={t("common.selectAll")}
-                />
-              </TableCell>
               {[
+                {
+                  key: "index" as const,
+                  label: "Indéfini",
+                },
                 {
                   key: "product_name" as const,
                   label: t("orderValidation.product"),
@@ -159,11 +152,9 @@ const ProductListHeaderSection: React.FC<{ orderDetails: OrderItem[] }> = ({
                 `}
               >
                 <TableCell className="w-11 p-2">
-                  <Checkbox
-                    checked={selectedItems.includes(item.product_id)}
-                    onCheckedChange={() => handleSelectItem(item.product_id)}
-                    aria-label={`${t("common.select")} ${item.product_name}`}
-                  />
+                  <span className="font-medium text-gray-900 text-sm text-center ml-2">
+                    {index + 1}
+                  </span>
                 </TableCell>
                 <TableCell className="p-3">
                   <div className="flex items-center gap-3">
@@ -183,7 +174,7 @@ const ProductListHeaderSection: React.FC<{ orderDetails: OrderItem[] }> = ({
                       )}
                     </div>
                     <span className="font-medium text-gray-900 text-sm">
-                      {item.product_name}
+                      {`${item.product_name} - ${item.product_suitable_for} - ${item.product_size}`}
                     </span>
                   </div>
                 </TableCell>

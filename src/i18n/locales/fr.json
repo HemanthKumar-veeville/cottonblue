@@ -288,8 +288,8 @@
       "totalOrders": "Total des commandes",
       "monthlyRevenue": "Revenu mensuel",
       "topProducts": "Produits populaires",
-      "orderLimit": "Limite de commandes",
-      "budgetLimit": "Limite de budget"
+      "orderLimit": "Limite de commandes par mois",
+      "budgetLimit": "Limite de budget par mois"
     },
     "actions": {
       "title": "Actions",
@@ -964,15 +964,15 @@
       },
       "adminPassword": "Mot de passe ADMIN",
       "clientPassword": "Mot de passe CLIENT",
-      "validationEmail": "Email de validation N+1",
+      "validationEmail": "Email de connexion admin (Validation de commande)",
       "phoneNumber": "Numéro de téléphone",
       "phonePlaceholder": "Entrez le numéro de téléphone"
     },
     "limits": {
-      "orderLimit": "Limite de commande",
-      "budgetLimit": "Limite de budget",
-      "orderLimitValue": "Limite de commande",
-      "budgetLimitValue": "Limite de budget"
+      "orderLimit": "Limite de commande par mois",
+      "budgetLimit": "Limite de budget par mois",
+      "orderLimitValue": "Limite de commande par mois",
+      "budgetLimitValue": "Limite de budget par mois"
     },
     "placeholders": {
       "addressComment": "Exemple : Numéro de bâtiment 2"
@@ -1141,8 +1141,8 @@
       "addressPlaceholder": "Entrez l'adresse",
       "addressComment": "Commentaire sur l'adresse",
       "addressCommentPlaceholder": "Exemple : Numéro de bâtiment 2",
-      "orderLimit": "Limite de commande",
-      "budgetLimit": "Limite de budget",
+      "orderLimit": "Limite de commande par mois",
+      "budgetLimit": "Limite de budget par mois",
       "limit": "Limite",
       "per": "Par",
       "adminPassword": "Mot de passe ADMIN",
@@ -1150,7 +1150,7 @@
       "adminMobile": "Téléphone Client",
       "adminEmail": "Email Client",
       "phonePlaceholder": "Entrez le numéro de téléphone",
-      "validationEmail": "Email de validation N+1",
+      "validationEmail": "Email de connexion admin (Validation de commande)",
       "emailPlaceholder": "Entrez l'adresse email",
       "clientEmailPlaceholder": "Entrez l'adresse email du client",
       "vatNumber": "Numéro de VAT",

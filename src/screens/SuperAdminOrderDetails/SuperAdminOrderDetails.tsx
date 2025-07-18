@@ -191,11 +191,9 @@ const ProductTableHeader = ({
     <div className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md mb-2">
       <div className="flex items-center justify-between p-2">
         <div className="w-11 flex items-center justify-center">
-          <Checkbox
-            className="h-5 w-5 rounded border-[1.5px]"
-            checked={isAllSelected}
-            onCheckedChange={onSelectAll}
-          />
+          <span className="font-text-small text-[#1e2324] text-center ml-2">
+            Indéfini
+          </span>
         </div>
         <div className="w-[203px] flex items-center">
           <span className="font-text-small text-[#1e2324]">
@@ -231,20 +229,18 @@ const ProductRow = ({
   product,
   isSelected,
   onSelect,
+  index,
 }: {
   product: any;
   isSelected: boolean;
   onSelect: (productId: number) => void;
+  index: number;
 }) => {
   const { t } = useTranslation();
   return (
     <div className="flex items-center justify-between px-2 py-3 border-b border-primary-neutal-300">
       <div className="w-11 flex items-center justify-center">
-        <Checkbox
-          className="h-5 w-5 rounded border-[1.5px]"
-          checked={isSelected}
-          onCheckedChange={() => onSelect(product.product_id)}
-        />
+        <span className="font-text-small text-[#1e2324]">{index + 1}</span>
       </div>
       <div className="w-[203px] flex items-center gap-3 px-3">
         <div className="w-10 h-10 rounded overflow-hidden border border-[color:var(--1-tokens-color-modes-border-primary)] flex items-center justify-center bg-[color:var(--1-tokens-color-modes-background-secondary)]">
@@ -263,7 +259,7 @@ const ProductRow = ({
           )}
         </div>
         <span className="font-text-medium text-black">
-          {product?.product_name ?? t("common.notAvailable")}
+          {`${product?.product_name} - ${product?.product_suitable_for} - ${product?.product_size}`}
         </span>
       </div>
       <div className="w-[129px] flex items-center justify-center">
@@ -334,12 +330,13 @@ const ProductTable = ({ order }: { order: any }) => {
             isAllSelected={isAllSelected}
           />
           <div className="overflow-y-auto">
-            {order.order_items.map((product: any) => (
+            {order.order_items.map((product: any, index: number) => (
               <ProductRow
                 key={product?.product_id}
                 product={product}
                 isSelected={selectedProducts.includes(product.product_id)}
                 onSelect={handleSelectProduct}
+                index={index}
               />
             ))}
           </div>
