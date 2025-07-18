@@ -3,6 +3,7 @@ import toast from 'react-hot-toast';
 interface ToastOptions {
   duration?: number;
   position?: 'top-left' | 'top-center' | 'top-right' | 'bottom-left' | 'bottom-center' | 'bottom-right';
+  icon?: null;
 }
 
 const useToast = () => {
@@ -16,7 +17,7 @@ const useToast = () => {
   };
 
   const showError = (message: string, options?: ToastOptions) => {
-    toast.error(message, { ...defaultOptions, ...options });
+    toast.error(message, { ...defaultOptions, icon: null, ...options });
   };
 
   const showLoading = (message: string, options?: ToastOptions) => {

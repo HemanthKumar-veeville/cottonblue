@@ -89,6 +89,7 @@ axiosInstance.interceptors.response.use(
         background: '#EF4444', // Red color
         color: '#fff',
       },
+      icon: null,
     });
 
     return Promise.reject(error);

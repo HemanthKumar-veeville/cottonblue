@@ -726,7 +726,7 @@ const OrdersTableCard = ({ orders }: { orders: Order[] }) => {
                 "Date",
                 "Prix total",
                 "Statut",
-                "Facture",
+                "Bon de commande",
                 "Détails",
               ].map((header, index) => (
                 <TableHead

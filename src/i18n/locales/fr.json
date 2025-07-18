@@ -305,7 +305,7 @@
         "date": "Date",
         "totalPrice": "Prix total",
         "status": "Statut",
-        "invoice": "Facture",
+        "invoice": "Bon de commande",
         "details": "Détails"
       },
       "status": {
@@ -608,13 +608,13 @@
   },
   "history": {
     "title": "Historique de commande",
-    "downloadSelectedInvoices": "Télécharger les factures sélectionnées",
+    "downloadSelectedInvoices": "Télécharger les commandes sélectionnées",
     "table": {
       "order": "Commande",
       "date": "Date",
       "totalPrice": "Prix total",
       "status": "Statut",
-      "invoice": "Facture",
+      "invoice": "Bon de commande",
       "details": "Détails",
       "previous": "Précédent",
       "next": "Suivant"
@@ -636,7 +636,7 @@
     "superAdmin": {
       "orderHistory": {
         "title": "Historique des commandes",
-        "downloadSelectedInvoices": "Télécharger les factures sélectionnées",
+        "downloadSelectedInvoices": "Télécharger les commandes sélectionnées",
         "search": {
           "placeholder": "Rechercher une commande..."
         },
@@ -647,7 +647,7 @@
           "date": "Date",
           "totalPrice": "Prix total",
           "status": "Statut",
-          "invoice": "Facture",
+          "invoice": "Bon de commande",
           "details": "Détails",
           "previous": "Précédent",
           "next": "Suivant"
@@ -671,7 +671,7 @@
   "superAdmin": {
     "orderHistory": {
       "title": "Historique des commandes",
-      "downloadSelectedInvoices": "Télécharger les factures sélectionnées",
+      "downloadSelectedInvoices": "Télécharger les commandes sélectionnées",
       "table": {
         "order": "Commande",
         "company": "Entreprise",
@@ -679,7 +679,7 @@
         "date": "Date",
         "totalPrice": "Prix total",
         "status": "Statut",
-        "invoice": "Facture",
+        "invoice": "Bon de commande",
         "details": "Détails",
         "previous": "Précédent",
         "next": "Suivant"
@@ -691,7 +691,7 @@
   },
   "orderDetails": {
     "title": "Détails de la commande",
-    "downloadInvoice": "Télécharger la facture",
+    "downloadInvoice": "Télécharger la commande",
     "fields": {
       "order": "Commande",
       "date": "Date",
@@ -1287,7 +1287,7 @@
         "date": "Date",
         "totalPrice": "Prix total",
         "status": "Statut",
-        "invoice": "Facture",
+        "invoice": "Bon de commande",
         "details": "Détails"
       },
       "status": {
