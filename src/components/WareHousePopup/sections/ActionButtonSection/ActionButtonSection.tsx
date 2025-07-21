@@ -1,24 +1,22 @@
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../../components/ui/button";
-import { Loader, PackageIcon, TruckIcon, XIcon } from "lucide-react";
+import { Loader, XIcon, CheckIcon } from "lucide-react";
 import { changeOrderStatus } from "../../../../store/features/cartSlice";
 import { useAppDispatch, useAppSelector } from "../../../../store/store";
 import { ConfirmationDialog } from "../../../../components/ui/ConfirmationDialog";
 
-interface ActionButton {
-  translationKey: string;
-  icon: React.ReactNode;
-  variant: "prepare" | "complete" | "cancel";
+interface ActionButtonProps {
+  orderId: number;
+  isLoading: boolean;
+  orderStatus: string;
 }
 
 const ActionButtonSection = ({
   orderId,
   isLoading,
-}: {
-  orderId: number;
-  isLoading: boolean;
-}): JSX.Element => {
+  orderStatus,
+}: ActionButtonProps): JSX.Element => {
   const { t } = useTranslation();
   const { selectedCompany } = useAppSelector((state) => state.client);
   const dns_prefix = selectedCompany?.dns;
@@ -27,34 +25,29 @@ const ActionButtonSection = ({
   // Add state for confirmation dialog
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
-    type: ActionButton["variant"] | null;
+    type: "confirm" | "hold" | null;
   }>({
     isOpen: false,
     type: null,
   });
 
-  const actionButtons: ActionButton[] = [
-    {
-      translationKey: "warehouse.popup.actions.hold",
-      icon: <XIcon className="h-4 w-4" />,
-      variant: "cancel",
-    },
-  ];
-
-  const getButtonStyles = (variant: ActionButton["variant"]) => {
-    const baseStyles =
-      "flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200";
-
-    switch (variant) {
-      case "prepare":
-        return `${baseStyles} text-amber-600 border-amber-600 hover:bg-amber-50 hover:text-amber-600`;
-      case "complete":
-        return `${baseStyles} text-green-600 border-green-600 hover:bg-green-50 hover:text-green-600`;
-      case "cancel":
-        return `${baseStyles} text-red-600 border-red-600 hover:bg-red-50 hover:text-red-600`;
-      default:
-        return baseStyles;
+  const getButtonConfig = () => {
+    if (orderStatus === "confirmed") {
+      return {
+        translationKey: "warehouse.popup.actions.hold",
+        icon: <XIcon className="h-4 w-4" />,
+        variant: "hold" as const,
+        style:
+          "text-amber-600 border-amber-600 hover:bg-amber-50 hover:text-amber-600",
+      };
     }
+    return {
+      translationKey: "warehouse.popup.actions.confirm",
+      icon: <CheckIcon className="h-4 w-4" />,
+      variant: "confirm" as const,
+      style:
+        "text-green-600 border-green-600 hover:bg-green-50 hover:text-green-600",
+    };
   };
 
   const handleStatusChange = async (orderIds: number[], status: string) => {
@@ -69,7 +62,7 @@ const ActionButtonSection = ({
     }
   };
 
-  const handleAction = (variant: ActionButton["variant"]) => {
+  const handleAction = (variant: "confirm" | "hold") => {
     setConfirmDialog({
       isOpen: true,
       type: variant,
@@ -79,13 +72,8 @@ const ActionButtonSection = ({
   const handleConfirmAction = () => {
     if (!confirmDialog.type) return;
 
-    const statusMap = {
-      prepare: "processing",
-      complete: "shipped",
-      cancel: "on_hold",
-    };
-
-    handleStatusChange([orderId], statusMap[confirmDialog.type]);
+    const status = confirmDialog.type === "hold" ? "on_hold" : "confirmed";
+    handleStatusChange([orderId], status);
     setConfirmDialog({ isOpen: false, type: null });
   };
 
@@ -95,12 +83,10 @@ const ActionButtonSection = ({
 
   const getConfirmationMessage = () => {
     switch (confirmDialog.type) {
-      case "prepare":
-        return t("warehouse.confirmation.prepareSingle", { orderId });
-      case "complete":
-        return t("warehouse.confirmation.completeSingle", { orderId });
-      case "cancel":
+      case "hold":
         return t("warehouse.confirmation.cancelSingle", { orderId });
+      case "confirm":
+        return t("warehouse.confirmation.confirmSingle", { orderId });
       default:
         return "";
     }
@@ -114,20 +100,19 @@ const ActionButtonSection = ({
     );
   }
 
+  const buttonConfig = getButtonConfig();
+
   return (
     <>
       <div className="flex gap-4">
-        {actionButtons.map((button) => (
-          <Button
-            key={button.variant}
-            variant="outline"
-            className={getButtonStyles(button.variant)}
-            onClick={() => handleAction(button.variant)}
-          >
-            {button.icon}
-            {t(button.translationKey)}
-          </Button>
-        ))}
+        <Button
+          variant="outline"
+          className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 ${buttonConfig.style}`}
+          onClick={() => handleAction(buttonConfig.variant)}
+        >
+          {buttonConfig.icon}
+          {t(buttonConfig.translationKey)}
+        </Button>
       </div>
 
       <ConfirmationDialog

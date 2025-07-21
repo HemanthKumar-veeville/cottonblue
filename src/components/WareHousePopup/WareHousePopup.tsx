@@ -18,7 +18,6 @@ interface PopupOrderProps {
   orderId: number;
   onClose: () => void;
   open: boolean;
-
   isLoading?: boolean;
 }
 
@@ -58,6 +57,7 @@ export const PopupOrder = ({
 }: PopupOrderProps): JSX.Element => {
   const { orders } = useSelector((state: RootState) => state.cart);
   const order = orders.find((order) => order.order_id === orderId);
+
   return (
     <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent
@@ -73,7 +73,11 @@ export const PopupOrder = ({
         />
         <Separator className="bg-gray-200" />
         <div className="flex justify-end">
-          <ActionButtonSection orderId={orderId} isLoading={isLoading} />
+          <ActionButtonSection
+            orderId={orderId}
+            isLoading={isLoading}
+            orderStatus={order?.order_status}
+          />
         </div>
       </DialogContent>
     </Dialog>

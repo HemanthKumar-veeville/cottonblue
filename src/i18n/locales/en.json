@@ -1310,7 +1310,8 @@
         "prepare": "Prepare Order",
         "complete": "Complete Order",
         "cancel": "Cancel Order",
-        "hold": "Hold Order"
+        "hold": "Hold Order",
+        "confirm": "Confirm Order"
       }
     }
   },
