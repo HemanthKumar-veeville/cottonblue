@@ -1,12 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { OrderTableHeaderSection } from "./OrderTableHeaderSection";
 import { ProductListHeaderSection } from "./ProductListHeaderSection";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { getOrder } from "../../store/features/cartSlice";
 import { getHost } from "../../utils/hostUtils";
 import { Skeleton } from "../../components/ui/skeleton";
 import { Card } from "../../components/ui/card";
 import { useAppDispatch, useAppSelector } from "../../store/store";
+import { Dialog, DialogContent } from "../../components/ui/dialog";
+import { BudgetWarningPopover } from "../../components/BudgetWarningPopover/BudgetWarningPopover";
 
 interface OrderItem {
   product_id: number;
@@ -23,6 +25,7 @@ interface Order {
   order_status: string;
   store_address: string;
   store_name: string;
+  order_total: number;
 }
 
 const SectionWrapper: React.FC<{ children: React.ReactNode }> = ({
@@ -99,14 +102,22 @@ const ProductListSkeleton = () => (
 
 export default function Container(): JSX.Element {
   const { id, store_id } = useParams();
+  const navigate = useNavigate();
   const dnsPrefix = getHost();
+  const [showBudgetWarning, setShowBudgetWarning] = useState(false);
+
+  const { storeBudget } = useAppSelector((state) => state.agency);
+  const storeBudgetData = storeBudget?.budget;
+
+  const currentMonthAmount = storeBudgetData?.current_month_expenses || 0;
+  const monthlyExpenseLimit = storeBudgetData?.budget || 0;
+  const currentMonthOrders = storeBudgetData?.order_count || 0;
+  const monthlyOrderLimit = storeBudgetData?.order_limit || 0;
 
   const dispatch = useAppDispatch();
   const { currentOrder, loading, error } = useAppSelector(
     (state) => state.cart
   );
-
-  console.log({ currentOrder });
 
   useEffect(() => {
     if (id && store_id) {
@@ -119,6 +130,26 @@ export default function Container(): JSX.Element {
       );
     }
   }, [dispatch, id, store_id, dnsPrefix]);
+
+  const handleClose = () => {
+    setShowBudgetWarning(false);
+  };
+
+  const checkBudgetLimits = () => {
+    if (!monthlyExpenseLimit) {
+      return false;
+    }
+
+    return currentOrder?.order_total + currentMonthAmount > monthlyExpenseLimit;
+  };
+
+  const checkOrderLimits = () => {
+    if (!monthlyOrderLimit) {
+      return false;
+    }
+
+    return currentMonthOrders >= monthlyOrderLimit;
+  };
 
   if (loading) {
     return (
@@ -134,15 +165,38 @@ export default function Container(): JSX.Element {
   }
 
   return (
-    <main className="flex flex-col w-full max-w-[1208px] mx-auto gap-8 px-4 py-6 md:px-6 lg:px-8">
-      <SectionWrapper>
-        <OrderTableHeaderSection orderDetails={currentOrder} />
-      </SectionWrapper>
-      <SectionWrapper>
-        <ProductListHeaderSection
-          orderDetails={currentOrder?.order_items || []}
-        />
-      </SectionWrapper>
-    </main>
+    <>
+      <Dialog open={showBudgetWarning} onOpenChange={handleClose}>
+        <DialogContent className="p-0 border-none bg-transparent shadow-none">
+          <BudgetWarningPopover
+            currentMonthAmount={currentMonthAmount}
+            monthlyExpenseLimit={monthlyExpenseLimit}
+            currentMonthOrders={currentMonthOrders}
+            monthlyOrderLimit={monthlyOrderLimit}
+            orderTotal={currentOrder?.order_total || 0}
+            onClose={handleClose}
+            checkBudgetLimits={checkBudgetLimits}
+            checkOrderLimits={checkOrderLimits}
+            orderDetails={currentOrder}
+          />
+        </DialogContent>
+      </Dialog>
+
+      <main className="flex flex-col w-full max-w-[1208px] mx-auto gap-8 px-4 py-6 md:px-6 lg:px-8">
+        <SectionWrapper>
+          <OrderTableHeaderSection
+            orderDetails={currentOrder}
+            checkBudgetLimits={checkBudgetLimits}
+            checkOrderLimits={checkOrderLimits}
+            setShowBudgetWarning={setShowBudgetWarning}
+          />
+        </SectionWrapper>
+        <SectionWrapper>
+          <ProductListHeaderSection
+            orderDetails={currentOrder?.order_items || []}
+          />
+        </SectionWrapper>
+      </main>
+    </>
   );
 }

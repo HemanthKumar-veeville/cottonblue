@@ -1410,5 +1410,15 @@
       "product_suitable_for": "Suitable For",
       "quantity": "Quantity"
     }
+  },
+  "budget": {
+    "warning": {
+      "title": "Budget Limit Warning"
+    },
+    "currentMonth": "Current Month Expenses",
+    "monthlyLimit": "Monthly Budget Limit",
+    "orderTotal": "Order Total",
+    "exceedAmount": "Amount Exceeding Budget",
+    "message": "This order would exceed your monthly budget limit"
   }
 }

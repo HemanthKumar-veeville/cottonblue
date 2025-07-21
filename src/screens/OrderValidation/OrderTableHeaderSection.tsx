@@ -3,7 +3,7 @@ import { Card, CardContent } from "../../components/ui/card";
 import { CheckCircle, ArrowLeft, Download, XCircle } from "lucide-react";
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch } from "../../store/store";
+import { useAppDispatch, useAppSelector } from "../../store/store";
 import { approveOrder, refuseOrder } from "../../store/features/cartSlice";
 import { getHost } from "../../utils/hostUtils";
 import { toast } from "sonner";
@@ -14,6 +14,7 @@ import ErrorState from "../../components/ErrorState";
 import { Skeleton } from "../../components/ui/skeleton";
 import { useCompanyColors } from "../../hooks/useCompanyColors";
 import { useTranslation } from "react-i18next";
+import { getStoreBudget } from "../../store/features/agencySlice";
 
 interface OrderItem {
   product_id: number;
@@ -36,36 +37,60 @@ interface OrderDetailsProps {
   };
 }
 
+interface OrderTableHeaderSectionProps {
+  orderDetails: OrderDetailsProps | null | undefined;
+  isLoading?: boolean;
+  checkBudgetLimits: () => boolean;
+  setShowBudgetWarning: (show: boolean) => void;
+  checkOrderLimits: () => boolean;
+}
+
 const OrderInfo: React.FC<{
   label: string;
   value: string;
   isLoading?: boolean;
 }> = ({ label, value, isLoading = false }) => (
-  <div className="group transition-all duration-200 ease-in-out hover:bg-gray-50 p-2 rounded-md -mx-2">
-    <p className="font-text-medium font-medium text-black text-base tracking-normal leading-normal">
-      <span className="font-medium text-gray-600 group-hover:text-primary transition-colors">
-        {label}
-      </span>
+  <div className="contents">
+    <span className="font-medium text-gray-600 group-hover:text-primary transition-colors whitespace-nowrap p-2">
+      {label}
+    </span>
+    <div className="flex items-center gap-2 min-w-0 p-2">
+      <span className="text-gray-600 shrink-0">:</span>
       {isLoading ? (
-        <Skeleton className="ml-2 h-4 w-32 inline-block" />
+        <Skeleton className="h-4 w-32" />
       ) : (
-        <span className="ml-2 text-gray-900">{value}</span>
+        <span className="text-gray-900">{value}</span>
       )}
-    </p>
+    </div>
   </div>
 );
 
-const OrderTableHeaderSection: React.FC<{
-  orderDetails: OrderDetailsProps | null | undefined;
-  isLoading?: boolean;
-}> = ({ orderDetails, isLoading = false }) => {
+const OrderTableHeaderSection: React.FC<OrderTableHeaderSectionProps> = ({
+  orderDetails,
+  isLoading = false,
+  checkBudgetLimits,
+  checkOrderLimits,
+  setShowBudgetWarning,
+}) => {
   const navigate = useNavigate();
   const { buttonStyles } = useCompanyColors();
   const { t } = useTranslation();
+  const { selectedStore } = useAppSelector((state) => state.agency);
 
   const dispatch = useAppDispatch();
   const dns_prefix = getHost();
+
   const handleApproveOrder = async () => {
+    if (checkBudgetLimits()) {
+      setShowBudgetWarning(true);
+      return;
+    }
+
+    if (checkOrderLimits()) {
+      setShowBudgetWarning(true);
+      return;
+    }
+
     try {
       await dispatch(
         approveOrder({
@@ -73,6 +98,11 @@ const OrderTableHeaderSection: React.FC<{
           order_id: orderDetails?.order_id?.toString() ?? "",
         })
       ).unwrap();
+      if (selectedStore) {
+        await dispatch(
+          getStoreBudget({ dnsPrefix: dns_prefix, storeId: selectedStore })
+        );
+      }
       navigate(-1);
     } catch (error) {
       console.error(error);
@@ -92,158 +122,6 @@ const OrderTableHeaderSection: React.FC<{
     } catch (error) {
       console.error(error);
     }
-  };
-
-  const handleDownloadOrderForm = () => {
-    const doc = new jsPDF();
-
-    // Helper functions
-    const drawBorder = () => {
-      doc.setDrawColor(0, 184, 91); // Green color for order form
-      doc.setLineWidth(0.5);
-      doc.rect(10, 10, 190, 277);
-      doc.setLineWidth(0.2);
-      doc.rect(15, 15, 180, 267);
-    };
-
-    const drawHorizontalLine = (y: number) => {
-      doc.setDrawColor(0, 184, 91);
-      doc.setLineWidth(0.2);
-      doc.line(15, y, 195, y);
-    };
-
-    // Add borders
-    drawBorder();
-
-    // Add header bar
-    doc.setFillColor(0, 184, 91);
-    doc.rect(10, 10, 190, 25, "F");
-
-    // Add title
-    doc.setTextColor(255, 255, 255);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(24);
-    doc.text("Order Form", 20, 27);
-
-    // Add order details section
-    doc.setTextColor(0, 184, 91);
-    doc.setFontSize(12);
-    doc.text("ORDER DETAILS:", 20, 50);
-
-    // Add subtle divider
-    drawHorizontalLine(53);
-
-    // Order information
-    doc.setTextColor(0, 0, 0);
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(10);
-
-    const orderInfo = [
-      { label: "Order ID:", value: `#${orderDetails?.order_id}` },
-      {
-        label: "Date:",
-        value: new Date(orderDetails?.created_at ?? "").toLocaleDateString(),
-      },
-      {
-        label: "Status:",
-        value: orderDetails?.order_status ?? "",
-      },
-      { label: "Store Name:", value: orderDetails?.store_name ?? "" },
-      { label: "Store Address:", value: orderDetails?.store_address ?? "" },
-    ];
-
-    let yPos = 60;
-    orderInfo.forEach(({ label, value }) => {
-      doc.setFont("helvetica", "bold");
-      doc.text(label, 20, yPos);
-      doc.setFont("helvetica", "normal");
-      doc.text(value, 60, yPos);
-      yPos += 8;
-    });
-
-    // Add products section
-    yPos += 10;
-    doc.setTextColor(0, 184, 91);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("ORDERED PRODUCTS:", 20, yPos);
-
-    drawHorizontalLine(yPos + 3);
-
-    // Table headers
-    yPos += 10;
-    doc.setFillColor(240, 255, 244); // Light green background
-    doc.rect(15, yPos - 5, 180, 10, "F");
-
-    doc.setTextColor(0, 0, 0);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text("Product Name", 20, yPos);
-    doc.text("Product ID", 90, yPos);
-    doc.text("Unit Price", 130, yPos);
-    doc.text("Quantity", 160, yPos);
-    doc.text("Total", 180, yPos);
-
-    // Table content
-    yPos += 8;
-    doc.setFont("helvetica", "normal");
-
-    let totalAmount = 0;
-    orderDetails?.order_items?.forEach((item, index) => {
-      // Alternate row background
-      if (index % 2 === 0) {
-        doc.setFillColor(250, 255, 252);
-        doc.rect(15, yPos - 5, 180, 8, "F");
-      }
-
-      const itemTotal = (item?.product_price ?? 0) * (item?.quantity ?? 0);
-      totalAmount += itemTotal;
-
-      // Truncate long product names
-      const maxLength = 35;
-      const displayName =
-        (item?.product_name?.length ?? 0) > maxLength
-          ? item?.product_name?.substring(0, maxLength) + "..."
-          : item?.product_name ?? "";
-
-      doc.text(displayName, 20, yPos);
-      doc.text(item?.product_id?.toString() ?? "", 90, yPos);
-      doc.text(`$${(item?.product_price ?? 0).toFixed(2)}`, 130, yPos);
-      doc.text(item?.quantity?.toString() ?? "", 160, yPos);
-      doc.text(`$${itemTotal.toFixed(2)}`, 180, yPos);
-
-      yPos += 8;
-    });
-
-    // Add total section
-    yPos += 10;
-    doc.setFont("helvetica", "bold");
-    doc.text("Total Amount:", 130, yPos);
-    doc.text(`$${totalAmount.toFixed(2)}`, 180, yPos);
-
-    // Add signature section
-    yPos += 30;
-    doc.text("Authorized Signature:", 20, yPos);
-    doc.setDrawColor(0, 0, 0);
-    doc.line(20, yPos + 20, 100, yPos + 20);
-
-    doc.text("Date:", 120, yPos);
-    doc.line(120, yPos + 20, 180, yPos + 20);
-
-    // Add footer
-    doc.setFont("helvetica", "normal");
-    doc.setFontSize(8);
-    doc.setTextColor(128, 128, 128);
-    doc.text(
-      "This is an official order form from Cotton Blue. Please keep for your records.",
-      doc.internal.pageSize.width / 2,
-      270,
-      { align: "center" }
-    );
-
-    // Save the PDF
-    const timestamp = new Date().toISOString().split("T")[0];
-    doc.save(`CottonBlue_OrderForm_${orderDetails?.order_id}_${timestamp}.pdf`);
   };
 
   return (
@@ -266,29 +144,12 @@ const OrderTableHeaderSection: React.FC<{
             {t("orderValidation.orderDetails")}
           </h3>
         </div>
-
-        {/* {!isLoading && (
-          <Button
-            className="bg-[var(--primary-color)] hover:bg-[var(--primary-hover-color)]  border border-[var(--primary-color)] text-[var(--primary-text-color)] h-auto group transition-all duration-200"
-            aria-label={t("orderValidation.downloadOrderForm")}
-            onClick={handleDownloadOrderForm}
-            style={{
-              backgroundColor: "var(--primary-color)",
-              color: "var(--primary-text-color)",
-            }}
-          >
-            <Download className="w-4 h-4 mr-2 group-hover:scale-110 transition-transform" />
-            <span className="font-label-medium font-medium text-base tracking-normal leading-normal">
-              {t("orderValidation.downloadOrderForm")}
-            </span>
-          </Button>
-        )} */}
       </div>
 
       <CardContent className="p-0">
         <div className="flex flex-col md:flex-row gap-8 w-full">
-          <div className="flex-1 space-y-4">
-            <div className="space-y-2">
+          <div className="flex-1">
+            <div className="grid grid-cols-[minmax(150px,_auto)_1fr] items-start gap-y-2">
               <OrderInfo
                 label={t("orderValidation.orderId")}
                 value={orderDetails?.order_id?.toString() ?? ""}
@@ -307,24 +168,32 @@ const OrderTableHeaderSection: React.FC<{
                 })}
                 isLoading={isLoading}
               />
-              <div className="flex items-center gap-2 p-2 -mx-2 group transition-all duration-200 ease-in-out hover:bg-gray-50 rounded-md">
-                <span className="font-medium text-gray-600 group-hover:text-primary transition-colors">
+              <OrderInfo
+                label={t("orderValidation.orderTotal")}
+                value={orderDetails?.order_total ?? ""}
+                isLoading={isLoading}
+              />
+              <div className="contents">
+                <span className="font-medium text-gray-600 group-hover:text-primary transition-colors whitespace-nowrap p-2">
                   {t("orderValidation.status")}
                 </span>
-                {isLoading ? (
-                  <Skeleton className="h-6 w-24" />
-                ) : (
-                  <div className="flex items-center gap-2">
-                    <StatusIcon status={orderDetails?.order_status ?? ""} />
-                    <StatusText status={orderDetails?.order_status ?? ""} />
-                  </div>
-                )}
+                <div className="flex items-center gap-2 min-w-0 p-2">
+                  <span className="text-gray-600 shrink-0">:</span>
+                  {isLoading ? (
+                    <Skeleton className="h-6 w-24" />
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <StatusIcon status={orderDetails?.order_status ?? ""} />
+                      <StatusText status={orderDetails?.order_status ?? ""} />
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="flex-1 space-y-4">
-            <div className="space-y-2">
+          <div className="flex-1">
+            <div className="grid grid-cols-[minmax(150px,_auto)_1fr] items-start gap-y-2">
               <OrderInfo
                 label={t("orderValidation.storeName")}
                 value={orderDetails?.store_name ?? ""}

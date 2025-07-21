@@ -387,7 +387,7 @@ export default function CartContainer(): JSX.Element {
           comments: comments,
         })
       ).unwrap();
-      if (!isClientAdmin && selectedStore) {
+      if (selectedStore) {
         await dispatch(getStoreBudget({ dnsPrefix, storeId: selectedStore }));
       }
 

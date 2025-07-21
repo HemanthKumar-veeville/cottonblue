@@ -7,7 +7,6 @@ import {
   DialogTitle,
 } from "../../components/ui/dialog";
 import { useTranslation } from "react-i18next";
-import ActionButtonSection from "./sections/ActionButtonSection/ActionButtonSection";
 import OrderDetailsHeaderSection from "./sections/OrderDetailsHeaderSection/OrderDetailsHeaderSection";
 import OrderSummaryHeaderSection from "./sections/OrderSummaryHeaderSection/OrderSummaryHeaderSection";
 import { Separator } from "../ui/separator";
@@ -71,14 +70,6 @@ export const PopupOrder = ({
           products={order?.order_items}
           totalAmount={order?.total_amount}
         />
-        <Separator className="bg-gray-200" />
-        <div className="flex justify-end">
-          <ActionButtonSection
-            orderId={orderId}
-            isLoading={isLoading}
-            orderStatus={order?.order_status}
-          />
-        </div>
       </DialogContent>
     </Dialog>
   );

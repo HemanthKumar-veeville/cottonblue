@@ -25,6 +25,8 @@
     "dashboard_report": "rapport_tableau_de_bord"
   },
   "common": {
+    "goBack": "Retour",
+    "proceed": "Valider",
     "loading": "Chargement...",
     "processing": "Traitement en cours...",
     "viewAll": "Voir tout",
@@ -1503,6 +1505,7 @@
     "approveOrder": "Approuver la commande",
     "rejectOrder": "Rejeter la commande",
     "orderedProducts": "Produits commandés",
+    "orderTotal": "Total de la commande",
     "product": "Produit",
     "productId": "ID du produit",
     "unitPrice": "Prix unitaire",
@@ -1541,5 +1544,19 @@
   "orderHistoryExport": {
     "downloadAsCSV": "Télécharger en CSV",
     "downloadAsExcel": "Télécharger en XLSX"
+  },
+  "budget": {
+    "warning": {
+      "title": "Limite dépassée",
+      "message": ""
+    },
+    "currentMonth": "Dépenses du mois en cours",
+    "monthlyLimit": "Limite budgétaire mensuelle",
+    "currentMonthOrders": "Commandes du mois en cours",
+    "monthlyOrderLimit": "Limite de commandes mensuelle",
+    "orderTotal": "Total de la commande",
+    "exceedAmount": "Montant dépassant le budget",
+    "message": "Cette commande dépasserait votre limite budgétaire mensuelle",
+    "exceedOrderLimit": "Vous avez dépassé la limite de commandes mensuelle"
   }
 }

@@ -14,6 +14,8 @@ import { BudgetData } from "./ClientAdminDashboard";
 import { useNavigate } from "react-router-dom";
 import EmptyState from "../../components/EmptyState";
 import { formatCurrency } from "../../lib/utils";
+import { setSelectedStore } from "../../store/features/agencySlice";
+import { useAppDispatch } from "../../store/store";
 
 export const BudgetSectionSkeleton = () => (
   <div className="flex gap-6 w-full animate-pulse">
@@ -147,7 +149,7 @@ export function BudgetSection({
   const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
   const navigate = useNavigate();
-
+  const dispatch = useAppDispatch();
   if (dashboardLoading) {
     return <BudgetSectionSkeleton />;
   }
@@ -163,6 +165,7 @@ export function BudgetSection({
   );
 
   const handleOrderClick = (order: Order) => {
+    dispatch(setSelectedStore(order.store_id));
     navigate(`/validate-order/${order.store_id}/${order.id}`);
   };
 
