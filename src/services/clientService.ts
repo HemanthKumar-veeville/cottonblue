@@ -58,7 +58,6 @@ export const clientService = {
     formData.append('Admin_fname', data.Admin_first_name);
     formData.append('Admin_lname', data.Admin_last_name);
     formData.append('Admin_mobile', data.Admin_mobile);
-    formData.append('email', data.email);
     formData.append('vat_number', data.vat_number);
     
 
