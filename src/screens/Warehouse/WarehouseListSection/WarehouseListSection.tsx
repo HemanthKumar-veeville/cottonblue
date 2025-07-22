@@ -1,20 +1,9 @@
-import {
-  PlusIcon,
-  SearchIcon,
-  XIcon,
-  PackageIcon,
-  TruckIcon,
-  XCircleIcon,
-} from "lucide-react";
+import { SearchIcon, XIcon } from "lucide-react";
 import { Button } from "../../../components/ui/button";
 import { Input } from "../../../components/ui/input";
 import { useTranslation } from "react-i18next";
 import { useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
-import { AppDispatch, useAppSelector } from "../../../store/store";
-import { changeOrderStatus } from "../../../store/features/cartSlice";
-import { useParams } from "react-router-dom";
-import { ConfirmationDialog } from "../../../components/ui/ConfirmationDialog";
+import { useAppSelector } from "../../../store/store";
 import { getOrderStatusText } from "../../../utils/statusUtil";
 
 interface StoreFilter {
@@ -46,7 +35,6 @@ export const WarehouseListSection = ({
 }: WarehouseListSectionProps): JSX.Element => {
   const { t } = useTranslation();
   const [searchTerm, setSearchTerm] = useState("");
-  const dispatch = useDispatch<AppDispatch>();
   const { selectedCompany } = useAppSelector((state) => state.client);
   const dns_prefix = selectedCompany?.dns || "admin";
 
@@ -59,83 +47,9 @@ export const WarehouseListSection = ({
     return () => clearTimeout(timer);
   }, [searchTerm, onSearch]);
 
-  // Add state for confirmation dialogs
-  const [confirmDialog, setConfirmDialog] = useState<{
-    isOpen: boolean;
-    type: "process" | "ship" | "cancel" | null;
-    orderIds: number[];
-  }>({
-    isOpen: false,
-    type: null,
-    orderIds: [],
-  });
-
   // Handle search input change with debounce
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-  };
-
-  const handleProcessOrders = (orderIds: number[]) => {
-    setConfirmDialog({
-      isOpen: true,
-      type: "process",
-      orderIds,
-    });
-  };
-
-  const handleShipOrders = (orderIds: number[]) => {
-    setConfirmDialog({
-      isOpen: true,
-      type: "ship",
-      orderIds,
-    });
-  };
-
-  const handleCancelOrders = (orderIds: number[]) => {
-    setConfirmDialog({
-      isOpen: true,
-      type: "cancel",
-      orderIds,
-    });
-  };
-
-  const handleConfirmAction = () => {
-    if (!confirmDialog.type || !dns_prefix) return;
-
-    const statusMap = {
-      process: "processing",
-      ship: "shipped",
-      cancel: "on_hold",
-    };
-
-    dispatch(
-      changeOrderStatus({
-        dns_prefix,
-        status: statusMap[confirmDialog.type],
-        order_ids: confirmDialog.orderIds.map(Number),
-      })
-    );
-    onSelectedOrdersChange([]);
-    setSelectedOrders([]);
-    setConfirmDialog({ isOpen: false, type: null, orderIds: [] });
-  };
-
-  const handleCancelDialog = () => {
-    setConfirmDialog({ isOpen: false, type: null, orderIds: [] });
-  };
-
-  const getConfirmationMessage = () => {
-    const count = confirmDialog.orderIds.length;
-    switch (confirmDialog.type) {
-      case "process":
-        return t("warehouse.confirmation.process", { count });
-      case "ship":
-        return t("warehouse.confirmation.ship", { count });
-      case "cancel":
-        return t("warehouse.confirmation.cancel", { count });
-      default:
-        return "";
-    }
   };
 
   return (
@@ -160,27 +74,6 @@ export const WarehouseListSection = ({
                 <SearchIcon className="w-5 h-5 text-[color:var(--1-tokens-color-modes-input-primary-default-icon)]" />
               </div>
             </div>
-          </div>
-
-          <div className="flex items-center gap-3">
-            <Button
-              variant="outline"
-              size="default"
-              disabled={selectedOrders.length === 0}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-colors duration-200 ${
-                selectedOrders.length === 0
-                  ? "text-red-400 border-red-200 bg-red-50 cursor-not-allowed opacity-75"
-                  : "text-red-600 border-red-600 hover:bg-red-50 hover:text-red-600"
-              }`}
-              onClick={() => {
-                if (selectedOrders.length > 0) {
-                  handleCancelOrders(selectedOrders);
-                }
-              }}
-            >
-              <XCircleIcon className="h-4 w-4" />
-              <span>{t("warehouse.popup.actions.hold")}</span>
-            </Button>
           </div>
         </div>
 
@@ -217,16 +110,6 @@ export const WarehouseListSection = ({
           </div>
         )}
       </div>
-
-      <ConfirmationDialog
-        open={confirmDialog.isOpen}
-        title={t("warehouse.confirmation.title")}
-        message={getConfirmationMessage()}
-        onConfirm={handleConfirmAction}
-        onCancel={handleCancelDialog}
-        confirmText={t("common.confirm")}
-        cancelText={t("common.cancel")}
-      />
     </section>
   );
 };
