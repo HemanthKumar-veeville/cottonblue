@@ -178,6 +178,7 @@ export default function Container(): JSX.Element {
             checkBudgetLimits={checkBudgetLimits}
             checkOrderLimits={checkOrderLimits}
             orderDetails={currentOrder}
+            isCartScreen={false}
           />
         </DialogContent>
       </Dialog>

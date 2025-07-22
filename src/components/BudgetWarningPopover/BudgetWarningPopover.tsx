@@ -27,6 +27,7 @@ interface BudgetWarningPopoverProps {
   cartId?: string;
   comments?: string;
   orderDetails?: any;
+  isCartScreen?: boolean;
 }
 
 export const BudgetWarningPopover: React.FC<BudgetWarningPopoverProps> = ({
@@ -41,6 +42,7 @@ export const BudgetWarningPopover: React.FC<BudgetWarningPopoverProps> = ({
   orderDetails,
   cartId,
   comments,
+  isCartScreen,
 }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -52,7 +54,7 @@ export const BudgetWarningPopover: React.FC<BudgetWarningPopoverProps> = ({
   const { isClientAdmin } = useAppSelector((state) => state.auth);
 
   const handleProceed = async () => {
-    if (isClientAdmin) {
+    if (isClientAdmin && !isCartScreen) {
       try {
         await dispatch(
           approveOrder({

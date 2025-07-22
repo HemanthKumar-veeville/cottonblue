@@ -512,6 +512,7 @@ export default function CartContainer(): JSX.Element {
             orderDetails={{ order_id: parseInt(cartId || "0") }}
             cartId={cartId ?? ""}
             comments={comments ?? ""}
+            isCartScreen={true}
           />
         </DialogContent>
       </Dialog>

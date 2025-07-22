@@ -191,7 +191,7 @@ const ProductTableHeader = ({
     <div className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md mb-2">
       <div className="grid grid-cols-[auto,2fr,1fr,1fr,1fr,1fr] gap-2 p-2">
         <div className="flex items-center justify-center">
-          <span className="font-text-small text-[#1e2324] text-center p-3 mr-3">
+          <span className="font-text-small text-[#1e2324] text-center px-3 mr-3">
             #
           </span>
         </div>
@@ -240,7 +240,7 @@ const ProductRow = ({
   return (
     <div className="grid grid-cols-[auto,2fr,1fr,1fr,1fr,1fr] gap-2 px-2 py-3 border-b border-primary-neutal-300">
       <div className="flex items-center justify-center">
-        <span className="font-text-small text-[#1e2324] p-3 mr-3">
+        <span className="font-text-small text-[#1e2324] px-3 mr-3">
           {index + 1}
         </span>
       </div>
