@@ -15,6 +15,7 @@ import { StatusText } from "../../components/ui/status-text";
 import { StatusIcon } from "../../components/ui/status-icon";
 import { useCompanyColors } from "../../hooks/useCompanyColors";
 import { handleDownloadInvoice } from "../../utils/pdfUtil";
+import { formatDateToParis } from "../../utils/dateUtils";
 
 const OrderHeader = ({ order }: { order: any }) => {
   const { t } = useTranslation();
@@ -129,7 +130,7 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
                 label={t("orderDetails.fields.date")}
                 value={
                   order?.created_at
-                    ? new Date(order.created_at).toLocaleDateString()
+                    ? formatDateToParis(order?.created_at)
                     : t("common.notAvailable")
                 }
                 isStatus={false}

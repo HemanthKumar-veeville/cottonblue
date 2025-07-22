@@ -26,6 +26,7 @@ import {
   getTicketStatusText,
   getTicketStatusColor,
 } from "../../utils/statusUtil";
+import { formatDateToParis } from "../../utils/dateUtils";
 
 export enum TicketStatus {
   OPEN = "open",
@@ -91,7 +92,7 @@ const TicketCard: React.FC<TicketCardProps> = ({
                   {getTicketStatusText(ticket.ticket_status, t)}
                 </Badge>
                 <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
-                  {new Date(ticket.created_at).toLocaleDateString()}
+                  {formatDateToParis(ticket?.created_at)}
                 </span>
                 {ticket.company_name && (
                   <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
@@ -271,19 +272,6 @@ export default function Tickets(): JSX.Element {
         console.error("Failed to update ticket status:", error);
       }
     }
-  };
-
-  const handleNewTicket = (): void => {
-    const newTicket: Ticket = {
-      ticket_id: Math.floor(Math.random() * 1000000),
-      ticket_title: "",
-      ticket_status: TicketStatus.OPEN,
-      company_name: "",
-      store_name: null,
-      created_at: new Date().toISOString(),
-      closed_at: null,
-    };
-    setSelectedTicket(newTicket);
   };
 
   const filteredTicketsInProgress = useMemo(() => {

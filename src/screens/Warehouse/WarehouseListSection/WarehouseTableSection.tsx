@@ -45,6 +45,7 @@ import {
 import { StatusText } from "../../../components/ui/status-text";
 import { StatusIcon } from "../../../components/ui/status-icon";
 import { RootState } from "../../../store/store";
+import { formatDateToParis } from "../../../utils/dateUtils";
 
 interface Order {
   order_id: number;
@@ -270,7 +271,7 @@ export const WarehouseTableSection = ({
                     </button>
                   </TableCell>
                   <TableCell className="w-[140px] px-4 py-3 text-left text-gray-600">
-                    {new Date(order.created_at).toLocaleDateString()}
+                    {formatDateToParis(order?.created_at)}
                   </TableCell>
                   <TableCell className="w-[140px] px-4 py-3 text-left">
                     {activeStoreFilter ? (

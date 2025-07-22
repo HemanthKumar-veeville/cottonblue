@@ -37,6 +37,7 @@ import { Buffer } from "buffer";
 import { ChevronDown } from "lucide-react";
 import { useRef } from "react";
 import { getAllCompanyOrders } from "../../store/features/cartSlice";
+import { formatDateToParis } from "../../utils/dateUtils";
 
 interface OrderItem {
   product_id: number;
@@ -118,16 +119,10 @@ const OrderRow = ({
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const store_name = useSelector((state: any) => state.cart.store_name);
-  const store_address = useSelector((state: any) => state.cart.store_address);
-  const company_email = useSelector((state: any) => state.cart.company_email);
-  const company_phone = useSelector((state: any) => state.cart.company_phone);
-  const company_name = useSelector((state: any) => state.cart.company_name);
-  const vat_number = useSelector((state: any) => state.cart.vat_number);
 
   // Format date
   const formattedDate = order?.created_at
-    ? new Date(order.created_at).toLocaleDateString()
+    ? formatDateToParis(order?.created_at)
     : t("common.notAvailable");
 
   return (

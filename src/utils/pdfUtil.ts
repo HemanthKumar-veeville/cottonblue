@@ -159,21 +159,55 @@ export const handleDownloadInvoice = async (
   // Table rows
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(11);
+  let currentY = yPos;
+  
   (order?.order_items ?? []).forEach((item: any, idx: number) => {
     let x = tableX + 4;
-    let y = yPos + rowH * idx;
-    doc.text(String(item?.product_name ?? 'NA'), x, Number(y + 7));
+    let y = currentY;
+    
+    // Split product text if it's too long
+    const productText = `${item?.product_name ?? 'NA'} - ${item?.product_suitable_for ?? 'NA'} - ${item?.product_size ?? 'NA'}`;
+    const maxWidth = colWidths[0] - 8; // Subtract padding
+    const splitText = doc.splitTextToSize(productText, maxWidth);
+    
+    // Calculate row height based on number of lines
+    const lineHeight = 7;
+    const rowHeight = Math.max(rowH, splitText.length * lineHeight);
+    
+    // Draw product name with wrapping
+    splitText.forEach((line: string, lineIdx: number) => {
+      doc.text(line, x, y + lineHeight * (lineIdx + 1));
+    });
+    
     x += colWidths[0];
-    doc.text(String(item?.quantity ?? 'NA'), x, Number(y + 7));
+    // Center quantity vertically in the dynamic height row
+    doc.text(String(item?.quantity ?? 'NA'), x, y + (rowHeight / 2) + 2);
+    
     x += colWidths[1];
-    // Right align 'Prix' in its column
-    doc.text(String(currencyFormat.format(item?.product_price || item?.price_of_pack || 0)), x + colWidths[2] - 4, Number(y + 7), { align: 'right' });
+    // Right align and center 'Prix' vertically
+    doc.text(
+      String(currencyFormat.format(item?.product_price || item?.price_of_pack || 0)), 
+      x + colWidths[2] - 4, 
+      y + (rowHeight / 2) + 2, 
+      { align: 'right' }
+    );
+    
     x += colWidths[2];
     const itemTotal = (item?.product_price || item?.price_of_pack || 0) * (item?.quantity ?? 0);
-    // Right align 'Total' in its column
-    doc.text(String(currencyFormat.format(itemTotal)), x + colWidths[3] - 4, Number(y + 7), { align: 'right' });
+    // Right align and center 'Total' vertically
+    doc.text(
+      String(currencyFormat.format(itemTotal)), 
+      x + colWidths[3] - 4, 
+      y + (rowHeight / 2) + 2, 
+      { align: 'right' }
+    );
+    
+    // Update the Y position for the next row
+    currentY += rowHeight;
   });
-  yPos += rowH * (order?.order_items?.length ?? 1);
+  
+  // Update final yPos to use the dynamic height
+  yPos = currentY;
 
   // Add vertical spacing before summary rows to prevent overlap
   yPos += 6;

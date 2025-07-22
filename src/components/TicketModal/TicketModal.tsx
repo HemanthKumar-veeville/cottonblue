@@ -20,6 +20,7 @@ import {
   getTicketStatusColor,
   getTicketStatusText,
 } from "../../utils/statusUtil";
+import { formatDateToParis } from "../../utils/dateUtils";
 
 interface TicketMessage {
   message_id: number;
@@ -232,14 +233,16 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
                   </Badge>
                   <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
                     {ticket?.created_at
-                      ? new Date(ticket.created_at).toLocaleDateString()
+                      ? formatDateToParis(ticket?.created_at)
                       : "NA"}
                   </span>
                 </div>
                 {ticket?.closed_at && (
                   <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
                     {t("tickets.modal.closedAt")}:{" "}
-                    {new Date(ticket.closed_at).toLocaleDateString()}
+                    {ticket?.closed_at
+                      ? formatDateToParis(ticket?.closed_at)
+                      : "NA"}
                   </span>
                 )}
               </div>
@@ -255,8 +258,8 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
                           {message.sender ?? "NA"}
                         </span>
                         <span className="text-sm text-gray-500">
-                          {message.created_at
-                            ? new Date(message.created_at).toLocaleString()
+                          {message?.created_at
+                            ? formatDateToParis(message?.created_at)
                             : "NA"}
                         </span>
                       </div>

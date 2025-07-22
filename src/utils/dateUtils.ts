@@ -24,3 +24,35 @@ export const formatDate = (dateString?: string): string => {
     return 'Invalid Date';
   }
 }; 
+
+function toIsoUtc(s: string) {
+  if (!s) return "";
+  if (s.includes("T")) {
+    //add Z to make it ISO 8601; add 'Z' for UTC
+    return s + "Z";
+  }
+  // If the string lacks 'T', make it ISO 8601; add 'Z' for UTC
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/.test(s)) {
+    return s.replace(" ", "T") + "Z";
+  }
+  return s;
+}
+
+
+
+export const formatDateToParis = (dateString?: string): string => {
+  const options = {
+    timeZone: "Europe/Paris",
+    year: "numeric" as const,
+    month: "long" as const,
+    day: "numeric" as const,
+    hour: "2-digit" as const,
+    minute: "2-digit" as const,
+    hour12: true as const,
+  };
+
+
+  const utcIsoString = toIsoUtc(dateString ?? "");
+  const parisDateTime = new Date(utcIsoString).toLocaleString("fr-FR", options);
+  return parisDateTime;
+}

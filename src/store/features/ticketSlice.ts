@@ -1,14 +1,15 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { ticketService } from '../../services/ticketService';
 import { TicketStatus } from '../../screens/Tickets/Tickets';
+import { formatDateToParis } from '../../utils/dateUtils';
 
 interface Ticket {
   id: string;
   title: string;
   status: TicketStatus;
   description?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
 interface TicketState {
@@ -57,8 +58,8 @@ export const updateTicketStatus = createAsyncThunk(
       title: response.ticket_title || response.title || '',
       description: response.ticket_description || response.description,
       status: response.ticket_status || response.status || TicketStatus.OPEN,
-      createdAt: new Date(response.created_at || response.createdAt),
-      updatedAt: new Date(response.updated_at || response.updatedAt)
+      createdAt: formatDateToParis(response?.created_at || response?.createdAt),
+      updatedAt: formatDateToParis(response?.updated_at || response?.updatedAt)
     } as Ticket;
   }
 );

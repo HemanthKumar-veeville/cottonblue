@@ -29,6 +29,7 @@ import EmptyState from "../../components/EmptyState";
 import { StatusText } from "../../components/ui/status-text";
 import { useCompanyColors } from "../../hooks/useCompanyColors";
 import { useAppSelector } from "../../store/store";
+import { formatDateToParis } from "../../utils/dateUtils";
 
 interface OrderItem {
   product_id: number;
@@ -70,7 +71,7 @@ const OrderRow = ({
 
   // Format date
   const formattedDate = order?.created_at
-    ? new Date(order.created_at).toLocaleDateString()
+    ? formatDateToParis(order?.created_at)
     : "";
 
   const {

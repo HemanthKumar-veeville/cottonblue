@@ -49,6 +49,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "../../components/ui/dialog";
+import { formatDateToParis } from "../../utils/dateUtils";
 
 // Define proper types for our data
 interface Agency {
@@ -770,7 +771,7 @@ const OrdersTableCard = ({ orders }: { orders: Order[] }) => {
                   <TableCell className="w-[145px] text-left">
                     <span className="font-text-smaller text-black">
                       {order?.created_at
-                        ? new Date(order.created_at).toLocaleDateString()
+                        ? formatDateToParis(order?.created_at)
                         : t("common.notAvailable")}
                     </span>
                   </TableCell>

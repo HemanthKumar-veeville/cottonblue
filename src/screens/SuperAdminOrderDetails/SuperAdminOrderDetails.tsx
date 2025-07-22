@@ -20,6 +20,7 @@ import { StatusIcon } from "../../components/ui/status-icon";
 import { StatusText } from "../../components/ui/status-text";
 import { jsPDF } from "jspdf";
 import { handleDownloadInvoice } from "../../utils/pdfUtil";
+import { formatDateToParis } from "../../utils/dateUtils";
 
 const OrderHeader = ({ order }: { order: any }) => {
   const { t } = useTranslation();
@@ -94,6 +95,8 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
 
   if (!order) return null;
 
+  const parisDateTime = formatDateToParis(order?.created_at);
+
   return (
     <Card className="w-full">
       <CardContent className="p-6">
@@ -109,15 +112,7 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
               <OrderInfo
                 label={t("orderDetails.fields.date")}
                 value={
-                  order?.created_at
-                    ? new Date(order.created_at).toLocaleDateString(undefined, {
-                        year: "numeric",
-                        month: "long",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
-                    : t("common.notAvailable")
+                  order?.created_at ? parisDateTime : t("common.notAvailable")
                 }
                 isStatus={false}
               />

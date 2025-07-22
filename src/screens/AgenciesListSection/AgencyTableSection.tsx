@@ -42,6 +42,8 @@ import {
 // Pagination data
 const paginationItems = [1, 2, 3, 4, 5];
 
+import { formatDateToParis } from "../../utils/dateUtils";
+
 interface Agency {
   id: number;
   name: string;
@@ -150,11 +152,6 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
   };
 
   // Calculate dropdown position
@@ -384,7 +381,9 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                         </span>
                       </TableCell>
                       <TableCell className="w-[120px] text-left font-text-smaller text-black">
-                        {formatDate(agency.created_at)}
+                        {agency?.created_at
+                          ? formatDateToParis(agency?.created_at)
+                          : t("common.notAvailable")}
                       </TableCell>
                       <TableCell className="w-[145px] text-center">
                         <div

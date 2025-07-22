@@ -100,17 +100,6 @@ export const ClientTableSection = ({
     }
   };
 
-  // Handle page change
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
-  };
-
-  // Format date function
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString();
-  };
-
   // Replace the pagination generation code with this simpler version
   const paginationItems = useMemo(() => {
     const items = [];

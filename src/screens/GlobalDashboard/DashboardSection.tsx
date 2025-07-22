@@ -28,6 +28,7 @@ import { useTranslation } from "react-i18next";
 import BudgetDashboard from "../ClientDashboard/BudgetDashboard";
 import { useLocation } from "react-router-dom";
 import EmptyState from "../../components/EmptyState";
+import { formatDateToParis } from "../../utils/dateUtils";
 
 interface Product {
   id: number;
@@ -125,7 +126,7 @@ const TicketCard: React.FC<{ ticket: Ticket }> = ({ ticket }) => (
           {ticket.client}
         </div>
         <div className="text-[#64748B] text-sm font-medium flex items-center gap-2">
-          {new Date(ticket.created_at).toLocaleDateString()}
+          {formatDateToParis(ticket?.created_at)}
         </div>
       </div>
     </div>

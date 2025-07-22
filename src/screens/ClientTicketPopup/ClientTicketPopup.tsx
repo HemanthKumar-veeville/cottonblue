@@ -20,6 +20,7 @@ import {
   getTicketStatusColor,
   getTicketStatusText,
 } from "../../utils/statusUtil";
+import { formatDateToParis } from "../../utils/dateUtils";
 
 interface TicketMessage {
   message_id: number;
@@ -206,7 +207,7 @@ const PopupTicket = ({ ticketId, onClose }: PopupTicketProps) => {
                             </span>
                             <span className="text-sm text-gray-500">
                               {message.created_at
-                                ? new Date(message.created_at).toLocaleString()
+                                ? formatDateToParis(message?.created_at)
                                 : "NA"}
                             </span>
                           </div>

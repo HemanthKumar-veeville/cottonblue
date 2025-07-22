@@ -177,7 +177,13 @@ const StoreBudgetSection = () => {
         <h2 className="w-fit font-bold text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-lg leading-7">
           {t("sidebar.budget.title")}
         </h2>
-        <HelpCircleIcon className="w-6 h-6" />
+        <div className="group relative flex items-center">
+          <HelpCircleIcon className="w-6 h-6 text-gray-500 cursor-pointer" />
+          <div className="absolute bottom-full right-0 mb-2 w-56 rounded bg-white px-4 py-2 text-sm text-gray-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto before:content-[''] before:absolute before:top-full before:right-2 before:border-8 before:border-transparent before:border-t-white">
+            Cette information est à titre indicatif et vous permet de respecter
+            le cadre d'engagement budgétaire défini sous votre responsabilité
+          </div>
+        </div>
       </div>
       <div className="flex flex-col items-start gap-3 w-full">
         {budgetCards.map((card, index) => (

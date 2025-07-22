@@ -140,7 +140,7 @@
     "noProducts": "Aucun produit",
     "emptyMessage": "Il n'y a pas de produits à afficher pour le moment. Les produits apparaîtront ici une fois que les données de vente seront disponibles.",
     "search": {
-      "placeholder": "Rechercher une agence"
+      "placeholder": "Rechercher un produit"
     },
     "actions": {
       "create": "Créer",

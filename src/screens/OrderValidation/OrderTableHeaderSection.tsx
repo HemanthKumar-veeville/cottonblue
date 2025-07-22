@@ -15,6 +15,7 @@ import { Skeleton } from "../../components/ui/skeleton";
 import { useCompanyColors } from "../../hooks/useCompanyColors";
 import { useTranslation } from "react-i18next";
 import { getStoreBudget } from "../../store/features/agencySlice";
+import { formatDateToParis } from "../../utils/dateUtils";
 
 interface OrderItem {
   product_id: number;
@@ -157,15 +158,7 @@ const OrderTableHeaderSection: React.FC<OrderTableHeaderSectionProps> = ({
               />
               <OrderInfo
                 label={t("orderValidation.date")}
-                value={new Date(
-                  orderDetails?.created_at ?? ""
-                ).toLocaleDateString("en-US", {
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
+                value={formatDateToParis(orderDetails?.created_at)}
                 isLoading={isLoading}
               />
               <OrderInfo
