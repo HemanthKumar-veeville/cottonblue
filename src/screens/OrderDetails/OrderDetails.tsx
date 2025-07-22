@@ -292,9 +292,35 @@ const ProductTable = ({ order }: { order: any }) => {
                       </div>
                     )}
                   </div>
-                  <span className="text-base text-coolgray-100">
-                    {`${product?.product_name} - ${product?.product_suitable_for} - ${product?.product_size}`}
-                  </span>
+                  <div className="w-full">
+                    <span
+                      className="font-semibold text-[#07515f] text-sm break-words w-full"
+                      style={{ wordBreak: "break-word" }}
+                      title={`${product?.product_name || ""} - ${
+                        product?.product_suitable_for || ""
+                      } - ${product?.product_size || ""}`}
+                    >
+                      <span className="text-[#07515f]">
+                        {product?.product_name}
+                      </span>
+                      {product?.product_suitable_for && (
+                        <>
+                          <span className="text-gray-400 mx-1"> - </span>
+                          <span className="text-gray-500">
+                            {product?.product_suitable_for}
+                          </span>
+                        </>
+                      )}
+                      {product?.product_size && (
+                        <>
+                          <span className="text-gray-400 mx-1"> - </span>
+                          <span className="text-[#00b85b]">
+                            {product?.product_size}
+                          </span>
+                        </>
+                      )}
+                    </span>
+                  </div>
                 </div>
                 <div className="w-[129px] flex items-center justify-center">
                   <span className="text-sm text-coolgray-100">

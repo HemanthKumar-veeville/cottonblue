@@ -181,9 +181,29 @@ const ProductRow = ({ product }: { product: CartItem }) => {
               </div>
             )}
           </div>
-          <span className="font-text-medium text-black">
-            {`${product?.product_name} - ${product?.suitable_for} - ${product?.size}`}
-          </span>
+          <div className="w-full">
+            <span
+              className="font-semibold text-[#07515f] text-sm break-words w-full"
+              style={{ wordBreak: "break-word" }}
+              title={`${product?.product_name || ""} - ${
+                product?.suitable_for || ""
+              } - ${product?.size || ""}`}
+            >
+              <span className="text-[#07515f]">{product?.product_name}</span>
+              {product?.suitable_for && (
+                <>
+                  <span className="text-gray-400 mx-1"> - </span>
+                  <span className="text-gray-500">{product?.suitable_for}</span>
+                </>
+              )}
+              {product?.size && (
+                <>
+                  <span className="text-gray-400 mx-1"> - </span>
+                  <span className="text-[#00b85b]">{product?.size}</span>
+                </>
+              )}
+            </span>
+          </div>
         </div>
       </TableCell>
       <TableCell className="w-[129px] text-center text-coolgray-100 text-sm">

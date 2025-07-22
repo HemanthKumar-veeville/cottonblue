@@ -37,7 +37,6 @@ const OrderSummaryHeaderSection = ({
   ];
 
   products = products?.map((product: any) => ({
-    product: `${product?.product_name} - ${product?.product_suitable_for} - ${product?.product_size}`,
     product_name: product?.product_name,
     product_suitable_for: product?.product_suitable_for,
     product_size: product?.product_size,

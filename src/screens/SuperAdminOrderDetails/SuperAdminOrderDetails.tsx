@@ -189,33 +189,33 @@ const ProductTableHeader = ({
   const { t } = useTranslation();
   return (
     <div className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md mb-2">
-      <div className="flex items-center justify-between p-2">
-        <div className="w-11 flex items-center justify-center">
-          <span className="font-text-small text-[#1e2324] text-center ml-2">
-            Indéfini
+      <div className="grid grid-cols-[auto,2fr,1fr,1fr,1fr,1fr] gap-2 p-2">
+        <div className="flex items-center justify-center">
+          <span className="font-text-small text-[#1e2324] text-center p-3 mr-3">
+            #
           </span>
         </div>
-        <div className="w-[203px] flex items-center">
+        <div className="flex items-center">
           <span className="font-text-small text-[#1e2324]">
             {t("orderDetails.products.table.product")}
           </span>
         </div>
-        <div className="w-[129px] flex items-center justify-center">
+        <div className="flex items-center justify-center">
           <span className="font-text-small text-[#1e2324]">
             {t("orderDetails.products.table.ref")}
           </span>
         </div>
-        <div className="w-[145px] flex items-center justify-center">
+        <div className="flex items-center justify-center">
           <span className="font-text-small text-[#1e2324]">
             {t("orderDetails.products.table.unitPrice")}
           </span>
         </div>
-        <div className="w-[145px] flex items-center justify-center">
+        <div className="flex items-center justify-center">
           <span className="font-text-small text-[#1e2324]">
             {t("orderDetails.products.table.quantity")}
           </span>
         </div>
-        <div className="w-[145px] flex items-center justify-center">
+        <div className="flex items-center justify-center">
           <span className="font-text-small text-[#1e2324]">
             {t("orderDetails.products.table.total")}
           </span>
@@ -238,12 +238,14 @@ const ProductRow = ({
 }) => {
   const { t } = useTranslation();
   return (
-    <div className="flex items-center justify-between px-2 py-3 border-b border-primary-neutal-300">
-      <div className="w-11 flex items-center justify-center">
-        <span className="font-text-small text-[#1e2324]">{index + 1}</span>
+    <div className="grid grid-cols-[auto,2fr,1fr,1fr,1fr,1fr] gap-2 px-2 py-3 border-b border-primary-neutal-300">
+      <div className="flex items-center justify-center">
+        <span className="font-text-small text-[#1e2324] p-3 mr-3">
+          {index + 1}
+        </span>
       </div>
-      <div className="w-[203px] flex items-center gap-3 px-3">
-        <div className="w-10 h-10 rounded overflow-hidden border border-[color:var(--1-tokens-color-modes-border-primary)] flex items-center justify-center bg-[color:var(--1-tokens-color-modes-background-secondary)]">
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex-shrink-0 w-10 h-10 rounded overflow-hidden border border-[color:var(--1-tokens-color-modes-border-primary)] flex items-center justify-center bg-[color:var(--1-tokens-color-modes-background-secondary)]">
           {product?.product_images?.length > 0 && product?.product_images[0] ? (
             <img
               src={product.product_images[0]}
@@ -258,28 +260,51 @@ const ProductRow = ({
             </div>
           )}
         </div>
-        <span className="font-text-medium text-black">
-          {`${product?.product_name} - ${product?.product_suitable_for} - ${product?.product_size}`}
-        </span>
+        <div className="min-w-0">
+          <div className="font-semibold text-sm break-words">
+            <span className="text-[#07515f] break-words">
+              {product?.product_name}
+            </span>
+            {product?.product_suitable_for && (
+              <>
+                <span className="text-gray-400 mx-1"> - </span>
+                <span className="text-gray-500 break-words">
+                  {product?.product_suitable_for}
+                </span>
+              </>
+            )}
+            {product?.product_size && (
+              <>
+                <span className="text-gray-400 mx-1"> - </span>
+                <span className="text-[#00b85b] break-words">
+                  {product?.product_size}
+                </span>
+              </>
+            )}
+          </div>
+        </div>
       </div>
-      <div className="w-[129px] flex items-center justify-center">
-        <span className="font-text-medium text-black">
+      <div className="flex items-center justify-center overflow-hidden">
+        <span
+          className="font-text-medium text-black truncate"
+          title={product?.product_id ?? t("common.notAvailable")}
+        >
           {product?.product_id ?? t("common.notAvailable")}
         </span>
       </div>
-      <div className="w-[145px] flex items-center justify-center">
+      <div className="flex items-center justify-center">
         <span className="font-text-medium text-black">
           {product?.product_price
             ? `${product.product_price.toFixed(2)}€`
             : t("common.notAvailable")}
         </span>
       </div>
-      <div className="w-[145px] flex items-center justify-center">
+      <div className="flex items-center justify-center">
         <span className="font-text-medium text-black">
           {product?.quantity ?? 0}
         </span>
       </div>
-      <div className="w-[145px] flex items-center justify-center">
+      <div className="flex items-center justify-center">
         <span className="font-text-medium text-[color:var(--1-tokens-color-modes-common-success-medium)]">
           {product?.product_price && product?.quantity
             ? `${(product.product_price * product.quantity).toFixed(2)}€`
