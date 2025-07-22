@@ -33,9 +33,7 @@ const ConfirmationHeader = ({
 }) => {
   return (
     <div className="flex flex-row items-center justify-between p-0 space-y-0">
-      <h2 className="font-['Montserrat',Helvetica] font-bold text-[#07515f] text-base">
-        {title}
-      </h2>
+      <h2 className="font-bold text-[#07515f] text-base">{title}</h2>
     </div>
   );
 };

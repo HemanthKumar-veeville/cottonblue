@@ -41,7 +41,7 @@ const PopupOrderHeader = ({
   const { t } = useTranslation();
   return (
     <DialogHeader className="flex flex-row items-center justify-between p-0 space-y-0">
-      <DialogTitle className="font-['Montserrat',Helvetica] font-bold text-1-tokens-color-modes-common-neutral-hightest text-base">
+      <DialogTitle className="font-bold text-1-tokens-color-modes-common-neutral-hightest text-base">
         {t("warehouse.popup.orderDetails", { orderId })}
       </DialogTitle>
     </DialogHeader>

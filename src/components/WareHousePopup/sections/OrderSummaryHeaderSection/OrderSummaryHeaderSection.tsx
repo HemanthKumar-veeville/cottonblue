@@ -46,7 +46,7 @@ const OrderSummaryHeaderSection = ({
 
   return (
     <section className="flex flex-col gap-2.5 w-full">
-      <h2 className="font-bold text-1-tokens-color-modes-common-neutral-hightest text-base font-['Montserrat',Helvetica]">
+      <h2 className="font-bold text-1-tokens-color-modes-common-neutral-hightest text-base">
         {t("warehouse.popup.orderSummary.title")}
       </h2>
 
