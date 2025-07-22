@@ -31,7 +31,7 @@ const ProductStockPopupHeader = ({
   const { t } = useTranslation();
   return (
     <DialogHeader className="flex flex-row items-center justify-between p-0 space-y-0">
-      <DialogTitle className="text-2xl font-semibold font-['Montserrat'] text-[color:var(--1-tokens-color-modes-common-neutral-hightest)]">
+      <DialogTitle className="text-2xl font-semibold text-[color:var(--1-tokens-color-modes-common-neutral-hightest)]">
         {t("productStock.popup.productDetails", { productId })}
       </DialogTitle>
     </DialogHeader>
@@ -84,7 +84,7 @@ const StockDetailsSection = ({ product }: { product: any }) => {
   const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="text-xl font-semibold font-['Montserrat'] text-[color:var(--1-tokens-color-modes-common-neutral-hightest)]">
+      <h3 className="text-xl font-semibold text-[color:var(--1-tokens-color-modes-common-neutral-hightest)]">
         {t("productStock.popup.stockDetails")}
       </h3>
       <div className="flex flex-row gap-4 w-full">
@@ -158,7 +158,7 @@ const AddStockSection = ({
 
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="text-xl font-semibold font-['Montserrat'] text-[color:var(--1-tokens-color-modes-common-neutral-hightest)]">
+      <h3 className="text-xl font-semibold text-[color:var(--1-tokens-color-modes-common-neutral-hightest)]">
         {t("productStock.popup.addStock")}
       </h3>
       <div className="flex flex-col gap-4 max-w-sm">
@@ -216,7 +216,7 @@ const AddStockSection = ({
               onClick={handleSubmit}
               disabled={!isQuantityValid() || loading}
               className={cn(
-                "font-['Montserrat'] font-semibold px-6",
+                "font-semibold px-6",
                 operation === "add"
                   ? "bg-[#07515f] hover:bg-[#063f4a] text-white"
                   : "bg-red-600 hover:bg-red-700 text-white"
