@@ -34,6 +34,8 @@ import {
   getProductsByStoreId,
 } from "../../store/features/productSlice";
 import { useCompanyColors } from "../../hooks/useCompanyColors";
+import { Dialog, DialogContent } from "../../components/ui/dialog";
+import { BudgetWarningPopover } from "../../components/BudgetWarningPopover/BudgetWarningPopover";
 
 interface StoreDetails {
   store_id: number;
@@ -310,6 +312,16 @@ export default function CartContainer(): JSX.Element {
   const dnsPrefix = getHost();
   const { selectedStore } = useAppSelector((state) => state.agency);
   const { buttonStyles } = useCompanyColors();
+  const [showBudgetWarning, setShowBudgetWarning] = useState(false);
+
+  const { storeBudget } = useAppSelector((state) => state.agency);
+  const storeBudgetData = storeBudget?.budget;
+
+  const currentMonthAmount = storeBudgetData?.current_month_expenses || 0;
+  const monthlyExpenseLimit = storeBudgetData?.budget || 0;
+  const currentMonthOrders = storeBudgetData?.order_count || 0;
+  const monthlyOrderLimit = storeBudgetData?.order_limit || 0;
+
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
     firstName: "",
     lastName: "",
@@ -366,6 +378,27 @@ export default function CartContainer(): JSX.Element {
     setBillingAddress((prev) => ({ ...prev, [field]: value }));
   };
 
+  const checkBudgetLimits = () => {
+    if (!monthlyExpenseLimit) {
+      return false;
+    }
+
+    const totalAmount = items.reduce(
+      (acc, item) => acc + item.price_of_pack * item.quantity,
+      0
+    );
+
+    return totalAmount + currentMonthAmount > monthlyExpenseLimit;
+  };
+
+  const checkOrderLimits = () => {
+    if (!monthlyOrderLimit) {
+      return false;
+    }
+
+    return currentMonthOrders >= monthlyOrderLimit;
+  };
+
   const handleValidateOrder = async () => {
     try {
       if (!dnsPrefix || !selectedStore) {
@@ -373,9 +406,13 @@ export default function CartContainer(): JSX.Element {
         return;
       }
 
-      // Get the first cart item's cart_id - assuming all items are from same cart
       if (!cartId) {
         toast.error(t("cart.error.invalidCart"));
+        return;
+      }
+
+      if (checkBudgetLimits() || checkOrderLimits()) {
+        setShowBudgetWarning(true);
         return;
       }
 
@@ -395,6 +432,10 @@ export default function CartContainer(): JSX.Element {
     } catch (error) {
       console.error(error);
     }
+  };
+
+  const handleClose = () => {
+    setShowBudgetWarning(false);
   };
 
   useEffect(() => {
@@ -433,145 +474,171 @@ export default function CartContainer(): JSX.Element {
   }
 
   return (
-    <div className="flex flex-col h-full p-6 gap-8">
-      <div className="flex flex-col gap-2.5">
-        <h1 className="text-[length:var(--heading-h3-font-size)] font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
-          {t("cart.title")}
-        </h1>
-      </div>
+    <>
+      <Dialog open={showBudgetWarning} onOpenChange={handleClose}>
+        <DialogContent className="p-0 border-none bg-transparent shadow-none">
+          <BudgetWarningPopover
+            currentMonthAmount={currentMonthAmount}
+            monthlyExpenseLimit={monthlyExpenseLimit}
+            currentMonthOrders={currentMonthOrders}
+            monthlyOrderLimit={monthlyOrderLimit}
+            orderTotal={items.reduce(
+              (acc, item) => acc + item.price_of_pack * item.quantity,
+              0
+            )}
+            onClose={handleClose}
+            checkBudgetLimits={checkBudgetLimits}
+            checkOrderLimits={checkOrderLimits}
+            orderDetails={{ order_id: parseInt(cartId || "0") }}
+            cartId={cartId ?? ""}
+            comments={comments ?? ""}
+          />
+        </DialogContent>
+      </Dialog>
 
-      <div className="flex gap-6 flex-1">
-        <Card
-          className="flex-[2] p-0 border-0 rounded-lg overflow-hidden"
-          style={buttonStyles}
-        >
-          <CardContent className="p-0 h-[65vh] flex flex-col">
-            <div className="h-full flex flex-col">
-              <div className="bg-[var(--primary-light-color)] rounded-md">
-                <Table>
-                  <TableHeader>
-                    <TableRow className="hover:bg-transparent">
-                      <TableHead className="w-11 h-10 p-2">
-                        {/* Action column */}
-                      </TableHead>
-                      <TableHead className="w-[203px] h-10 p-2.5 text-[#1e2324] font-text-small">
-                        {t("cart.table.product")}
-                      </TableHead>
-                      <TableHead className="w-[129px] h-10 p-2.5 text-[#1e2324] font-text-small text-center">
-                        {t("cart.table.ref")}
-                      </TableHead>
-                      <TableHead className="w-[145px] h-10 p-2.5 text-[#1e2324] font-text-small text-center">
-                        {t("cart.table.unitPrice")}
-                      </TableHead>
-                      <TableHead className="w-[145px] h-10 p-2.5 text-[#1e2324] font-text-small text-center">
-                        {t("cart.table.quantity")}
-                      </TableHead>
-                      <TableHead className="w-[145px] h-10 p-2.5 text-[#1e2324] font-text-small text-center">
-                        {t("cart.table.total")}
-                      </TableHead>
-                    </TableRow>
-                  </TableHeader>
-                </Table>
+      <div className="flex flex-col h-full p-6 gap-8">
+        <div className="flex flex-col gap-2.5">
+          <h1 className="text-[length:var(--heading-h3-font-size)] font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
+            {t("cart.title")}
+          </h1>
+        </div>
+
+        <div className="flex gap-6 flex-1">
+          <Card
+            className="flex-[2] p-0 border-0 rounded-lg overflow-hidden"
+            style={buttonStyles}
+          >
+            <CardContent className="p-0 h-[65vh] flex flex-col">
+              <div className="h-full flex flex-col">
+                <div className="bg-[var(--primary-light-color)] rounded-md">
+                  <Table>
+                    <TableHeader>
+                      <TableRow className="hover:bg-transparent">
+                        <TableHead className="w-11 h-10 p-2">
+                          {/* Action column */}
+                        </TableHead>
+                        <TableHead className="w-[203px] h-10 p-2.5 text-[#1e2324] font-text-small">
+                          {t("cart.table.product")}
+                        </TableHead>
+                        <TableHead className="w-[129px] h-10 p-2.5 text-[#1e2324] font-text-small text-center">
+                          {t("cart.table.ref")}
+                        </TableHead>
+                        <TableHead className="w-[145px] h-10 p-2.5 text-[#1e2324] font-text-small text-center">
+                          {t("cart.table.unitPrice")}
+                        </TableHead>
+                        <TableHead className="w-[145px] h-10 p-2.5 text-[#1e2324] font-text-small text-center">
+                          {t("cart.table.quantity")}
+                        </TableHead>
+                        <TableHead className="w-[145px] h-10 p-2.5 text-[#1e2324] font-text-small text-center">
+                          {t("cart.table.total")}
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                  </Table>
+                </div>
+
+                <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
+                  <Table>
+                    <TableBody>
+                      {items.map((product) => (
+                        <ProductRow
+                          key={product.product_id}
+                          product={product}
+                        />
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
               </div>
 
-              <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-                <Table>
-                  <TableBody>
-                    {items.map((product) => (
-                      <ProductRow key={product.product_id} product={product} />
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            </div>
+              <OrderSummary />
+            </CardContent>
+          </Card>
 
-            <OrderSummary />
-          </CardContent>
-        </Card>
+          <Card
+            className="w-[400px] bg-[color:var(--1-tokens-color-modes-background-primary)] rounded-lg"
+            style={buttonStyles}
+          >
+            <CardContent className="flex flex-col gap-8 pt-6 h-full">
+              <div className="flex flex-col items-start gap-4 w-full">
+                <div className="flex flex-col items-start w-full gap-4">
+                  <section className="flex flex-col items-start gap-4 w-full">
+                    <h2 className="font-heading-h5 font-bold text-[#1e2324] text-lg tracking-wide leading-tight">
+                      {t("cart.shipping.title")}
+                    </h2>
+                    <div className="flex items-start gap-2 w-full">
+                      <Input
+                        className="flex-1 bg-gray-100 border-gray-300 text-gray-500"
+                        placeholder={t("cart.shipping.firstName")}
+                        value={shippingAddress.firstName}
+                        onChange={(e) =>
+                          handleShippingUpdate("firstName", e.target.value)
+                        }
+                      />
+                      <Input
+                        className="flex-1 bg-gray-100 border-gray-300 text-gray-500"
+                        placeholder={t("cart.shipping.lastName")}
+                        value={shippingAddress.lastName}
+                        onChange={(e) =>
+                          handleShippingUpdate("lastName", e.target.value)
+                        }
+                      />
+                    </div>
+                  </section>
+                  <AddressSection
+                    title="cart.shipping.title"
+                    address={shippingAddress}
+                  />
+                  <AddressSection
+                    title="cart.billing.title"
+                    address={billingAddress}
+                  />
+                </div>
 
-        <Card
-          className="w-[400px] bg-[color:var(--1-tokens-color-modes-background-primary)] rounded-lg"
-          style={buttonStyles}
-        >
-          <CardContent className="flex flex-col gap-8 pt-6 h-full">
-            <div className="flex flex-col items-start gap-4 w-full">
-              <div className="flex flex-col items-start w-full gap-4">
-                <section className="flex flex-col items-start gap-4 w-full">
+                <section className="flex flex-col items-start gap-2 w-full">
                   <h2 className="font-heading-h5 font-bold text-[#1e2324] text-lg tracking-wide leading-tight">
-                    {t("cart.shipping.title")}
+                    {t("cart.validation.title")}
                   </h2>
                   <div className="flex items-start gap-2 w-full">
                     <Input
-                      className="flex-1 bg-gray-100 border-gray-300 text-gray-500"
-                      placeholder={t("cart.shipping.firstName")}
-                      value={shippingAddress.firstName}
-                      onChange={(e) =>
-                        handleShippingUpdate("firstName", e.target.value)
-                      }
-                    />
-                    <Input
-                      className="flex-1 bg-gray-100 border-gray-300 text-gray-500"
-                      placeholder={t("cart.shipping.lastName")}
-                      value={shippingAddress.lastName}
-                      onChange={(e) =>
-                        handleShippingUpdate("lastName", e.target.value)
-                      }
+                      className="flex-1 bg-gray-200 border-gray-300 text-gray-500"
+                      value={billingAddress.email}
+                      disabled
                     />
                   </div>
                 </section>
-                <AddressSection
-                  title="cart.shipping.title"
-                  address={shippingAddress}
-                />
-                <AddressSection
-                  title="cart.billing.title"
-                  address={billingAddress}
-                />
+
+                <section className="flex flex-col items-start gap-4 w-full flex-1">
+                  <div className="flex flex-col items-start gap-1 w-full">
+                    <h2 className="font-heading-h5 font-bold text-[#1e2324] text-lg tracking-wide leading-tight">
+                      {t("cart.comments.title")}
+                    </h2>
+                  </div>
+                  <Textarea
+                    className="w-full bg-gray-100 border-gray-300 text-gray-600 text-xs"
+                    value={comments}
+                    onChange={(e) => setComments(e.target.value)}
+                  />
+                </section>
               </div>
 
-              <section className="flex flex-col items-start gap-2 w-full">
-                <h2 className="font-heading-h5 font-bold text-[#1e2324] text-lg tracking-wide leading-tight">
-                  {t("cart.validation.title")}
-                </h2>
-                <div className="flex items-start gap-2 w-full">
-                  <Input
-                    className="flex-1 bg-gray-200 border-gray-300 text-gray-500"
-                    value={billingAddress.email}
-                    disabled
-                  />
-                </div>
-              </section>
-
-              <section className="flex flex-col items-start gap-4 w-full flex-1">
-                <div className="flex flex-col items-start gap-1 w-full">
-                  <h2 className="font-heading-h5 font-bold text-[#1e2324] text-lg tracking-wide leading-tight">
-                    {t("cart.comments.title")}
-                  </h2>
-                </div>
-                <Textarea
-                  className="w-full bg-gray-100 border-gray-300 text-gray-600 text-xs"
-                  value={comments}
-                  onChange={(e) => setComments(e.target.value)}
-                />
-              </section>
-            </div>
-
-            <Button
-              className="w-full py-2 px-4 bg-[#00b85b] text-white rounded-[var(--2-tokens-screen-modes-button-border-radius)] hover:bg-[#00b85b]/90 disabled:opacity-70 disabled:cursor-not-allowed"
-              disabled={items.length === 0 || loading}
-              onClick={handleValidateOrder}
-              style={{
-                backgroundColor: "var(--primary-color)",
-                color: "var(--primary-text-color)",
-              }}
-            >
-              {loading
-                ? t("cart.buttons.processing")
-                : t("cart.buttons.validateOrder")}
-            </Button>
-          </CardContent>
-        </Card>
+              <Button
+                className="w-full py-2 px-4 bg-[#00b85b] text-white rounded-[var(--2-tokens-screen-modes-button-border-radius)] hover:bg-[#00b85b]/90 disabled:opacity-70 disabled:cursor-not-allowed"
+                disabled={items.length === 0 || loading}
+                onClick={handleValidateOrder}
+                style={{
+                  backgroundColor: "var(--primary-color)",
+                  color: "var(--primary-text-color)",
+                }}
+              >
+                {loading
+                  ? t("cart.buttons.processing")
+                  : t("cart.buttons.validateOrder")}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

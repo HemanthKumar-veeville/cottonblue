@@ -5,10 +5,14 @@ import { Button } from "../ui/button";
 import { formatCurrency } from "../../utils/statusUtil";
 import { Card } from "../ui/card";
 import { useAppDispatch, useAppSelector } from "../../store/store";
-import { approveOrder } from "../../store/features/cartSlice";
+import {
+  approveOrder,
+  convertCartToOrder,
+} from "../../store/features/cartSlice";
 import { getHost } from "../../utils/hostUtils";
 import { useNavigate } from "react-router-dom";
 import { getStoreBudget } from "../../store/features/agencySlice";
+import toast from "react-hot-toast";
 
 interface BudgetWarningPopoverProps {
   currentMonthAmount: number;
@@ -20,6 +24,9 @@ interface BudgetWarningPopoverProps {
   checkBudgetLimits: () => boolean;
   checkOrderLimits: () => boolean;
   orderId?: string;
+  cartId?: string;
+  comments?: string;
+  orderDetails?: any;
 }
 
 export const BudgetWarningPopover: React.FC<BudgetWarningPopoverProps> = ({
@@ -32,6 +39,8 @@ export const BudgetWarningPopover: React.FC<BudgetWarningPopoverProps> = ({
   checkBudgetLimits,
   checkOrderLimits,
   orderDetails,
+  cartId,
+  comments,
 }) => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
@@ -40,22 +49,56 @@ export const BudgetWarningPopover: React.FC<BudgetWarningPopoverProps> = ({
   const remainingBudget = monthlyExpenseLimit - currentMonthAmount;
   const exceedAmount = orderTotal - remainingBudget;
   const { selectedStore } = useAppSelector((state) => state.agency);
+  const { isClientAdmin } = useAppSelector((state) => state.auth);
+
   const handleProceed = async () => {
-    try {
-      await dispatch(
-        approveOrder({
-          dns_prefix,
-          order_id: orderDetails?.order_id?.toString() ?? "",
-        })
-      ).unwrap();
-      if (selectedStore) {
+    if (isClientAdmin) {
+      try {
         await dispatch(
-          getStoreBudget({ dnsPrefix: dns_prefix, storeId: selectedStore })
-        );
+          approveOrder({
+            dns_prefix,
+            order_id: orderDetails?.order_id?.toString() ?? "",
+          })
+        ).unwrap();
+        if (selectedStore) {
+          await dispatch(
+            getStoreBudget({ dnsPrefix: dns_prefix, storeId: selectedStore })
+          );
+        }
+        navigate(-1);
+      } catch (error) {
+        console.error(error);
       }
-      navigate(-1);
-    } catch (error) {
-      console.error(error);
+    } else {
+      try {
+        if (!dns_prefix || !selectedStore) {
+          toast.error(t("cart.error.missingStoreInfo"));
+          return;
+        }
+
+        if (!cartId) {
+          toast.error(t("cart.error.invalidCart"));
+          return;
+        }
+
+        await dispatch(
+          convertCartToOrder({
+            dns_prefix,
+            store_id: selectedStore,
+            cart_id: cartId,
+            comments: comments ?? "",
+          })
+        ).unwrap();
+        if (selectedStore) {
+          await dispatch(
+            getStoreBudget({ dnsPrefix: dns_prefix, storeId: selectedStore })
+          );
+        }
+
+        navigate("/history");
+      } catch (error) {
+        console.error(error);
+      }
     }
   };
 
