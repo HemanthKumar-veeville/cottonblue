@@ -32,11 +32,11 @@ interface FormData {
   limits: {
     order: {
       enabled: boolean;
-      value: string;
+      value: number;
     };
     budget: {
       enabled: boolean;
-      value: string;
+      value: number;
     };
   };
 }
@@ -53,11 +53,11 @@ interface InitialAgencyData {
   limits: {
     order: {
       enabled: boolean;
-      value: string;
+      value: number;
     };
     budget: {
       enabled: boolean;
-      value: string;
+      value: number;
     };
   };
 }
@@ -73,7 +73,7 @@ const LabeledInput = ({
 }: {
   label: string;
   id: string;
-  value: string;
+  value: string | number;
   type?: string;
   disabled?: boolean;
   required?: boolean;
@@ -83,17 +83,27 @@ const LabeledInput = ({
     <div className="relative">
       <Input
         id={id}
-        type={type}
+        type={type === "number" ? "text" : type}
         className={cn(
           "w-full pt-4 pr-3 pb-2 pl-3 bg-white rounded-lg border border-gray-300",
           type === "number"
             ? "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
             : ""
         )}
-        value={value}
+        value={value.toString()}
         disabled={disabled}
         required={required}
-        onChange={(e) => onChange?.(e.target.value)}
+        onChange={(e) => {
+          if (type === "number") {
+            // Allow empty value or numbers only
+            const val = e.target.value;
+            if (val === "" || /^\d*$/.test(val)) {
+              onChange?.(val);
+            }
+          } else {
+            onChange?.(e.target.value);
+          }
+        }}
       />
       <span className="absolute -top-[10px] left-4 px-2 text-xs font-medium text-gray-600 bg-white">
         {label} {required && <span className="text-red-500">*</span>}
@@ -155,11 +165,11 @@ export default function AddAgency() {
     limits: {
       order: {
         enabled: false,
-        value: "",
+        value: 0,
       },
       budget: {
         enabled: false,
-        value: "",
+        value: 0,
       },
     },
   };
@@ -193,11 +203,11 @@ export default function AddAgency() {
         limits: {
           order: {
             enabled: !!store.order_limit,
-            value: store.order_limit ? store.order_limit.toString() : "",
+            value: store.order_limit ? store.order_limit : 0,
           },
           budget: {
             enabled: !!store.budget_limit,
-            value: store.budget_limit ? store.budget_limit.toString() : "",
+            value: store.budget_limit ? store.budget_limit : 0,
           },
         },
       });
@@ -218,11 +228,11 @@ export default function AddAgency() {
         limits: {
           order: {
             enabled: !!store.order_limit,
-            value: store.order_limit ? store.order_limit.toString() : "",
+            value: store.order_limit ? store.order_limit : 0,
           },
           budget: {
             enabled: !!store.budget_limit,
-            value: store.budget_limit ? store.budget_limit.toString() : "",
+            value: store.budget_limit ? store.budget_limit : 0,
           },
         },
       };
@@ -286,7 +296,7 @@ export default function AddAgency() {
         formData.limits.order.value !== initialData.limits.order.value)
     ) {
       changes.order_limit = formData.limits.order.enabled
-        ? parseInt(formData.limits.order.value)
+        ? formData.limits.order.value
         : null;
     }
     if (
@@ -295,7 +305,7 @@ export default function AddAgency() {
         formData.limits.budget.value !== initialData.limits.budget.value)
     ) {
       changes.budget_limit = formData.limits.budget.enabled
-        ? parseInt(formData.limits.budget.value)
+        ? formData.limits.budget.value
         : null;
     }
 
@@ -335,10 +345,10 @@ export default function AddAgency() {
         postal_code: formData?.postal_code,
         phone_number: formData?.phone_number,
         order_limit: formData.limits.order.enabled
-          ? parseInt(formData.limits.order.value) || null
+          ? formData.limits.order.value
           : null,
         budget_limit: formData.limits.budget.enabled
-          ? parseInt(formData.limits.budget.value) || null
+          ? formData.limits.budget.value
           : null,
       };
 
@@ -530,7 +540,10 @@ export default function AddAgency() {
                     ...prev,
                     limits: {
                       ...prev.limits,
-                      order: { ...prev.limits.order, enabled: checked },
+                      order: {
+                        enabled: checked,
+                        value: checked ? 25 : 0,
+                      },
                     },
                   }))
                 }
@@ -544,7 +557,10 @@ export default function AddAgency() {
                     ...prev,
                     limits: {
                       ...prev.limits,
-                      budget: { ...prev.limits.budget, enabled: checked },
+                      budget: {
+                        enabled: checked,
+                        value: checked ? 3500 : 0,
+                      },
                     },
                   }))
                 }
@@ -555,15 +571,17 @@ export default function AddAgency() {
               <LabeledInput
                 label={t("addAgency.limits.orderLimitValue")}
                 id="orderLimitValue"
-                type="text"
-                value={formData.limits.order.value}
-                disabled={!formData.limits.order.enabled}
+                type="number"
+                value={formData.limits.order.value || ""}
                 onChange={(value) =>
                   setFormData((prev) => ({
                     ...prev,
                     limits: {
                       ...prev.limits,
-                      order: { ...prev.limits.order, value },
+                      order: {
+                        enabled: value !== "" && Number(value) > 0,
+                        value: value === "" ? 0 : Number(value),
+                      },
                     },
                   }))
                 }
@@ -571,15 +589,17 @@ export default function AddAgency() {
               <LabeledInput
                 label={t("addAgency.limits.budgetLimitValue")}
                 id="budgetLimitValue"
-                type="text"
-                value={formData.limits.budget.value}
-                disabled={!formData.limits.budget.enabled}
+                type="number"
+                value={formData.limits.budget.value || ""}
                 onChange={(value) =>
                   setFormData((prev) => ({
                     ...prev,
                     limits: {
                       ...prev.limits,
-                      budget: { ...prev.limits.budget, value },
+                      budget: {
+                        enabled: value !== "" && Number(value) > 0,
+                        value: value === "" ? 0 : Number(value),
+                      },
                     },
                   }))
                 }

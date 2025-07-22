@@ -94,7 +94,7 @@ export const modifyStore = createAsyncThunk(
     try {
       const formData = new FormData();
       Object.entries(data).forEach(([key, value]) => {
-          formData.append(key, value);
+          value ? formData.append(key, value) : formData.append(key, false);
       });
       const response = await agencyService.modifyStore(dnsPrefix, storeId, formData);
       return response;
