@@ -139,7 +139,7 @@ const StoreBudgetSection = () => {
   const { t } = useTranslation();
   const { storeBudget } = useAppSelector((state) => state.agency);
   const storeBudgetData = storeBudget?.budget;
-
+  const { buttonStyles } = useCompanyColors();
   const currentMonthOrders = storeBudgetData?.order_count || "-";
   const currentMonthAmount = storeBudgetData?.current_month_expenses || "-";
   const monthlyOrderLimit = storeBudgetData?.order_limit || "-";
@@ -172,14 +172,17 @@ const StoreBudgetSection = () => {
     },
   ];
   return (
-    <section className="flex flex-col items-start gap-6 w-full">
+    <section
+      className="flex flex-col items-start gap-6 w-full"
+      style={buttonStyles}
+    >
       <div className="flex items-center justify-between w-full">
         <h2 className="w-fit font-bold text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-lg leading-7">
           {t("sidebar.budget.title")}
         </h2>
         <div className="group relative flex items-center">
           <HelpCircleIcon className="w-6 h-6 text-gray-500 cursor-pointer" />
-          <div className="absolute bottom-full right-0 mb-2 w-56 rounded bg-white px-4 py-2 text-sm text-gray-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto before:content-[''] before:absolute before:top-full before:right-2 before:border-8 before:border-transparent before:border-t-white">
+          <div className="absolute bottom-full right-0 mb-2 w-56 rounded bg-white border-2 border-[var(--primary-color)] px-4 py-2 text-sm text-gray-700 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none group-hover:pointer-events-auto before:content-[''] before:absolute before:top-full before:right-2 before:border-8 before:border-transparent before:border-t-[var(--primary-color)]">
             Cette information est à titre indicatif et vous permet de respecter
             le cadre d'engagement budgétaire défini sous votre responsabilité
           </div>
