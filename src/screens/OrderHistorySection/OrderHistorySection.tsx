@@ -19,6 +19,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../../components/ui/pagination";
+import { useAppSelector } from "../../store/store";
 
 const Heading = ({ text }: { text: string }) => (
   <h3 className="text-[length:var(--heading-h3-font-size)] font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
@@ -42,6 +43,7 @@ const DownloadDropdown = ({
   const [open, setOpen] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState(defaultLabel);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
   return (
     <div className="relative inline-block text-left">
       <Button
@@ -89,6 +91,8 @@ interface OrderHistorySectionProps {
   currentPage: number;
   setCurrentPage: (page: number) => void;
   itemsPerPage: number;
+  activeTab: "all" | "selected";
+  setActiveTab: (tab: "all" | "selected") => void;
 }
 
 export const OrderHistorySection = ({
@@ -97,6 +101,8 @@ export const OrderHistorySection = ({
   currentPage,
   setCurrentPage,
   itemsPerPage = 10,
+  activeTab,
+  setActiveTab,
 }: OrderHistorySectionProps): JSX.Element => {
   const { t, i18n } = useTranslation();
   const orders = useSelector((state: any) => state.cart.orders);
@@ -105,7 +111,7 @@ export const OrderHistorySection = ({
   const total = useSelector((state: any) => state.cart.totalOrders);
   const { buttonStyles } = useCompanyColors();
   const orderList = orders || [];
-
+  const { isClientAdmin } = useAppSelector((state: any) => state.auth);
   if (typeof window !== "undefined" && !(window as any).Buffer) {
     (window as any).Buffer = Buffer;
   }
@@ -422,7 +428,63 @@ export const OrderHistorySection = ({
         style={buttonStyles}
       >
         <Heading text={t("history.title")} />
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4" style={buttonStyles}>
+          {isClientAdmin && (
+            <div className="flex gap-0">
+              <Button
+                variant={activeTab === "all" ? "default" : "outline"}
+                onClick={() => setActiveTab("all")}
+                className={`flex-1 transition-all duration-200 ${
+                  activeTab === "all"
+                    ? "hover:brightness-90 shadow-md hover:shadow-lg hover:bg-primary-hover-color hover:text-white hover:border-primary-hover-color"
+                    : "hover:bg-[var(--primary-light-color)] hover:border-[var(--primary-hover-color)] hover:text-[var(--primary-hover-color)]"
+                }`}
+                style={{
+                  backgroundColor:
+                    activeTab === "all"
+                      ? "var(--primary-color)"
+                      : "transparent",
+                  color:
+                    activeTab === "all"
+                      ? "var(--primary-text-color)"
+                      : "var(--primary-color)",
+                  border: "1px solid var(--primary-color)",
+                  transform: "translateY(0)",
+                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                  borderTopRightRadius: "0",
+                  borderBottomRightRadius: "0",
+                }}
+              >
+                {t("orderHistoryExport.allStores")}
+              </Button>
+              <Button
+                variant={activeTab === "selected" ? "default" : "outline"}
+                onClick={() => setActiveTab("selected")}
+                className={`flex-1 transition-all duration-200 ${
+                  activeTab === "selected"
+                    ? "hover:brightness-90 shadow-md hover:shadow-lg hover:bg-primary-hover-color hover:text-white hover:border-primary-hover-color"
+                    : "hover:bg-[var(--primary-light-color)] hover:border-[var(--primary-hover-color)] hover:text-[var(--primary-hover-color)]"
+                }`}
+                style={{
+                  backgroundColor:
+                    activeTab === "selected"
+                      ? "var(--primary-color)"
+                      : "transparent",
+                  color:
+                    activeTab === "selected"
+                      ? "var(--primary-text-color)"
+                      : "var(--primary-color)",
+                  border: "1px solid var(--primary-color)",
+                  transform: "translateY(0)",
+                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                  borderTopLeftRadius: "0",
+                  borderBottomLeftRadius: "0",
+                }}
+              >
+                {t("orderHistoryExport.selectedStore")}
+              </Button>
+            </div>
+          )}
           <DownloadDropdown
             defaultLabel={t("orderHistoryExport.downloadAsCSV")}
             disabled={loading || !orderList?.length}

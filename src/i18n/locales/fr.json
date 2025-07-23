@@ -613,6 +613,7 @@
     "downloadSelectedInvoices": "Télécharger les commandes sélectionnées",
     "table": {
       "order": "Commande",
+      "store": "Magasin",
       "date": "Date",
       "totalPrice": "Prix total",
       "status": "Statut",
@@ -1543,7 +1544,9 @@
   },
   "orderHistoryExport": {
     "downloadAsCSV": "Télécharger en CSV",
-    "downloadAsExcel": "Télécharger en XLSX"
+    "downloadAsExcel": "Télécharger en XLSX",
+    "allStores": "Tous les magasins",
+    "selectedStore": "Magasin sélectionné"
   },
   "budget": {
     "warning": {

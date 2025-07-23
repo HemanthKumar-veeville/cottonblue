@@ -60,11 +60,13 @@ const OrderRow = ({
   index,
   isSelected,
   onSelect,
+  activeTab,
 }: {
   order: Order;
   index: number;
   isSelected: boolean;
   onSelect: (orderId: number) => void;
+  activeTab: "all" | "selected";
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -82,17 +84,17 @@ const OrderRow = ({
     company_email,
     vat_number,
   } = useAppSelector((state) => state.cart);
-
+  console.log({ activeTab });
   return (
     <TableRow key={index} className="border-b border-primary-neutal-300">
-      <TableCell className="w-11 py-3 px-2 align-middle">
+      <TableCell className="py-3 px-2 w-[5%] align-middle">
         <Checkbox
           className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
           checked={isSelected}
           onCheckedChange={() => onSelect(order.order_id)}
         />
       </TableCell>
-      <TableCell className="w-[129px] p-2.5 text-left align-middle">
+      <TableCell className="p-2.5 w-[15%] text-left align-middle">
         <span
           className={`font-normal ${
             index === 0 ? "text-coolgray-100" : "text-[#121619]"
@@ -101,23 +103,30 @@ const OrderRow = ({
           {order?.order_id}
         </span>
       </TableCell>
-      <TableCell className="w-[145px] p-2.5 text-left align-middle">
+      {activeTab === "all" && (
+        <TableCell className="p-2.5 w-[15%] text-left align-middle">
+          <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap">
+            {order?.store_name}
+          </span>
+        </TableCell>
+      )}
+      <TableCell className="p-2.5 w-[15%] text-left align-middle">
         <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap">
           {formattedDate}
         </span>
       </TableCell>
-      <TableCell className="w-[145px] p-2.5 text-left align-middle">
+      <TableCell className="p-2.5 w-[15%] text-left align-middle">
         <span className="font-normal text-black text-[15px] tracking-[0] leading-normal whitespace-nowrap">
           {order?.total_amount}€
         </span>
       </TableCell>
-      <TableCell className="w-[145px] p-2.5 align-middle">
+      <TableCell className="p-2.5 w-[20%] align-middle">
         <div className="flex items-center gap-2">
           <StatusIcon status={order?.order_status} />
           <StatusText status={order?.order_status} />
         </div>
       </TableCell>
-      <TableCell className="w-[69px] p-2.5 text-left align-middle">
+      <TableCell className="p-2.5 w-[5%] text-left align-middle">
         <FileText
           className="inline-block w-4 h-4 text-[#07515f] cursor-pointer hover:text-[#023337] transition-colors"
           onClick={() =>
@@ -145,7 +154,7 @@ const OrderRow = ({
           }
         />
       </TableCell>
-      <TableCell className="w-[145px] p-2.5 text-right align-middle">
+      <TableCell className="p-2.5 w-[10%] text-right align-middle">
         <Button
           variant="ghost"
           className="p-0 underline font-medium text-[color:var(--1-tokens-color-modes-button-ghost-default-text)]"
@@ -162,10 +171,12 @@ export const OrderDetailsSection = ({
   currentPage,
   itemsPerPage,
   setCurrentPage,
+  activeTab,
 }: {
   currentPage: number;
   itemsPerPage: number;
   setCurrentPage: (page: number) => void;
+  activeTab: "all" | "selected";
 }): JSX.Element => {
   const { t } = useTranslation();
 
@@ -265,7 +276,7 @@ export const OrderDetailsSection = ({
             style={buttonStyles}
           >
             <TableRow>
-              <TableHead className="w-11 p-2.5 align-middle">
+              <TableHead className="p-2.5 w-[5%] align-middle">
                 <Checkbox
                   className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
                   checked={
@@ -278,21 +289,24 @@ export const OrderDetailsSection = ({
                 />
               </TableHead>
               {[
-                t("history.table.order"),
-                t("history.table.date"),
-                t("history.table.totalPrice"),
-                t("history.table.status"),
-                t("history.table.invoice"),
-                t("history.table.details"),
+                { key: "order", width: "15%" },
+                ...(activeTab === "all"
+                  ? [{ key: "store", width: "15%" }]
+                  : []),
+                { key: "date", width: "15%" },
+                { key: "totalPrice", width: "15%" },
+                { key: "status", width: "20%" },
+                { key: "invoice", width: "5%" },
+                { key: "details", width: "10%" },
               ].map((header, index) => (
                 <TableHead
                   key={index}
-                  className={`w-[${index === 4 ? 69 : 145}px] p-2.5 ${
-                    index === 5 ? "text-right" : "text-left"
+                  className={`p-2.5 w-[${header.width}] ${
+                    header.key === "details" ? "text-right" : "text-left"
                   } align-middle`}
                 >
                   <span className="font-text-small text-[#1e2324] text-[length:var(--text-small-font-size)] tracking-[var(--text-small-letter-spacing)] leading-[var(--text-small-line-height)]">
-                    {header}
+                    {t(`history.table.${header.key}`)}
                   </span>
                 </TableHead>
               ))}
@@ -306,6 +320,7 @@ export const OrderDetailsSection = ({
                 index={index}
                 isSelected={selectedOrders.includes(order.order_id)}
                 onSelect={handleSelectOrder}
+                activeTab={activeTab}
               />
             ))}
           </TableBody>
