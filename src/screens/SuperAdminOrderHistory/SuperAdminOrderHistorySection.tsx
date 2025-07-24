@@ -131,13 +131,7 @@ const OrderRow = ({
       className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
     >
       <TableCell className="w-11">
-        <div className="flex justify-center">
-          <Checkbox
-            className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
-            checked={isSelected}
-            onCheckedChange={() => onSelect(order.order_id)}
-          />
-        </div>
+        <span className="font-text-smaller text-coolgray-100">{index + 1}</span>
       </TableCell>
       <TableCell className="w-[129px] text-left">
         <span className="font-text-smaller text-coolgray-100">
@@ -714,16 +708,7 @@ export const SuperAdminOrderHistorySection = ({
               <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
                 <TableRow>
                   <TableHead className="w-11">
-                    <div className="flex justify-center">
-                      <Checkbox
-                        className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]"
-                        checked={
-                          orderList.length > 0 &&
-                          selectedOrders.length === orderList.length
-                        }
-                        onCheckedChange={handleSelectAll}
-                      />
-                    </div>
+                    <span className="text-center text-[#1e2324] ">#</span>
                   </TableHead>
                   {[
                     "table.order",

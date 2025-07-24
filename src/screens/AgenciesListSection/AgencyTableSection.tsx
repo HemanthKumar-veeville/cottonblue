@@ -294,17 +294,8 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
             <Table>
               <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
                 <TableRow>
-                  <TableHead className="w-11">
-                    <div className="flex justify-start">
-                      <Checkbox
-                        className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
-                        checked={
-                          selectedAgencies.length === currentAgencies.length &&
-                          currentAgencies.length > 0
-                        }
-                        onCheckedChange={handleSelectAll}
-                      />
-                    </div>
+                  <TableHead className="w-[77px] text-center text-[#1e2324] font-text-small">
+                    <span className="text-center text-[#1e2324]">#</span>
                   </TableHead>
                   <TableHead className="w-[77px] text-left text-[#1e2324] font-text-small">
                     {t("clientTable.columns.id")}
@@ -334,23 +325,15 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
               </TableHeader>
               <TableBody>
                 {currentAgencies.length > 0 ? (
-                  currentAgencies.map((agency) => (
+                  currentAgencies.map((agency, index) => (
                     <TableRow
                       key={agency.id}
                       className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
                     >
-                      <TableCell className="w-11">
-                        <div className="flex justify-start">
-                          <Checkbox
-                            className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
-                            checked={selectedAgencies.includes(agency.id)}
-                            onCheckedChange={(
-                              checked: boolean | "indeterminate"
-                            ) =>
-                              handleSelectAgency(agency.id, checked as boolean)
-                            }
-                          />
-                        </div>
+                      <TableCell className="w-[77px] text-center font-text-smaller text-coolgray-100 align-middle">
+                        <span className="font-text-smaller text-coolgray-100">
+                          {index + 1}
+                        </span>
                       </TableCell>
                       <TableCell className="w-[77px] text-left font-text-smaller text-coolgray-100">
                         {agency.id}

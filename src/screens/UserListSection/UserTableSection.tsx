@@ -251,14 +251,8 @@ export const UserTableSection = ({
             <Table>
               <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
                 <TableRow>
-                  <TableHead className="w-11">
-                    <div className="flex justify-center">
-                      <Checkbox
-                        className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
-                        checked={selectAll}
-                        onCheckedChange={handleSelectAll}
-                      />
-                    </div>
+                  <TableHead className="w-[77px] text-center text-[#1e2324] font-text-small">
+                    <span className="text-center text-[#1e2324]">#</span>
                   </TableHead>
                   <TableHead className="w-[145px] text-left text-[#1e2324] font-text-small">
                     {t("userList.table.name")}
@@ -281,19 +275,15 @@ export const UserTableSection = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredUsers.map((user: UserData) => (
+                {filteredUsers.map((user: UserData, index: number) => (
                   <TableRow
                     key={user.email}
                     className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
                   >
-                    <TableCell className="w-11">
-                      <div className="flex justify-center">
-                        <Checkbox
-                          className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
-                          checked={selectedUsers.includes(user.email)}
-                          onCheckedChange={() => handleSelectUser(user.email)}
-                        />
-                      </div>
+                    <TableCell className="w-[77px] text-center font-text-smaller text-coolgray-100 align-middle">
+                      <span className="font-text-smaller text-coolgray-100">
+                        {index + 1}
+                      </span>
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
                       {`${user.firstname} ${user.lastname}`}

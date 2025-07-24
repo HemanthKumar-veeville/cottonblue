@@ -136,14 +136,8 @@ export const ManageStockTableSection = ({
               <Table>
                 <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
                   <TableRow>
-                    <TableHead className="w-11">
-                      <div className="flex justify-center">
-                        <Checkbox
-                          className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
-                          checked={selectAll}
-                          onCheckedChange={handleSelectAll}
-                        />
-                      </div>
+                    <TableHead className="w-[77px] text-left text-[#1e2324] font-text-small">
+                      <span className="text-center text-[#1e2324]">#</span>
                     </TableHead>
                     <TableHead className="w-[77px] text-left text-[#1e2324] font-text-small">
                       {t("productList.table.sku")}
@@ -178,19 +172,15 @@ export const ManageStockTableSection = ({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredStocks.map((stock) => (
+                  {filteredStocks.map((stock, index) => (
                     <TableRow
                       key={stock.id}
                       className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
                     >
-                      <TableCell className="w-11">
-                        <div className="flex justify-center">
-                          <Checkbox
-                            className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
-                            checked={selectedStocks.includes(stock.id)}
-                            onCheckedChange={() => handleSelectStock(stock.id)}
-                          />
-                        </div>
+                      <TableCell className="w-[77px] text-left font-text-smaller text-coolgray-100 align-middle">
+                        <span className="font-text-smaller text-coolgray-100">
+                          {index + 1}
+                        </span>
                       </TableCell>
                       <TableCell className="w-[77px] text-left font-text-smaller text-coolgray-100 align-middle">
                         {stock.id ?? "Not available"}
