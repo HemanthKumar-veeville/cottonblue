@@ -46,6 +46,10 @@ export interface ErrorLogsResponse {
   logs: ErrorLog[];
 }
 
+export interface ModifyUserSettingsResponse {
+  message: string;
+}
+
 export const authService = {
   loginPage: async (company: string): Promise<LoginResponse> => {
     const response = await axiosInstance.get(`/${company}/login`);
@@ -82,6 +86,14 @@ export const authService = {
   },
   clearErrorLogs: async (): Promise<ErrorLogsResponse> => {
     const response = await axiosInstance.delete('/dev/error-logs');
+    return response.data;
+  },
+
+  modifyUserSettings: async (dnsPrefix: string, name?: string, newPassword?: string): Promise<ModifyUserSettingsResponse> => {
+    const response = await axiosInstance.put(`/${dnsPrefix}/user/profile/settings/modify`, {
+      name,
+      new_password: newPassword
+    });
     return response.data;
   },
 };

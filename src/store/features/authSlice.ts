@@ -18,6 +18,7 @@ interface AuthState {
   forgotPasswordEmailSent: boolean;
   errorLogs: ErrorLogsResponse | null;
   errorLogsLoading: boolean;
+  userSettingsUpdateSuccess: boolean;
 }
 
 const initialState: AuthState = {
@@ -37,6 +38,7 @@ const initialState: AuthState = {
   forgotPasswordEmailSent: false,
   errorLogs: null,
   errorLogsLoading: false,
+  userSettingsUpdateSuccess: false,
 };
 
 // Async thunks
@@ -147,6 +149,26 @@ export const clearErrorLogs = createAsyncThunk(
   }
 );
 
+export const modifyUserSettings = createAsyncThunk(
+  'auth/modifyUserSettings',
+  async ({ 
+    dnsPrefix,  
+    name,
+    newPassword 
+  }: { 
+    dnsPrefix: string; 
+    name?: string;
+    newPassword?: string;
+  }, { rejectWithValue }) => {
+    try {
+      const response = await authService.modifyUserSettings(dnsPrefix, name, newPassword);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to update user settings');
+    }
+  }
+);
+
 const authSlice = createSlice({
   name: 'auth',
   initialState,
@@ -160,6 +182,9 @@ const authSlice = createSlice({
     clearPasswordResetStatus: (state) => {
       state.passwordResetSuccess = false;
       state.forgotPasswordEmailSent = false;
+    },
+    clearUserSettingsStatus: (state) => {
+      state.userSettingsUpdateSuccess = false;
     },
   },
   extraReducers: (builder) => {
@@ -289,9 +314,24 @@ const authSlice = createSlice({
         .addCase(clearErrorLogs.rejected, (state, action) => {
           state.errorLogsLoading = false;
           state.error = action.payload as string;
-        });
+        })
+      // Modify User Settings
+      .addCase(modifyUserSettings.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+        state.userSettingsUpdateSuccess = false;
+      })
+      .addCase(modifyUserSettings.fulfilled, (state) => {
+        state.isLoading = false;
+        state.userSettingsUpdateSuccess = true;
+      })
+      .addCase(modifyUserSettings.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+        state.userSettingsUpdateSuccess = false;
+      });
   },
 });
 
-export const { clearError, setAdminMode, clearPasswordResetStatus } = authSlice.actions;
+export const { clearError, setAdminMode, clearPasswordResetStatus, clearUserSettingsStatus } = authSlice.actions;
 export default authSlice.reducer; 

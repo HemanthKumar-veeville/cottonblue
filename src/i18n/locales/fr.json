@@ -1561,5 +1561,29 @@
     "exceedAmount": "Montant dépassant le budget",
     "message": "Cette commande dépasserait votre limite budgétaire mensuelle",
     "exceedOrderLimit": "Vous avez dépassé la limite de commandes mensuelle"
+  },
+  "settings": {
+    "title": "Paramètres du compte",
+    "description": "Gérez vos informations de profil et les paramètres de l'entreprise",
+    "profile": "Informations du profil",
+    "profileDescription": "Vos informations personnelles et rôle",
+    "userName": "Nom d'utilisateur",
+    "email": "Email",
+    "role": "Rôle",
+    "permissions": "Permissions",
+    "company": "Paramètres de l'entreprise",
+    "companyDescription": "Configuration et identité visuelle de votre entreprise",
+    "companyName": "Nom de l'entreprise",
+    "colors": {
+      "background": "Couleur de fond",
+      "text": "Couleur du texte"
+    },
+    "security": "Paramètres de sécurité",
+    "securityDescription": "Gérez la sécurité et le mot de passe de votre compte",
+    "changePassword": "Changer le mot de passe",
+    "changePasswordDescription": "Mettre à jour le mot de passe de votre compte",
+    "newPassword": "Nouveau mot de passe",
+    "confirmPassword": "Confirmer le mot de passe",
+    "updatePassword": "Mettre à jour le mot de passe"
   }
 }

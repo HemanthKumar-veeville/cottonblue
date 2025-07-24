@@ -45,7 +45,8 @@
     "cancel": "Cancel",
     "deleting": "Deleting...",
     "select": "Select",
-    "selectAll": "Select all items"
+    "selectAll": "Select all items",
+    "updating": "Updating..."
   },
   "header": {
     "adminManagement": "Admin Management",
@@ -1420,5 +1421,30 @@
     "orderTotal": "Order Total",
     "exceedAmount": "Amount Exceeding Budget",
     "message": "This order would exceed your monthly budget limit"
+  },
+  "settings": {
+    "title": "Account Settings",
+    "description": "Manage your profile information and company settings",
+    "profile": "Profile Information",
+    "profileDescription": "Your personal account details and role information",
+    "userName": "User Name",
+    "email": "Email",
+    "role": "Role",
+    "permissions": "Permissions",
+    "company": "Company Settings",
+    "companyDescription": "Your company branding and configuration",
+    "companyName": "Company Name",
+    "colors": {
+      "background": "Background Color",
+      "text": "Text Color"
+    },
+    "security": "Security Settings",
+    "securityDescription": "Manage your account security and password",
+    "changePassword": "Change Password",
+    "changePasswordDescription": "Update your account password",
+    "newPassword": "New Password",
+    "confirmPassword": "Confirm Password",
+    "updatePassword": "Update Password",
+    "passwordUpdateError": "Failed to update password. Please try again."
   }
 }
