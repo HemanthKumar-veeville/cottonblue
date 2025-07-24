@@ -127,25 +127,36 @@ const Footer = ({
 }) => {
   const { t } = useTranslation();
   const downloadTemplate = () => {
-    // Create workbook
-    const wb = XLSX.utils.book_new();
+    // Create workbook and worksheet
+    const workbook = XLSX.utils.book_new();
+    const worksheet = XLSX.utils.aoa_to_sheet([templateColumns]);
 
-    // Create worksheet with header row only
-    const ws = XLSX.utils.aoa_to_sheet([templateColumns]);
-
-    // Set column widths - adjust width for longer column names
+    // Set column widths for better readability
     const colWidths = templateColumns.map(() => ({ wch: 25 }));
-    ws["!cols"] = colWidths;
+    worksheet["!cols"] = colWidths;
 
-    // Add the worksheet to the workbook
-    XLSX.utils.book_append_sheet(wb, ws, sheetName);
+    // Style the header row
+    const range = XLSX.utils.decode_range(worksheet["!ref"] || "A1");
+    for (let C = range.s.c; C <= range.e.c; ++C) {
+      const address = XLSX.utils.encode_col(C) + "1";
+      if (!worksheet[address]) continue;
+      worksheet[address].s = {
+        font: { bold: true },
+        alignment: { horizontal: "center", vertical: "center" },
+      };
+    }
 
-    // Generate and download the file with timestamp
+    // Add the worksheet to workbook
+    XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
+
+    // Generate filename with timestamp
     const timestamp = getFormattedTimestamp();
     const fileName = `${t(`files.${sheetName.toLowerCase()}`)}_${t(
       "files.template"
     )}_${timestamp}.xlsx`;
-    XLSX.writeFile(wb, fileName);
+
+    // Write and download the file
+    XLSX.writeFile(workbook, fileName);
     toast.success(t("common.success"));
   };
 

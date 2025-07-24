@@ -451,13 +451,13 @@ const TopProductsSection: React.FC = () => {
           />
         </div>
 
-        {/* <Button
+        <Button
           onClick={handleDownload}
           className="bg-[#07515F] hover:bg-[#064249] text-white gap-3 px-5 py-2.5 h-10 rounded-md transition-all duration-200 font-medium"
         >
           <Download className="w-4 h-4" />
           <span>{t("dashboard.actions.exportKPI")}</span>
-        </Button> */}
+        </Button>
       </div>
     </div>
   );

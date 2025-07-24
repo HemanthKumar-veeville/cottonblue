@@ -2,14 +2,17 @@ import { DownloadIcon, PlusIcon, SearchIcon, UploadIcon } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { useTranslation } from "react-i18next";
-import { useMemo, useState } from "react";
-import ImportCSVModal from "../../components/ImportCSVModal/ImportCSVModal";
-import { ExportCSV } from "../../components/ExportCSV/ExportCSV";
+import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { registerUser, fetchUsers } from "../../store/features/userSlice";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { UserTableSection } from "./UserTableSection";
+import {
+  withCSVModals,
+  CSVModalProps,
+} from "../../components/CSVModals/withCSVModals";
+import { ExportCSV } from "../../components/ExportCSV/ExportCSV";
 
 interface UserListSectionProps {
   searchQuery: string;
@@ -19,17 +22,17 @@ interface UserListSectionProps {
   itemsPerPage: number;
 }
 
-export const UserListSection = ({
+const UserListSectionBase = ({
   searchQuery,
   setSearchQuery,
   currentPage,
   setCurrentPage,
   itemsPerPage,
-}: UserListSectionProps): JSX.Element => {
+  setIsImportModalOpen,
+}: UserListSectionProps & CSVModalProps): JSX.Element => {
   const { t } = useTranslation();
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
 
   // Get users from Redux store
@@ -119,6 +122,28 @@ export const UserListSection = ({
               {t("userList.actions.create")}
             </span>
           </Button>
+
+          <Button
+            variant="outline"
+            className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
+            onClick={() => setIsImportModalOpen(true)}
+          >
+            <DownloadIcon className="w-6 h-6 text-[color:var(--1-tokens-color-modes-button-secondary-default-icon)]" />
+            <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] [font-style:var(--label-smaller-font-style)]">
+              {t("productList.actions.importCsv")}
+            </span>
+          </Button>
+
+          <Button
+            variant="outline"
+            className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
+            onClick={() => setIsExportModalOpen(true)}
+          >
+            <UploadIcon className="w-6 h-6 text-[color:var(--1-tokens-color-modes-button-secondary-default-icon)]" />
+            <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] [font-style:var(--label-smaller-font-style)]">
+              {t("productList.actions.exportCsv")}
+            </span>
+          </Button>
         </div>
       </div>
 
@@ -130,19 +155,6 @@ export const UserListSection = ({
         onPageChange={handlePageChange}
       />
 
-      <ImportCSVModal
-        isOpen={isImportModalOpen}
-        onClose={() => setIsImportModalOpen(false)}
-        onImport={handleImport}
-        templateColumns={[
-          "User Name",
-          "User Email",
-          "User Role",
-          "Department",
-          "Phone Number",
-        ]}
-        sheetName="Users"
-      />
       <ExportCSV
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
@@ -152,3 +164,14 @@ export const UserListSection = ({
     </section>
   );
 };
+
+// Configure the CSV functionality for users
+const csvConfig = {
+  templateColumns: ["Prénom", "Nom de famille", "Email", "Téléphone"],
+  sheetName: "Users",
+  importEndpoint: "/api/users/import",
+  exportEndpoint: "/api/users/export",
+};
+
+// Create the enhanced component with CSV functionality
+export const UserListSection = withCSVModals(UserListSectionBase, csvConfig);

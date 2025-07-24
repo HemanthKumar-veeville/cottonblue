@@ -5,8 +5,9 @@ import { agencyService } from "../../services/agencyService";
 import { useAppSelector } from "../../store/store";
 import { fetchAllStores } from "../../store/features/agencySlice";
 import { useAppDispatch } from "../../store/store";
-
+import { fetchUsers } from "../../store/features/userSlice";
 import * as XLSX from "xlsx";
+import { userService } from "../../services/userService";
 
 interface Agency {
   id: number;
@@ -76,19 +77,32 @@ export const withCSVModals = <P extends object>(
             }
           );
         }
+        if (config?.sheetName === "Agencies") {
+          const formData = new FormData();
+          formData.append("csv_file", csvFile);
+          formData.append("company_id", selectedCompany?.id?.toString() || "");
 
-        const formData = new FormData();
-        formData.append("csv_file", csvFile);
-        formData.append("company_id", selectedCompany?.id?.toString() || "");
+          const response = await agencyService.registerStore(
+            selectedCompany?.dns || "",
+            formData
+          );
 
-        const response = await agencyService.registerStore(
-          selectedCompany?.dns || "",
-          formData
-        );
+          await dispatch(fetchAllStores(selectedCompany?.dns || ""));
+          setIsImportModalOpen(false);
+          return response;
+        } else {
+          const formData = new FormData();
+          formData.append("csv_file", csvFile);
 
-        await dispatch(fetchAllStores(selectedCompany?.dns || ""));
-        setIsImportModalOpen(false);
-        return response;
+          const response = await userService.registerUser(
+            selectedCompany?.dns || "",
+            formData
+          );
+
+          await dispatch(fetchUsers({ dnsPrefix: selectedCompany?.dns || "" }));
+          setIsImportModalOpen(false);
+          return response;
+        }
       } catch (error) {
         console.error("Error importing CSV:", error);
         throw error;
