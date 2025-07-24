@@ -1001,8 +1001,13 @@
     },
     "fields": {
       "firstName": "First Name",
+      "firstNamePlaceholder": "Enter first name",
       "lastName": "Last Name",
+      "lastNamePlaceholder": "Enter last name",
       "email": "Email",
+      "emailPlaceholder": "Enter email address",
+      "phone": "Phone",
+      "phonePlaceholder": "Enter phone number",
       "password": "Password",
       "stores": "Select Stores",
       "selectStores": "Select Stores",

@@ -1073,8 +1073,13 @@
     },
     "fields": {
       "firstName": "Prénom",
+      "firstNamePlaceholder": "Entrez le prénom",
       "lastName": "Nom",
+      "lastNamePlaceholder": "Entrez le nom",
       "email": "Email",
+      "emailPlaceholder": "Entrez l'adresse email",
+      "phone": "Téléphone",
+      "phonePlaceholder": "Entrez le numéro de téléphone",
       "password": "Mot de passe",
       "stores": "Sélectionner les magasins",
       "selectStores": "Sélectionner les magasins",

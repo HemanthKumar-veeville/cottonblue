@@ -6,6 +6,7 @@ export interface UserRegistrationData {
   email: string;
   password?: string;
   store_ids: number[];
+  phone: string;
 }
 
 export interface FetchUsersParams {
@@ -23,6 +24,7 @@ export interface UserModificationData {
   store_ids?: number[];
   role?: string;
   is_active?: boolean;
+  phone?: string;
 }
 
 export const userService = {
@@ -40,6 +42,7 @@ export const userService = {
       formData.append('firstname', data.firstname);
       formData.append('lastname', data.lastname);
       formData.append('email', data.email);
+      formData.append('phone_number', data.phone);
       if (data.password) {
         formData.append('password', data.password);
       }
@@ -128,6 +131,7 @@ export const userService = {
       if (data.firstname) formData.append('firstname', data.firstname);
       if (data.lastname) formData.append('lastname', data.lastname);
       if (data.email) formData.append('email', data.email);
+      if (data.phone) formData.append('phone_number', data.phone);
       if (data.password) formData.append('password', data.password);
       if (data.role) formData.append('role', data.role);
       if (data.store_ids) formData.append('store_ids', JSON.stringify(data.store_ids));

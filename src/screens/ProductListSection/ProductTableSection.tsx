@@ -275,14 +275,8 @@ export const ProductTableSection = ({
             <Table>
               <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
                 <TableRow>
-                  <TableHead className="w-11">
-                    <div className="flex justify-center">
-                      <Checkbox
-                        className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
-                        checked={selectAll}
-                        onCheckedChange={handleSelectAll}
-                      />
-                    </div>
+                  <TableHead className="w-[77px] text-center text-[#1e2324] font-text-small">
+                    <span className="text-gray-400">#</span>
                   </TableHead>
                   <TableHead className="w-[77px] text-left text-[#1e2324] font-text-small">
                     {t("productList.table.sku")}
@@ -324,21 +318,15 @@ export const ProductTableSection = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProducts.map((product: Product) => (
+                {filteredProducts.map((product: Product, index: number) => (
                   <TableRow
                     key={product.id}
                     className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
                   >
-                    <TableCell className="w-11">
-                      <div className="flex justify-center">
-                        <Checkbox
-                          className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
-                          checked={selectedProducts.includes(product.id)}
-                          onCheckedChange={() =>
-                            handleSelectProduct(product.id)
-                          }
-                        />
-                      </div>
+                    <TableCell className="w-[77px] text-center font-text-smaller text-coolgray-100 align-middle">
+                      <span className="text-gray-400 font-bold">
+                        {index + 1}
+                      </span>
                     </TableCell>
                     <TableCell className="w-[77px] text-left font-text-smaller text-coolgray-100 align-middle">
                       {product.id ?? "Not available"}

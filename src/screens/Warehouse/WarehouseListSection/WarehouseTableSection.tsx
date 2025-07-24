@@ -218,16 +218,9 @@ export const WarehouseTableSection = ({
             <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
               <TableRow>
                 <TableHead className="w-[48px] px-4 py-3 text-left text-[#1e2324] font-text-small">
-                  <Checkbox
-                    checked={
-                      orders.length > 0 &&
-                      orders.every((order) =>
-                        selectedOrders?.includes(order?.order_id)
-                      )
-                    }
-                    onCheckedChange={handleSelectAllOrders}
-                    aria-label="Select all orders"
-                  />
+                  <span className="text-primary-600 font-medium text-center">
+                    #
+                  </span>
                 </TableHead>
                 <TableHead className="w-[120px] px-4 py-3 text-left text-[#1e2324] font-text-small">
                   {t("warehouse.columns.orderId")}
@@ -250,17 +243,15 @@ export const WarehouseTableSection = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {orders.map((order) => (
+              {orders.map((order, index) => (
                 <TableRow
                   key={order.order_id}
                   className="border-b border-primary-neutal-300 hover:bg-gray-50 transition-colors duration-150"
                 >
                   <TableCell className="w-[48px] px-4 py-3 text-left">
-                    <Checkbox
-                      checked={selectedOrders?.includes(order.order_id)}
-                      onCheckedChange={() => handleSelectOrder(order.order_id)}
-                      aria-label={`Select order ${order.order_id}`}
-                    />
+                    <span className="text-primary-600 font-medium text-center">
+                      {index + 1}
+                    </span>
                   </TableCell>
                   <TableCell className="w-[120px] px-4 py-3 text-left">
                     <button

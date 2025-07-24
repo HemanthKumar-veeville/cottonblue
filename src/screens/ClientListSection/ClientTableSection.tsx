@@ -200,17 +200,10 @@ export const ClientTableSection = ({
             <Table>
               <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
                 <TableRow>
-                  <TableHead className="w-11">
-                    <div className="flex justify-start">
-                      <Checkbox
-                        className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
-                        checked={
-                          selectedClients.length === currentCompanies.length &&
-                          currentCompanies.length > 0
-                        }
-                        onCheckedChange={handleSelectAll}
-                      />
-                    </div>
+                  <TableHead className="w-[48px] px-4 py-3 text-left text-[#1e2324] font-text-small">
+                    <span className="text-primary-600 font-medium text-center">
+                      #
+                    </span>
                   </TableHead>
                   <TableHead className="w-[60px] text-left text-[#1e2324] font-text-small">
                     {t("clientTable.columns.id")}
@@ -243,23 +236,15 @@ export const ClientTableSection = ({
               </TableHeader>
               <TableBody>
                 {currentCompanies.length > 0 ? (
-                  currentCompanies.map((client) => (
+                  currentCompanies.map((client, index) => (
                     <TableRow
                       key={client.id}
                       className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
                     >
-                      <TableCell className="w-11">
-                        <div className="flex justify-start">
-                          <Checkbox
-                            className="w-5 h-5 bg-color-white rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
-                            checked={selectedClients.includes(client.id)}
-                            onCheckedChange={(
-                              checked: boolean | "indeterminate"
-                            ) =>
-                              handleSelectClient(client.id, checked as boolean)
-                            }
-                          />
-                        </div>
+                      <TableCell className="w-[48px] px-4 py-3 text-left">
+                        <span className="text-primary-600 font-medium text-center">
+                          {index + 1}
+                        </span>
                       </TableCell>
                       <TableCell className="w-[60px] text-left font-text-smaller text-coolgray-100">
                         {client.id}

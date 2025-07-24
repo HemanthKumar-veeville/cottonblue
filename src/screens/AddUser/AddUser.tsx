@@ -6,6 +6,7 @@ import { useState, useEffect } from "react";
 import { useNavigate, useLocation, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { RootState, useAppSelector } from "../../store/store";
+import { Phone, User, Mail, Building, Store } from "lucide-react";
 import {
   registerStore,
   modifyStore,
@@ -30,6 +31,7 @@ interface FormData {
   lastname: string;
   email: string;
   store_ids: number[];
+  phone: string;
 }
 
 interface Store {
@@ -56,6 +58,8 @@ const LabeledInput = ({
   disabled = false,
   required = false,
   onChange,
+  icon: Icon,
+  placeholder,
 }: {
   label: string;
   id: string;
@@ -64,26 +68,34 @@ const LabeledInput = ({
   disabled?: boolean;
   required?: boolean;
   onChange?: (value: string) => void;
+  icon?: React.ElementType;
+  placeholder?: string;
 }) => (
-  <div className="relative w-full">
+  <div className="relative w-full mt-[-10px]">
     <div className="relative">
-      <Input
-        id={id}
-        type={type}
-        className={cn(
-          "w-full pt-4 pr-3 pb-2 pl-3 bg-white rounded-lg border border-gray-300",
-          type === "number"
-            ? "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-            : ""
-        )}
-        value={value}
-        disabled={disabled}
-        required={required}
-        onChange={(e) => onChange?.(e.target.value)}
-      />
-      <span className="absolute -top-[10px] left-4 px-2 text-xs font-medium text-gray-600 bg-white">
-        {label} {required && <span className="text-red-500">*</span>}
-      </span>
+      {Icon && (
+        <Icon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 z-10" />
+      )}
+      <div className="relative">
+        <Input
+          id={id}
+          type={type}
+          className={cn(
+            "w-full pt-4 pr-3 pb-2 pl-10 bg-white rounded-lg border border-gray-300 font-text-medium text-[16px] leading-[24px]",
+            type === "number"
+              ? "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              : ""
+          )}
+          value={value}
+          disabled={disabled}
+          required={required}
+          placeholder={placeholder}
+          onChange={(e) => onChange?.(e.target.value)}
+        />
+        <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
+          {label} {required && <span className="text-red-500">*</span>}
+        </span>
+      </div>
     </div>
   </div>
 );
@@ -95,6 +107,7 @@ const LabeledSelect = ({
   options,
   onChange,
   t,
+  icon: Icon,
 }: {
   label: string;
   id: string;
@@ -102,6 +115,7 @@ const LabeledSelect = ({
   options: Store[];
   onChange?: (values: number[]) => void;
   t: any;
+  icon?: React.ElementType;
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const selectedStores = options?.filter((store) => values?.includes(store.id));
@@ -221,6 +235,7 @@ export default function AddUser() {
     lastname: "",
     email: "",
     store_ids: [],
+    phone: "",
   };
 
   const [formData, setFormData] = useState<FormData>(initialFormData);
@@ -262,6 +277,7 @@ export default function AddUser() {
         lastname: user.lastname,
         email: user.email,
         store_ids: user?.store_ids || [],
+        phone: user?.phone_number || "",
       });
     }
   }, [isEditMode, user]);
@@ -281,36 +297,59 @@ export default function AddUser() {
         throw new Error("Company DNS prefix is required");
       }
 
+      const userData = {
+        firstname: formData.firstname.trim(),
+        lastname: formData.lastname.trim(),
+        email: formData.email.trim(),
+        store_ids: formData.store_ids,
+        phone: formData.phone.trim(),
+      };
+
       if (isEditMode && id) {
-        await dispatch(
-          modifyUser({
-            dnsPrefix,
-            userId: id,
-            data: {
-              firstname: formData.firstname,
-              lastname: formData.lastname,
-              email: formData.email,
-              store_ids: formData.store_ids,
-            },
-          })
-        ).unwrap();
+        // For update, only send changed fields
+        const changedFields: Record<string, any> = {};
+        if (user) {
+          if (userData.firstname !== user.firstname)
+            changedFields.firstname = userData.firstname;
+          if (userData.lastname !== user.lastname)
+            changedFields.lastname = userData.lastname;
+          if (userData.email !== user.email)
+            changedFields.email = userData.email;
+          if (userData.phone !== user.phone_number)
+            changedFields.phone = userData.phone;
+          if (
+            JSON.stringify(userData.store_ids) !==
+            JSON.stringify(user.store_ids)
+          ) {
+            changedFields.store_ids = userData.store_ids;
+          }
+        }
+
+        // Only make the API call if there are changes
+        if (Object.keys(changedFields).length > 0) {
+          await dispatch(
+            modifyUser({
+              dnsPrefix,
+              userId: id,
+              data: changedFields,
+            })
+          ).unwrap();
+          toast.success(t("addUser.success.update"));
+        }
       } else {
         await dispatch(
           registerUser({
             dnsPrefix,
-            data: {
-              firstname: formData.firstname,
-              lastname: formData.lastname,
-              email: formData.email,
-              store_ids: formData.store_ids,
-            },
+            data: userData,
           })
         ).unwrap();
+        toast.success(t("addUser.success.create"));
       }
 
       navigate("/users");
     } catch (error: any) {
-      console.error(error);
+      console.error("Error:", error);
+      toast.error(error.message || t("addUser.error.generic"));
     } finally {
       setLoading(false);
     }
@@ -336,6 +375,8 @@ export default function AddUser() {
               id="firstname"
               value={formData.firstname}
               required
+              icon={User}
+              placeholder={t("addUser.fields.firstNamePlaceholder")}
               onChange={(value) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -348,6 +389,8 @@ export default function AddUser() {
               id="lastname"
               value={formData.lastname}
               required
+              icon={User}
+              placeholder={t("addUser.fields.lastNamePlaceholder")}
               onChange={(value) =>
                 setFormData((prev) => ({
                   ...prev,
@@ -365,6 +408,8 @@ export default function AddUser() {
                 type="email"
                 value={formData.email}
                 required
+                icon={Mail}
+                placeholder={t("addUser.fields.emailPlaceholder")}
                 onChange={(value) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -372,6 +417,40 @@ export default function AddUser() {
                   }))
                 }
               />
+            </div>
+            <div className="w-1/2">
+              <div className="relative w-full mt-[-10px]">
+                <div className="relative">
+                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 z-10" />
+                  <div className="relative">
+                    <Input
+                      type="tel"
+                      className="pl-10 py-2 font-text-medium text-[16px] leading-[24px]"
+                      value={formData.phone}
+                      placeholder={t("addUser.fields.phonePlaceholder")}
+                      onChange={(e) => {
+                        // Only allow digits and limit to 10
+                        const digitsOnly = e.target.value.replace(/\D/g, "");
+                        if (digitsOnly.length <= 10) {
+                          // Format with spaces: XX XX XX XX XX
+                          const formatted = digitsOnly
+                            .replace(/(\d{2})(?=\d)/g, "$1 ")
+                            .trim();
+                          setFormData((prev) => ({
+                            ...prev,
+                            phone: formatted,
+                          }));
+                        }
+                      }}
+                      maxLength={14} // 10 digits + 4 spaces
+                      data-testid="input-phone"
+                    />
+                    <span className="absolute -top-2 left-4 px-1 text-xs font-label-small text-[#475569] bg-white">
+                      {t("addUser.fields.phone")}
+                    </span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -390,6 +469,7 @@ export default function AddUser() {
                     }))
                   }
                   t={t}
+                  icon={Store}
                 />
               </div>
             </div>
