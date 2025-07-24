@@ -41,18 +41,40 @@ function toIsoUtc(s: string) {
 
 
 export const formatDateToParis = (dateString?: string): string => {
-  const options = {
-    timeZone: "Europe/Paris",
-    year: "numeric" as const,
-    month: "long" as const,
-    day: "numeric" as const,
-    hour: "2-digit" as const,
-    minute: "2-digit" as const,
-    hour12: true as const,
-  };
+  if (!dateString) return "Invalid Date";
 
+  try {
+    const utcIsoString = toIsoUtc(dateString);
+    const date = new Date(utcIsoString);
+    
+    if (isNaN(date.getTime())) {
+      return "Invalid Date";
+    }
 
-  const utcIsoString = toIsoUtc(dateString ?? "");
-  const parisDateTime = new Date(utcIsoString).toLocaleString("fr-FR", options);
-  return parisDateTime;
+    // Create a formatter for Paris timezone
+    const formatter = new Intl.DateTimeFormat('fr-FR', {
+      timeZone: 'Europe/Paris',
+      day: '2-digit',
+      month: '2-digit',
+      year: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+
+    // Get parts array from the formatter
+    const parts = formatter.formatToParts(date);
+    
+    // Extract each part
+    const day = parts.find(p => p.type === 'day')?.value || '';
+    const month = parts.find(p => p.type === 'month')?.value || '';
+    const year = parts.find(p => p.type === 'year')?.value || '';
+    const hour = parts.find(p => p.type === 'hour')?.value || '';
+    const minute = parts.find(p => p.type === 'minute')?.value || '';
+
+    // Format exactly as DD/MM/YY at HHhMM
+    return `${day}/${month}/${year} at ${hour}h${minute}`;
+  } catch (error) {
+    return "Invalid Date";
+  }
 }
