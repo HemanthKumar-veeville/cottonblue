@@ -132,7 +132,7 @@ const csvConfig = {
     "Code postal",
     "Téléphone",
     "Limite de commande par mois",
-    "Limite de budget par mois",
+    "Limite de budget par mois",
   ],
   sheetName: "Agencies",
   importEndpoint: "/api/agencies/import",

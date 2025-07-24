@@ -973,9 +973,9 @@
     },
     "limits": {
       "orderLimit": "Limite de commande par mois",
-      "budgetLimit": "Limite de budget par mois",
+      "budgetLimit": "Limite de budget par mois",
       "orderLimitValue": "Limite de commande par mois",
-      "budgetLimitValue": "Limite de budget par mois"
+      "budgetLimitValue": "Limite de budget par mois"
     },
     "placeholders": {
       "addressComment": "Exemple : Numéro de bâtiment 2"
@@ -1165,7 +1165,7 @@
       "addressComment": "Commentaire sur l'adresse",
       "addressCommentPlaceholder": "Exemple : Numéro de bâtiment 2",
       "orderLimit": "Limite de commande par mois",
-      "budgetLimit": "Limite de budget par mois",
+      "budgetLimit": "Limite de budget par mois",
       "limit": "Limite",
       "per": "Par",
       "adminPassword": "Mot de passe ADMIN",

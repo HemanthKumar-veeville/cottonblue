@@ -108,7 +108,7 @@ export const AgencyExportCSV = ({
       checked: true,
     },
     {
-      label: "Limite de budget par mois",
+      label: "Limite de budget par mois",
       value: "budget_limit",
       checked: true,
     },
