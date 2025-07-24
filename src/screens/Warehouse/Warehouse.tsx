@@ -50,42 +50,45 @@ export const Warehouse = (): JSX.Element => {
   const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
-    if (dnsPrefix) {
-      // Reset to first page when search term changes
-      if (searchTerm.trim() !== "") {
-        setCurrentPage(1);
-      }
-
-      // Only search if term is 3+ characters or empty
-      const shouldSearch =
-        searchTerm.trim().length >= 3 || searchTerm.trim().length === 0;
-
-      if (shouldSearch) {
-        if (activeStoreFilter) {
+    const fetchOrders = async () => {
+      if (dnsPrefix) {
+        // Reset to first page when search term changes
+        if (searchTerm.trim() !== "") {
           setCurrentPage(1);
-          dispatch(
-            getAllOrders({
-              dns_prefix: activeStoreFilter?.dns_prefix || dnsPrefix,
-              store_id: activeStoreFilter.id,
-              status: activeStatusFilter || undefined,
-              page: currentPage,
-              limit: ITEMS_PER_PAGE,
-              search: searchTerm.trim(),
-            })
-          );
-        } else {
-          dispatch(
-            getAllCompanyOrders({
-              dns_prefix: dnsPrefix,
-              status: activeStatusFilter || undefined,
-              page: currentPage,
-              limit: ITEMS_PER_PAGE,
-              search: searchTerm.trim(),
-            })
-          );
+        }
+
+        // Only search if term is 3+ characters or empty
+        const shouldSearch =
+          searchTerm.trim().length >= 3 || searchTerm.trim().length === 0;
+
+        if (shouldSearch) {
+          if (activeStoreFilter) {
+            setCurrentPage(1);
+            await dispatch(
+              getAllOrders({
+                dns_prefix: activeStoreFilter?.dns_prefix || dnsPrefix,
+                store_id: activeStoreFilter.id,
+                status: activeStatusFilter || undefined,
+                page: currentPage,
+                limit: ITEMS_PER_PAGE,
+                search: searchTerm.trim(),
+              })
+            );
+          } else {
+            await dispatch(
+              getAllCompanyOrders({
+                dns_prefix: dnsPrefix,
+                status: activeStatusFilter || undefined,
+                page: currentPage,
+                limit: ITEMS_PER_PAGE,
+                search: searchTerm.trim(),
+              })
+            );
+          }
         }
       }
-    }
+    };
+    fetchOrders();
   }, [
     dispatch,
     dnsPrefix,
@@ -118,6 +121,7 @@ export const Warehouse = (): JSX.Element => {
 
   const handleStatusFilter = (status: string | null) => {
     setActiveStatusFilter(status);
+    setCurrentPage(1);
   };
 
   const clearStatusFilter = () => {
