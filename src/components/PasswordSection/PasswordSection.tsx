@@ -5,6 +5,7 @@ import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Switch } from "../ui/switch";
 import { Eye, EyeOff } from "lucide-react";
+import { useLocation } from "react-router-dom";
 
 interface PasswordInputProps {
   name: string;
@@ -13,6 +14,7 @@ interface PasswordInputProps {
   placeholder: string;
   showPassword: boolean;
   onTogglePassword: () => void;
+  isSuperAdmin?: boolean;
 }
 
 const PasswordInput: React.FC<PasswordInputProps> = ({
@@ -22,6 +24,7 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
   placeholder,
   showPassword,
   onTogglePassword,
+  isSuperAdmin,
 }) => {
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -38,7 +41,11 @@ const PasswordInput: React.FC<PasswordInputProps> = ({
         value={value}
         onChange={handleChange}
         placeholder={placeholder}
-        className="flex w-full h-10 px-3 py-2 bg-white text-sm border rounded-md focus:outline-none focus:ring-2 focus:ring-[var(--primary-color)] focus:border-transparent pr-10"
+        className={`flex w-full h-10 px-3 py-2 bg-white text-sm border rounded-md focus:outline-none focus:ring-2 ${
+          isSuperAdmin
+            ? "focus:ring-[#07515f]"
+            : "focus:ring-[var(--primary-color)]"
+        } focus:border-transparent pr-10`}
       />
       {value && (
         <button
@@ -72,6 +79,8 @@ const PasswordSection: React.FC<PasswordSectionProps> = ({
   description,
 }) => {
   const { t } = useTranslation();
+  const location = useLocation();
+  const isSuperAdmin = location.pathname.includes("/settings");
 
   const [showPasswordUpdate, setShowPasswordUpdate] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -139,7 +148,11 @@ const PasswordSection: React.FC<PasswordSectionProps> = ({
   return (
     <Card className="w-full bg-white shadow-sm hover:shadow-md transition-all duration-300 rounded-xl overflow-hidden border border-gray-100">
       <CardContent className="p-8">
-        <div className="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+        <div
+          className={`flex items-center justify-between p-4 rounded-lg ${
+            isSuperAdmin ? "bg-[#e9fffd]" : "bg-gray-50"
+          }`}
+        >
           <div className="flex-1">
             <h3 className="font-medium text-gray-900">
               {t("settings.changePassword")}
@@ -164,6 +177,7 @@ const PasswordSection: React.FC<PasswordSectionProps> = ({
                 placeholder={t("settings.newPassword")}
                 showPassword={passwordState.showNewPassword}
                 onTogglePassword={() => togglePasswordVisibility("newPassword")}
+                isSuperAdmin={isSuperAdmin}
               />
 
               <PasswordInput
@@ -175,6 +189,7 @@ const PasswordSection: React.FC<PasswordSectionProps> = ({
                 onTogglePassword={() =>
                   togglePasswordVisibility("confirmPassword")
                 }
+                isSuperAdmin={isSuperAdmin}
               />
             </div>
             {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
@@ -184,7 +199,9 @@ const PasswordSection: React.FC<PasswordSectionProps> = ({
                 disabled={isUpdateDisabled()}
                 className="px-4 py-2 text-white font-medium rounded-md transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                 style={{
-                  backgroundColor: "var(--primary-color)",
+                  backgroundColor: isSuperAdmin
+                    ? "#07515f"
+                    : "var(--primary-color)",
                 }}
               >
                 {isUpdating
