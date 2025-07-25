@@ -134,7 +134,7 @@ const UserListSectionBase = ({
             </span>
           </Button>
 
-          <Button
+          {/* <Button
             variant="outline"
             className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[color:var(--1-tokens-color-modes-button-secondary-default-background)] border-[color:var(--1-tokens-color-modes-button-secondary-default-border)] rounded-[var(--2-tokens-screen-modes-button-border-radius)]"
             onClick={() => setIsExportModalOpen(true)}
@@ -143,7 +143,7 @@ const UserListSectionBase = ({
             <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-[color:var(--1-tokens-color-modes-button-secondary-default-text)] [font-style:var(--label-smaller-font-style)]">
               {t("productList.actions.exportCsv")}
             </span>
-          </Button>
+          </Button> */}
         </div>
       </div>
 

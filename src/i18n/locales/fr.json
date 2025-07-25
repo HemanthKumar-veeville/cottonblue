@@ -279,7 +279,8 @@
       "id": "ID",
       "name": "Nom",
       "city": "Ville",
-      "address": "Adresse",
+      "address": "Numéro et rue",
+      "address2": "Complément d'adresse",
       "phone": "Téléphone",
       "postalCode": "Code postal",
       "status": "Statut",
@@ -940,7 +941,7 @@
   "exportModal": {
     "title": "Exportation des agences",
     "description": "Exportez les agences en format CSV",
-    "download": "Télécharger le fichier",
+    "download": "Télécharger le fichier d'exemple",
     "cancel": "Annuler",
     "export": "Exporter"
   },

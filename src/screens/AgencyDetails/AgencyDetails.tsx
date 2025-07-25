@@ -156,9 +156,10 @@ const AgencyDetailsCard = ({
           <div className="flex flex-col items-start gap-8 flex-1">
             <div className="flex flex-col gap-4 h-36">
               {[
+                { key: "is_active", label: "status" },
                 { key: "phone_number", label: "phone" },
                 { key: "postal_code", label: "postalCode" },
-                { key: "is_active", label: "status" },
+                { key: "address2", label: "address2" },
               ].map(({ key, label }) => (
                 <div key={key} className="font-text-medium text-black">
                   <span className="font-[number:var(--text-medium-font-weight)]">
