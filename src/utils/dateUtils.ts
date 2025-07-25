@@ -73,7 +73,7 @@ export const formatDateToParis = (dateString?: string): string => {
     const minute = parts.find(p => p.type === 'minute')?.value || '';
 
     // Format exactly as DD/MM/YY at HHhMM
-    return `${day}/${month}/${year} at ${hour}h${minute}`;
+    return `${day}/${month}/${year} à ${hour}h${minute}`;
   } catch (error) {
     return "Invalid Date";
   }
