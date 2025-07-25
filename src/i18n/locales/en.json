@@ -967,8 +967,8 @@
     },
     "actions": {
       "create": "Create",
-      "importCsv": "Import CSV",
-      "exportCsv": "Export CSV",
+      "importCsv": "Import",
+      "exportCsv": "Export",
       "edit": "Edit",
       "activate": "Activate",
       "deactivate": "Deactivate",

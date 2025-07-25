@@ -146,8 +146,8 @@
       "create": "Créer",
       "link": "Groupe produits",
       "linkProducts": "Grouper les produits",
-      "importCsv": "Importer CSV",
-      "exportCsv": "Exporter CSV",
+      "importCsv": "Importer",
+      "exportCsv": "Exporter",
       "importCsvRecommendation": "Fichiers .csv et .xlsx acceptés",
       "placeholder": "Déposez votre fichier ici"
     },
@@ -940,7 +940,7 @@
   "exportModal": {
     "title": "Exportation des agences",
     "description": "Exportez les agences en format CSV",
-    "download": "Télécharger le fichier CSV",
+    "download": "Télécharger le fichier",
     "cancel": "Annuler",
     "export": "Exporter"
   },
