@@ -299,141 +299,180 @@ const TopProductsSection: React.FC = () => {
     if (!summary?.dashboard_data) return;
 
     const data = summary.dashboard_data;
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.width;
+    console.log(data);
+    const doc = new jsPDF("p", "mm", "a4"); // portrait, millimetres
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const leftMargin = 14; // consistent left padding
+    const lineGap = 8; // vertical spacing helper
+    let cursorY = 20; // keeps track of current Y
 
-    // Add header with logo and title
+    // ---------- HEADER --------------------------------------------------------
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(20);
     doc.setTextColor(7, 81, 95); // #07515F
-    doc.text("Dashboard Report", pageWidth / 2, 20, { align: "center" });
+    doc.text(`KPI Marketing – ${dns_prefix} (2025)`, pageWidth / 2, cursorY, {
+      align: "center",
+    });
 
-    // Add company name
-    doc.setFontSize(14);
-    doc.setTextColor(71, 85, 105); // #475569
-    doc.text(`Company: ${dns_prefix}`, pageWidth / 2, 30, { align: "center" });
-
-    // Add timeframe info
+    cursorY += lineGap + 2;
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
     doc.setTextColor(71, 85, 105); // #475569
     doc.text(
-      `${selectedTimeframe}: ${getDisplayLabel(
-        selectedPeriod,
-        selectedTimeframe,
-        t
-      )}`,
+      `Période : ${getDisplayLabel(selectedPeriod, selectedTimeframe, t)}`,
       pageWidth / 2,
-      40,
+      cursorY,
       { align: "center" }
     );
 
-    // Add key metrics section
-    const metrics = [
-      ["Total Orders", data.total_orders.toString()],
-      ["Total Amount", `$${data.total_amount.toFixed(2)}`],
-      ["Average Basket Value", `$${data.average_basket_value.toFixed(2)}`],
-      ["Total Active Users", data.total_active_users.toString()],
-      ["Total Users", data.total_users.toString()],
-      ["Total Stores", data.total_stores.toString()],
+    // ---------- INDICATEURS CLÉS ---------------------------------------------
+    cursorY += lineGap * 2;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(7, 81, 95);
+    doc.text("Indicateurs Clés", leftMargin, cursorY);
+
+    const keyMetrics = [
+      [
+        "Chiffre d'affaires",
+        `${data.total_amount.toLocaleString("fr-FR", {
+          minimumFractionDigits: 0,
+        })} EUR`,
+      ],
+      ["Commandes totales", data.total_orders.toLocaleString("fr-FR")],
+      [
+        "Panier moyen",
+        `${data.average_basket_value.toLocaleString("fr-FR", {
+          minimumFractionDigits: 2,
+        })} EUR`,
+      ],
+      ["Utilisateurs actifs", data.total_active_users.toLocaleString("fr-FR")],
+      ["Utilisateurs enregistrés", data.total_users.toLocaleString("fr-FR")],
     ];
 
+    cursorY += lineGap;
     autoTable(doc, {
-      startY: 50,
-      head: [["Metric", "Value"]],
-      body: metrics,
+      startY: cursorY,
+      margin: { left: leftMargin },
+      head: [["Indicateur", "Valeur"]],
+      body: keyMetrics,
       theme: "striped",
       headStyles: {
         fillColor: [7, 81, 95],
         textColor: 255,
-        fontSize: 12,
+        fontStyle: "bold",
       },
       styles: {
+        font: "helvetica",
         fontSize: 10,
-        cellPadding: 5,
+        cellPadding: 3,
       },
-      alternateRowStyles: {
-        fillColor: [248, 250, 252],
-      },
+      alternateRowStyles: { fillColor: [248, 250, 252] },
     });
 
-    // Add top clients section if available
-    if (data.top_clients && data.top_clients.length > 0) {
-      doc.addPage();
-      doc.setFontSize(16);
-      doc.setTextColor(7, 81, 95);
-      doc.text("Top Clients", 14, 20);
+    // keep Y position after the table
+    cursorY = (doc as any).lastAutoTable.finalY + lineGap * 2;
 
+    // ---------- TOP 10 PRODUITS LES PLUS VENDUS -------------------------------
+    doc.setFontSize(16);
+    doc.setTextColor(7, 81, 95);
+    doc.text("Top 10 Produits les Plus Vendus", leftMargin, cursorY);
+
+    const products = (data.most_sold_products || [])
+      .slice(0, 10)
+      .map((p: any, idx: number) => [
+        `${idx + 1}`,
+        p.product_name,
+        `${p.ordered_quantity.toLocaleString("fr-FR")} unités`,
+      ]);
+
+    cursorY += lineGap;
+    if (products.length > 0) {
       autoTable(doc, {
-        startY: 30,
-        head: [["Client Name", "Orders", "Total Amount"]],
-        body: data.top_clients.map((client: any) => [
-          client.name,
-          client.orders,
-          `$${client.total_amount.toFixed(2)}`,
-        ]),
-        theme: "striped",
-        headStyles: {
-          fillColor: [7, 81, 95],
-        },
+        startY: cursorY,
+        margin: { left: leftMargin },
+        head: [["#", "Produit", "Quantité"]],
+        body: products,
+        theme: "plain",
+        styles: { font: "helvetica", fontSize: 10, cellPadding: 2 },
+        columnStyles: { 0: { halign: "center", cellWidth: 10 } },
       });
-    }
-
-    // Add most sold products section if available
-    if (data.most_sold_products && data.most_sold_products.length > 0) {
-      if (data.top_clients && data.top_clients.length > 0) {
-        doc.addPage();
-      }
-      doc.setFontSize(16);
-      doc.setTextColor(7, 81, 95);
+      cursorY = (doc as any).lastAutoTable.finalY + lineGap * 2;
+    } else {
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(11);
+      doc.setTextColor(128, 128, 128); // Gray color for empty state
       doc.text(
-        "Most Sold Products",
-        14,
-        doc.autoTable?.previous?.finalY
-          ? doc.autoTable?.previous.finalY + 20
-          : 20
+        "Aucun produit vendu pour cette période",
+        leftMargin,
+        cursorY + lineGap,
+        { align: "left" }
       );
-
-      autoTable(doc, {
-        startY: doc.autoTable?.previous?.finalY
-          ? doc.autoTable?.previous.finalY + 30
-          : 30,
-        head: [["Product Name", "Quantity Sold", "Total Revenue"]],
-        body: data.most_sold_products.map((product: any) => [
-          product.name,
-          product.quantity,
-          `$${product?.revenue?.toFixed(2)}`,
-        ]),
-        theme: "striped",
-        headStyles: {
-          fillColor: [7, 81, 95],
-        },
-      });
+      cursorY += lineGap * 3;
     }
 
-    // Add footer with date
-    const totalPages = doc.internal.getNumberOfPages();
+    // ---------- MEILLEURS CLIENTS --------------------------------------------
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor(7, 81, 95);
+    doc.text("Meilleurs Clients", leftMargin, cursorY);
+
+    const clients = (data.top_clients || []).map((c: any, idx: number) => [
+      `${idx + 1}`,
+      c.company_name,
+      `${c.total_orders.toLocaleString("fr-FR")} commandes`,
+      `${c.total_amount.toLocaleString("fr-FR", {
+        minimumFractionDigits: 0,
+      })} EUR`,
+    ]);
+
+    cursorY += lineGap;
+    if (clients.length > 0) {
+      autoTable(doc, {
+        startY: cursorY,
+        margin: { left: leftMargin },
+        head: [["#", "Client", "Commandes", "Chiffre d'affaires"]],
+        body: clients,
+        theme: "plain",
+        styles: { font: "helvetica", fontSize: 10, cellPadding: 2 },
+        columnStyles: { 0: { halign: "center", cellWidth: 10 } },
+      });
+      cursorY = (doc as any).lastAutoTable.finalY + lineGap * 2;
+    } else {
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(11);
+      doc.setTextColor(128, 128, 128); // Gray color for empty state
+      doc.text(
+        "Aucune donnée client disponible pour cette période",
+        leftMargin,
+        cursorY + lineGap,
+        { align: "left" }
+      );
+      cursorY += lineGap * 3;
+    }
+
+    // ---------- FOOTER with date & pagination --------------------------------
+    const totalPages = (doc.internal as any).getNumberOfPages();
     for (let i = 1; i <= totalPages; i++) {
       doc.setPage(i);
       doc.setFontSize(8);
       doc.setTextColor(71, 85, 105);
+
       doc.text(
-        `Generated on ${new Date().toLocaleDateString()}`,
-        pageWidth - 14,
-        doc.internal.pageSize.height - 10,
+        `Généré le ${new Date().toLocaleDateString("fr-FR")}`,
+        pageWidth - leftMargin,
+        pageHeight - 10,
         { align: "right" }
       );
-      doc.text(
-        `Page ${i} of ${totalPages}`,
-        14,
-        doc.internal.pageSize.height - 10,
-        { align: "left" }
-      );
+      doc.text(`Page ${i} / ${totalPages}`, leftMargin, pageHeight - 10, {
+        align: "left",
+      });
     }
 
-    // Save the PDF
+    // ---------- SAVE ---------------------------------------------------------
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-    doc.save(
-      `dashboard-report-${selectedTimeframe.toLowerCase()}-${selectedPeriod}-${timestamp}.pdf`
-    );
+    doc.save(`rapport-kpi-${dns_prefix}-${timestamp}.pdf`);
   };
 
   return (
