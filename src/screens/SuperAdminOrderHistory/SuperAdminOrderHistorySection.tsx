@@ -110,12 +110,16 @@ const OrderRow = ({
   order,
   index,
   isSelected,
+  itemsPerPage,
+  currentPage,
   onSelect,
 }: {
   order: Order;
   index: number;
   isSelected: boolean;
   onSelect: (orderId: number) => void;
+  itemsPerPage: number;
+  currentPage: number;
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -131,7 +135,9 @@ const OrderRow = ({
       className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
     >
       <TableCell className="w-11">
-        <span className="font-text-smaller text-coolgray-100">{index + 1}</span>
+        <span className="font-text-smaller text-coolgray-100">
+          {(currentPage - 1) * itemsPerPage + index + 1}
+        </span>
       </TableCell>
       <TableCell className="w-[129px] text-left">
         <span className="font-text-smaller text-coolgray-100">
@@ -738,6 +744,8 @@ export const SuperAdminOrderHistorySection = ({
                     index={index}
                     isSelected={selectedOrders.includes(order.order_id)}
                     onSelect={handleSelectOrder}
+                    itemsPerPage={itemsPerPage}
+                    currentPage={currentPage}
                   />
                 ))}
               </TableBody>

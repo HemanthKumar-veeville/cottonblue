@@ -250,7 +250,7 @@ export const WarehouseTableSection = ({
                 >
                   <TableCell className="w-[48px] px-4 py-3 text-left">
                     <span className="text-primary-600 font-medium text-center">
-                      {index + 1}
+                      {(currentPage - 1) * itemsPerPage + index + 1}
                     </span>
                   </TableCell>
                   <TableCell className="w-[120px] px-4 py-3 text-left">

@@ -179,7 +179,7 @@ export const ManageStockTableSection = ({
                     >
                       <TableCell className="w-[77px] text-left font-text-smaller text-coolgray-100 align-middle">
                         <span className="font-text-smaller text-coolgray-100">
-                          {index + 1}
+                          {(currentPage - 1) * ITEMS_PER_PAGE + index + 1}
                         </span>
                       </TableCell>
                       <TableCell className="w-[77px] text-left font-text-smaller text-coolgray-100 align-middle">
