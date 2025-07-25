@@ -282,7 +282,7 @@ export const UserTableSection = ({
                   >
                     <TableCell className="w-[77px] text-center font-text-smaller text-coolgray-100 align-middle">
                       <span className="font-text-smaller text-coolgray-100">
-                        {index + 1}
+                        {(currentPage - 1) * itemsPerPage + index + 1}
                       </span>
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
