@@ -14,6 +14,8 @@ import { getFormattedTimestamp } from "../../utils/dateUtils";
 import { DownloadIcon, ChevronDown } from "lucide-react";
 import { useRef } from "react";
 import ExcelJS from "exceljs";
+import { productService } from "../../services/productService";
+import { useAppSelector } from "../../store/store";
 
 interface Product {
   id: number;
@@ -90,6 +92,7 @@ const ExportDropdown = ({
   const [open, setOpen] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState(defaultLabel);
   const buttonRef = useRef<HTMLButtonElement>(null);
+
   return (
     <div className="relative inline-block text-left">
       <Button
@@ -134,6 +137,8 @@ export const ExportCSV = ({
   templateColumns,
 }: ExportCSVProps) => {
   const { t, i18n } = useTranslation();
+  const { selectedCompany } = useAppSelector((state) => state.client);
+  const dnsPrefix = selectedCompany?.dns || "";
   const [selectedFields, setSelectedFields] = useState<Record<string, boolean>>(
     () => {
       const initialFields: Record<string, boolean> = {};
@@ -180,8 +185,10 @@ export const ExportCSV = ({
     }
   };
 
-  const handleExportCSV = () => {
+  const handleExportCSV = async () => {
     try {
+      const response = await productService.getAllProducts(dnsPrefix);
+      const products = response.data.products.product_list;
       const exportData = products.map((product) => {
         const filteredProduct: Record<string, any> = {};
         Object.entries(selectedFields).forEach(([field, isSelected]) => {
@@ -254,6 +261,8 @@ export const ExportCSV = ({
 
   const handleExportExcel = async () => {
     try {
+      const response = await productService.getAllProducts(dnsPrefix);
+      const products = response.data.products.product_list;
       // Prepare headers and data
       const headers = Object.keys(selectedFields)
         .filter((field) => selectedFields[field])

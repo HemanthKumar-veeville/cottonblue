@@ -9,6 +9,7 @@ import cartReducer from './features/cartSlice';
 import userReducer from './features/userSlice';
 import dashboardReducer from './features/dashboardSlice';
 import testReducer from './features/testSlice';
+import reportReducer from './features/reportSlice';
 
 export const store = configureStore({
   reducer: {
@@ -21,6 +22,7 @@ export const store = configureStore({
     user: userReducer,
     dashboard: dashboardReducer,
     test: testReducer,
+    report: reportReducer,
   },
 });
 
