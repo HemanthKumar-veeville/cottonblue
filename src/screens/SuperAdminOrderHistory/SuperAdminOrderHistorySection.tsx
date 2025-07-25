@@ -38,6 +38,7 @@ import { ChevronDown } from "lucide-react";
 import { useRef } from "react";
 import { getAllCompanyOrders } from "../../store/features/cartSlice";
 import { formatDateToParis } from "../../utils/dateUtils";
+import { getAllCompanyOrdersReport } from "../../store/features/reportSlice";
 
 interface OrderItem {
   product_id: number;
@@ -299,7 +300,14 @@ export const SuperAdminOrderHistorySection = ({
   }
 
   // --- Download Handlers ---
-  const handleDownloadOrdersCSV = () => {
+  const handleDownloadOrdersCSV = async () => {
+    const response = await dispatch(
+      getAllCompanyOrdersReport({
+        dns_prefix,
+      })
+    ).unwrap();
+
+    const orderList = response?.data?.orders || [];
     if (!orderList?.length) return;
     try {
       const rows: Record<string, any>[] = [];
@@ -350,12 +358,15 @@ export const SuperAdminOrderHistorySection = ({
         order_id: t("csv.order_id"),
         order_status: t("csv.order_status"),
         store_id: t("csv.store_id"),
+        store_phone: t("csv.store_phone"),
         company_id: t("csv.company_id"),
         vat_number: t("csv.vat_number"),
         company_name: t("csv.company_name"),
         company_phone: t("csv.company_phone"),
         company_email: t("csv.company_email"),
         store_name: t("csv.store_name"),
+        product_size: t("csv.order_items.product_size"),
+        product_suitable_for: t("csv.order_items.product_suitable_for"),
         store_address: t("csv.store_address"),
         product_price: t("csv.order_items.product_price"),
         product_id: t("csv.order_items.product_id"),
@@ -408,6 +419,13 @@ export const SuperAdminOrderHistorySection = ({
   };
 
   const handleDownloadOrdersExcel = async () => {
+    const response = await dispatch(
+      getAllCompanyOrdersReport({
+        dns_prefix,
+      })
+    ).unwrap();
+
+    const orderList = response?.data?.orders || [];
     if (!orderList?.length) return;
     try {
       const workbook = new ExcelJS.Workbook();
@@ -467,6 +485,9 @@ export const SuperAdminOrderHistorySection = ({
         company_phone: t("csv.company_phone"),
         company_email: t("csv.company_email"),
         store_name: t("csv.store_name"),
+        store_phone: t("csv.store_phone"),
+        product_size: t("csv.order_items.product_size"),
+        product_suitable_for: t("csv.order_items.product_suitable_for"),
         store_address: t("csv.store_address"),
         product_price: t("csv.order_items.product_price"),
         product_id: t("csv.order_items.product_id"),

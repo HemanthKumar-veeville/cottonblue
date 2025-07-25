@@ -46,6 +46,7 @@ export default function SuperAdminOrderHistory() {
         currentPage={currentPage}
         setCurrentPage={setCurrentPage}
         itemsPerPage={ITEMS_PER_PAGE}
+        dns_prefix={dns}
       />
     </main>
   );

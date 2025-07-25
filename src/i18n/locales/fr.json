@@ -1536,12 +1536,14 @@
     "of": "sur"
   },
   "csv": {
+    "index": "N°",
     "created_at": "Créé le",
     "order_id": "N°commande",
     "order_status": "Statut",
     "amount": "Montant (€)",
     "total_amount": "Montant total (€)",
     "store_id": "ID du magasin",
+    "store_phone": "Numéro de téléphone du magasin",
     "company_id": "ID de l'entreprise",
     "vat_number": "Numéro de VAT",
     "company_name": "Nom de l'entreprise",
