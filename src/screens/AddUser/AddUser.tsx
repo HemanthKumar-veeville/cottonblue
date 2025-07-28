@@ -239,6 +239,7 @@ export default function AddUser() {
   };
 
   const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [initialData, setInitialData] = useState<FormData>(initialFormData);
   const [loading, setLoading] = useState(false);
 
   // Fetch user details in edit mode
@@ -269,18 +270,34 @@ export default function AddUser() {
     fetchUserDetails();
   }, [isEditMode, id, selectedCompany?.dns, dispatch, t]);
 
-  // Update form data when selectedUser changes in edit mode
+  // Update form data and initial data when selectedUser changes in edit mode
   useEffect(() => {
     if (isEditMode && user) {
-      setFormData({
+      const userData = {
         firstname: user.firstname,
         lastname: user.lastname,
         email: user.email,
         store_ids: user?.store_ids || [],
         phone: user?.phone_number || "",
-      });
+      };
+      setFormData(userData);
+      setInitialData(userData);
     }
   }, [isEditMode, user]);
+
+  // Function to check if form data has changed
+  const hasChanges = () => {
+    if (!isEditMode) return true;
+
+    return (
+      formData.firstname !== initialData.firstname ||
+      formData.lastname !== initialData.lastname ||
+      formData.email !== initialData.email ||
+      formData.phone !== initialData.phone ||
+      JSON.stringify(formData.store_ids) !==
+        JSON.stringify(initialData.store_ids)
+    );
+  };
 
   const handleSubmit = async () => {
     // Validate required fields
@@ -302,7 +319,7 @@ export default function AddUser() {
         lastname: formData.lastname.trim(),
         email: formData.email.trim(),
         store_ids: formData.store_ids,
-        phone: formData.phone.trim(),
+        phone: formData.phone,
       };
 
       if (isEditMode && id) {
@@ -335,6 +352,7 @@ export default function AddUser() {
             })
           ).unwrap();
           toast.success(t("addUser.success.update"));
+          navigate("/users");
         }
       } else {
         await dispatch(
@@ -344,9 +362,8 @@ export default function AddUser() {
           })
         ).unwrap();
         toast.success(t("addUser.success.create"));
+        navigate("/users");
       }
-
-      navigate("/users");
     } catch (error: any) {
       console.error("Error:", error);
       toast.error(error.message || t("addUser.error.generic"));
@@ -480,7 +497,7 @@ export default function AddUser() {
           <Button
             className="bg-[#07515f] text-white h-12 px-6 font-medium text-base hover:bg-[#064147] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || (isEditMode && !hasChanges())}
           >
             {loading ? (
               <div className="flex items-center justify-center">
