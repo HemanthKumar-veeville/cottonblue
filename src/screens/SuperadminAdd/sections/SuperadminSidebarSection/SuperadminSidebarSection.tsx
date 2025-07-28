@@ -3,7 +3,7 @@ import {
   BugIcon,
   FileTextIcon,
   HomeIcon,
-  LayersIcon,
+  LayoutGridIcon,
   LogOutIcon,
   MessageSquareIcon,
   PackageIcon,
@@ -12,6 +12,15 @@ import {
   TestTubeIcon,
   UserPlusIcon,
   UsersIcon,
+  BuildingIcon,
+  ClipboardListIcon,
+  BoxesIcon,
+  ShoppingCartIcon,
+  BarChartIcon,
+  StoreIcon,
+  ListIcon,
+  BoxIcon,
+  GalleryHorizontalIcon,
 } from "lucide-react";
 import React, { useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -176,7 +185,7 @@ export const SuperadminSidebarSection = ({
           path: "/dashboard",
         },
         {
-          icon: <PackageIcon className="w-4 h-4" />,
+          icon: <StoreIcon className="w-4 h-4" />,
           label: t("sidebar.warehouse.title"),
           path: "/warehouse",
         },
@@ -186,7 +195,7 @@ export const SuperadminSidebarSection = ({
       title: t("sidebar.customers.title"),
       items: [
         {
-          icon: <BookOpenIcon className="w-4 h-4" />,
+          icon: <UsersIcon className="w-4 h-4" />,
           label: t("sidebar.customers.list"),
           path: "/customers",
         },
@@ -243,12 +252,12 @@ export const SuperadminSidebarSection = ({
           path: "/client-dashboard",
         },
         {
-          icon: <PackageIcon className="w-4 h-4" />,
+          icon: <StoreIcon className="w-4 h-4" />,
           label: t("sidebar.warehouse.title"),
           path: "/warehouse",
         },
         {
-          icon: <FileTextIcon className="w-4 h-4" />,
+          icon: <ClipboardListIcon className="w-4 h-4" />,
           label: t("sidebar.orderHistory"),
           path: "/order-history",
         },
@@ -258,12 +267,12 @@ export const SuperadminSidebarSection = ({
       title: t("sidebar.products.title"),
       items: [
         {
-          icon: <BookOpenIcon className="w-4 h-4" />,
+          icon: <BuildingIcon className="w-4 h-4" />,
           label: t("sidebar.products.list"),
           path: "/products",
         },
         {
-          icon: <BookOpenIcon className="w-4 h-4" />,
+          icon: <BoxIcon className="w-4 h-4" />,
           label: t("sidebar.products.manage_stock"),
           path: "/manage-stock",
         },
@@ -273,7 +282,7 @@ export const SuperadminSidebarSection = ({
           path: "/products/add",
         },
         {
-          icon: <LayersIcon className="w-4 h-4" />,
+          icon: <GalleryHorizontalIcon className="w-4 h-4" />,
           label: t("sidebar.products.carousel"),
           path: "/products/carousel",
         },
@@ -283,7 +292,7 @@ export const SuperadminSidebarSection = ({
       title: t("sidebar.agencies.title"),
       items: [
         {
-          icon: <BookOpenIcon className="w-4 h-4" />,
+          icon: <BuildingIcon className="w-4 h-4" />,
           label: t("sidebar.agencies.list"),
           path: "/agencies",
         },
@@ -293,7 +302,7 @@ export const SuperadminSidebarSection = ({
           path: "/agencies/add",
         },
         {
-          icon: <UserPlusIcon className="w-4 h-4" />,
+          icon: <UsersIcon className="w-4 h-4" />,
           label: t("sidebar.users.list"),
           path: "/users",
         },
@@ -346,12 +355,12 @@ export const SuperadminSidebarSection = ({
       title: t("sidebar.products.title"),
       items: [
         {
-          icon: <HomeIcon className="w-4 h-4" />,
+          icon: <BarChartIcon className="w-4 h-4" />,
           label: t("sidebar.dashboard"),
           path: "/warehouse",
         },
         {
-          icon: <BookOpenIcon className="w-4 h-4" />,
+          icon: <BoxesIcon className="w-4 h-4" />,
           label: t("sidebar.products.list"),
           path: "/products",
         },

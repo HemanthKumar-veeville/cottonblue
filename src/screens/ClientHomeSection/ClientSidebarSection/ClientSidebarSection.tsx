@@ -1,11 +1,12 @@
 import {
-  ClipboardListIcon,
-  HelpCircleIcon,
-  HomeIcon,
-  LifeBuoyIcon,
-  LogOutIcon,
-  SettingsIcon,
+  LayoutDashboardIcon,
+  HistoryIcon,
+  ChartBarIcon,
   UsersIcon,
+  LifeBuoyIcon,
+  Settings2Icon,
+  LogOutIcon,
+  HelpCircleIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button } from "../../../components/ui/button";
@@ -25,17 +26,17 @@ import { getStoreBudget } from "../../../store/features/agencySlice";
 
 let navItems = [
   {
-    icon: <HomeIcon className="w-4 h-4" />,
+    icon: <LayoutDashboardIcon className="w-4 h-4" />,
     label: "sidebar.home",
     path: "/",
   },
   {
-    icon: <ClipboardListIcon className="w-4 h-4" />,
+    icon: <HistoryIcon className="w-4 h-4" />,
     label: "sidebar.orderHistory",
     path: "/history",
   },
   {
-    icon: <ClipboardListIcon className="w-4 h-4" />,
+    icon: <ChartBarIcon className="w-4 h-4" />,
     label: "sidebar.adminDashboard",
     path: "/admin-dashboard",
   },
@@ -53,7 +54,7 @@ const bottomNavItems = [
     path: "/support",
   },
   {
-    icon: <SettingsIcon className="w-4 h-4" />,
+    icon: <Settings2Icon className="w-4 h-4" />,
     label: "sidebar.settings",
     path: "/settings",
   },
