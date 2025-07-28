@@ -3,6 +3,7 @@
     "en": "English",
     "fr": "Français"
   },
+  "back": "Retour",
   "notFound": {
     "title": "Page non trouvée",
     "description": "La page que vous cherchez n'existe pas ou a été déplacée.",
@@ -25,6 +26,7 @@
     "dashboard_report": "rapport_tableau_de_bord"
   },
   "common": {
+    "back": "Retour",
     "goBack": "Retour",
     "proceed": "Valider",
     "loading": "Chargement...",

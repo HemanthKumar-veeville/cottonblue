@@ -5,7 +5,7 @@ import {
   CardHeader,
   CardTitle,
 } from "../../components/ui/card";
-import { UserIcon } from "lucide-react";
+import { UserIcon, ArrowLeft } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -325,6 +325,7 @@ const ActionsBox = () => {
 function UserDetails() {
   const { t } = useTranslation();
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { selectedCompany } = useAppSelector((state) => state.client);
   const { id } = useParams<{ id: string }>();
   const { selectedUser, isLoading, error } = useAppSelector(
@@ -351,7 +352,15 @@ function UserDetails() {
 
   if (!user) {
     return (
-      <div className="flex flex-col items-start gap-8 p-6">
+      <div className="flex flex-col items-start p-6">
+        <Button
+          variant="ghost"
+          className="flex items-center gap-2 mb-4 text-[#07515f] hover:text-[#064a56]"
+          onClick={() => navigate(-1)}
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>{t("common.back")}</span>
+        </Button>
         <Card className="w-full">
           <CardContent>
             <div className="text-center py-4">{t("userDetails.notFound")}</div>
@@ -362,7 +371,15 @@ function UserDetails() {
   }
 
   return (
-    <div className="flex flex-col items-start gap-8 p-6">
+    <div className="flex flex-col items-start p-6">
+      <Button
+        variant="ghost"
+        className="flex items-center gap-2 mb-4 text-[#07515f] hover:text-[#064a56]"
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span>{t("common.back")}</span>
+      </Button>
       <UserDetailsCard user={user} stores={storeList} />
     </div>
   );

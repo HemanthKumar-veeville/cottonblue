@@ -10,6 +10,7 @@ import { useAppSelector } from "../../store/store";
 import { getHost } from "../../utils/hostUtils";
 import { useCompanyColors } from "../../hooks/useCompanyColors";
 import { useTranslation } from "react-i18next";
+import { ArrowLeft } from "lucide-react";
 
 interface Store {
   id: number;
@@ -225,6 +226,7 @@ const UserDetailsSkeleton = () => (
 
 function ClientUserDetails() {
   const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
   const { selectedCompany } = useAppSelector((state) => state.client);
   const { id } = useParams<{ id: string }>();
   const { selectedUser, isLoading, error } = useAppSelector(
@@ -246,6 +248,14 @@ function ClientUserDetails() {
 
   return (
     <main className="flex flex-col w-full max-w-[1208px] mx-auto gap-8 px-4 py-6 md:px-6 lg:px-8 bg-[#f9fafb]">
+      <Button
+        variant="ghost"
+        className="flex items-center gap-2 mb-4 text-[#07515f] hover:text-[#064a56] w-fit"
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span>{t("common.back")}</span>
+      </Button>
       {isLoading ? (
         <UserDetailsSkeleton />
       ) : error ? (

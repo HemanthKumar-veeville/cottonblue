@@ -249,10 +249,24 @@ export const ClientUserTableSection = ({
                       </div>
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-bold-smaller text-[#1e2324]">
-                      {`${user.firstname} ${user.lastname}`}
+                      <span
+                        className="text-primary-600 font-medium text-center cursor-pointer hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewDetails(user.user_id);
+                        }}
+                      >{`${user.firstname} ${user.lastname}`}</span>
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-smaller text-[#1e2324]">
-                      {user.email}
+                      <span
+                        className="text-primary-600 font-medium text-center cursor-pointer hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewDetails(user.user_id);
+                        }}
+                      >
+                        {user.email}
+                      </span>
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-smaller text-[#1e2324]">
                       {user.is_active

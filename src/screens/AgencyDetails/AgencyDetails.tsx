@@ -22,6 +22,7 @@ import {
   Trash2,
   Edit,
   Power,
+  ArrowLeft,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
@@ -111,7 +112,7 @@ interface Order {
 const getStoreDetail = (store: Agency, key: keyof Agency): string => {
   if (!store) return "Not Available";
   if (key === "is_active") {
-    return store.is_active ? "Active" : "Inactive";
+    return store?.is_active ? "Active" : "Inactive";
   }
   const value = store[key];
   return value !== null && value !== undefined
@@ -168,12 +169,12 @@ const AgencyDetailsCard = ({
                   {key === "is_active" ? (
                     <span
                       className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
-                        store.is_active
+                        store?.is_active
                           ? "bg-emerald-100 text-emerald-800"
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {store.is_active
+                      {store?.is_active
                         ? t("clientTable.status.active")
                         : t("clientTable.status.inactive")}
                     </span>
@@ -846,6 +847,7 @@ const OrdersTableCard = ({ orders }: { orders: Order[] }) => {
 const AgencyDetails = (): JSX.Element => {
   const { company_name, agency_id } = useParams();
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const { storeDetails, loading, error } = useAppSelector(
     (state) => state.agency
   );
@@ -872,6 +874,14 @@ const AgencyDetails = (): JSX.Element => {
 
   return (
     <div className="flex flex-col items-start gap-8 p-6">
+      <Button
+        variant="ghost"
+        className="flex items-center gap-2 mb-[-1rem] text-[#07515f] hover:text-[#064a56]"
+        onClick={() => navigate(-1)}
+      >
+        <ArrowLeft className="w-4 h-4" />
+        <span>Retour</span>
+      </Button>
       <AgencyDetailsCard store={store} orders={orders} />
       <OrdersTableCard orders={orders} />
     </div>

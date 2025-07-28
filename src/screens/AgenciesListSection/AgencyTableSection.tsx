@@ -336,10 +336,26 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                         </span>
                       </TableCell>
                       <TableCell className="w-[77px] text-left font-text-smaller text-coolgray-100">
-                        {agency.id}
+                        <span
+                          className="text-primary-600 font-medium text-center cursor-pointer hover:underline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewDetails(agency.id);
+                          }}
+                        >
+                          {agency.id}
+                        </span>
                       </TableCell>
                       <TableCell className="w-[145px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
-                        {agency.name}
+                        <span
+                          className="text-primary-600 font-medium text-center cursor-pointer hover:underline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewDetails(agency.id);
+                          }}
+                        >
+                          {agency.name}
+                        </span>
                       </TableCell>
                       <TableCell className="w-[145px] text-left font-text-smaller text-black">
                         {agency.phone_number}

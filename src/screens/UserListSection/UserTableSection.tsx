@@ -286,10 +286,24 @@ export const UserTableSection = ({
                       </span>
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-bold-smaller text-[color:var(--1-tokens-color-modes-input-primary-default-text)]">
-                      {`${user.firstname} ${user.lastname}`}
+                      <span
+                        className="text-primary-600 font-medium text-center cursor-pointer hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewDetails(user.user_id);
+                        }}
+                      >{`${user.firstname} ${user.lastname}`}</span>
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-smaller text-black">
-                      {user.email}
+                      <span
+                        className="text-primary-600 font-medium text-center cursor-pointer hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewDetails(user.user_id);
+                        }}
+                      >
+                        {user.email}
+                      </span>
                     </TableCell>
                     <TableCell className="w-[145px] text-left font-text-smaller text-black align-middle">
                       <Badge variant={user.is_active ? "active" : "inactive"}>
