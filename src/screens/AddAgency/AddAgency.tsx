@@ -174,7 +174,7 @@ export default function AddAgency() {
         value: 0,
       },
     },
-    validation_required: false,
+    validation_required: true,
   };
 
   const [formData, setFormData] = useState<FormData>(initialFormData);

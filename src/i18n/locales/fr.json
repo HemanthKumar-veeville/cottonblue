@@ -292,7 +292,10 @@
       "monthlyRevenue": "Revenu mensuel",
       "topProducts": "Produits populaires",
       "orderLimit": "Limite de commandes par mois",
-      "budgetLimit": "Limite de budget par mois"
+      "budgetLimit": "Limite de budget par mois",
+      "validationRequired": "Validation de commande requise",
+      "validationRequiredYes": "Oui",
+      "validationRequiredNo": "Non"
     },
     "actions": {
       "title": "Actions",

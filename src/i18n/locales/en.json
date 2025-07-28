@@ -263,7 +263,10 @@
       "monthlyRevenue": "Monthly Revenue",
       "topProducts": "Top Products",
       "orderLimit": "Order Limit",
-      "budgetLimit": "Budget Limit"
+      "budgetLimit": "Budget Limit",
+      "validationRequired": "Validation of order required",
+      "validationRequiredYes": "Yes",
+      "validationRequiredNo": "No"
     },
     "actions": {
       "title": "Actions",

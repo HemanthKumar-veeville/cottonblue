@@ -208,6 +208,12 @@ const StatisticsBox = ({
             {t("agencyDetails.statistics.budgetLimit")}:{" "}
             {store?.budget_limit || t("agencyDetails.fields.notAvailable")}
           </p>
+          <p>
+            {t("agencyDetails.statistics.validationRequired")}:{" "}
+            {store?.validation_required
+              ? t("agencyDetails.statistics.validationRequiredYes")
+              : t("agencyDetails.statistics.validationRequiredNo")}
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -826,6 +832,7 @@ const AgencyDetails = (): JSX.Element => {
     (state) => state.agency
   );
   const store = storeDetails?.store as Agency;
+  console.log({ validation_required: store?.validation_required });
   const { orders } = useAppSelector((state) => state.cart);
   console.log({ orders });
   useEffect(() => {
