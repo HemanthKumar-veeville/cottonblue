@@ -165,11 +165,21 @@ const AgencyDetailsCard = ({
                   <span className="font-[number:var(--text-medium-font-weight)]">
                     {t(`agencyDetails.fields.${label}`)} :{" "}
                   </span>
-                  <span
-                    className={key === "is_active" ? "text-emerald-500" : ""}
-                  >
-                    {getStoreDetail(store, key as keyof Agency)}
-                  </span>
+                  {key === "is_active" ? (
+                    <span
+                      className={`inline-block px-2 py-1 rounded-full text-xs font-semibold ${
+                        store.is_active
+                          ? "bg-emerald-100 text-emerald-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {store.is_active
+                        ? t("clientTable.status.active")
+                        : t("clientTable.status.inactive")}
+                    </span>
+                  ) : (
+                    <span>{getStoreDetail(store, key as keyof Agency)}</span>
+                  )}
                 </div>
               ))}
             </div>
@@ -210,9 +220,17 @@ const StatisticsBox = ({
           </p>
           <p>
             {t("agencyDetails.statistics.validationRequired")}:{" "}
-            {store?.validation_required
-              ? t("agencyDetails.statistics.validationRequiredYes")
-              : t("agencyDetails.statistics.validationRequiredNo")}
+            <span
+              className={`inline-block px-2 py-1 rounded-full text-xs font-semibold border ${
+                (store as any)?.validation_required
+                  ? "border-emerald-500 text-emerald-700 bg-transparent"
+                  : "border-red-500 text-red-700 bg-transparent"
+              }`}
+            >
+              {(store as any)?.validation_required
+                ? t("agencyDetails.statistics.validationRequiredYes")
+                : t("agencyDetails.statistics.validationRequiredNo")}
+            </span>
           </p>
         </div>
       </CardContent>
