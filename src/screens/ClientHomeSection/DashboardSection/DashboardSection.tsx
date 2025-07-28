@@ -497,61 +497,59 @@ export const DashboardSection = (): JSX.Element => {
   ];
 
   return (
-    <div className="flex flex-col h-screen w-full">
-      <div className="flex-1 overflow-y-auto w-full [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
-        <div className="flex flex-col w-full items-start p-4 lg:p-5">
-          <DashboardCarousel />
+    <div className="flex flex-col h-full w-full">
+      <div className="flex flex-col w-full items-start p-4 lg:p-5">
+        <DashboardCarousel />
 
-          {/* Tabs */}
-          <div
-            className="flex items-center gap-6 border-b border-gray-200 w-full mb-5"
-            style={buttonStyles}
-          >
-            {tabs.map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`py-2 px-4 font-medium text-sm transition-colors duration-200 ${
-                  activeTab === tab.id
-                    ? "border-b-2"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-                style={
-                  activeTab === tab.id
-                    ? {
-                        color: "var(--primary-color)",
-                        borderBottomColor: "var(--primary-color)",
-                      }
-                    : undefined
-                }
-                data-testid={`tab-${tab.id}`}
-              >
-                {t(tab.title)}
-              </button>
-            ))}
-          </div>
+        {/* Tabs */}
+        <div
+          className="flex items-center gap-6 border-b border-gray-200 w-full mb-5"
+          style={buttonStyles}
+        >
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`py-2 px-4 font-medium text-sm transition-colors duration-200 ${
+                activeTab === tab.id
+                  ? "border-b-2"
+                  : "text-gray-500 hover:text-gray-700"
+              }`}
+              style={
+                activeTab === tab.id
+                  ? {
+                      color: "var(--primary-color)",
+                      borderBottomColor: "var(--primary-color)",
+                    }
+                  : undefined
+              }
+              data-testid={`tab-${tab.id}`}
+            >
+              {t(tab.title)}
+            </button>
+          ))}
+        </div>
 
-          {/* Content */}
-          <div className="w-full" data-testid="products-section">
-            {loading ? (
-              <ProductSkeleton />
-            ) : (
-              <>
-                {activeTab === "mostOrdered" && (
-                  <ProductSection
-                    title="dashboard.sections.mostOrdered"
-                    products={mostOrderedProducts}
-                  />
-                )}
-                {activeTab === "allProducts" && (
-                  <ProductSection
-                    title="dashboard.sections.allProducts"
-                    products={filteredProducts}
-                  />
-                )}
-              </>
-            )}
-          </div>
+        {/* Content */}
+        <div className="w-full" data-testid="products-section">
+          {loading ? (
+            <ProductSkeleton />
+          ) : (
+            <>
+              {activeTab === "mostOrdered" && (
+                <ProductSection
+                  title="dashboard.sections.mostOrdered"
+                  products={mostOrderedProducts}
+                />
+              )}
+              {activeTab === "allProducts" && (
+                <ProductSection
+                  title="dashboard.sections.allProducts"
+                  products={filteredProducts}
+                />
+              )}
+            </>
+          )}
         </div>
       </div>
     </div>
