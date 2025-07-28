@@ -331,7 +331,15 @@ export const ProductTableSection = ({
                       </span>
                     </TableCell>
                     <TableCell className="w-[77px] text-left font-text-smaller text-coolgray-100 align-middle">
-                      {product.id ?? "Not available"}
+                      <span
+                        className="text-primary-600 font-semibold text-center cursor-pointer hover:underline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleViewDetails(product.id);
+                        }}
+                      >
+                        {product.id ?? "Not available"}
+                      </span>
                     </TableCell>
                     <TableCell className="w-[77px] align-middle">
                       {product?.product_images &&

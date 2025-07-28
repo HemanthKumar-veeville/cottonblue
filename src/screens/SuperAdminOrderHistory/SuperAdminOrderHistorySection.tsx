@@ -141,7 +141,12 @@ const OrderRow = ({
         </span>
       </TableCell>
       <TableCell className="w-[129px] text-left">
-        <span className="font-text-smaller text-coolgray-100">
+        <span
+          className="font-semibold text-coolgray-100 cursor-pointer hover:underline"
+          onClick={() =>
+            navigate(`/order-details/${order?.store_id}/${order?.order_id}`)
+          }
+        >
           {order?.order_id ?? t("common.notAvailable")}
         </span>
       </TableCell>
