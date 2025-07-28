@@ -39,6 +39,7 @@ interface FormData {
       value: number;
     };
   };
+  validation_required: boolean;
 }
 
 // Add interface for initial data
@@ -60,6 +61,7 @@ interface InitialAgencyData {
       value: number;
     };
   };
+  validation_required: boolean;
 }
 
 const LabeledInput = ({
@@ -172,6 +174,7 @@ export default function AddAgency() {
         value: 0,
       },
     },
+    validation_required: false,
   };
 
   const [formData, setFormData] = useState<FormData>(initialFormData);
@@ -210,6 +213,7 @@ export default function AddAgency() {
             value: store.budget_limit ? store.budget_limit : 0,
           },
         },
+        validation_required: store.validation_required ?? false,
       });
     }
   }, [isEditMode, store]);
@@ -235,6 +239,7 @@ export default function AddAgency() {
             value: store.budget_limit ? store.budget_limit : 0,
           },
         },
+        validation_required: store.validation_required ?? false,
       };
 
       setInitialData(initialFormData);
@@ -261,7 +266,8 @@ export default function AddAgency() {
       (formData.limits.order.enabled &&
         formData.limits.order.value !== initialData.limits.order.value) ||
       (formData.limits.budget.enabled &&
-        formData.limits.budget.value !== initialData.limits.budget.value);
+        formData.limits.budget.value !== initialData.limits.budget.value) ||
+      formData.validation_required !== initialData.validation_required;
 
     setHasChanges(hasDataChanged);
   }, [formData, initialData, isEditMode]);
@@ -308,7 +314,9 @@ export default function AddAgency() {
         ? formData.limits.budget.value
         : null;
     }
-
+    if (formData.validation_required !== initialData.validation_required) {
+      changes.validation_required = formData.validation_required;
+    }
     return Object.keys(changes).length > 0 ? changes : null;
   };
 
@@ -350,6 +358,7 @@ export default function AddAgency() {
         budget_limit: formData.limits.budget.enabled
           ? formData.limits.budget.value
           : null,
+        validation_required: formData.validation_required,
       };
 
       if (isEditMode && id) {
@@ -601,6 +610,19 @@ export default function AddAgency() {
                         value: value === "" ? 0 : Number(value),
                       },
                     },
+                  }))
+                }
+              />
+            </div>
+            <div className="flex gap-6">
+              <CheckboxField
+                label={t("addAgency.validationRequired")}
+                id="validationRequired"
+                checked={formData.validation_required}
+                onChange={(checked) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    validation_required: checked,
                   }))
                 }
               />

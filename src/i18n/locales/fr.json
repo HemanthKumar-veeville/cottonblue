@@ -946,6 +946,7 @@
     "export": "Exporter"
   },
   "addAgency": {
+    "validationRequired": "Validation de commande requise",
     "title": {
       "add": "Ajouter une agence",
       "edit": "Modifier l'agence"

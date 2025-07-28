@@ -890,6 +890,7 @@
     "cancel": "Cancel"
   },
   "addAgency": {
+    "validationRequired": "Order validation required",
     "title": {
       "add": "Add an Agency",
       "edit": "Edit Agency"
