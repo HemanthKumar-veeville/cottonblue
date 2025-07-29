@@ -224,10 +224,16 @@ const StoreList = ({
     return <EmptyState />;
   }
 
+  // Sort stores to put selected ones at the top
+  const sortedStores = [...stores].sort((a, b) => {
+    if (a.isSelected === b.isSelected) return 0;
+    return a.isSelected ? -1 : 1;
+  });
+
   return (
     <div className="h-[340px] overflow-y-auto pr-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {stores.map((store) => (
+        {sortedStores.map((store) => (
           <motion.div
             key={store.id}
             initial={{ opacity: 0, y: 10 }}
@@ -398,11 +404,6 @@ const ProductDetails = () => {
     const selectedStoreIds = storesWithSelection
       .filter((store) => store.isSelected)
       .map((store) => store.id);
-
-    if (selectedStoreIds.length === 0) {
-      toast.error(t("addProduct.errors.noStoresSelected"));
-      return;
-    }
 
     setIsSubmitting(true);
     try {

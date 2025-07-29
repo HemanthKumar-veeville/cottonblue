@@ -1623,5 +1623,22 @@
     "newPassword": "Nouveau mot de passe",
     "confirmPassword": "Confirmer le mot de passe",
     "updatePassword": "Mettre à jour le mot de passe"
+  },
+  "storeInfo": {
+    "title": "Informations du magasin",
+    "fields": {
+      "name": "Nom du magasin",
+      "address": "Adresse",
+      "address2": "Complément d'adresse",
+      "city": "Ville",
+      "postalCode": "Code postal",
+      "phone": "Téléphone",
+      "budgetLimit": "Limite de budget",
+      "orderLimit": "Limite de commandes",
+      "status": "Statut",
+      "active": "Actif",
+      "inactive": "Inactif",
+      "orderLimitSuffix": "articles"
+    }
   }
 }

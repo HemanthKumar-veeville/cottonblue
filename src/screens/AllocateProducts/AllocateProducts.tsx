@@ -11,6 +11,8 @@ import {
   Check,
   ImageOff,
   Plus,
+  Warehouse,
+  StoreIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { cn } from "../../lib/utils";
@@ -22,6 +24,8 @@ import {
   fetchAllProducts,
   allocateProductsToStore,
 } from "../../store/features/productSlice";
+import { getStoreDetails } from "../../store/features/agencySlice";
+
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
@@ -175,10 +179,21 @@ const ProductList = ({
     navigate("/products/add");
   };
 
+  // If there are no products, show the empty state
+  if (products.length === 0) {
+    return <EmptyState />;
+  }
+
+  // Sort products to put selected ones at the top
+  const sortedProducts = [...products].sort((a, b) => {
+    if (a.isSelected === b.isSelected) return 0;
+    return a.isSelected ? -1 : 1;
+  });
+
   return (
     <div className="h-[340px] overflow-y-auto pr-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:bg-gray-200 [&::-webkit-scrollbar-thumb]:rounded-full">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        {products.map((product) => (
+        {sortedProducts.map((product) => (
           <motion.div
             key={product.id}
             initial={{ opacity: 0, y: 10 }}
@@ -197,7 +212,10 @@ const ProductList = ({
             >
               <Checkbox
                 checked={product.isSelected}
-                onCheckedChange={() => onToggleProduct(product.id)}
+                onClick={(e: any) => {
+                  e.stopPropagation();
+                  onToggleProduct(product.id);
+                }}
                 className={cn(
                   "w-4 h-4 border-gray-300",
                   "data-[state=checked]:bg-[#07515f] data-[state=checked]:border-[#07515f]",
@@ -293,6 +311,7 @@ function AllocateProducts() {
   >([]);
   const [storeProducts, setStoreProducts] = useState<any[]>([]);
   const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [storeInfo, setStoreInfo] = useState<any>(null);
 
   useEffect(() => {
     if (selectedCompany?.dns && id) {
@@ -302,6 +321,15 @@ function AllocateProducts() {
       ).then((action: any) => {
         if (action.payload?.products) {
           setStoreProducts(action.payload.products);
+        }
+      });
+
+      dispatch(
+        getStoreDetails({ dnsPrefix: selectedCompany.dns, storeId: id })
+      ).then((action: any) => {
+        if (action.payload?.store) {
+          console.log({ storeinfo: action.payload.store });
+          setStoreInfo(action.payload.store);
         }
       });
 
@@ -379,11 +407,6 @@ function AllocateProducts() {
       .filter((product) => product.isSelected)
       .map((product) => product.id);
 
-    if (selectedProductIds.length === 0) {
-      toast.error(t("addProduct.errors.noProductsSelected"));
-      return;
-    }
-
     setIsSubmitting(true);
     try {
       const response = await dispatch(
@@ -438,8 +461,93 @@ function AllocateProducts() {
             transition={{ duration: 0.3 }}
             className="sticky top-6 w-full aspect-square rounded-lg overflow-hidden border border-solid border-gray-200 bg-white flex items-center justify-center group hover:border-[#07515f] transition-all duration-200"
           >
-            <div className="w-full h-full flex items-center justify-center">
-              <Package className="w-24 h-24 text-gray-300" />
+            <div className="w-full h-full flex flex-col items-center justify-center">
+              {storeInfo && (
+                <div className="w-full px-6 space-y-3">
+                  <div className="flex items-center justify-start gap-4">
+                    <StoreIcon className="w-12 h-12 text-gray-300" />
+                    <h3 className="text-lg font-semibold text-gray-800 text-left">
+                      {storeInfo?.name}
+                    </h3>
+                  </div>
+
+                  <div className="space-y-2 text-sm text-gray-600">
+                    {/* 
+                      To align all colons vertically, 
+                      use a fixed-width label container and place the colon in a separate span,
+                      so all colons are in the same column, aligned with the widest label.
+                    */}
+                    <div className="flex">
+                      <span className="font-medium min-w-[145px] text-left block">
+                        {t("storeInfo.fields.city")}
+                      </span>
+                      <span className="inline-block w-2 text-right">:</span>
+                      <span className="ml-2">{storeInfo?.city}</span>
+                    </div>
+                    <div className="flex">
+                      <span className="font-medium min-w-[145px] text-left block">
+                        {t("storeInfo.fields.postalCode")}
+                      </span>
+                      <span className="inline-block w-2 text-right">:</span>
+                      <span className="ml-2">{storeInfo?.postal_code}</span>
+                    </div>
+                    <div className="flex">
+                      <span className="font-medium min-w-[145px] text-left block">
+                        {t("storeInfo.fields.phone")}
+                      </span>
+                      <span className="inline-block w-2 text-right">:</span>
+                      <span className="ml-2">{storeInfo?.phone_number}</span>
+                    </div>
+                    <div className="flex">
+                      <span className="font-medium min-w-[145px] text-left block">
+                        {t("storeInfo.fields.budgetLimit")}
+                      </span>
+                      <span className="inline-block w-2 text-right">:</span>
+                      <span className="ml-2">
+                        {new Intl.NumberFormat("fr-FR", {
+                          style: "currency",
+                          currency: "EUR",
+                        }).format(storeInfo?.budget_limit ?? 0)}
+                      </span>
+                    </div>
+                    <div className="flex">
+                      <span className="font-medium min-w-[145px] text-left block">
+                        {t("storeInfo.fields.orderLimit")}
+                      </span>
+                      <span className="inline-block w-2 text-right">:</span>
+                      <span className="ml-2">
+                        {storeInfo?.order_limit}{" "}
+                        {t("storeInfo.fields.orderLimitSuffix")}
+                      </span>
+                    </div>
+                    <div className="flex">
+                      <span className="font-medium min-w-[145px] text-left block">
+                        {t("storeInfo.fields.status")}
+                      </span>
+                      <span className="inline-block w-2 text-right">:</span>
+                      <span
+                        className={cn(
+                          "ml-2 font-medium",
+                          storeInfo?.is_active
+                            ? "text-green-600"
+                            : "text-red-600"
+                        )}
+                      >
+                        {storeInfo?.is_active
+                          ? t("storeInfo.fields.active")
+                          : t("storeInfo.fields.inactive")}
+                      </span>
+                    </div>
+                    <div className="flex items-start">
+                      <span className="font-medium min-w-[145px] text-left block">
+                        {t("storeInfo.fields.address")}
+                      </span>
+                      <span className="inline-block w-2 text-right">:</span>
+                      <span className="ml-2">{storeInfo?.address}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </motion.div>
         </div>

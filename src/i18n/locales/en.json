@@ -1478,5 +1478,22 @@
     "confirmPassword": "Confirm Password",
     "updatePassword": "Update Password",
     "passwordUpdateError": "Failed to update password. Please try again."
+  },
+  "storeInfo": {
+    "title": "Store Information",
+    "fields": {
+      "name": "Store Name",
+      "address": "Address",
+      "address2": "Address 2",
+      "city": "City",
+      "postalCode": "Postal Code",
+      "phone": "Phone",
+      "budgetLimit": "Budget Limit",
+      "orderLimit": "Order Limit",
+      "status": "Status",
+      "active": "Active",
+      "inactive": "Inactive",
+      "orderLimitSuffix": "items"
+    }
   }
 }
