@@ -217,7 +217,7 @@ export const productService = {
    */
   allocateMultipleProductsToStores: async (dnsPrefix: string, storeIds: string[], productIds: string[]) => {
     const formData = new FormData();
-    formData.append('store_ids', JSON.stringify(storeIds));
+    storeIds?.length > 0 &&formData.append('store_ids', JSON.stringify(storeIds));
     formData.append('product_ids', JSON.stringify(productIds));
 
     return axiosInstance.post(`/${dnsPrefix}/stores/multi-allocation/for/products`, formData, {
