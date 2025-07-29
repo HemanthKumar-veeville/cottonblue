@@ -80,6 +80,35 @@ const VariantTable = ({
 }) => {
   const { t } = useTranslation();
 
+  // Define all available sizes
+  const allSizes = [
+    "Unique",
+    "XS",
+    "S",
+    "M",
+    "L",
+    "XL",
+    "XXL",
+    "XXXL",
+    "XXXXL",
+    "XXXXXL",
+  ];
+
+  // Get used sizes from existing variants
+  const usedSizes = variants.map((variant) => variant.size).filter(Boolean);
+
+  // Filter out used sizes for new variants
+  const getAvailableSizes = (currentVariant: Variant) => {
+    // Get all sizes that are used except for the current variant's size
+    const otherUsedSizes = variants
+      .filter((variant) => variant.id !== currentVariant.id)
+      .map((variant) => variant.size)
+      .filter(Boolean);
+
+    // Return all sizes that are not used by other variants
+    return allSizes.filter((size) => !otherUsedSizes.includes(size));
+  };
+
   const addVariant = () => {
     const newVariant: Variant = {
       id: (variants.length + 1).toString(),
@@ -154,36 +183,15 @@ const VariantTable = ({
                   />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="Unique">
-                    {t("productSidebar.form.options.size.unique")}
-                  </SelectItem>
-                  <SelectItem value="XS">
-                    {t("productSidebar.form.options.size.XS")}
-                  </SelectItem>
-                  <SelectItem value="S">
-                    {t("productSidebar.form.options.size.S")}
-                  </SelectItem>
-                  <SelectItem value="M">
-                    {t("productSidebar.form.options.size.M")}
-                  </SelectItem>
-                  <SelectItem value="L">
-                    {t("productSidebar.form.options.size.L")}
-                  </SelectItem>
-                  <SelectItem value="XL">
-                    {t("productSidebar.form.options.size.XL")}
-                  </SelectItem>
-                  <SelectItem value="XXL">
-                    {t("productSidebar.form.options.size.2XL")}
-                  </SelectItem>
-                  <SelectItem value="XXXL">
-                    {t("productSidebar.form.options.size.3XL")}
-                  </SelectItem>
-                  <SelectItem value="XXXXL">
-                    {t("productSidebar.form.options.size.4XL")}
-                  </SelectItem>
-                  <SelectItem value="XXXXXL">
-                    {t("productSidebar.form.options.size.5XL")}
-                  </SelectItem>
+                  {getAvailableSizes(variant).map((size) => (
+                    <SelectItem key={size} value={size}>
+                      {t(
+                        `productSidebar.form.options.size.${
+                          size === "Unique" ? "unique" : size
+                        }`
+                      )}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>

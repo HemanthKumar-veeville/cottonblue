@@ -241,7 +241,11 @@
           "2XL": "XXL",
           "3XL": "XXXL",
           "4XL": "XXXXL",
-          "5XL": "XXXXXL"
+          "5XL": "XXXXXL",
+          "XXL": "XXL",
+          "XXXL": "XXXL",
+          "XXXXL": "XXXXL",
+          "XXXXXL": "XXXXXL"
         }
       }
     },
