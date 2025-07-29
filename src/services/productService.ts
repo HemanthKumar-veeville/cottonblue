@@ -237,4 +237,22 @@ export const productService = {
   addProductQuantity: async (dnsPrefix: string, productId: string, quantity: number) => {
     return axiosInstance.post(`/${dnsPrefix}/add-product-quantity/${productId}/${quantity}`);
   },
+
+  /**
+   * Allocate multiple products to a single store
+   * @param dnsPrefix DNS prefix of the company
+   * @param storeId ID of the store to allocate products to
+   * @param productIds Array of product IDs to allocate
+   * @returns Promise with allocation response
+   */
+  allocateProductsToStore: async (dnsPrefix: string, storeId: string, productIds: string[]) => {
+    const formData = new FormData();
+    formData.append('product_ids', JSON.stringify(productIds));
+
+    return axiosInstance.post(`/${dnsPrefix}/products/multi-allocation/for/store/${storeId}`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  },
 };

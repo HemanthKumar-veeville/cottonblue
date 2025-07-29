@@ -26,6 +26,7 @@
     "dashboard_report": "rapport_tableau_de_bord"
   },
   "common": {
+    "packs": "lots",
     "back": "Retour",
     "goBack": "Retour",
     "proceed": "Valider",
@@ -537,6 +538,7 @@
   "addProduct": {
     "step1": {
       "title": "Choisir le magasin",
+      "allocateProducts": "Allouer les produits",
       "description": "Sélectionnez le magasin où le produit sera stocké",
       "availableStores": "Magasins disponibles",
       "searchStores": "Rechercher un magasin",
@@ -544,7 +546,13 @@
       "noStoresAvailable": "Aucun magasin disponible",
       "noStoresAvailableDescription": "Il n'y a pas de magasins disponibles pour le moment. Veuillez ajouter des magasins à votre compte pour continuer.",
       "createStore": "Créer un magasin",
-      "publishing": "Publication en cours..."
+      "publishing": "Publication en cours...",
+      "availableProducts": "Produits disponibles",
+      "searchProducts": "Rechercher un produit",
+      "selectAllProducts": "Sélectionner tous les produits",
+      "noProductsAvailable": "Aucun produit disponible",
+      "noProductsAvailableDescription": "Il n'y a pas de produits disponibles pour le moment. Veuillez ajouter des produits à votre compte pour continuer.",
+      "createProduct": "Créer un produit"
     },
     "variants": {
       "title": "Variantes du produit",
@@ -895,6 +903,7 @@
       "dnsPrefix": "Préfixe DNS",
       "branding": "Couleurs du thème",
       "status": "Statut",
+      "allocatedProducts": "Allouer des produits",
       "actions": "Actions",
       "createdAt": "Créé le",
       "updatedAt": "Mis à jour le"

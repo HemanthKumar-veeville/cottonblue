@@ -253,6 +253,26 @@ export const addProductQuantity = createAsyncThunk(
   }
 );
 
+export const allocateProductsToStore = createAsyncThunk(
+  'product/allocateProductsToStore',
+  async ({ 
+    dnsPrefix, 
+    storeId,
+    productIds 
+  }: { 
+    dnsPrefix: string; 
+    storeId: string;
+    productIds: string[];
+  }, { rejectWithValue }) => {
+    try {
+      const response = await productService.allocateProductsToStore(dnsPrefix, storeId, productIds);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to allocate products to store');
+    }
+  }
+);
+
 // Create the product slice
 const productSlice = createSlice({
   name: 'product',
@@ -490,6 +510,21 @@ const productSlice = createSlice({
       .addCase(addProductQuantity.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+      // Allocate products to store cases
+      .addCase(allocateProductsToStore.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+        state.allocationSuccess = false;
+      })
+      .addCase(allocateProductsToStore.fulfilled, (state) => {
+        state.loading = false;
+        state.allocationSuccess = true;
+      })
+      .addCase(allocateProductsToStore.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+        state.allocationSuccess = false;
       });
   },
 });

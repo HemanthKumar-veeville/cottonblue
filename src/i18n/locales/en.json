@@ -504,7 +504,14 @@
   "addProduct": {
     "step1": {
       "title": "Allocate the store",
-      "description": "Select the store where the product will be allocated"
+      "description": "Select the store where the product will be allocated",
+      "allocateProducts": "Allocate products",
+      "availableProducts": "Available products",
+      "searchProducts": "Search products",
+      "selectAllProducts": "Select all products",
+      "noProductsAvailable": "No products available",
+      "noProductsAvailableDescription": "There are no products available to allocate at the moment. Please add products to your account to continue.",
+      "createProduct": "Create product"
     },
     "variants": {
       "title": "Product Variants",
@@ -837,6 +844,7 @@
       "dnsPrefix": "DNS Prefix",
       "branding": "Theme Colors",
       "status": "Status",
+      "allocatedProducts": "Allocate Products",
       "actions": "Actions",
       "createdAt": "Created At",
       "updatedAt": "Updated At"

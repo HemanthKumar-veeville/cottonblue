@@ -27,6 +27,7 @@ import TestBoard from "../screens/TestBoard/TestBoard";
 import ErrorLogs from "../screens/ErrorLogs/ErrorLogs";
 import Error from "../components/Error";
 import AddClient from "../screens/AddClient/AddClient";
+import AllocateProducts from "../screens/AllocateProducts/AllocateProducts";
 
 export const adminRoutes = [
   { path: "/", element: <Navigate to="/dashboard" replace /> },
@@ -53,6 +54,7 @@ export const adminRoutes = [
   { path: "agencies", element: <AgenciesList /> },
   { path: "agencies/edit/:id", element: <AddAgency /> },
   { path: "agencies/add", element: <AddAgency /> },
+  { path: "agencies/allocate/:id", element: <AllocateProducts /> },
   { path: "users", element: <UserList /> },
   { path: "users/add", element: <AddUser /> },
   { path: "users/edit/:id", element: <AddUser /> },

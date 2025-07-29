@@ -32,7 +32,16 @@ import { useAppDispatch, useAppSelector } from "../../store/store";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
-import { Store, MoreVertical, Eye, Edit, Power, Trash2 } from "lucide-react";
+import { PackagePlus } from "lucide-react";
+import {
+  Store,
+  MoreVertical,
+  Eye,
+  Edit,
+  Power,
+  Trash2,
+  Plus,
+} from "lucide-react";
 import {
   fetchAllStores,
   modifyStore,
@@ -315,6 +324,9 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                   <TableHead className="w-[100px] text-left text-[#1e2324] font-text-small">
                     {t("clientTable.columns.status")}
                   </TableHead>
+                  <TableHead className="w-[100px] text-left text-[#1e2324] font-text-small">
+                    {t("clientTable.columns.allocatedProducts")}
+                  </TableHead>
                   <TableHead className="w-[120px] text-left text-[#1e2324] font-text-small">
                     {t("clientTable.columns.createdAt")}
                   </TableHead>
@@ -378,6 +390,19 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                             ? t("clientTable.status.active")
                             : t("clientTable.status.inactive")}
                         </span>
+                      </TableCell>
+                      <TableCell className="w-[100px] text-left">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          aria-label="Add Product"
+                          className="bg-primary-600 text-black hover:bg-primary-700"
+                          onClick={() => {
+                            navigate(`/agencies/allocate/${agency.id}`);
+                          }}
+                        >
+                          <PackagePlus className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                       <TableCell className="w-[120px] text-left font-text-smaller text-black">
                         {agency?.created_at
