@@ -7,11 +7,9 @@ import { useCompanyColors } from "../../hooks/useCompanyColors";
 // Carousel skeleton loader component
 const CarouselSkeleton = () => {
   return (
-    <div className="flex flex-col items-center justify-center gap-2.5 w-full mb-8">
-      <div className="flex h-[400px] items-center justify-center w-full rounded-[var(--2-tokens-screen-modes-button-border-radius)] [background:linear-gradient(0deg,rgba(242,237,227,1)_0%,rgba(242,237,227,1)_100%)] overflow-hidden">
-        <div className="h-full flex items-center justify-center animate-pulse px-8">
-          <div className="h-full w-[600px] bg-gray-200 rounded-lg"></div>
-        </div>
+    <div className="flex flex-col items-center gap-2.5 w-full">
+      <div className="flex h-[50vh] w-full items-center justify-center rounded-[var(--2-tokens-screen-modes-button-border-radius)] [background:linear-gradient(0deg,rgba(242,237,227,1)_0%,rgba(242,237,227,1)_100%)] overflow-hidden">
+        <div className="h-full w-[600px] animate-pulse bg-gray-200 rounded-lg" />
       </div>
       <div className="inline-flex items-start gap-[var(--2-tokens-screen-modes-common-spacing-m)] relative flex-[0_0_auto]">
         {[0, 1, 2].map((index) => (
@@ -72,25 +70,34 @@ export const DashboardCarousel = (): JSX.Element => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center gap-2.5 w-full mb-8">
-      <div className="flex h-[50vh] items-center justify-center w-full rounded-[var(--2-tokens-screen-modes-button-border-radius)] [background:linear-gradient(0deg,rgba(242,237,227,1)_0%,rgba(242,237,227,1)_100%)] overflow-hidden">
-        <div className="flex h-full items-center justify-center">
-          {imageUrls.map((imageUrl, index) => (
-            <div
-              key={index}
-              className={`flex h-full items-center justify-center transition-all duration-500 ease-in-out ${
-                currentSlide === index ? "block" : "hidden"
-              }`}
-            >
-              <img
-                className="h-full w-auto object-contain"
-                alt={`Banner image ${index + 1}`}
-                src={imageUrl}
-              />
-            </div>
-          ))}
+    <div className="flex flex-col items-center gap-2.5 w-full">
+      {imageUrls.map((imageUrl, index) => (
+        <div
+          key={index}
+          className={`relative border-none flex h-[50vh] w-full items-center justify-center transition-all duration-500 ease-in-out ${
+            currentSlide === index ? "block" : "hidden"
+          }`}
+        >
+          <div
+            className="absolute inset-0 border-none overflow-hidden"
+            style={{
+              backgroundImage: `url(${imageUrl})`,
+              backgroundSize: "cover",
+              filter: "blur(5px)",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+              margin: 0,
+              padding: 0,
+              border: "none",
+            }}
+          />
+          <img
+            className="relative h-[50vh] w-auto object-contain z-10"
+            alt={`Banner image ${index + 1}`}
+            src={imageUrl}
+          />
         </div>
-      </div>
+      ))}
       <div className="inline-flex items-start gap-[var(--2-tokens-screen-modes-common-spacing-m)] relative flex-[0_0_auto]">
         {imageUrls.map((_, index) => (
           <button
