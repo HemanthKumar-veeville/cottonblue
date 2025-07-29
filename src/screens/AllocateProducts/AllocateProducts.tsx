@@ -256,20 +256,6 @@ const ProductList = ({
                   </div>
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className={cn(
-                  "flex-shrink-0 ml-2 p-1",
-                  "hover:bg-gray-100 transition-colors duration-200"
-                )}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(`/products/${product.id}`);
-                }}
-              >
-                <Info className="w-4 h-4 text-gray-400" />
-              </Button>
             </div>
           </motion.div>
         ))}
@@ -333,13 +319,17 @@ function AllocateProducts() {
         }
       });
 
-      dispatch(fetchAllProducts({ dnsPrefix: selectedCompany.dns })).then(
-        (action: any) => {
-          if (action.payload?.products) {
-            setAllProducts(action.payload.products.product_list);
-          }
+      dispatch(
+        fetchAllProducts({
+          dnsPrefix: selectedCompany.dns,
+          page: 1,
+          limit: 1000,
+        })
+      ).then((action: any) => {
+        if (action.payload?.products) {
+          setAllProducts(action.payload.products.product_list);
         }
-      );
+      });
     }
   }, [dispatch, selectedCompany?.dns, id]);
 
@@ -418,7 +408,7 @@ function AllocateProducts() {
       ).unwrap();
 
       if (response?.store_id) {
-        navigate(`/agencies/${response.store_id}`);
+        navigate(`/customers/chronodrive/agencies/${response.store_id}`);
       } else {
         throw new Error(response.message);
       }
