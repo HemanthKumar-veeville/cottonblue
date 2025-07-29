@@ -222,6 +222,12 @@ export default function TicketModal({ onClose, ticketId }: TicketModalProps) {
                   <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
                     {ticket?.raised_by?.email}
                   </span>
+                  <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
+                    |
+                  </span>
+                  <span className="font-label-small text-[color:var(--1-tokens-color-modes-common-neutral-medium)]">
+                    {ticket?.raised_by?.phone_number ?? "-"}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Badge
