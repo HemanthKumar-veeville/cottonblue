@@ -83,7 +83,7 @@ export const DashboardCarousel = (): JSX.Element => {
             style={{
               backgroundImage: `url(${imageUrl})`,
               backgroundSize: "cover",
-              filter: "blur(5px)",
+              filter: "blur(10px)",
               backgroundPosition: "center",
               backgroundRepeat: "no-repeat",
               margin: 0,

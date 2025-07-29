@@ -498,7 +498,7 @@ export const DashboardSection = (): JSX.Element => {
 
   return (
     <div className="flex flex-col h-full w-full">
-      <div className="flex flex-col w-full items-start p-4 lg:p-5">
+      <div className="flex flex-col w-full items-start">
         <DashboardCarousel />
 
         {/* Tabs */}
