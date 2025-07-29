@@ -420,6 +420,10 @@
       "monthly": "Mensuel",
       "quarterly": "Trimestriel",
       "yearly": "Annuel",
+      "all": "Toute la période",
+      "custom": "Période personnalisée",
+      "from": "Du",
+      "to": "Au",
       "periods": {
         "week": "Semaine {{number}}",
         "weekRange": "{{startDate}} - {{endDate}}",

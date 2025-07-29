@@ -384,6 +384,10 @@
       "monthly": "Monthly",
       "quarterly": "Quarterly",
       "yearly": "Yearly",
+      "all": "All Time",
+      "custom": "Custom Range",
+      "from": "From",
+      "to": "To",
       "periods": {
         "week": "Week {{number}}",
         "weekRange": "{{startDate}} - {{endDate}}",

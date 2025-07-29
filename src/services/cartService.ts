@@ -232,14 +232,30 @@ export const cartService = {
    * @param status Optional status filter
    * @returns Promise with list of all company orders
    */
-  getAllCompanyOrders: async (
-    dns_prefix: string,
-    status?: string,
-    page?: number,
-    limit?: number,
-    search?: string
-  ): Promise<GetAllCompanyOrdersResponse> => {
-    const queryParams = status ? `?status=${status}&page=${page}&limit=${limit}&search=${search}` : `?page=${page}&limit=${limit}&search=${search}`;
+  getAllCompanyOrders: async ({
+    dns_prefix,
+    status,
+    page,
+    limit,
+    search,
+    startDate,
+    endDate,
+  }: {
+    dns_prefix: string;
+    status?: string;
+    page?: number;
+    limit?: number;
+    search?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<GetAllCompanyOrdersResponse> => {
+    let queryParams = '?';
+    search && (queryParams += `search=${search}&`);
+    status && (queryParams += `status=${status}&`);
+    page && (queryParams += `page=${page}&`);
+    limit && (queryParams += `limit=${limit}&`);
+    startDate && (queryParams += `start_date=${startDate}&`);
+    endDate && (queryParams += `end_date=${endDate}`);
     return axiosInstance.get(`/${dns_prefix}/all/orders${queryParams}`);
   },
 

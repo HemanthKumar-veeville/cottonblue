@@ -45,25 +45,31 @@ export const getAllCompanyOrdersReport = createAsyncThunk(
   'report/getAllCompanyOrders',
   async ({ 
     dns_prefix, 
+    startDate,
+    endDate,
     status, 
     page = 1, 
     limit = 1000, 
     search = '' 
   }: { 
     dns_prefix: string; 
+    startDate?: string;
+    endDate?: string;
     status?: string;
     page?: number;
     limit?: number;
     search?: string;
   }) => {
     try {
-      const response = await cartService.getAllCompanyOrders(
+      const response = await cartService.getAllCompanyOrders({
         dns_prefix,
         status,
         page,
         limit,
-        search
-      );
+        search,
+        startDate,
+        endDate,
+      });
       return response;
     } catch (error) {
       throw error;

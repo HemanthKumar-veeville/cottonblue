@@ -173,8 +173,16 @@ export const refuseOrder = createAsyncThunk(
 
 export const getAllCompanyOrders = createAsyncThunk(
   'cart/getAllCompanyOrders',
-  async ({ dns_prefix, status, page, limit, search }: { dns_prefix: string; status?: string, page?: number, limit?: number, search?: string }) => {
-    const response = await cartService.getAllCompanyOrders(dns_prefix, status, page, limit, search);
+  async ({ dns_prefix, status, page, limit, search, startDate, endDate }: { dns_prefix: string; status?: string, page?: number, limit?: number, search?: string, startDate?: string, endDate?: string }) => {
+    const response = await cartService.getAllCompanyOrders({
+      dns_prefix,
+      status,
+      page,
+      limit,
+      search,
+      startDate,
+      endDate,
+    });
     
     return response.data;
   }

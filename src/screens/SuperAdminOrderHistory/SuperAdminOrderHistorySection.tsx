@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
@@ -39,6 +39,8 @@ import { useRef } from "react";
 import { getAllCompanyOrders } from "../../store/features/cartSlice";
 import { formatDateToParis } from "../../utils/dateUtils";
 import { getAllCompanyOrdersReport } from "../../store/features/reportSlice";
+import { TimeframeSelect, TimeframeType } from "./TimeframeSelect";
+import { PeriodSelect } from "./PeriodSelect";
 
 interface OrderItem {
   product_id: number;
@@ -282,6 +284,11 @@ interface SuperAdminOrderHistorySectionProps {
   dns_prefix: string;
 }
 
+interface DateRange {
+  startDate: string;
+  endDate: string;
+}
+
 export const SuperAdminOrderHistorySection = ({
   searchQuery,
   setSearchQuery,
@@ -297,7 +304,43 @@ export const SuperAdminOrderHistorySection = ({
   const error = useSelector((state: any) => state.cart.error);
   const total = useSelector((state: any) => state.cart.totalOrders);
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
+  const [selectedTimeframe, setSelectedTimeframe] =
+    useState<TimeframeType>("custom");
+  const [selectedPeriod, setSelectedPeriod] = useState<DateRange>({
+    startDate: dayjs().startOf("year").format("YYYY-MM-DD"),
+    endDate: dayjs().format("YYYY-MM-DD"),
+  });
   const orderList = orders ?? [];
+
+  // Update period when timeframe changes
+  useEffect(() => {
+    if (selectedTimeframe === "all") {
+      setSelectedPeriod({
+        startDate: "",
+        endDate: "",
+      });
+    }
+  }, [selectedTimeframe]);
+
+  // Handle custom date range change
+  const handleCustomDateChange = (fromDate: Date, toDate: Date) => {
+    setSelectedPeriod({
+      startDate: dayjs(fromDate).format("YYYY-MM-DD"),
+      endDate: dayjs(toDate).format("YYYY-MM-DD"),
+    });
+  };
+
+  // Fetch orders with timeframe and period
+  useEffect(() => {
+    dispatch(
+      getAllCompanyOrders({
+        dns_prefix,
+        page: currentPage,
+        limit: itemsPerPage,
+        search: searchQuery,
+      })
+    );
+  }, [dispatch, dns_prefix, currentPage, itemsPerPage, searchQuery]);
 
   // Polyfill Buffer for ExcelJS if needed
   if (typeof window !== "undefined" && !(window as any).Buffer) {
@@ -309,6 +352,8 @@ export const SuperAdminOrderHistorySection = ({
     const response = await dispatch(
       getAllCompanyOrdersReport({
         dns_prefix,
+        startDate: selectedPeriod.startDate,
+        endDate: selectedPeriod.endDate,
       })
     ).unwrap();
 
@@ -427,6 +472,8 @@ export const SuperAdminOrderHistorySection = ({
     const response = await dispatch(
       getAllCompanyOrdersReport({
         dns_prefix,
+        startDate: selectedPeriod.startDate,
+        endDate: selectedPeriod.endDate,
       })
     ).unwrap();
 
@@ -629,6 +676,18 @@ export const SuperAdminOrderHistorySection = ({
     }
   };
 
+  // Handle timeframe change
+  const handleTimeframeChange = (value: TimeframeType) => {
+    setSelectedTimeframe(value);
+    setCurrentPage(1); // Reset to first page when timeframe changes
+  };
+
+  // Handle period change
+  const handlePeriodChange = (value: string) => {
+    setSelectedPeriod(value);
+    setCurrentPage(1); // Reset to first page when period changes
+  };
+
   console.log({ orderList });
   // Filter orders based on search query
   const filteredOrders = orderList;
@@ -697,23 +756,34 @@ export const SuperAdminOrderHistorySection = ({
             <SearchIcon className="w-5 h-5 text-[color:var(--1-tokens-color-modes-input-primary-default-icon)]" />
           </div>
         </div>
-
-        <DownloadDropdown
-          defaultLabel={t("orderHistoryExport.downloadAsCSV")}
-          disabled={loading || !orderList?.length}
-          onDownloadCSV={handleDownloadOrdersCSV}
-          onDownloadExcel={handleDownloadOrdersExcel}
-          options={[
-            {
-              label: t("orderHistoryExport.downloadAsCSV"),
-              onClick: handleDownloadOrdersCSV,
-            },
-            {
-              label: t("orderHistoryExport.downloadAsExcel"),
-              onClick: handleDownloadOrdersExcel,
-            },
-          ]}
-        />
+        <div className="flex items-start gap-2">
+          <TimeframeSelect
+            value={selectedTimeframe}
+            onChange={handleTimeframeChange}
+          />
+          <PeriodSelect
+            timeframe={selectedTimeframe}
+            value={selectedPeriod}
+            onChange={setSelectedPeriod}
+            onCustomDateChange={handleCustomDateChange}
+          />
+          <DownloadDropdown
+            defaultLabel={t("orderHistoryExport.downloadAsCSV")}
+            disabled={loading || !orderList?.length}
+            onDownloadCSV={handleDownloadOrdersCSV}
+            onDownloadExcel={handleDownloadOrdersExcel}
+            options={[
+              {
+                label: t("orderHistoryExport.downloadAsCSV"),
+                onClick: handleDownloadOrdersCSV,
+              },
+              {
+                label: t("orderHistoryExport.downloadAsExcel"),
+                onClick: handleDownloadOrdersExcel,
+              },
+            ]}
+          />
+        </div>
       </div>
 
       <div className="flex flex-col h-full">
