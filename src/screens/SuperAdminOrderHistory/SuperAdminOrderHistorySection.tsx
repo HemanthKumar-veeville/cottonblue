@@ -4,7 +4,13 @@ import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Checkbox } from "../../components/ui/checkbox";
 import { StatusIcon } from "../../components/ui/status-icon";
-import { DownloadIcon, FileText, SearchIcon, ShoppingBag } from "lucide-react";
+import {
+  DownloadIcon,
+  FileText,
+  SearchIcon,
+  ShoppingBag,
+  InfoIcon,
+} from "lucide-react";
 import { handleDownloadInvoice } from "../../utils/pdfUtil";
 import {
   Pagination,
@@ -41,6 +47,12 @@ import { formatDateToParis } from "../../utils/dateUtils";
 import { getAllCompanyOrdersReport } from "../../store/features/reportSlice";
 import { TimeframeSelect, TimeframeType } from "./TimeframeSelect";
 import { PeriodSelect } from "./PeriodSelect";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
 
 interface OrderItem {
   product_id: number;
@@ -150,6 +162,16 @@ const OrderRow = ({
           }
         >
           {order?.order_id ?? t("common.notAvailable")}
+        </span>
+      </TableCell>
+      <TableCell className="w-[129px] text-left">
+        <span
+          className="font-semibold text-coolgray-100 cursor-pointer hover:underline"
+          onClick={() =>
+            navigate(`/order-details/${order?.store_id}/${order?.order_id}`)
+          }
+        >
+          {order?.reference ?? t("common.notAvailable")}
         </span>
       </TableCell>
       <TableCell className="w-[145px] text-left">
@@ -303,9 +325,14 @@ export const SuperAdminOrderHistorySection = ({
   const loading = useSelector((state: any) => state.cart.loading);
   const error = useSelector((state: any) => state.cart.error);
   const total = useSelector((state: any) => state.cart.totalOrders);
+  const report = useSelector((state: any) => state.report);
+  const reportOrders = report?.orders || [];
+  const reportLoading = report?.loading;
+  const reportError = report?.error;
+
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
   const [selectedTimeframe, setSelectedTimeframe] =
-    useState<TimeframeType>("custom");
+    useState<TimeframeType>("all");
   const [selectedPeriod, setSelectedPeriod] = useState<DateRange>({
     startDate: dayjs().startOf("year").format("YYYY-MM-DD"),
     endDate: dayjs().format("YYYY-MM-DD"),
@@ -313,14 +340,6 @@ export const SuperAdminOrderHistorySection = ({
   const orderList = orders ?? [];
 
   // Update period when timeframe changes
-  useEffect(() => {
-    if (selectedTimeframe === "all") {
-      setSelectedPeriod({
-        startDate: "",
-        endDate: "",
-      });
-    }
-  }, [selectedTimeframe]);
 
   // Handle custom date range change
   const handleCustomDateChange = (fromDate: Date, toDate: Date) => {
@@ -332,32 +351,63 @@ export const SuperAdminOrderHistorySection = ({
 
   // Fetch orders with timeframe and period
   useEffect(() => {
-    dispatch(
-      getAllCompanyOrders({
-        dns_prefix,
-        page: currentPage,
-        limit: itemsPerPage,
-        search: searchQuery,
-      })
-    );
-  }, [dispatch, dns_prefix, currentPage, itemsPerPage, searchQuery]);
+    if (selectedTimeframe === "all") {
+      (searchQuery?.trim()?.length >= 3 || searchQuery?.trim()?.length === 0) &&
+        dispatch(
+          getAllCompanyOrders({
+            dns_prefix,
+            page: currentPage,
+            limit: itemsPerPage,
+            search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
+          })
+        );
+    } else {
+      (searchQuery?.trim()?.length >= 3 || searchQuery?.trim()?.length === 0) &&
+        dispatch(
+          getAllCompanyOrders({
+            dns_prefix,
+            page: currentPage,
+            limit: itemsPerPage,
+            search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
+            startDate: selectedPeriod.startDate,
+            endDate: selectedPeriod.endDate,
+          })
+        );
+    }
+  }, [
+    dispatch,
+    dns_prefix,
+    currentPage,
+    itemsPerPage,
+    searchQuery,
+    selectedPeriod,
+    selectedTimeframe,
+  ]);
 
   // Polyfill Buffer for ExcelJS if needed
   if (typeof window !== "undefined" && !(window as any).Buffer) {
     (window as any).Buffer = Buffer;
   }
 
+  const handleDownloadOrders = async () => {
+    try {
+      await dispatch(
+        getAllCompanyOrdersReport({
+          dns_prefix,
+          startDate: selectedPeriod.startDate,
+          endDate: selectedPeriod.endDate,
+          search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
+        })
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   // --- Download Handlers ---
   const handleDownloadOrdersCSV = async () => {
-    const response = await dispatch(
-      getAllCompanyOrdersReport({
-        dns_prefix,
-        startDate: selectedPeriod.startDate,
-        endDate: selectedPeriod.endDate,
-      })
-    ).unwrap();
-
-    const orderList = response?.data?.orders || [];
+    await handleDownloadOrders();
+    const orderList = reportOrders;
     if (!orderList?.length) return;
     try {
       const rows: Record<string, any>[] = [];
@@ -407,6 +457,7 @@ export const SuperAdminOrderHistorySection = ({
         created_at: t("csv.created_at"),
         order_id: t("csv.order_id"),
         order_status: t("csv.order_status"),
+        reference: t("csv.reference"),
         store_id: t("csv.store_id"),
         store_phone: t("csv.store_phone"),
         company_id: t("csv.company_id"),
@@ -469,15 +520,8 @@ export const SuperAdminOrderHistorySection = ({
   };
 
   const handleDownloadOrdersExcel = async () => {
-    const response = await dispatch(
-      getAllCompanyOrdersReport({
-        dns_prefix,
-        startDate: selectedPeriod.startDate,
-        endDate: selectedPeriod.endDate,
-      })
-    ).unwrap();
-
-    const orderList = response?.data?.orders || [];
+    await handleDownloadOrders();
+    const orderList = reportOrders;
     if (!orderList?.length) return;
     try {
       const workbook = new ExcelJS.Workbook();
@@ -530,6 +574,7 @@ export const SuperAdminOrderHistorySection = ({
         created_at: t("csv.created_at"),
         order_id: t("csv.order_id"),
         order_status: t("csv.order_status"),
+        reference: t("csv.reference"),
         store_id: t("csv.store_id"),
         company_id: t("csv.company_id"),
         vat_number: t("csv.vat_number"),
@@ -743,18 +788,56 @@ export const SuperAdminOrderHistorySection = ({
       </header>
 
       <div className="flex items-center justify-between w-full">
-        <div className="relative w-[400px]">
-          <Input
-            className="pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] pr-12 py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)] rounded-[var(--2-tokens-screen-modes-input-border-radius)]"
-            placeholder={t(
-              "history.superAdmin.orderHistory.search.placeholder"
-            )}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center w-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)] h-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)]">
-            <SearchIcon className="w-5 h-5 text-[color:var(--1-tokens-color-modes-input-primary-default-icon)]" />
+        <div className="relative w-[400px] flex items-center gap-2">
+          <div className="relative flex-1">
+            <Input
+              className="w-full pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] px-12 py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)] rounded-[var(--2-tokens-screen-modes-input-border-radius)]"
+              placeholder={t(
+                "history.superAdmin.orderHistory.search.placeholder"
+              )}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center w-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)] h-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)]">
+              <SearchIcon className="w-5 h-5 text-[color:var(--1-tokens-color-modes-input-primary-default-icon)]" />
+            </div>
           </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1 hover:bg-gray-100 rounded-full transition-colors">
+                  <InfoIcon className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                className="bg-gray-800 text-white border-none mb-10"
+              >
+                <div className="flex flex-col gap-1">
+                  <p className="font-medium">
+                    {t("history.superAdmin.orderHistory.search.tooltip.title")}
+                  </p>
+                  <ul className="list-disc list-inside text-sm">
+                    <li>
+                      {t(
+                        "history.superAdmin.orderHistory.search.tooltip.items.order"
+                      )}
+                    </li>
+                    <li>
+                      {t(
+                        "history.superAdmin.orderHistory.search.tooltip.items.store"
+                      )}
+                    </li>
+                    <li>
+                      {t(
+                        "history.superAdmin.orderHistory.search.tooltip.items.reference"
+                      )}
+                    </li>
+                  </ul>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
         <div className="flex items-start gap-2">
           <TimeframeSelect
@@ -814,6 +897,7 @@ export const SuperAdminOrderHistorySection = ({
                   </TableHead>
                   {[
                     "table.order",
+                    "table.reference",
                     "table.date",
                     "table.store",
                     "table.totalPrice",

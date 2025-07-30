@@ -49,7 +49,7 @@ export const getAllCompanyOrdersReport = createAsyncThunk(
     endDate,
     status, 
     page = 1, 
-    limit = 1000, 
+    limit, 
     search = '' 
   }: { 
     dns_prefix: string; 
@@ -70,7 +70,7 @@ export const getAllCompanyOrdersReport = createAsyncThunk(
         startDate,
         endDate,
       });
-      return response;
+      return response.data;
     } catch (error) {
       throw error;
     }
@@ -79,7 +79,7 @@ export const getAllCompanyOrdersReport = createAsyncThunk(
 
 export const fetchAllProducts = createAsyncThunk(
   'product/fetchAllProducts',
-  async ({ dnsPrefix, page = 1, limit = 1000, searchQuery = "" }: { dnsPrefix: string; page?: number; limit?: number; searchQuery?: string }, { rejectWithValue }) => {
+  async ({ dnsPrefix, page = 1, limit, searchQuery = "" }: { dnsPrefix: string; page?: number; limit?: number; searchQuery?: string }, { rejectWithValue }) => {
     try {
       const response = await productService.getAllProducts(dnsPrefix, page, limit, searchQuery);
       return response.data;

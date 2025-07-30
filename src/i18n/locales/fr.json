@@ -663,10 +663,21 @@
         "title": "Historique des commandes",
         "downloadSelectedInvoices": "Télécharger les commandes sélectionnées",
         "search": {
-          "placeholder": "Rechercher une commande..."
+          "placeholder": "Rechercher une commande...",
+          "helper": "Rechercher par : N° de commande, Magasin, Référence",
+          "tooltip": {
+            "title": "Rechercher par :",
+            "items": {
+              "order": "Numéro de commande",
+              "store": "Nom du magasin",
+              "status": "Statut de commande",
+              "reference": "Référence"
+            }
+          }
         },
         "table": {
           "order": "Commande Id.",
+          "reference": "Référence",
           "company": "Entreprise",
           "store": "Magasin",
           "date": "Date",
@@ -699,6 +710,7 @@
       "downloadSelectedInvoices": "Télécharger les commandes sélectionnées",
       "table": {
         "order": "Commande",
+        "reference": "Référence",
         "company": "Entreprise",
         "store": "Magasin",
         "date": "Date",
@@ -1561,6 +1573,7 @@
   },
   "csv": {
     "index": "N°",
+    "reference": "Référence",
     "created_at": "Créé le",
     "order_id": "N°commande",
     "order_status": "Statut",

@@ -259,24 +259,11 @@ const AddressSection = ({
       )}
       <div className="flex flex-col items-start gap-2 w-full">
         <p className="font-text-small font-medium text-gray-700 text-sm tracking-wide leading-tight">
-          {title && "name" in address && address.name && (
-            <>
-              {address.name}
-              <br />
-            </>
-          )}
-          {title &&
-            "firstName" in address &&
-            address.firstName &&
-            address.lastName && (
-              <>
-                {`${address.firstName} ${address.lastName}`}
-                <br />
-              </>
-            )}
+          {address.storeName || address.name}
+          <br />
           {address.street}
           <br />
-          {address.city}
+          {address.city} - {address.zipCode}
           <br />
           {address.country}
           <br />
@@ -372,6 +359,7 @@ export default function CartContainer(): JSX.Element {
         ...prev,
         firstName: store_details.admin_name?.split(" ")[0] || "",
         lastName: store_details.admin_name?.split(" ")[1] || "",
+        storeName: store_details.store_name || "",
         street: store_details.store_address || "",
         city: store_details.store_city || "",
         zipCode: store_details.store_postal_code.toString() || "",
@@ -606,10 +594,7 @@ export default function CartContainer(): JSX.Element {
                       />
                     </div>
                   </section>
-                  <AddressSection
-                    title="cart.shipping.title"
-                    address={shippingAddress}
-                  />
+                  <AddressSection title="" address={shippingAddress} />
                   <AddressSection
                     title="cart.billing.title"
                     address={billingAddress}

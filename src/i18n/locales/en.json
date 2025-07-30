@@ -617,10 +617,21 @@
         "title": "Order History",
         "downloadSelectedInvoices": "Download selected invoices",
         "search": {
-          "placeholder": "Search an order..."
+          "placeholder": "Search an order...",
+          "helper": "Search by: Order #, Store, Status",
+          "tooltip": {
+            "title": "Search by:",
+            "items": {
+              "order": "Order number",
+              "store": "Store name",
+              "status": "Order status",
+              "reference": "Reference"
+            }
+          }
         },
         "table": {
           "order": "Order Id.",
+          "reference": "Reference",
           "company": "Company",
           "store": "Store",
           "date": "Date",
@@ -1439,6 +1450,7 @@
   "csv": {
     "created_at": "Created At",
     "order_id": "Order ID",
+    "reference": "Reference",
     "order_status": "Order Status",
     "total_amount": "Total Amount",
     "order_items": {
