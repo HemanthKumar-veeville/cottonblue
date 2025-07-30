@@ -116,7 +116,9 @@ export const getAllOrders = createAsyncThunk(
     status,
     page = 1,
     limit = 10,
-    search = ""
+    search = "",
+    startDate,
+    endDate
   }: { 
     dns_prefix: string; 
     store_id: string;
@@ -124,8 +126,10 @@ export const getAllOrders = createAsyncThunk(
     page?: number;
     limit?: number;
     search?: string;
+    startDate?: string;
+    endDate?: string;
   }) => {
-    const response = await cartService.getAllOrders(dns_prefix, store_id, status, page, limit, search);
+    const response = await cartService.getAllOrders(dns_prefix, store_id, status, page, limit, search, startDate, endDate);
     return response.data;
   }
 );

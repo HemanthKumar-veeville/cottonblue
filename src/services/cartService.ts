@@ -168,9 +168,17 @@ export const cartService = {
     status: string,
     page: number,
     limit: number,
-    search: string
+    search: string,
+    startDate?: string,
+    endDate?: string
   ): Promise<GetAllOrdersResponse> => {
-    const queryParams = status ? `?status=${status}&page=${page}&limit=${limit}&search=${search}` : `?page=${page}&limit=${limit}&search=${search}`;
+    let queryParams = '?';
+    search && (queryParams += `search=${search}&`);
+    status && (queryParams += `status=${status}&`);
+    page && (queryParams += `page=${page}&`);
+    limit && (queryParams += `limit=${limit}&`);
+    startDate && (queryParams += `start_date=${startDate}&`);
+    endDate && (queryParams += `end_date=${endDate}`);
     return axiosInstance.get(`/${dns_prefix}/all/orders/${store_id}${queryParams}`);
   },
 

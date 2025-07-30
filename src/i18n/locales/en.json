@@ -592,6 +592,9 @@
   "history": {
     "title": "Order History",
     "downloadSelectedInvoices": "Download selected invoices",
+    "search": {
+      "placeholder": "Search an order..."
+    },
     "table": {
       "order": "Order",
       "date": "Date",

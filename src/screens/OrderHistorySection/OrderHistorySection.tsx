@@ -1,4 +1,4 @@
-import { DownloadIcon, ChevronDown } from "lucide-react";
+import { DownloadIcon, ChevronDown, SearchIcon } from "lucide-react";
 import { Button } from "../../components/ui/button";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
@@ -9,7 +9,6 @@ import { useState, useRef } from "react";
 import { Buffer } from "buffer";
 import dayjs from "dayjs";
 import { Input } from "../../components/ui/input";
-import { SearchIcon } from "lucide-react";
 import {
   Pagination,
   PaginationContent,
@@ -19,7 +18,16 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "../../components/ui/pagination";
-import { useAppSelector } from "../../store/store";
+import { useAppDispatch, useAppSelector } from "../../store/store";
+import { TimeframeSelect, TimeframeType } from "./TimeframeSelect";
+import { PeriodSelect } from "./PeriodSelect";
+import { getAllCompanyOrdersReport } from "../../store/features/reportSlice";
+import { getHost } from "../../utils/hostUtils";
+
+interface DateRange {
+  startDate: string;
+  endDate: string;
+}
 
 const Heading = ({ text }: { text: string }) => (
   <h3 className="text-[length:var(--heading-h3-font-size)] font-heading-h3 font-[number:var(--heading-h3-font-weight)] text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] [font-style:var(--heading-h3-font-style)]">
@@ -43,19 +51,22 @@ const DownloadDropdown = ({
   const [open, setOpen] = useState(false);
   const [selectedLabel, setSelectedLabel] = useState(defaultLabel);
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const { buttonStyles } = useCompanyColors();
 
   return (
     <div className="relative inline-block text-left">
       <Button
         ref={buttonRef}
         variant="outline"
-        className="transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90 flex items-center"
+        className="transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[var(--primary-light-color)] flex items-center"
         disabled={disabled}
         onClick={() => setOpen((v) => !v)}
         style={{
           backgroundColor: "var(--primary-color)",
           color: "var(--primary-text-color)",
-          borderColor: "var(--primary-color)",
+          border: "1px solid var(--primary-color)",
+          transform: "translateY(0)",
+          transition: "transform 0.2s ease, box-shadow 0.2s ease",
         }}
       >
         <DownloadIcon className="mr-2 h-4 w-4" />
@@ -63,12 +74,12 @@ const DownloadDropdown = ({
         <ChevronDown className="ml-2 h-4 w-4" />
       </Button>
       {open && (
-        <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-[var(--primary-color)] ring-opacity-20 focus:outline-none">
           <div className="py-1">
             {options.map((opt, idx) => (
               <button
                 key={idx}
-                className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                className="w-full flex items-center px-4 py-2 text-sm text-[var(--primary-color)] hover:bg-[var(--primary-light-color)]"
                 onClick={() => {
                   opt.onClick();
                   setSelectedLabel(opt.label);
@@ -93,6 +104,10 @@ interface OrderHistorySectionProps {
   itemsPerPage: number;
   activeTab: "all" | "selected";
   setActiveTab: (tab: "all" | "selected") => void;
+  selectedTimeframe: TimeframeType;
+  setSelectedTimeframe: (timeframe: TimeframeType) => void;
+  selectedPeriod: DateRange;
+  setSelectedPeriod: (period: DateRange) => void;
 }
 
 export const OrderHistorySection = ({
@@ -103,6 +118,10 @@ export const OrderHistorySection = ({
   itemsPerPage = 10,
   activeTab,
   setActiveTab,
+  selectedTimeframe,
+  setSelectedTimeframe,
+  selectedPeriod,
+  setSelectedPeriod,
 }: OrderHistorySectionProps): JSX.Element => {
   const { t, i18n } = useTranslation();
   const orders = useSelector((state: any) => state.cart.orders);
@@ -112,25 +131,59 @@ export const OrderHistorySection = ({
   const { buttonStyles } = useCompanyColors();
   const orderList = orders || [];
   const { isClientAdmin } = useAppSelector((state: any) => state.auth);
+  const dns_prefix = getHost();
+  const dispatch = useAppDispatch();
+  const report = useSelector((state: any) => state.report);
+  const reportOrders = report?.orders || [];
   if (typeof window !== "undefined" && !(window as any).Buffer) {
     (window as any).Buffer = Buffer;
   }
 
-  const handleDownloadOrdersCSV = () => {
+  const handleCustomDateChange = (fromDate: Date, toDate: Date) => {
+    setSelectedPeriod({
+      startDate: dayjs(fromDate).format("YYYY-MM-DD"),
+      endDate: dayjs(toDate).format("YYYY-MM-DD"),
+    });
+  };
+
+  const handleTimeframeChange = (value: TimeframeType) => {
+    setSelectedTimeframe(value);
+    setCurrentPage(1);
+  };
+
+  const handleDownloadOrders = async () => {
+    try {
+      await dispatch(
+        getAllCompanyOrdersReport({
+          dns_prefix,
+          ...(selectedTimeframe === "custom" && {
+            startDate: selectedPeriod.startDate,
+            endDate: selectedPeriod.endDate,
+          }),
+          search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
+        })
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleDownloadOrdersCSV = async () => {
+    await handleDownloadOrders();
+    const orderList = reportOrders;
+    console.log({ orderList });
     if (!orderList?.length) return;
     try {
       const rows: Record<string, any>[] = [];
       let currentOrderId: string | null = null;
       orderList.forEach((order: any) => {
         const { order_items, ...orderFields } = order;
-        // Format created_at as date and time if present
         if (orderFields.created_at) {
           const date = dayjs(orderFields.created_at);
           orderFields.created_at = date.isValid()
             ? date.format("YYYY-MM-DD")
             : orderFields.created_at;
         }
-        // Translate order_status if present
         if (orderFields.order_status) {
           orderFields.order_status =
             t("order_status." + orderFields.order_status) ||
@@ -139,7 +192,6 @@ export const OrderHistorySection = ({
         if (Array.isArray(order_items) && order_items.length > 0) {
           order_items.forEach((item: any, index: number) => {
             const row: Record<string, any> = {};
-            // Include order fields for all rows except total_amount
             if (currentOrderId !== order.order_id || index === 0) {
               Object.entries(orderFields).forEach(([key, value]) => {
                 if (key !== "total_amount") {
@@ -148,7 +200,6 @@ export const OrderHistorySection = ({
               });
               currentOrderId = order.order_id;
             }
-            // Add total_amount only to the last product row
             if (index === order_items.length - 1) {
               row.total_amount = orderFields.total_amount;
             }
@@ -163,9 +214,11 @@ export const OrderHistorySection = ({
           rows.push({ ...orderFields });
         }
       });
+
       const headerMap: Record<string, string> = {
         created_at: t("csv.created_at"),
         order_id: t("csv.order_id"),
+        reference: t("csv.reference"),
         order_status: t("csv.order_status"),
         total_amount: t("csv.total_amount"),
         amount: t("csv.order_items.amount"),
@@ -176,6 +229,7 @@ export const OrderHistorySection = ({
         product_suitable_for: t("csv.order_items.product_suitable_for"),
         quantity: t("csv.order_items.quantity"),
       };
+
       const keySet = new Set<string>();
       rows.forEach((row) => {
         Object.keys(row).forEach((key) => keySet.add(key));
@@ -183,20 +237,19 @@ export const OrderHistorySection = ({
       const allKeysRaw = Array.from(keySet).filter(
         (key) => key !== "product_images"
       );
-      // Move total_amount to the end if present
       let allKeys = allKeysRaw;
       const totalIdx = allKeys.indexOf("total_amount");
       if (totalIdx !== -1) {
         allKeys = allKeys.filter((k) => k !== "total_amount");
         allKeys.push("total_amount");
       }
+
       const headers = allKeys.map((key) => headerMap[key] || key);
       const data = rows.map((row) =>
         allKeys.map((key) => (row[key] !== undefined ? row[key] : ""))
       );
       const worksheet = XLSX.utils.aoa_to_sheet([headers, ...data]);
       const csvContent = XLSX.utils.sheet_to_csv(worksheet);
-      // Use UTF-8 with BOM for best compatibility with French characters
       const utf8Bom = "\uFEFF";
       const csvBlob = new Blob([utf8Bom + csvContent], {
         type: "text/csv;charset=utf-8;",
@@ -218,6 +271,8 @@ export const OrderHistorySection = ({
   };
 
   const handleDownloadOrdersExcel = async () => {
+    await handleDownloadOrders();
+    const orderList = reportOrders;
     if (!orderList?.length) return;
     try {
       const workbook = new ExcelJS.Workbook();
@@ -228,14 +283,12 @@ export const OrderHistorySection = ({
 
       orderList.forEach((order: any) => {
         const { order_items, ...orderFields } = order;
-        // Format created_at as date and time if present
         if (orderFields.created_at) {
           const date = dayjs(orderFields.created_at);
           orderFields.created_at = date.isValid()
             ? date.format("YYYY-MM-DD")
             : orderFields.created_at;
         }
-        // Translate order_status if present
         if (orderFields.order_status) {
           orderFields.order_status =
             t("order_status." + orderFields.order_status) ||
@@ -244,7 +297,6 @@ export const OrderHistorySection = ({
         if (Array.isArray(order_items) && order_items.length > 0) {
           order_items.forEach((item: any, index: number) => {
             const row: Record<string, any> = {};
-            // Include order fields for all rows except total_amount
             if (currentOrderId !== order.order_id || index === 0) {
               Object.entries(orderFields).forEach(([key, value]) => {
                 if (key !== "total_amount") {
@@ -256,7 +308,6 @@ export const OrderHistorySection = ({
                 isAlternateOrder = !isAlternateOrder;
               }
             }
-            // Add total_amount only to the last product row
             if (index === order_items.length - 1) {
               row.total_amount = orderFields.total_amount;
             }
@@ -276,6 +327,7 @@ export const OrderHistorySection = ({
       const headerMap: Record<string, string> = {
         created_at: t("csv.created_at"),
         order_id: t("csv.order_id"),
+        reference: t("csv.reference"),
         order_status: t("csv.order_status"),
         total_amount: t("csv.total_amount"),
         amount: t("csv.order_items.amount"),
@@ -286,6 +338,7 @@ export const OrderHistorySection = ({
         product_suitable_for: t("csv.order_items.product_suitable_for"),
         quantity: t("csv.order_items.quantity"),
       };
+
       const keySet = new Set<string>();
       rows.forEach((row) => {
         Object.keys(row).forEach((key) => keySet.add(key));
@@ -293,16 +346,16 @@ export const OrderHistorySection = ({
       const allKeysRaw = Array.from(keySet).filter(
         (key) => key !== "product_images"
       );
-      // Move total_amount to the end if present
       let allKeys = allKeysRaw;
       const totalIdx = allKeys.indexOf("total_amount");
       if (totalIdx !== -1) {
         allKeys = allKeys.filter((k) => k !== "total_amount");
         allKeys.push("total_amount");
       }
+
       const headers = allKeys.map((key) => headerMap[key] || key);
       worksheet.addRow(headers);
-      // Add data rows
+
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
         const rowData = allKeys.map((key) => {
@@ -318,18 +371,16 @@ export const OrderHistorySection = ({
 
         const excelRow = worksheet.addRow(rowData);
 
-        // Apply alternating colors
         if (row.isAlternate) {
           excelRow.eachCell((cell) => {
             cell.fill = {
               type: "pattern",
               pattern: "solid",
-              fgColor: { argb: "FFECF5F7" }, // Light cyan color
+              fgColor: { argb: "FFECF5F7" },
             };
           });
         }
 
-        // Apply cell formatting
         excelRow.eachCell((cell) => {
           cell.border = {
             top: { style: "thin" },
@@ -346,7 +397,6 @@ export const OrderHistorySection = ({
         });
       }
 
-      // Format header row
       const headerRow = worksheet.getRow(1);
       headerRow.font = { bold: true };
       headerRow.alignment = { horizontal: "center", vertical: "middle" };
@@ -355,16 +405,21 @@ export const OrderHistorySection = ({
         cell.fill = {
           type: "pattern",
           pattern: "solid",
-          fgColor: { argb: "FF07515F" }, // Dark cyan color
-          bgColor: { argb: "FF07515F" },
+          fgColor: {
+            argb:
+              buttonStyles.backgroundColor?.replace("#", "FF") || "FF07515F",
+          },
+          bgColor: {
+            argb:
+              buttonStyles.backgroundColor?.replace("#", "FF") || "FF07515F",
+          },
         };
         cell.font = {
           bold: true,
-          color: { argb: "FFFFFFFF" }, // White text
+          color: { argb: "FFFFFFFF" },
         };
       });
 
-      // Set column widths based on max content length
       Array.from(worksheet.columns ?? []).forEach((col, idx) => {
         let maxLength = headers[idx].length;
         col.eachCell?.({ includeEmpty: true }, (cell: any) => {
@@ -373,7 +428,7 @@ export const OrderHistorySection = ({
         });
         col.width = Math.max(12, Math.min(40, maxLength + 6));
       });
-      // Freeze header row
+
       worksheet.views = [{ state: "frozen", ySplit: 1 }];
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], {
@@ -395,7 +450,6 @@ export const OrderHistorySection = ({
     }
   };
 
-  // Generate pagination items
   const getPaginationItems = () => {
     const items = [];
     const maxVisiblePages = 5;
@@ -424,67 +478,97 @@ export const OrderHistorySection = ({
   return (
     <header className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
       <div
-        className="flex items-center justify-between w-full"
+        className="flex items-center gap-4 justify-between"
         style={buttonStyles}
       >
         <Heading text={t("history.title")} />
-        <div className="flex items-center gap-4" style={buttonStyles}>
-          {isClientAdmin && (
-            <div className="flex gap-0">
-              <Button
-                variant={activeTab === "all" ? "default" : "outline"}
-                onClick={() => setActiveTab("all")}
-                className={`flex-1 transition-all duration-200 ${
+        {isClientAdmin && (
+          <div className="flex gap-0">
+            <Button
+              variant={activeTab === "all" ? "default" : "outline"}
+              onClick={() => setActiveTab("all")}
+              className={`flex-1 transition-all duration-200 ${
+                activeTab === "all"
+                  ? "hover:brightness-90 shadow-md hover:shadow-lg hover:bg-primary-hover-color hover:text-white hover:border-primary-hover-color"
+                  : "hover:bg-[var(--primary-light-color)] hover:border-[var(--primary-hover-color)] hover:text-[var(--primary-hover-color)]"
+              }`}
+              style={{
+                backgroundColor:
+                  activeTab === "all" ? "var(--primary-color)" : "transparent",
+                color:
                   activeTab === "all"
-                    ? "hover:brightness-90 shadow-md hover:shadow-lg hover:bg-primary-hover-color hover:text-white hover:border-primary-hover-color"
-                    : "hover:bg-[var(--primary-light-color)] hover:border-[var(--primary-hover-color)] hover:text-[var(--primary-hover-color)]"
-                }`}
-                style={{
-                  backgroundColor:
-                    activeTab === "all"
-                      ? "var(--primary-color)"
-                      : "transparent",
-                  color:
-                    activeTab === "all"
-                      ? "var(--primary-text-color)"
-                      : "var(--primary-color)",
-                  border: "1px solid var(--primary-color)",
-                  transform: "translateY(0)",
-                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                  borderTopRightRadius: "0",
-                  borderBottomRightRadius: "0",
-                }}
-              >
-                {t("orderHistoryExport.allStores")}
-              </Button>
-              <Button
-                variant={activeTab === "selected" ? "default" : "outline"}
-                onClick={() => setActiveTab("selected")}
-                className={`flex-1 transition-all duration-200 ${
+                    ? "var(--primary-text-color)"
+                    : "var(--primary-color)",
+                border: "1px solid var(--primary-color)",
+                transform: "translateY(0)",
+                transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                borderTopRightRadius: "0",
+                borderBottomRightRadius: "0",
+              }}
+            >
+              {t("orderHistoryExport.allStores")}
+            </Button>
+            <Button
+              variant={activeTab === "selected" ? "default" : "outline"}
+              onClick={() => setActiveTab("selected")}
+              className={`flex-1 transition-all duration-200 ${
+                activeTab === "selected"
+                  ? "hover:brightness-90 shadow-md hover:shadow-lg hover:bg-primary-hover-color hover:text-white hover:border-primary-hover-color"
+                  : "hover:bg-[var(--primary-light-color)] hover:border-[var(--primary-hover-color)] hover:text-[var(--primary-hover-color)]"
+              }`}
+              style={{
+                backgroundColor:
                   activeTab === "selected"
-                    ? "hover:brightness-90 shadow-md hover:shadow-lg hover:bg-primary-hover-color hover:text-white hover:border-primary-hover-color"
-                    : "hover:bg-[var(--primary-light-color)] hover:border-[var(--primary-hover-color)] hover:text-[var(--primary-hover-color)]"
-                }`}
-                style={{
-                  backgroundColor:
-                    activeTab === "selected"
-                      ? "var(--primary-color)"
-                      : "transparent",
-                  color:
-                    activeTab === "selected"
-                      ? "var(--primary-text-color)"
-                      : "var(--primary-color)",
-                  border: "1px solid var(--primary-color)",
-                  transform: "translateY(0)",
-                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
-                  borderTopLeftRadius: "0",
-                  borderBottomLeftRadius: "0",
-                }}
-              >
-                {t("orderHistoryExport.selectedStore")}
-              </Button>
+                    ? "var(--primary-color)"
+                    : "transparent",
+                color:
+                  activeTab === "selected"
+                    ? "var(--primary-text-color)"
+                    : "var(--primary-color)",
+                border: "1px solid var(--primary-color)",
+                transform: "translateY(0)",
+                transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                borderTopLeftRadius: "0",
+                borderBottomLeftRadius: "0",
+              }}
+            >
+              {t("orderHistoryExport.selectedStore")}
+            </Button>
+          </div>
+        )}
+      </div>
+
+      <div
+        className="flex items-center justify-between w-full"
+        style={buttonStyles}
+      >
+        <div className="relative w-[400px] flex items-center gap-2">
+          <div className="relative flex-1">
+            <Input
+              className="w-full pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] px-12 py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)] rounded-[var(--2-tokens-screen-modes-input-border-radius)]"
+              placeholder={t("history.search.placeholder")}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <div className="absolute left-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center w-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)] h-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)]">
+              <SearchIcon className="w-5 h-5 text-[color:var(--1-tokens-color-modes-input-primary-default-icon)]" />
             </div>
-          )}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-end gap-4">
+          <div className="flex items-center justify-end gap-4">
+            <PeriodSelect
+              timeframe={selectedTimeframe}
+              value={selectedPeriod}
+              onChange={setSelectedPeriod}
+              onCustomDateChange={handleCustomDateChange}
+            />
+            <TimeframeSelect
+              value={selectedTimeframe}
+              onChange={handleTimeframeChange}
+            />
+          </div>
           <DownloadDropdown
             defaultLabel={t("orderHistoryExport.downloadAsCSV")}
             disabled={loading || !orderList?.length}

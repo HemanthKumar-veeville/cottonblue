@@ -394,8 +394,10 @@ export const SuperAdminOrderHistorySection = ({
       await dispatch(
         getAllCompanyOrdersReport({
           dns_prefix,
-          startDate: selectedPeriod.startDate,
-          endDate: selectedPeriod.endDate,
+          ...(selectedTimeframe === "custom" && {
+            startDate: selectedPeriod.startDate,
+            endDate: selectedPeriod.endDate,
+          }),
           search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
         })
       );

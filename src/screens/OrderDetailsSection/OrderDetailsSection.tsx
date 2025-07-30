@@ -61,12 +61,16 @@ const OrderRow = ({
   isSelected,
   onSelect,
   activeTab,
+  currentPage,
+  itemsPerPage,
 }: {
   order: Order;
   index: number;
   isSelected: boolean;
   onSelect: (orderId: number) => void;
   activeTab: "all" | "selected";
+  currentPage: number;
+  itemsPerPage: number;
 }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -88,11 +92,9 @@ const OrderRow = ({
   return (
     <TableRow key={index} className="border-b border-primary-neutal-300">
       <TableCell className="py-3 px-2 w-[5%] align-middle">
-        <Checkbox
-          className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
-          checked={isSelected}
-          onCheckedChange={() => onSelect(order.order_id)}
-        />
+        <span className="font-text-small text-[#1e2324] text-[length:var(--text-small-font-size)] tracking-[var(--text-small-letter-spacing)] leading-[var(--text-small-line-height)] px-2">
+          {(currentPage - 1) * itemsPerPage + index + 1}
+        </span>
       </TableCell>
       <TableCell className="p-2.5 w-[15%] text-left align-middle">
         <span
@@ -277,16 +279,9 @@ export const OrderDetailsSection = ({
           >
             <TableRow>
               <TableHead className="p-2.5 w-[5%] align-middle">
-                <Checkbox
-                  className="w-5 h-5 rounded border-[1.5px] border-solid border-1-tokens-color-modes-common-neutral-medium"
-                  checked={
-                    selectedOrders.length === currentOrders.length &&
-                    currentOrders.length > 0
-                  }
-                  onCheckedChange={(checked: boolean | "indeterminate") =>
-                    handleSelectAll(checked === true)
-                  }
-                />
+                <span className="font-text-small text-[#1e2324] text-[length:var(--text-small-font-size)] tracking-[var(--text-small-letter-spacing)] leading-[var(--text-small-line-height)] px-1">
+                  #
+                </span>
               </TableHead>
               {[
                 { key: "order", width: "15%" },
@@ -321,6 +316,8 @@ export const OrderDetailsSection = ({
                 isSelected={selectedOrders.includes(order.order_id)}
                 onSelect={handleSelectOrder}
                 activeTab={activeTab}
+                currentPage={currentPage}
+                itemsPerPage={itemsPerPage}
               />
             ))}
           </TableBody>

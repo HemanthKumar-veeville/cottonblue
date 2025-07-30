@@ -3,6 +3,7 @@
     "en": "English",
     "fr": "Français"
   },
+
   "back": "Retour",
   "notFound": {
     "title": "Page non trouvée",
@@ -633,6 +634,9 @@
   "history": {
     "title": "Historique de commande",
     "downloadSelectedInvoices": "Télécharger les commandes sélectionnées",
+    "search": {
+      "placeholder": "Rechercher une commande..."
+    },
     "table": {
       "order": "Commande",
       "store": "Magasin",

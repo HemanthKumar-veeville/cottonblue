@@ -8,6 +8,13 @@ import {
 } from "../../store/features/cartSlice";
 import { getHost } from "../../utils/hostUtils";
 import { useAppSelector, AppDispatch } from "../../store/store";
+import dayjs from "dayjs";
+import { TimeframeType } from "../OrderHistorySection/TimeframeSelect";
+
+interface DateRange {
+  startDate: string;
+  endDate: string;
+}
 
 export default function History(): JSX.Element {
   const dispatch = useDispatch<AppDispatch>();
@@ -16,6 +23,12 @@ export default function History(): JSX.Element {
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [activeTab, setActiveTab] = useState<"all" | "selected">("selected");
+  const [selectedTimeframe, setSelectedTimeframe] =
+    useState<TimeframeType>("all");
+  const [selectedPeriod, setSelectedPeriod] = useState<DateRange>({
+    startDate: dayjs().startOf("year").format("YYYY-MM-DD"),
+    endDate: dayjs().format("YYYY-MM-DD"),
+  });
 
   const ITEMS_PER_PAGE = 10;
 
@@ -24,49 +37,48 @@ export default function History(): JSX.Element {
       if (searchQuery.trim() !== "") {
         setCurrentPage(1);
       }
-      searchQuery?.trim()?.length >= 3
-        ? dispatch(
-            getAllOrders({
-              dns_prefix,
-              store_id: selectedStore,
-              page: currentPage,
-              limit: ITEMS_PER_PAGE,
-              search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
-            })
-          )
-        : searchQuery?.trim()?.length === 0 &&
-          dispatch(
-            getAllOrders({
-              dns_prefix,
-              store_id: selectedStore,
-              page: currentPage,
-              limit: ITEMS_PER_PAGE,
-              search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
-            })
-          );
+
+      const params = {
+        dns_prefix,
+        store_id: selectedStore,
+        page: currentPage,
+        limit: ITEMS_PER_PAGE,
+        search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
+        ...(selectedTimeframe === "custom" && {
+          startDate: selectedPeriod.startDate,
+          endDate: selectedPeriod.endDate,
+        }),
+      };
+
+      if (
+        searchQuery?.trim()?.length >= 3 ||
+        searchQuery?.trim()?.length === 0
+      ) {
+        dispatch(getAllOrders(params));
+      }
     } else if (activeTab === "all") {
       if (dns_prefix) {
         if (searchQuery.trim() !== "") {
           setCurrentPage(1);
         }
-        searchQuery?.trim()?.length >= 3
-          ? dispatch(
-              getAllCompanyOrders({
-                dns_prefix: dns_prefix,
-                page: currentPage,
-                limit: ITEMS_PER_PAGE,
-                search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
-              })
-            )
-          : searchQuery?.trim()?.length === 0 &&
-            dispatch(
-              getAllCompanyOrders({
-                dns_prefix: dns_prefix,
-                page: currentPage,
-                limit: ITEMS_PER_PAGE,
-                search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
-              })
-            );
+
+        const params = {
+          dns_prefix: dns_prefix,
+          page: currentPage,
+          limit: ITEMS_PER_PAGE,
+          search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
+          ...(selectedTimeframe === "custom" && {
+            startDate: selectedPeriod.startDate,
+            endDate: selectedPeriod.endDate,
+          }),
+        };
+
+        if (
+          searchQuery?.trim()?.length >= 3 ||
+          searchQuery?.trim()?.length === 0
+        ) {
+          dispatch(getAllCompanyOrders(params));
+        }
       }
     }
   }, [
@@ -76,6 +88,8 @@ export default function History(): JSX.Element {
     searchQuery,
     dns_prefix,
     activeTab,
+    selectedTimeframe,
+    selectedPeriod,
   ]);
 
   return (
@@ -88,6 +102,10 @@ export default function History(): JSX.Element {
         itemsPerPage={ITEMS_PER_PAGE}
         activeTab={activeTab}
         setActiveTab={setActiveTab}
+        selectedTimeframe={selectedTimeframe}
+        setSelectedTimeframe={setSelectedTimeframe}
+        selectedPeriod={selectedPeriod}
+        setSelectedPeriod={setSelectedPeriod}
       />
       <OrderDetailsSection
         currentPage={currentPage}
