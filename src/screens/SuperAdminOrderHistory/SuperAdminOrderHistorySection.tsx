@@ -10,7 +10,16 @@ import {
   SearchIcon,
   ShoppingBag,
   InfoIcon,
+  CheckCircle,
+  Loader2,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
 import { handleDownloadInvoice } from "../../utils/pdfUtil";
 import {
   Pagination,
@@ -337,6 +346,8 @@ export const SuperAdminOrderHistorySection = ({
     startDate: dayjs().startOf("year").format("YYYY-MM-DD"),
     endDate: dayjs().format("YYYY-MM-DD"),
   });
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const orderList = orders ?? [];
 
   // Update period when timeframe changes
@@ -391,6 +402,8 @@ export const SuperAdminOrderHistorySection = ({
 
   const handleDownloadOrders = async () => {
     try {
+      setShowLoadingModal(true);
+      setShowSuccess(false);
       await dispatch(
         getAllCompanyOrdersReport({
           dns_prefix,
@@ -401,8 +414,14 @@ export const SuperAdminOrderHistorySection = ({
           search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
         })
       );
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowLoadingModal(false);
+        setShowSuccess(false);
+      }, 2000);
     } catch (error) {
       console.error(error);
+      setShowLoadingModal(false);
     }
   };
 
@@ -783,6 +802,28 @@ export const SuperAdminOrderHistorySection = ({
 
   return (
     <section className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
+      <Dialog open={showLoadingModal} onOpenChange={setShowLoadingModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">
+              {showSuccess ? t("common.success") : t("common.processing")}
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              {showSuccess ? (
+                <div className="flex flex-col items-center gap-4 py-4">
+                  <CheckCircle className="w-16 h-16 text-green-500 animate-in zoom-in duration-300" />
+                  <p>{t("common.downloadComplete")}</p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-4 py-4">
+                  <Loader2 className="w-16 h-16 text-primary animate-spin" />
+                  <p>{t("common.preparingDownload")}</p>
+                </div>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
       <header className="flex items-center justify-between w-full">
         <h3 className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] font-[number:var(--heading-h3-font-weight)] [font-style:var(--heading-h3-font-style)]">
           {t("history.superAdmin.orderHistory.title")}

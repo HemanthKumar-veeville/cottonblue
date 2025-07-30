@@ -1,5 +1,18 @@
-import { DownloadIcon, ChevronDown, SearchIcon } from "lucide-react";
+import {
+  DownloadIcon,
+  ChevronDown,
+  SearchIcon,
+  CheckCircle,
+  Loader2,
+} from "lucide-react";
 import { Button } from "../../components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "../../components/ui/dialog";
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
 import * as XLSX from "xlsx";
@@ -129,6 +142,8 @@ export const OrderHistorySection = ({
   const error = useSelector((state: any) => state.cart.error);
   const total = useSelector((state: any) => state.cart.totalOrders);
   const { buttonStyles } = useCompanyColors();
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const orderList = orders || [];
   const { isClientAdmin } = useAppSelector((state: any) => state.auth);
   const dns_prefix = getHost();
@@ -153,6 +168,8 @@ export const OrderHistorySection = ({
 
   const handleDownloadOrders = async () => {
     try {
+      setShowLoadingModal(true);
+      setShowSuccess(false);
       await dispatch(
         getAllCompanyOrdersReport({
           dns_prefix,
@@ -163,8 +180,14 @@ export const OrderHistorySection = ({
           search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
         })
       );
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowLoadingModal(false);
+        setShowSuccess(false);
+      }, 2000);
     } catch (error) {
       console.error(error);
+      setShowLoadingModal(false);
     }
   };
 
@@ -477,6 +500,28 @@ export const OrderHistorySection = ({
 
   return (
     <header className="flex flex-col gap-[var(--2-tokens-screen-modes-common-spacing-m)] w-full">
+      <Dialog open={showLoadingModal} onOpenChange={setShowLoadingModal}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-center">
+              {showSuccess ? t("common.success") : t("common.processing")}
+            </DialogTitle>
+            <DialogDescription className="text-center">
+              {showSuccess ? (
+                <div className="flex flex-col items-center gap-4 py-4">
+                  <CheckCircle className="w-16 h-16 text-green-500 animate-in zoom-in duration-300" />
+                  <p>{t("common.downloadComplete")}</p>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center gap-4 py-4">
+                  <Loader2 className="w-16 h-16 text-primary animate-spin" />
+                  <p>{t("common.preparingDownload")}</p>
+                </div>
+              )}
+            </DialogDescription>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
       <div
         className="flex items-center gap-4 justify-between"
         style={buttonStyles}

@@ -12,6 +12,8 @@
     "dashboard_report": "dashboard_report"
   },
   "common": {
+    "downloadComplete": "Download complete",
+    "preparingDownload": "Preparing download...",
     "loading": "Loading...",
     "viewAll": "View all",
     "next": "Next",

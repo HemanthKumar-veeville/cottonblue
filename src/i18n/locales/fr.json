@@ -27,6 +27,8 @@
     "dashboard_report": "rapport_tableau_de_bord"
   },
   "common": {
+    "downloadComplete": "Téléchargement terminé",
+    "preparingDownload": "Préparation du téléchargement...",
     "packs": "lots",
     "back": "Retour",
     "goBack": "Retour",
