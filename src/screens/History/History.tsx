@@ -46,8 +46,12 @@ export default function History(): JSX.Element {
         limit: ITEMS_PER_PAGE,
         search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
         ...(selectedTimeframe === "custom" && {
-          startDate: selectedPeriod.startDate,
-          endDate: selectedPeriod.endDate,
+          ...(selectedPeriod.startDate !== "Invalid Date" && {
+            startDate: selectedPeriod.startDate,
+          }),
+          ...(selectedPeriod.endDate !== "Invalid Date" && {
+            endDate: selectedPeriod.endDate,
+          }),
         }),
         ...(selectedStatus !== "all" && {
           status: selectedStatus,
@@ -72,8 +76,12 @@ export default function History(): JSX.Element {
           limit: ITEMS_PER_PAGE,
           search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
           ...(selectedTimeframe === "custom" && {
-            startDate: selectedPeriod.startDate,
-            endDate: selectedPeriod.endDate,
+            ...(selectedPeriod.startDate !== "Invalid Date" && {
+              startDate: selectedPeriod.startDate,
+            }),
+            ...(selectedPeriod.endDate !== "Invalid Date" && {
+              endDate: selectedPeriod.endDate,
+            }),
           }),
           ...(selectedStatus !== "all" && {
             status: selectedStatus,

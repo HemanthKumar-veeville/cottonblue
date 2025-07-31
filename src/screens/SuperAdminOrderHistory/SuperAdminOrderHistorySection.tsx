@@ -404,8 +404,12 @@ export const SuperAdminOrderHistorySection = ({
             limit: itemsPerPage,
             search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
             status: selectedStatus !== "all" ? selectedStatus : null,
-            startDate: selectedPeriod.startDate,
-            endDate: selectedPeriod.endDate,
+            ...(selectedPeriod.startDate !== "Invalid Date" && {
+              startDate: selectedPeriod.startDate,
+            }),
+            ...(selectedPeriod.endDate !== "Invalid Date" && {
+              endDate: selectedPeriod.endDate,
+            }),
           })
         );
     }
@@ -433,8 +437,12 @@ export const SuperAdminOrderHistorySection = ({
         getAllCompanyOrdersReport({
           dns_prefix,
           ...(selectedTimeframe === "custom" && {
-            startDate: selectedPeriod.startDate,
-            endDate: selectedPeriod.endDate,
+            ...(selectedPeriod.startDate !== "Invalid Date" && {
+              startDate: selectedPeriod.startDate,
+            }),
+            ...(selectedPeriod.endDate !== "Invalid Date" && {
+              endDate: selectedPeriod.endDate,
+            }),
           }),
           ...(selectedStatus !== "all" && {
             status: selectedStatus,

@@ -186,8 +186,12 @@ export const OrderHistorySection = ({
         getAllCompanyOrdersReport({
           dns_prefix,
           ...(selectedTimeframe === "custom" && {
-            startDate: selectedPeriod.startDate,
-            endDate: selectedPeriod.endDate,
+            ...(selectedPeriod.startDate !== "Invalid Date" && {
+              startDate: selectedPeriod.startDate,
+            }),
+            ...(selectedPeriod.endDate !== "Invalid Date" && {
+              endDate: selectedPeriod.endDate,
+            }),
           }),
           search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
         })
