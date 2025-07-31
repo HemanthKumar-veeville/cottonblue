@@ -83,12 +83,17 @@ const OrderInfo = ({
   isStatus: boolean;
 }) => {
   const statusColorMap: { [key: string]: string } = {
+    all: "text-1-tokens-color-modes-common-neutral-medium",
     approval_pending: "text-1-tokens-color-modes-common-warning-medium",
+    pending: "text-1-tokens-color-modes-common-warning-medium",
+    approved: "text-1-tokens-color-modes-common-success-medium",
+    rejected: "text-1-tokens-color-modes-common-danger-medium",
     confirmed: "text-1-tokens-color-modes-common-success-medium",
-    refused: "text-1-tokens-color-modes-common-danger-medium",
+    processing: "text-1-tokens-color-modes-common-warning-medium",
     shipped: "text-1-tokens-color-modes-common-success-medium",
-    in_transit: "text-1-tokens-color-modes-common-success-medium",
     delivered: "text-1-tokens-color-modes-common-success-medium",
+    sedis_rejected: "text-1-tokens-color-modes-common-danger-medium",
+    default: "text-1-tokens-color-modes-common-neutral-medium",
   };
   const { t } = useTranslation();
   return (

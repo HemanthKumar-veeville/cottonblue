@@ -599,6 +599,7 @@
     },
     "table": {
       "order": "Order",
+      "reference": "Reference",
       "date": "Date",
       "totalPrice": "Total Price",
       "status": "Status",
@@ -1373,16 +1374,17 @@
     }
   },
   "order_status": {
+    "all": "All",
+    "approval_pending": "Pending",
     "pending": "Pending",
     "approved": "Approved",
     "rejected": "Rejected",
-    "refused": "Rejected",
     "confirmed": "Confirmed",
     "processing": "Processing",
     "shipped": "Shipped",
     "delivered": "Delivered",
-    "on_hold": "On Hold",
-    "approval_pending": "Pending"
+    "sedis_rejected": "Rejected by SEDIS",
+    "default": "Default"
   },
   "ticket_status": {
     "open": "Open",

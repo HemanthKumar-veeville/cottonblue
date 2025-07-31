@@ -564,14 +564,17 @@ const OrdersTableCard = ({ orders }: { orders: Order[] }) => {
 
     // Status with color coding
     const statusColors = {
+      all: [0, 0, 0],
       approval_pending: [255, 170, 0],
-      on_hold: [255, 170, 0],
-      processing: [255, 170, 0],
+      pending: [255, 170, 0],
+      approved: [0, 150, 0],
+      rejected: [200, 0, 0],
       confirmed: [0, 150, 0],
-      refused: [200, 0, 0],
+      processing: [255, 170, 0],
       shipped: [0, 150, 0],
-      in_transit: [0, 150, 0],
       delivered: [0, 150, 0],
+      sedis_rejected: [200, 0, 0],
+      default: [0, 0, 0],
     };
     const [r, g, b] = statusColors[
       order.order_status as keyof typeof statusColors
@@ -708,11 +711,25 @@ const OrdersTableCard = ({ orders }: { orders: Order[] }) => {
     status: string
   ): { text: string; type: "success" | "warning" | "danger" } => {
     switch (status) {
-      case "completed":
-        return { text: getOrderStatusText(status, t), type: "success" };
+      case "all":
+        return { text: getOrderStatusText(status, t), type: "warning" };
       case "approval_pending":
         return { text: getOrderStatusText(status, t), type: "warning" };
-      case "cancelled":
+      case "pending":
+        return { text: getOrderStatusText(status, t), type: "warning" };
+      case "approved":
+        return { text: getOrderStatusText(status, t), type: "success" };
+      case "rejected":
+        return { text: getOrderStatusText(status, t), type: "danger" };
+      case "confirmed":
+        return { text: getOrderStatusText(status, t), type: "success" };
+      case "processing":
+        return { text: getOrderStatusText(status, t), type: "warning" };
+      case "shipped":
+        return { text: getOrderStatusText(status, t), type: "success" };
+      case "delivered":
+        return { text: getOrderStatusText(status, t), type: "success" };
+      case "sedis_rejected":
         return { text: getOrderStatusText(status, t), type: "danger" };
       default:
         return { text: getOrderStatusText(status, t), type: "warning" };

@@ -44,14 +44,17 @@ interface Order {
   created_at: string;
   total_amount: number;
   order_status:
+    | "all"
     | "approval_pending"
-    | "on_hold"
-    | "processing"
+    | "pending"
+    | "approved"
+    | "rejected"
     | "confirmed"
-    | "refused"
+    | "processing"
     | "shipped"
-    | "in_transit"
-    | "delivered";
+    | "delivered"
+    | "sedis_rejected"
+    | "default";
   order_items: OrderItem[];
 }
 
@@ -103,6 +106,15 @@ const OrderRow = ({
           } text-[15px] tracking-[0] leading-normal whitespace-nowrap`}
         >
           {order?.order_id}
+        </span>
+      </TableCell>
+      <TableCell className="p-2.5 w-[15%] text-left align-middle">
+        <span
+          className={`font-normal ${
+            index === 0 ? "text-coolgray-100" : "text-[#121619]"
+          } text-[15px] tracking-[0] leading-normal whitespace-nowrap`}
+        >
+          {order?.reference}
         </span>
       </TableCell>
       {activeTab === "all" && (
@@ -285,6 +297,8 @@ export const OrderDetailsSection = ({
               </TableHead>
               {[
                 { key: "order", width: "15%" },
+                { key: "reference", width: "15%" },
+
                 ...(activeTab === "all"
                   ? [{ key: "store", width: "15%" }]
                   : []),

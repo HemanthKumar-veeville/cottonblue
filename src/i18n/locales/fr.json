@@ -641,6 +641,7 @@
     },
     "table": {
       "order": "Commande",
+      "reference": "Référence",
       "store": "Magasin",
       "date": "Date",
       "totalPrice": "Prix total",
@@ -1497,16 +1498,17 @@
     "selected": "{{count}} commandes sélectionnées"
   },
   "order_status": {
+    "all": "Tous",
+    "approval_pending": "En attente",
     "pending": "En attente",
     "approved": "Approuvé",
     "rejected": "Rejeté",
-    "refused": "Rejeté",
     "confirmed": "Confirmé",
     "processing": "En cours",
     "shipped": "Expédié",
-    "delivered": "Livré",
-    "on_hold": "En attente",
-    "approval_pending": "En attente"
+    "delivered": "Livrée",
+    "sedis_rejected": "Rejetée par SEDIS",
+    "default": "Default"
   },
   "ticket_status": {
     "open": "Ouvert",

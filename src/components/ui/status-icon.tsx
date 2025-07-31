@@ -23,17 +23,16 @@ export const StatusIcon = ({
   className,
 }: StatusIconProps): JSX.Element => {
   const iconMap = {
+    all: Clock,
+    approval_pending: Clock,
     pending: HourglassIcon,
     approved: CheckCircle2,
     rejected: XCircle,
-    refused: PackageX,
     confirmed: ShoppingCart,
     processing: AlertCircle,
     shipped: Truck,
     delivered: PackageCheck,
-    on_hold: ShieldAlert,
-    approval_pending: Clock,
-    pending_approval: Clock,
+    sedis_rejected: ShieldAlert,
     default: Clock,
   };
 

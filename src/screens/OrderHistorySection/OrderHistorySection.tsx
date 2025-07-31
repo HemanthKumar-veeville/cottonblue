@@ -4,7 +4,15 @@ import {
   SearchIcon,
   CheckCircle,
   Loader2,
+  Filter,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
 import { Button } from "../../components/ui/button";
 import {
   Dialog,
@@ -121,6 +129,8 @@ interface OrderHistorySectionProps {
   setSelectedTimeframe: (timeframe: TimeframeType) => void;
   selectedPeriod: DateRange;
   setSelectedPeriod: (period: DateRange) => void;
+  selectedStatus: string;
+  setSelectedStatus: (status: string) => void;
 }
 
 export const OrderHistorySection = ({
@@ -135,6 +145,8 @@ export const OrderHistorySection = ({
   setSelectedTimeframe,
   selectedPeriod,
   setSelectedPeriod,
+  selectedStatus,
+  setSelectedStatus,
 }: OrderHistorySectionProps): JSX.Element => {
   const { t, i18n } = useTranslation();
   const orders = useSelector((state: any) => state.cart.orders);
@@ -526,7 +538,44 @@ export const OrderHistorySection = ({
         className="flex items-center gap-4 justify-between"
         style={buttonStyles}
       >
-        <Heading text={t("history.title")} />
+        <div className="w-full flex items-center gap-4 justify-between">
+          <Heading text={t("history.title")} />
+          <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+            <SelectTrigger className="w-[250px] bg-white">
+              <div className="flex items-center gap-2">
+                <Filter className="w-4 h-4" />
+                <SelectValue placeholder={t("common.filterByStatus")} />
+              </div>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t("order_status.all")}</SelectItem>
+              <SelectItem value="approval_pending">
+                {t("order_status.approval_pending")}
+              </SelectItem>
+              <SelectItem value="approved">
+                {t("order_status.approved")}
+              </SelectItem>
+              <SelectItem value="rejected">
+                {t("order_status.rejected")}
+              </SelectItem>
+              <SelectItem value="confirmed">
+                {t("order_status.confirmed")}
+              </SelectItem>
+              <SelectItem value="processing">
+                {t("order_status.processing")}
+              </SelectItem>
+              <SelectItem value="shipped">
+                {t("order_status.shipped")}
+              </SelectItem>
+              <SelectItem value="delivered">
+                {t("order_status.delivered")}
+              </SelectItem>
+              <SelectItem value="sedis_rejected">
+                {t("order_status.sedis_rejected")}
+              </SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
         {isClientAdmin && (
           <div className="flex gap-0">
             <Button

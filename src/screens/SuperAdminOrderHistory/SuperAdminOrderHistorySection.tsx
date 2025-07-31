@@ -49,9 +49,16 @@ import { getOrderStatusColor } from "../../utils/statusUtil";
 import dayjs from "dayjs";
 import ExcelJS from "exceljs";
 import { Buffer } from "buffer";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Filter } from "lucide-react";
 import { useRef } from "react";
 import { getAllCompanyOrders } from "../../store/features/cartSlice";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../../components/ui/select";
 import { formatDateToParis } from "../../utils/dateUtils";
 import { getAllCompanyOrdersReport } from "../../store/features/reportSlice";
 import { TimeframeSelect, TimeframeType } from "./TimeframeSelect";
@@ -79,13 +86,16 @@ interface Order {
   created_at: string;
   order_status:
     | "approval_pending"
-    | "on_hold"
-    | "processing"
+    | "pending"
+    | "approved"
+    | "rejected"
     | "confirmed"
-    | "refused"
+    | "processing"
     | "shipped"
-    | "in_transit"
-    | "delivered";
+    | "delivered"
+    | "sedis_rejected"
+    | "all"
+    | "default";
   order_items: OrderItem[];
 }
 
@@ -158,12 +168,12 @@ const OrderRow = ({
       key={index}
       className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
     >
-      <TableCell className="w-11">
+      <TableCell className="w-[60px] text-center">
         <span className="font-text-smaller text-coolgray-100">
           {(currentPage - 1) * itemsPerPage + index + 1}
         </span>
       </TableCell>
-      <TableCell className="w-[129px] text-left">
+      <TableCell className="w-[120px] text-left">
         <span
           className="font-semibold text-coolgray-100 cursor-pointer hover:underline"
           onClick={() =>
@@ -173,7 +183,7 @@ const OrderRow = ({
           {order?.order_id ?? t("common.notAvailable")}
         </span>
       </TableCell>
-      <TableCell className="w-[129px] text-left">
+      <TableCell className="w-[120px] text-left">
         <span
           className="font-semibold text-coolgray-100 cursor-pointer hover:underline"
           onClick={() =>
@@ -183,26 +193,26 @@ const OrderRow = ({
           {order?.reference ?? t("common.notAvailable")}
         </span>
       </TableCell>
-      <TableCell className="w-[145px] text-left">
+      <TableCell className="w-[120px] text-left">
         <span className="font-text-smaller text-black">{formattedDate}</span>
       </TableCell>
-      <TableCell className="w-[145px] text-left">
+      <TableCell className="w-[180px] text-left">
         <span className="font-text-smaller text-black">
           {order?.store_name}
         </span>
       </TableCell>
-      <TableCell className="w-[145px] flex justify-end items-center text-right">
+      <TableCell className="w-[120px] text-left">
         <span className="font-text-smaller text-black">
-          {`${order?.total_amount} €` ?? t("common.notAvailable")}
+          {`€ ${order?.total_amount}` ?? t("common.notAvailable")}
         </span>
       </TableCell>
-      <TableCell className="w-[145px] text-left">
+      <TableCell className="w-[150px] text-left">
         <div className="flex items-center gap-2">
           <StatusIcon status={order?.order_status} />
           <StatusText status={order?.order_status} />
         </div>
       </TableCell>
-      <TableCell className="w-[69px] text-left">
+      <TableCell className="w-[80px] text-center">
         <FileText
           className="inline-block w-4 h-4 text-[#07515f] cursor-pointer hover:text-[#023337] transition-colors"
           onClick={() =>
@@ -230,7 +240,7 @@ const OrderRow = ({
           }
         />
       </TableCell>
-      <TableCell className="w-[145px] text-left">
+      <TableCell className="w-[100px] text-center">
         <Button
           variant="link"
           onClick={() =>
@@ -270,21 +280,32 @@ const DownloadDropdown = ({
         variant="ghost"
         className="flex items-center gap-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-gap)] py-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-h)] px-[var(--2-tokens-screen-modes-sizes-button-input-nav-medium-padding-v)] min-w-[92px] bg-[#07515f] rounded-[var(--2-tokens-screen-modes-nav-tab-border-radius)] transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
         disabled={disabled}
-        onClick={() => setOpen((v) => !v)}
         style={{
           backgroundColor: "#07515f",
           color: "#fff",
           borderColor: "#07515f",
         }}
       >
-        <DownloadIcon className="w-6 h-6 text-white mr-2" />
-        <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-white [font-style:var(--label-smaller-font-style)]">
-          {selectedLabel}
+        <div
+          onClick={(e) => {
+            options
+              ?.find((option) => option.label === selectedLabel)
+              ?.onClick();
+            e.stopPropagation();
+          }}
+          className="flex"
+        >
+          <DownloadIcon className="w-6 h-6 text-white mr-2" />
+          <span className="font-label-smaller text-[length:var(--label-smaller-font-size)] leading-[var(--label-smaller-line-height)] tracking-[var(--label-smaller-letter-spacing)] font-[number:var(--label-smaller-font-weight)] text-white [font-style:var(--label-smaller-font-style)]">
+            {selectedLabel}
+          </span>
+        </div>
+        <span onClick={() => setOpen((v) => !v)}>
+          <ChevronDown className="ml-2 h-4 w-4 text-white" />
         </span>
-        <ChevronDown className="ml-2 h-4 w-4 text-white" />
       </Button>
       {open && (
-        <div className="absolute right-0 z-10 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <div className="absolute right-0 z-50 mt-2 w-56 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           <div className="py-1">
             {options.map((opt, idx) => (
               <button
@@ -342,6 +363,7 @@ export const SuperAdminOrderHistorySection = ({
   const [selectedOrders, setSelectedOrders] = useState<number[]>([]);
   const [selectedTimeframe, setSelectedTimeframe] =
     useState<TimeframeType>("all");
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedPeriod, setSelectedPeriod] = useState<DateRange>({
     startDate: dayjs().startOf("year").format("YYYY-MM-DD"),
     endDate: dayjs().format("YYYY-MM-DD"),
@@ -370,6 +392,7 @@ export const SuperAdminOrderHistorySection = ({
             page: currentPage,
             limit: itemsPerPage,
             search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
+            status: selectedStatus !== "all" ? selectedStatus : null,
           })
         );
     } else {
@@ -380,6 +403,7 @@ export const SuperAdminOrderHistorySection = ({
             page: currentPage,
             limit: itemsPerPage,
             search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
+            status: selectedStatus !== "all" ? selectedStatus : null,
             startDate: selectedPeriod.startDate,
             endDate: selectedPeriod.endDate,
           })
@@ -393,6 +417,7 @@ export const SuperAdminOrderHistorySection = ({
     searchQuery,
     selectedPeriod,
     selectedTimeframe,
+    selectedStatus,
   ]);
 
   // Polyfill Buffer for ExcelJS if needed
@@ -410,6 +435,9 @@ export const SuperAdminOrderHistorySection = ({
           ...(selectedTimeframe === "custom" && {
             startDate: selectedPeriod.startDate,
             endDate: selectedPeriod.endDate,
+          }),
+          ...(selectedStatus !== "all" && {
+            status: selectedStatus,
           }),
           search: searchQuery?.trim()?.length >= 3 ? searchQuery : "",
         })
@@ -755,8 +783,10 @@ export const SuperAdminOrderHistorySection = ({
   };
 
   console.log({ orderList });
-  // Filter orders based on search query
-  const filteredOrders = orderList;
+  // Filter orders based on search query and status
+  const filteredOrders = orderList.filter((order: Order) =>
+    selectedStatus === "all" ? true : order.order_status === selectedStatus
+  );
   const totalItems = total;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
@@ -828,6 +858,30 @@ export const SuperAdminOrderHistorySection = ({
         <h3 className="font-heading-h3 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-[length:var(--heading-h3-font-size)] tracking-[var(--heading-h3-letter-spacing)] leading-[var(--heading-h3-line-height)] font-[number:var(--heading-h3-font-weight)] [font-style:var(--heading-h3-font-style)]">
           {t("history.superAdmin.orderHistory.title")}
         </h3>
+        <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+          <SelectTrigger className="w-[250px] bg-white">
+            <div className="flex items-center gap-2">
+              <Filter className="w-4 h-4" />
+              <SelectValue placeholder={t("common.filterByStatus")} />
+            </div>
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">{t("order_status.all")}</SelectItem>
+            <SelectItem value="confirmed">
+              {t("order_status.confirmed")}
+            </SelectItem>
+            <SelectItem value="processing">
+              {t("order_status.processing")}
+            </SelectItem>
+            <SelectItem value="shipped">{t("order_status.shipped")}</SelectItem>
+            <SelectItem value="delivered">
+              {t("order_status.delivered")}
+            </SelectItem>
+            <SelectItem value="sedis_rejected">
+              {t("order_status.sedis_rejected")}
+            </SelectItem>
+          </SelectContent>
+        </Select>
       </header>
 
       <div className="flex items-center justify-between w-full">
@@ -882,19 +936,19 @@ export const SuperAdminOrderHistorySection = ({
             </Tooltip>
           </TooltipProvider>
         </div>
-        <div className="flex items-start gap-2">
-          <TimeframeSelect
-            value={selectedTimeframe}
-            onChange={handleTimeframeChange}
-          />
+        <div className="flex items-center gap-2">
           <PeriodSelect
             timeframe={selectedTimeframe}
             value={selectedPeriod}
             onChange={setSelectedPeriod}
             onCustomDateChange={handleCustomDateChange}
           />
+          <TimeframeSelect
+            value={selectedTimeframe}
+            onChange={handleTimeframeChange}
+          />
           <DownloadDropdown
-            defaultLabel={t("orderHistoryExport.downloadAsCSV")}
+            defaultLabel={t("orderHistoryExport.downloadAsExcel")}
             disabled={loading || !orderList?.length}
             onDownloadCSV={handleDownloadOrdersCSV}
             onDownloadExcel={handleDownloadOrdersExcel}
@@ -933,30 +987,51 @@ export const SuperAdminOrderHistorySection = ({
             />
           ) : (
             <Table className="w-full">
-              <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md">
+              <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md sticky top-0 z-10">
                 <TableRow>
-                  <TableHead className="w-11">
-                    <span className="text-center text-[#1e2324] ">#</span>
+                  <TableHead className="w-[60px] text-center">
+                    <span className="text-[#1e2324] font-text-small">#</span>
                   </TableHead>
-                  {[
-                    "table.order",
-                    "table.reference",
-                    "table.date",
-                    "table.store",
-                    "table.totalPrice",
-                    "table.status",
-                    "table.invoice",
-                    "table.details",
-                  ].map((key, index) => (
-                    <TableHead
-                      key={index}
-                      className={`${index === 5 ? "w-[69px]" : "w-[145px]"} ${
-                        index === 3 ? "text-center" : "text-left"
-                      } text-[#1e2324] font-text-small`}
-                    >
-                      {t(`history.superAdmin.orderHistory.${key}`)}
-                    </TableHead>
-                  ))}
+                  <TableHead className="w-[120px] text-left">
+                    <span className="text-[#1e2324] font-text-small">
+                      {t("history.superAdmin.orderHistory.table.order")}
+                    </span>
+                  </TableHead>
+                  <TableHead className="w-[120px] text-left">
+                    <span className="text-[#1e2324] font-text-small">
+                      {t("history.superAdmin.orderHistory.table.reference")}
+                    </span>
+                  </TableHead>
+                  <TableHead className="w-[120px] text-left">
+                    <span className="text-[#1e2324] font-text-small">
+                      {t("history.superAdmin.orderHistory.table.date")}
+                    </span>
+                  </TableHead>
+                  <TableHead className="w-[180px] text-left">
+                    <span className="text-[#1e2324] font-text-small">
+                      {t("history.superAdmin.orderHistory.table.store")}
+                    </span>
+                  </TableHead>
+                  <TableHead className="w-[120px] text-left">
+                    <span className="text-[#1e2324] font-text-small">
+                      {t("history.superAdmin.orderHistory.table.totalPrice")}
+                    </span>
+                  </TableHead>
+                  <TableHead className="w-[150px] text-left">
+                    <span className="text-[#1e2324] font-text-small">
+                      {t("history.superAdmin.orderHistory.table.status")}
+                    </span>
+                  </TableHead>
+                  <TableHead className="w-[80px] text-center">
+                    <span className="text-[#1e2324] font-text-small">
+                      {t("history.superAdmin.orderHistory.table.invoice")}
+                    </span>
+                  </TableHead>
+                  <TableHead className="w-[100px] text-center">
+                    <span className="text-[#1e2324] font-text-small">
+                      {t("history.superAdmin.orderHistory.table.details")}
+                    </span>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

@@ -25,6 +25,7 @@ export default function History(): JSX.Element {
   const [activeTab, setActiveTab] = useState<"all" | "selected">("selected");
   const [selectedTimeframe, setSelectedTimeframe] =
     useState<TimeframeType>("all");
+  const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [selectedPeriod, setSelectedPeriod] = useState<DateRange>({
     startDate: dayjs().startOf("year").format("YYYY-MM-DD"),
     endDate: dayjs().format("YYYY-MM-DD"),
@@ -47,6 +48,9 @@ export default function History(): JSX.Element {
         ...(selectedTimeframe === "custom" && {
           startDate: selectedPeriod.startDate,
           endDate: selectedPeriod.endDate,
+        }),
+        ...(selectedStatus !== "all" && {
+          status: selectedStatus,
         }),
       };
 
@@ -71,6 +75,9 @@ export default function History(): JSX.Element {
             startDate: selectedPeriod.startDate,
             endDate: selectedPeriod.endDate,
           }),
+          ...(selectedStatus !== "all" && {
+            status: selectedStatus,
+          }),
         };
 
         if (
@@ -90,6 +97,7 @@ export default function History(): JSX.Element {
     activeTab,
     selectedTimeframe,
     selectedPeriod,
+    selectedStatus,
   ]);
 
   return (
@@ -106,6 +114,8 @@ export default function History(): JSX.Element {
         setSelectedTimeframe={setSelectedTimeframe}
         selectedPeriod={selectedPeriod}
         setSelectedPeriod={setSelectedPeriod}
+        selectedStatus={selectedStatus}
+        setSelectedStatus={setSelectedStatus}
       />
       <OrderDetailsSection
         currentPage={currentPage}
