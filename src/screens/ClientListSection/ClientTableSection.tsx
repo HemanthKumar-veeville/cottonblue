@@ -43,6 +43,10 @@ interface ClientTableSectionProps {
   loading: boolean;
   error: string | null;
   searchTerm: string;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  itemsPerPage: number;
+  totalItems: number;
 }
 
 export const ClientTableSection = ({
@@ -50,10 +54,13 @@ export const ClientTableSection = ({
   loading,
   error,
   searchTerm,
+  currentPage,
+  setCurrentPage,
+  itemsPerPage,
+  totalItems,
 }: ClientTableSectionProps): JSX.Element => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [currentPage, setCurrentPage] = useState(1);
   const [selectedClients, setSelectedClients] = useState<number[]>([]);
   const [activeDropdown, setActiveDropdown] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -63,30 +70,13 @@ export const ClientTableSection = ({
   // Ensure companies is always an array
   const companiesArray = Array.isArray(companies) ? companies : [];
 
-  // Reset to first page when search term changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm]);
-
-  // Filter companies based on search term
-  const filteredCompanies = companiesArray.filter(
-    (client) =>
-      client.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      client.phone_number?.includes(searchTerm) ||
-      client.city?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
   // Pagination logic
-  const itemsPerPage = 10;
-  const totalPages = Math.ceil(filteredCompanies.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const currentCompanies = filteredCompanies.slice(startIndex, endIndex);
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
   const dispatch = useAppDispatch();
   // Handle checkbox selection
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedClients(currentCompanies.map((client) => client.id));
+      setSelectedClients(companiesArray.map((client) => client.id));
     } else {
       setSelectedClients([]);
     }
@@ -100,14 +90,23 @@ export const ClientTableSection = ({
     }
   };
 
-  // Replace the pagination generation code with this simpler version
-  const paginationItems = useMemo(() => {
+  // Generate pagination items
+  const getPaginationItems = () => {
     const items = [];
-    for (let i = 1; i <= totalPages; i++) {
-      items.push(i);
+    const maxVisiblePages = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
+
+    for (let i = startPage; i <= endPage; i++) {
+      items.push({ page: i, active: i === currentPage });
+    }
+
     return items;
-  }, [totalPages]);
+  };
 
   // Handle actions
   const handleViewDetails = (dnsPrefix: string) => {
@@ -135,7 +134,13 @@ export const ClientTableSection = ({
           },
         })
       ).unwrap();
-      await dispatch(getAllCompanies());
+      await dispatch(
+        getAllCompanies({
+          page: currentPage,
+          limit: itemsPerPage,
+          search: searchTerm,
+        })
+      );
       setActiveDropdown(null);
     } catch (error) {
       console.error("Failed to toggle company status:", error);
@@ -182,7 +187,7 @@ export const ClientTableSection = ({
         <div className="w-full">
           {loading ? (
             <Skeleton variant="table" />
-          ) : currentCompanies.length === 0 ? (
+          ) : companiesArray.length === 0 ? (
             <EmptyState
               icon={Users}
               title={t("clientTable.noClients")}
@@ -235,8 +240,8 @@ export const ClientTableSection = ({
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {currentCompanies.length > 0 ? (
-                  currentCompanies.map((client, index) => (
+                {companiesArray.length > 0 ? (
+                  companiesArray.map((client, index) => (
                     <TableRow
                       key={client.id}
                       className="border-b border-primary-neutal-300 py-[var(--2-tokens-screen-modes-common-spacing-XS)]"
@@ -414,24 +419,24 @@ export const ClientTableSection = ({
         </div>
       </div>
 
-      {!loading && !error && filteredCompanies.length > 0 && (
+      {!loading && !error && companiesArray.length > 0 && (
         <div className="fixed bottom-0 left-64 right-0 bg-white border-t border-primary-neutal-300 py-4">
           <div className="px-6 max-w-[calc(100%-2rem)]">
             <Pagination className="flex items-center justify-between w-full mx-auto">
               <PaginationPrevious
                 href="#"
-                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium ${
-                  currentPage === 1 || totalPages === 1
-                    ? "text-gray-400 cursor-not-allowed hover:text-gray-400"
-                    : "text-black hover:text-black"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage > 1) {
+                    setCurrentPage(currentPage - 1);
+                  }
+                }}
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px] ${
+                  currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
                 }`}
-                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                disabled={currentPage === 1 || totalPages === 1}
               >
                 <img
-                  className={`w-6 h-6 ${
-                    currentPage === 1 || totalPages === 1 ? "opacity-50" : ""
-                  }`}
+                  className="w-6 h-6"
                   alt="Arrow left"
                   src="/img/arrow-left-sm.svg"
                 />
@@ -439,29 +444,37 @@ export const ClientTableSection = ({
               </PaginationPrevious>
 
               <PaginationContent className="flex items-center gap-3">
-                {paginationItems.map((page) => (
-                  <PaginationItem key={page}>
+                {getPaginationItems().map((item) => (
+                  <PaginationItem key={item.page}>
                     <PaginationLink
                       href="#"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setCurrentPage(item.page);
+                      }}
                       className={`flex items-center justify-center w-9 h-9 rounded ${
-                        page === currentPage
+                        item.active
                           ? "bg-cyan-100 font-bold text-[#1e2324]"
                           : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
                       }`}
-                      onClick={() => setCurrentPage(page)}
                     >
-                      {page}
+                      {item.page}
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-                {totalPages > 5 && (
+                {totalPages >
+                  getPaginationItems()[getPaginationItems().length - 1]
+                    ?.page && (
                   <>
                     <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
                     <PaginationItem>
                       <PaginationLink
                         href="#"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          setCurrentPage(totalPages);
+                        }}
                         className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                        onClick={() => setCurrentPage(totalPages)}
                       >
                         {totalPages}
                       </PaginationLink>
@@ -472,23 +485,21 @@ export const ClientTableSection = ({
 
               <PaginationNext
                 href="#"
-                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium ${
-                  currentPage === totalPages || totalPages === 1
-                    ? "text-gray-400 cursor-not-allowed hover:text-gray-400"
-                    : "text-black hover:text-black"
+                onClick={(e) => {
+                  e.preventDefault();
+                  if (currentPage < totalPages) {
+                    setCurrentPage(currentPage + 1);
+                  }
+                }}
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px] ${
+                  currentPage === totalPages
+                    ? "opacity-50 cursor-not-allowed"
+                    : ""
                 }`}
-                onClick={() =>
-                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                }
-                disabled={currentPage === totalPages || totalPages === 1}
               >
                 {t("clientTable.pagination.next")}
                 <img
-                  className={`w-6 h-6 rotate-180 ${
-                    currentPage === totalPages || totalPages === 1
-                      ? "opacity-50"
-                      : ""
-                  }`}
+                  className="w-6 h-6 rotate-180"
                   alt="Arrow right"
                   src="/img/arrow-left-sm-1.svg"
                 />

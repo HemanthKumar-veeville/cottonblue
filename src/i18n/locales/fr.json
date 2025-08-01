@@ -93,7 +93,16 @@
       "list": "Liste des clients",
       "add": "Ajouter un client",
       "search": {
-        "placeholder": "Rechercher des clients..."
+        "placeholder": "Rechercher des clients...",
+        "tooltip": {
+          "title": "Rechercher un client",
+          "items": {
+            "name": "Nom",
+            "phone": "Téléphone",
+            "city": "Ville",
+            "address": "Adresse"
+          }
+        }
       }
     },
     "agencies": {
@@ -748,7 +757,13 @@
       "totalItems": "Total des articles",
       "totalQuantity": "Quantité totale",
       "store": "Magasin",
-      "vatNumber": "Numéro de VAT"
+      "vatNumber": "Numéro de VAT",
+      "shippedDate": "Date d'expédition",
+      "sedisDeliveryNumber": "Numéro de livraison SEDIS",
+      "trackingUrl": "URL de suivi",
+      "carrierType": "Type de transport",
+      "packageCount": "Nombre de colis",
+      "packageVolume": "Volume des colis"
     },
     "products": {
       "title": "Produits commandés",

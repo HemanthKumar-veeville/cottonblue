@@ -303,7 +303,7 @@ export default function ClientAddUser() {
         lastname: formData.lastname.trim(),
         email: formData.email.trim(),
         store_ids: formData.store_ids,
-        phone: formData.phone.trim(),
+        phone: formData.phone,
       };
 
       if (isEditMode && id) {

@@ -4,22 +4,29 @@ import { Input } from "../../components/ui/input";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "../../components/ui/tooltip";
+import { InfoIcon } from "lucide-react";
 
 interface ClientListSectionProps {
   onSearch: (searchTerm: string) => void;
+  searchTerm: string;
 }
 
 export const ClientListSection = ({
   onSearch,
+  searchTerm,
 }: ClientListSectionProps): JSX.Element => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState("");
 
   // Handle search input change
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    setSearchTerm(value);
     onSearch(value);
   };
 
@@ -37,16 +44,45 @@ export const ClientListSection = ({
       </header>
 
       <div className="flex items-center justify-between w-full">
-        <div className="relative w-[400px]">
-          <Input
-            className="pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] pr-12 py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)] rounded-[var(--2-tokens-screen-modes-input-border-radius)]"
-            placeholder={t("sidebar.customers.search.placeholder")}
-            value={searchTerm}
-            onChange={handleSearchChange}
-          />
-          <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center w-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)] h-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)]">
-            <SearchIcon className="w-5 h-5 text-[color:var(--1-tokens-color-modes-input-primary-default-icon)]" />
+        <div className="flex items-center gap-2">
+          <div className="relative w-[400px]">
+            <Input
+              className="pl-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-h)] pr-12 py-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-padding-v)] bg-[color:var(--1-tokens-color-modes-input-primary-default-background)] border-[color:var(--1-tokens-color-modes-input-primary-default-border)] rounded-[var(--2-tokens-screen-modes-input-border-radius)]"
+              placeholder={t("sidebar.customers.search.placeholder")}
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2 flex items-center justify-center w-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)] h-[var(--2-tokens-screen-modes-sizes-button-input-nav-large-line-height)]">
+              <SearchIcon className="w-5 h-5 text-[color:var(--1-tokens-color-modes-input-primary-default-icon)]" />
+            </div>
           </div>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button className="p-1 hover:bg-gray-100 rounded-full transition-colors">
+                  <InfoIcon className="w-5 h-5 text-gray-400 hover:text-gray-600" />
+                </button>
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                className="bg-gray-800 text-white border-none mb-10"
+              >
+                <div className="flex flex-col gap-1">
+                  <p className="font-medium">
+                    {t("sidebar.customers.search.tooltip.title")}
+                  </p>
+                  <ul className="list-disc list-inside text-sm">
+                    <li>{t("sidebar.customers.search.tooltip.items.name")}</li>
+                    <li>{t("sidebar.customers.search.tooltip.items.phone")}</li>
+                    <li>{t("sidebar.customers.search.tooltip.items.city")}</li>
+                    <li>
+                      {t("sidebar.customers.search.tooltip.items.address")}
+                    </li>
+                  </ul>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
 
         <div className="flex items-center gap-[var(--2-tokens-screen-modes-common-spacing-m)]">

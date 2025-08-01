@@ -47,6 +47,14 @@ interface Store {
 const UserDetailsCard = ({ user, stores }: { user: any; stores: Store[] }) => {
   const { t } = useTranslation();
 
+  const storeNames =
+    user?.store_ids
+      ?.map((storeId: number) => {
+        const store = stores?.find((s) => s.id === storeId);
+        return store?.name || `Store ${storeId}`;
+      })
+      .join(", ") || t("userDetails.notAvailable");
+
   const leftColumnDetails = [
     {
       label: t("userDetails.fields.id"),
@@ -64,24 +72,16 @@ const UserDetailsCard = ({ user, stores }: { user: any; stores: Store[] }) => {
       label: t("userDetails.fields.email"),
       value: user?.email || t("userDetails.notAvailable"),
     },
+    {
+      label: t("userDetails.fields.stores"),
+      value: storeNames,
+    },
   ];
-
-  const storeNames =
-    user?.store_ids
-      ?.map((storeId: number) => {
-        const store = stores?.find((s) => s.id === storeId);
-        return store?.name || `Store ${storeId}`;
-      })
-      .join(", ") || t("userDetails.notAvailable");
 
   const rightColumnDetails = [
     {
       label: t("userDetails.fields.role"),
       value: user?.role || t("userDetails.notAvailable"),
-    },
-    {
-      label: t("userDetails.fields.stores"),
-      value: storeNames,
     },
     {
       label: t("userDetails.fields.status"),

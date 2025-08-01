@@ -18,6 +18,7 @@ interface ClientState {
   error: string | null;
   success: boolean;
   companies: any[];
+  total: number;
   selectedCompany: {
     id: string;
     name: string;
@@ -29,6 +30,7 @@ interface ClientState {
     is_active: boolean;
     auto_play: boolean;
   } | null;
+  currentPageClient: number;
 }
 
 const initialState: ClientState = {
@@ -39,6 +41,8 @@ const initialState: ClientState = {
   selectedCompany: null,
   companyDetails: null,
   carousel: null,
+  total: 0,
+  currentPageClient: 1,
 };
 
 export const registerClient = createAsyncThunk(
@@ -55,9 +59,9 @@ export const registerClient = createAsyncThunk(
 
 export const getAllCompanies = createAsyncThunk(
   'client/getAllCompanies',
-  async (_, { rejectWithValue }) => {
+  async ({ page, limit, search }: { page: number; limit: number; search: string }, { rejectWithValue }) => {
     try {
-      const response = await clientService.getAllCompanies();
+      const response = await clientService.getAllCompanies(page, limit, search);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Failed to fetch companies');
@@ -204,6 +208,8 @@ const clientSlice = createSlice({
       .addCase(getAllCompanies.fulfilled, (state, action) => {
         state.loading = false;
         state.companies = action.payload;
+        state.total = action.payload.total_companies_count;
+        state.currentPageClient = action.payload.page;
         
         if (!state.selectedCompany && action.payload.companies.length > 0) {
           const defaultCompany = action.payload.companies.find((company: any) => company.dns_prefix === 'chronodrive') || action.payload.companies[0];

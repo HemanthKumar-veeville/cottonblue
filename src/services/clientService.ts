@@ -73,8 +73,14 @@ export const clientService = {
    * Get all companies from the admin endpoint
    * @returns Promise with companies data
    */
-  getAllCompanies: async () => {
-    return axiosInstance.get('/admin/get_all_companies');
+  getAllCompanies: async (page: number, limit: number, search: string) => {
+    const params = new URLSearchParams();
+    params.append('page', page.toString());
+    params.append('limit', limit.toString());
+    if (search) {
+      params.append('search', search);
+    }
+    return axiosInstance.get(`/admin/get_all_companies?${params.toString()}`);
   },
 
   /**

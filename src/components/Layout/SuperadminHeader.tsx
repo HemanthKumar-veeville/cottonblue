@@ -190,7 +190,7 @@ export const SuperadminHeader = (): JSX.Element => {
     })) || [];
 
   useEffect(() => {
-    dispatch(getAllCompanies());
+    dispatch(getAllCompanies({ page: 1, limit: 1000, search: "" }));
     dispatch(setAdminMode(true));
   }, [dispatch]);
 

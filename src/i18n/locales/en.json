@@ -687,7 +687,13 @@
       "totalItems": "Total Items",
       "totalQuantity": "Total Quantity",
       "store": "Store",
-      "vatNumber": "VAT Number"
+      "vatNumber": "VAT Number",
+      "shippedDate": "Shipped Date",
+      "sedisDeliveryNumber": "SEDIS Delivery Number",
+      "trackingUrl": "Tracking URL",
+      "carrierType": "Carrier Type",
+      "packageCount": "Package Count",
+      "packageVolume": "Package Volume"
     },
     "products": {
       "title": "Ordered Products",
@@ -810,7 +816,16 @@
     "title": "Tickets",
     "newTicket": "New ticket",
     "search": {
-      "placeholder": "Search a ticket..."
+      "placeholder": "Search a ticket...",
+      "tooltip": {
+        "title": "Rechercher un client",
+        "items": {
+          "name": "Nom",
+          "phone": "Téléphone",
+          "city": "Ville",
+          "address": "Adresse"
+        }
+      }
     },
     "status": {
       "all": "All",

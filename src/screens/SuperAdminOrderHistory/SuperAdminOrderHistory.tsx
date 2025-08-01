@@ -6,7 +6,9 @@ import { useEffect, useState } from "react";
 export default function SuperAdminOrderHistory() {
   const dispatch = useAppDispatch();
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const cart = useAppSelector((state) => state.cart);
+  const currentPageFromCart = cart?.currentPage;
+  const [currentPage, setCurrentPage] = useState(currentPageFromCart || 1);
   const ITEMS_PER_PAGE = 10;
 
   const { selectedCompany } = useAppSelector((state) => state.client);

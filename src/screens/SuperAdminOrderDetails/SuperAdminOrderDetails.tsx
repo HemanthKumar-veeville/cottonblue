@@ -101,7 +101,13 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
     <Card className="w-full">
       <CardContent className="p-6">
         <OrderHeader order={order} />
-        <div className="grid md:grid-cols-2 gap-8">
+        <div
+          className={`grid ${
+            ["shipped", "delivered"].includes(order?.order_status)
+              ? "md:grid-cols-3"
+              : "md:grid-cols-2"
+          } gap-8`}
+        >
           <div className="space-y-4">
             <div className="space-y-4">
               <OrderInfo
@@ -168,6 +174,44 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
               />
             </div>
           </div>
+          {["shipped", "delivered"].includes(order?.order_status) && (
+            <div className="space-y-4">
+              <div className="space-y-4">
+                <OrderInfo
+                  label={t("orderDetails.fields.shippedDate")}
+                  value={order?.shipped_date ?? t("common.notAvailable")}
+                  isStatus={false}
+                />
+                <OrderInfo
+                  label={t("orderDetails.fields.sedisDeliveryNumber")}
+                  value={
+                    order?.sedis_delivery_number ?? t("common.notAvailable")
+                  }
+                  isStatus={false}
+                />
+                <OrderInfo
+                  label={t("orderDetails.fields.trackingUrl")}
+                  value={order?.tracking_url ?? t("common.notAvailable")}
+                  isStatus={false}
+                />
+                <OrderInfo
+                  label={t("orderDetails.fields.carrierType")}
+                  value={order?.carrier_type ?? t("common.notAvailable")}
+                  isStatus={false}
+                />
+                <OrderInfo
+                  label={t("orderDetails.fields.packageCount")}
+                  value={order?.package_count ?? t("common.notAvailable")}
+                  isStatus={false}
+                />
+                <OrderInfo
+                  label={t("orderDetails.fields.packageVolume")}
+                  value={order?.package_volume ?? t("common.notAvailable")}
+                  isStatus={false}
+                />
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
