@@ -70,10 +70,12 @@ const OrderInfo = ({
   label,
   value,
   isStatus,
+  isLink,
 }: {
   label: string;
   value: string;
   isStatus: boolean;
+  isLink: boolean;
 }) => (
   <div className="flex flex-col items-start gap-1">
     <h3 className="font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5">
@@ -84,6 +86,10 @@ const OrderInfo = ({
         <StatusIcon status={value} />
         <StatusText status={value} />
       </div>
+    ) : isLink ? (
+      <a href={value} target="_blank" rel="noopener noreferrer">
+        {value}
+      </a>
     ) : (
       <p className="font-text-medium text-black">{value}</p>
     )}
@@ -192,7 +198,7 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
                 <OrderInfo
                   label={t("orderDetails.fields.trackingUrl")}
                   value={order?.tracking_url ?? t("common.notAvailable")}
-                  isStatus={false}
+                  isLink={true}
                 />
                 <OrderInfo
                   label={t("orderDetails.fields.carrierType")}
