@@ -87,7 +87,12 @@ const OrderInfo = ({
         <StatusText status={value} />
       </div>
     ) : isLink ? (
-      <a href={value} className="text-[#07515f] hover:underline">
+      <a
+        href={value}
+        className="text-[#07515f] hover:underline"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
         {value}
       </a>
     ) : (
