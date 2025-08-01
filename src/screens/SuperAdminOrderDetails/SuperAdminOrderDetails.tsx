@@ -1,16 +1,8 @@
-import { Badge } from "../../components/ui/badge";
 import { Button } from "../../components/ui/button";
 import { Card, CardContent } from "../../components/ui/card";
-import { Checkbox } from "../../components/ui/checkbox";
-import {
-  ArrowLeft,
-  Download,
-  Package2,
-  FileText,
-  ImageOff,
-} from "lucide-react";
+import { ArrowLeft, Download, ImageOff, Copy, Check } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { getOrder } from "../../store/features/cartSlice";
@@ -18,7 +10,7 @@ import { useAppSelector, AppDispatch } from "../../store/store";
 import { Skeleton } from "../../components/Skeleton";
 import { StatusIcon } from "../../components/ui/status-icon";
 import { StatusText } from "../../components/ui/status-text";
-import { jsPDF } from "jspdf";
+import useToast from "../../hooks/useToast";
 import { handleDownloadInvoice } from "../../utils/pdfUtil";
 import { formatDateToParis } from "../../utils/dateUtils";
 
@@ -76,30 +68,62 @@ const OrderInfo = ({
   value: string;
   isStatus: boolean;
   isLink: boolean;
-}) => (
-  <div className="flex flex-col items-start gap-1">
-    <h3 className="font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5">
-      {label}
-    </h3>
-    {isStatus ? (
-      <div className="flex items-center gap-2">
-        <StatusIcon status={value} />
-        <StatusText status={value} />
-      </div>
-    ) : isLink ? (
-      <a
-        href={value}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="text-[#07515f] hover:underline font-text-medium"
-      >
-        {value}
-      </a>
-    ) : (
-      <p className="font-text-medium text-black">{value}</p>
-    )}
-  </div>
-);
+}) => {
+  const { t } = useTranslation();
+  const toast = useToast();
+  const [isCopied, setIsCopied] = useState(false);
+
+  const handleCopy = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(value);
+      setIsCopied(true);
+      toast.showSuccess(t("common.copied"));
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      toast.showError(t("common.copyFailed"));
+    }
+  }, [value, t, toast]);
+
+  return (
+    <div className="flex flex-col items-start gap-1">
+      <h3 className="font-label-small font-bold text-gray-700 text-sm tracking-wide leading-5">
+        {label}
+      </h3>
+      {isStatus ? (
+        <div className="flex items-center gap-2">
+          <StatusIcon status={value} />
+          <StatusText status={value} />
+        </div>
+      ) : isLink ? (
+        <div className="flex items-center gap-2">
+          <a
+            href={value}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#07515f] hover:underline font-text-medium"
+          >
+            {value}
+          </a>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-6 w-6"
+            onClick={handleCopy}
+            title={t("common.copyLink")}
+          >
+            {isCopied ? (
+              <Check className="h-4 w-4 text-green-500" />
+            ) : (
+              <Copy className="h-4 w-4 text-gray-500 hover:text-gray-700" />
+            )}
+          </Button>
+        </div>
+      ) : (
+        <p className="font-text-medium text-black">{value}</p>
+      )}
+    </div>
+  );
+};
 
 const OrderDetailsCard = ({ order }: { order: any }) => {
   const { t } = useTranslation();
@@ -125,6 +149,7 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
                 label={t("orderDetails.fields.order")}
                 value={order?.order_id?.toString() ?? t("common.notAvailable")}
                 isStatus={false}
+                isLink={false}
               />
               <OrderInfo
                 label={t("orderDetails.fields.date")}
@@ -132,16 +157,19 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
                   order?.created_at ? parisDateTime : t("common.notAvailable")
                 }
                 isStatus={false}
+                isLink={false}
               />
               <OrderInfo
                 label={t("orderDetails.fields.store")}
                 value={order?.store_name ?? t("common.notAvailable")}
                 isStatus={false}
+                isLink={false}
               />
               <OrderInfo
                 label={t("orderDetails.fields.status")}
                 value={order?.order_status ?? t("common.notAvailable")}
                 isStatus={true}
+                isLink={false}
               />
             </div>
           </div>
@@ -151,11 +179,13 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
                 label={t("orderDetails.fields.storeAddress")}
                 value={order?.store_address ?? t("common.notAvailable")}
                 isStatus={false}
+                isLink={false}
               />
               <OrderInfo
                 label={t("orderDetails.fields.totalItems")}
                 value={order?.order_items?.length?.toString() ?? "0"}
                 isStatus={false}
+                isLink={false}
               />
               <OrderInfo
                 label={t("orderDetails.fields.totalQuantity")}
@@ -168,6 +198,7 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
                     .toString() ?? "0"
                 }
                 isStatus={false}
+                isLink={false}
               />
               <OrderInfo
                 label={t("orderDetails.fields.totalPrice")}
@@ -182,6 +213,7 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
                     .toFixed(2)}€` ?? "0.00€"
                 }
                 isStatus={false}
+                isLink={false}
               />
             </div>
           </div>
@@ -192,6 +224,7 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
                   label={t("orderDetails.fields.shippedDate")}
                   value={order?.shipped_date ?? t("common.notAvailable")}
                   isStatus={false}
+                  isLink={false}
                 />
                 <OrderInfo
                   label={t("orderDetails.fields.sedisDeliveryNumber")}
@@ -199,26 +232,31 @@ const OrderDetailsCard = ({ order }: { order: any }) => {
                     order?.sedis_delivery_number ?? t("common.notAvailable")
                   }
                   isStatus={false}
+                  isLink={false}
                 />
                 <OrderInfo
                   label={t("orderDetails.fields.trackingUrl")}
                   value={order?.tracking_url ?? t("common.notAvailable")}
+                  isStatus={false}
                   isLink={true}
                 />
                 <OrderInfo
                   label={t("orderDetails.fields.carrierType")}
                   value={order?.carrier_type ?? t("common.notAvailable")}
                   isStatus={false}
+                  isLink={false}
                 />
                 <OrderInfo
                   label={t("orderDetails.fields.packageCount")}
                   value={order?.package_count ?? t("common.notAvailable")}
                   isStatus={false}
+                  isLink={false}
                 />
                 <OrderInfo
                   label={t("orderDetails.fields.packageVolume")}
                   value={order?.package_volume ?? t("common.notAvailable")}
                   isStatus={false}
+                  isLink={false}
                 />
               </div>
             </div>
