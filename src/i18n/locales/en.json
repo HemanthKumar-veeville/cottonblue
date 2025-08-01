@@ -12,6 +12,7 @@
     "dashboard_report": "dashboard_report"
   },
   "common": {
+    "copied": "Copied",
     "downloadComplete": "Download complete",
     "preparingDownload": "Preparing download...",
     "loading": "Loading...",
