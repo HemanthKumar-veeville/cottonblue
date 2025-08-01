@@ -87,12 +87,14 @@ const OrderInfo = ({
         <StatusText status={value} />
       </div>
     ) : isLink ? (
-      <span
+      <a
+        href={value}
+        target="_blank"
+        rel="noopener noreferrer"
         className="text-[#07515f] hover:underline font-text-medium"
-        onClick={() => window.open(value, "_blank")}
       >
         {value}
-      </span>
+      </a>
     ) : (
       <p className="font-text-medium text-black">{value}</p>
     )}
@@ -101,7 +103,7 @@ const OrderInfo = ({
 
 const OrderDetailsCard = ({ order }: { order: any }) => {
   const { t } = useTranslation();
-
+  console.log("order", order);
   if (!order) return null;
 
   const parisDateTime = formatDateToParis(order?.created_at);
