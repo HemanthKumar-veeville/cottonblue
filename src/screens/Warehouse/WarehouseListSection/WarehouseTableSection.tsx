@@ -364,12 +364,11 @@ export const WarehouseTableSection = ({
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-                {totalPages > 6 &&
-                  totalPages >
-                    getPaginationItems()[getPaginationItems().length - 1]
-                      ?.page && (
+                {totalPages >
+                  getPaginationItems()[getPaginationItems().length - 1]
+                    ?.page && (
                   <>
-                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center text-[#023337]" />
+                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
                     <PaginationItem>
                       <PaginationLink
                         href="#"

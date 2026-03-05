@@ -575,22 +575,22 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-                {totalPages > 6 && (
-                  <>
-                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center text-[#023337]" />
-                    <PaginationItem>
-                      <PaginationLink
-                        href="#"
-                        className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                        onClick={(e: React.MouseEvent) => {
-                          e.preventDefault();
-                          handlePageChange(totalPages);
-                        }}
-                      >
-                        {totalPages}
-                      </PaginationLink>
-                    </PaginationItem>
-                  </>
+                {totalPages > 5 && (
+                  <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                )}
+                {totalPages > 5 && (
+                  <PaginationItem>
+                    <PaginationLink
+                      href="#"
+                      className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                      onClick={(e: React.MouseEvent) => {
+                        e.preventDefault();
+                        handlePageChange(totalPages);
+                      }}
+                    >
+                      {totalPages}
+                    </PaginationLink>
+                  </PaginationItem>
                 )}
               </PaginationContent>
 
