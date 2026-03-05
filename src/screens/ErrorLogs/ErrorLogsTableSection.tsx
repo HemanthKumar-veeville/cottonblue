@@ -109,6 +109,9 @@ export const ErrorLogsTableSection = ({
     const delta = 2; // Number of pages to show before and after current page
     const range: (number | string)[] = [];
 
+    // Only show ellipsis if totalPages > 6
+    const showEllipsis = totalPages > 6;
+
     for (let i = 1; i <= totalPages; i++) {
       if (
         i === 1 || // Always show first page
@@ -116,7 +119,7 @@ export const ErrorLogsTableSection = ({
         (i >= currentPage - delta && i <= currentPage + delta) // Show pages around current page
       ) {
         range.push(i);
-      } else if (range[range.length - 1] !== "...") {
+      } else if (showEllipsis && range[range.length - 1] !== "...") {
         range.push("...");
       }
     }
@@ -328,7 +331,7 @@ export const ErrorLogsTableSection = ({
                   page === "..." ? (
                     <PaginationEllipsis
                       key={`ellipsis-${index}`}
-                      className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]"
+                      className="w-9 h-9 flex items-center justify-center text-[#023337]"
                       aria-hidden="true"
                     />
                   ) : (

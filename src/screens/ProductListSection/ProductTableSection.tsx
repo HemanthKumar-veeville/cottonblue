@@ -573,9 +573,9 @@ export const ProductTableSection = ({
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-                {totalPages > 5 && currentPage < totalPages - 2 && (
+                {totalPages > 6 && currentPage < totalPages - 2 && (
                   <>
-                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center text-[#023337]" />
                     <PaginationItem>
                       <PaginationLink
                         href="#"

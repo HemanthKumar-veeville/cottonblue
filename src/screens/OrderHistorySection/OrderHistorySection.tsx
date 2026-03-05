@@ -727,11 +727,12 @@ export const OrderHistorySection = ({
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-                {total / itemsPerPage >
-                  getPaginationItems()[getPaginationItems().length - 1]
-                    ?.page && (
+                {Math.ceil(total / itemsPerPage) > 6 &&
+                  total / itemsPerPage >
+                    getPaginationItems()[getPaginationItems().length - 1]
+                      ?.page && (
                   <>
-                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center text-[#023337]" />
                     <PaginationItem>
                       <PaginationLink
                         href="#"
