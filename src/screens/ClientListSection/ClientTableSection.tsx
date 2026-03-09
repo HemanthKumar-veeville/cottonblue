@@ -38,6 +38,7 @@ import {
   modifyCompany,
 } from "../../store/features/clientSlice";
 import { useAppDispatch } from "../../store/store";
+import { clampPage, getPaginationWindow } from "../../lib/pagination";
 interface ClientTableSectionProps {
   companies: any[];
   loading: boolean;
@@ -73,6 +74,17 @@ export const ClientTableSection = ({
   // Pagination logic
   const totalPages = Math.ceil(totalItems / itemsPerPage);
   const dispatch = useAppDispatch();
+  const paginationWindow = getPaginationWindow({
+    currentPage,
+    totalPages,
+    maxVisiblePages: 5,
+  });
+
+  useEffect(() => {
+    if (totalPages <= 0) return;
+    const nextPage = clampPage(currentPage, totalPages);
+    if (nextPage !== currentPage) setCurrentPage(nextPage);
+  }, [currentPage, setCurrentPage, totalPages]);
   // Handle checkbox selection
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -88,24 +100,6 @@ export const ClientTableSection = ({
     } else {
       setSelectedClients(selectedClients.filter((id) => id !== clientId));
     }
-  };
-
-  // Generate pagination items
-  const getPaginationItems = () => {
-    const items = [];
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      items.push({ page: i, active: i === currentPage });
-    }
-
-    return items;
   };
 
   // Handle actions
@@ -444,37 +438,66 @@ export const ClientTableSection = ({
               </PaginationPrevious>
 
               <PaginationContent className="flex items-center gap-3">
-                {getPaginationItems().map((item) => (
-                  <PaginationItem key={item.page}>
-                    <PaginationLink
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        setCurrentPage(item.page);
-                      }}
-                      className={`flex items-center justify-center w-9 h-9 rounded ${
-                        item.active
-                          ? "bg-cyan-100 font-bold text-[#1e2324]"
-                          : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                      }`}
-                    >
-                      {item.page}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                {totalPages >
-                  getPaginationItems()[getPaginationItems().length - 1]
-                    ?.page && (
+                {paginationWindow.showFirst && (
                   <>
-                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
                     <PaginationItem>
                       <PaginationLink
                         href="#"
-                        onClick={(e) => {
+                        className={`flex items-center justify-center w-9 h-9 rounded ${
+                          1 === currentPage
+                            ? "bg-cyan-100 font-bold text-[#1e2324]"
+                            : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        }`}
+                        onClick={(e: React.MouseEvent) => {
+                          e.preventDefault();
+                          setCurrentPage(1);
+                        }}
+                      >
+                        1
+                      </PaginationLink>
+                    </PaginationItem>
+                    {paginationWindow.showLeftEllipsis && (
+                      <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    )}
+                  </>
+                )}
+
+                {paginationWindow.pages.map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#"
+                      className={`flex items-center justify-center w-9 h-9 rounded ${
+                        page === currentPage
+                          ? "bg-cyan-100 font-bold text-[#1e2324]"
+                          : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                      }`}
+                      onClick={(e: React.MouseEvent) => {
+                        e.preventDefault();
+                        setCurrentPage(page);
+                      }}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+
+                {paginationWindow.showLast && (
+                  <>
+                    {paginationWindow.showRightEllipsis && (
+                      <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    )}
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        className={`flex items-center justify-center w-9 h-9 rounded ${
+                          totalPages === currentPage
+                            ? "bg-cyan-100 font-bold text-[#1e2324]"
+                            : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        }`}
+                        onClick={(e: React.MouseEvent) => {
                           e.preventDefault();
                           setCurrentPage(totalPages);
                         }}
-                        className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
                       >
                         {totalPages}
                       </PaginationLink>

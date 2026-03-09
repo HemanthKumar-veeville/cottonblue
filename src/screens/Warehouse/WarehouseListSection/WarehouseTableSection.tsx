@@ -17,7 +17,7 @@ import {
   TableRow,
 } from "../../../components/ui/table";
 import { useTranslation } from "react-i18next";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Skeleton } from "../../../components/Skeleton";
 import EmptyState from "../../../components/EmptyState";
@@ -46,6 +46,7 @@ import { StatusText } from "../../../components/ui/status-text";
 import { StatusIcon } from "../../../components/ui/status-icon";
 import { RootState } from "../../../store/store";
 import { formatDateToParis } from "../../../utils/dateUtils";
+import { clampPage, getPaginationWindow } from "../../../lib/pagination";
 
 interface Order {
   order_id: number;
@@ -112,24 +113,17 @@ export const WarehouseTableSection = ({
   const { store_address } = useAppSelector((state) => state.cart);
   const total = useSelector((state: RootState) => state.cart.totalOrders);
   const totalPages = Math.ceil(total / itemsPerPage);
+  const paginationWindow = getPaginationWindow({
+    currentPage,
+    totalPages,
+    maxVisiblePages: 5,
+  });
 
-  // Generate pagination items
-  const getPaginationItems = () => {
-    const items = [];
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      items.push({ page: i, active: i === currentPage });
-    }
-
-    return items;
-  };
+  useEffect(() => {
+    if (totalPages <= 0) return;
+    const nextPage = clampPage(currentPage, totalPages);
+    if (nextPage !== currentPage) setCurrentPage(nextPage);
+  }, [currentPage, setCurrentPage, totalPages]);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -346,37 +340,66 @@ export const WarehouseTableSection = ({
               </PaginationPrevious>
 
               <PaginationContent className="flex items-center gap-3">
-                {getPaginationItems().map((item) => (
-                  <PaginationItem key={item.page}>
-                    <PaginationLink
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handlePageChange(item.page);
-                      }}
-                      className={`flex items-center justify-center w-9 h-9 rounded ${
-                        item.active
-                          ? "bg-cyan-100 font-bold text-[#1e2324]"
-                          : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                      }`}
-                    >
-                      {item.page}
-                    </PaginationLink>
-                  </PaginationItem>
-                ))}
-                {totalPages >
-                  getPaginationItems()[getPaginationItems().length - 1]
-                    ?.page && (
+                {paginationWindow.showFirst && (
                   <>
-                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
                     <PaginationItem>
                       <PaginationLink
                         href="#"
+                        className={`flex items-center justify-center w-9 h-9 rounded ${
+                          1 === currentPage
+                            ? "bg-cyan-100 font-bold text-[#1e2324]"
+                            : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        }`}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handlePageChange(1);
+                        }}
+                      >
+                        1
+                      </PaginationLink>
+                    </PaginationItem>
+                    {paginationWindow.showLeftEllipsis && (
+                      <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    )}
+                  </>
+                )}
+
+                {paginationWindow.pages.map((page) => (
+                  <PaginationItem key={page}>
+                    <PaginationLink
+                      href="#"
+                      className={`flex items-center justify-center w-9 h-9 rounded ${
+                        page === currentPage
+                          ? "bg-cyan-100 font-bold text-[#1e2324]"
+                          : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                      }`}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        handlePageChange(page);
+                      }}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+
+                {paginationWindow.showLast && (
+                  <>
+                    {paginationWindow.showRightEllipsis && (
+                      <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    )}
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        className={`flex items-center justify-center w-9 h-9 rounded ${
+                          totalPages === currentPage
+                            ? "bg-cyan-100 font-bold text-[#1e2324]"
+                            : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        }`}
                         onClick={(e) => {
                           e.preventDefault();
                           handlePageChange(totalPages);
                         }}
-                        className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
                       >
                         {totalPages}
                       </PaginationLink>

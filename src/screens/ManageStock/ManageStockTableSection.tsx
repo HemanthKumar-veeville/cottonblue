@@ -19,7 +19,7 @@ import {
   TableRow,
 } from "../../components/ui/table";
 import { useTranslation } from "react-i18next";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAppSelector, useAppDispatch } from "../../store/store";
 import { Skeleton } from "../../components/Skeleton";
 import EmptyState from "../../components/EmptyState";
@@ -27,6 +27,7 @@ import ErrorState from "../../components/ErrorState";
 import { ImageOff, Package, PlusCircle } from "lucide-react";
 import { ProductStockPopup } from "../../components/ProductStockPopup/ProductStockPopup";
 import { fetchAllProducts } from "../../store/features/productSlice";
+import { clampPage, getPaginationWindow } from "../../lib/pagination";
 
 export const ManageStockTableSection = ({
   searchQuery,
@@ -77,6 +78,17 @@ export const ManageStockTableSection = ({
 
   // Calculate total pages based on total products from API
   const totalPages = Math.ceil(totalProducts / ITEMS_PER_PAGE);
+  const paginationWindow = getPaginationWindow({
+    currentPage,
+    totalPages,
+    maxVisiblePages: 5,
+  });
+
+  useEffect(() => {
+    if (totalPages <= 0) return;
+    const nextPage = clampPage(currentPage, totalPages);
+    if (nextPage !== currentPage) setCurrentPage(nextPage);
+  }, [currentPage, totalPages]);
 
   // Handle select all checkbox
   const handleSelectAll = () => {
@@ -98,24 +110,6 @@ export const ManageStockTableSection = ({
       }
     });
   };
-
-  // Generate pagination items with a maximum of 5 visible pages
-  const paginationItems = useMemo(() => {
-    const maxVisiblePages = 5;
-    const items = [];
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      items.push(i);
-    }
-
-    return items;
-  }, [currentPage, totalPages]);
 
   return (
     <section className="flex flex-col h-full">
@@ -287,7 +281,31 @@ export const ManageStockTableSection = ({
               </PaginationPrevious>
 
               <PaginationContent className="flex items-center gap-3">
-                {paginationItems.map((page) => (
+                {paginationWindow.showFirst && (
+                  <>
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        className={`flex items-center justify-center w-9 h-9 rounded ${
+                          1 === currentPage
+                            ? "bg-cyan-100 font-bold text-[#1e2324]"
+                            : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        }`}
+                        onClick={(e: React.MouseEvent) => {
+                          e.preventDefault();
+                          setCurrentPage(1);
+                        }}
+                      >
+                        1
+                      </PaginationLink>
+                    </PaginationItem>
+                    {paginationWindow.showLeftEllipsis && (
+                      <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    )}
+                  </>
+                )}
+
+                {paginationWindow.pages.map((page) => (
                   <PaginationItem key={page}>
                     <PaginationLink
                       href="#"
@@ -296,20 +314,33 @@ export const ManageStockTableSection = ({
                           ? "bg-cyan-100 font-bold text-[#1e2324]"
                           : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
                       }`}
-                      onClick={() => setCurrentPage(page)}
+                      onClick={(e: React.MouseEvent) => {
+                        e.preventDefault();
+                        setCurrentPage(page);
+                      }}
                     >
                       {page}
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-                {totalPages > 5 && currentPage < totalPages - 2 && (
+
+                {paginationWindow.showLast && (
                   <>
-                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    {paginationWindow.showRightEllipsis && (
+                      <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    )}
                     <PaginationItem>
                       <PaginationLink
                         href="#"
-                        className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                        onClick={() => setCurrentPage(totalPages)}
+                        className={`flex items-center justify-center w-9 h-9 rounded ${
+                          totalPages === currentPage
+                            ? "bg-cyan-100 font-bold text-[#1e2324]"
+                            : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        }`}
+                        onClick={(e: React.MouseEvent) => {
+                          e.preventDefault();
+                          setCurrentPage(totalPages);
+                        }}
                       >
                         {totalPages}
                       </PaginationLink>

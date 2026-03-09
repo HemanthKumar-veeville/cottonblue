@@ -26,7 +26,7 @@ import { useSelector } from "react-redux";
 import * as XLSX from "xlsx";
 import { useCompanyColors } from "../../hooks/useCompanyColors";
 import ExcelJS from "exceljs";
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Buffer } from "buffer";
 import dayjs from "dayjs";
 import { Input } from "../../components/ui/input";
@@ -44,6 +44,7 @@ import { TimeframeSelect, TimeframeType } from "./TimeframeSelect";
 import { PeriodSelect } from "./PeriodSelect";
 import { getAllCompanyOrdersReport } from "../../store/features/reportSlice";
 import { getHost } from "../../utils/hostUtils";
+import { clampPage, getPaginationWindow } from "../../lib/pagination";
 
 interface DateRange {
   startDate: string;
@@ -489,29 +490,21 @@ export const OrderHistorySection = ({
     }
   };
 
-  const getPaginationItems = () => {
-    const items = [];
-    const maxVisiblePages = 5;
-    const totalPages = Math.ceil(total / itemsPerPage);
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+  const totalPages = Math.ceil(total / itemsPerPage);
+  const paginationWindow = getPaginationWindow({
+    currentPage,
+    totalPages,
+    maxVisiblePages: 5,
+  });
 
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      items.push({ page: i, active: i === currentPage });
-    }
-
-    return items;
-  };
+  useEffect(() => {
+    if (totalPages <= 0) return;
+    const nextPage = clampPage(currentPage, totalPages);
+    if (nextPage !== currentPage) setCurrentPage(nextPage);
+  }, [currentPage, totalPages]);
 
   const handlePageChange = (page: number) => {
-    const totalPages = Math.ceil(total / itemsPerPage);
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
+    setCurrentPage(clampPage(page, totalPages));
   };
 
   return (
@@ -709,39 +702,68 @@ export const OrderHistorySection = ({
               </PaginationPrevious>
 
               <PaginationContent className="flex items-center gap-3">
-                {getPaginationItems().map((item) => (
-                  <PaginationItem key={item.page}>
+                {paginationWindow.showFirst && (
+                  <>
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        className={`flex items-center justify-center w-9 h-9 rounded ${
+                          1 === currentPage
+                            ? "bg-cyan-100 font-bold text-[#1e2324]"
+                            : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        }`}
+                        onClick={(e: React.MouseEvent) => {
+                          e.preventDefault();
+                          handlePageChange(1);
+                        }}
+                      >
+                        1
+                      </PaginationLink>
+                    </PaginationItem>
+                    {paginationWindow.showLeftEllipsis && (
+                      <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    )}
+                  </>
+                )}
+
+                {paginationWindow.pages.map((page) => (
+                  <PaginationItem key={page}>
                     <PaginationLink
                       href="#"
                       onClick={(e: React.MouseEvent) => {
                         e.preventDefault();
-                        handlePageChange(item.page);
+                        handlePageChange(page);
                       }}
                       className={`flex items-center justify-center w-9 h-9 rounded ${
-                        item.active
+                        page === currentPage
                           ? "bg-cyan-100 font-bold text-[#1e2324]"
                           : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
                       }`}
                     >
-                      {item.page}
+                      {page}
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-                {total / itemsPerPage >
-                  getPaginationItems()[getPaginationItems().length - 1]
-                    ?.page && (
+
+                {paginationWindow.showLast && (
                   <>
-                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    {paginationWindow.showRightEllipsis && (
+                      <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    )}
                     <PaginationItem>
                       <PaginationLink
                         href="#"
                         onClick={(e: React.MouseEvent) => {
                           e.preventDefault();
-                          handlePageChange(Math.ceil(total / itemsPerPage));
+                          handlePageChange(totalPages);
                         }}
-                        className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        className={`flex items-center justify-center w-9 h-9 rounded ${
+                          totalPages === currentPage
+                            ? "bg-cyan-100 font-bold text-[#1e2324]"
+                            : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        }`}
                       >
-                        {Math.ceil(total / itemsPerPage)}
+                        {totalPages}
                       </PaginationLink>
                     </PaginationItem>
                   </>
@@ -755,7 +777,7 @@ export const OrderHistorySection = ({
                   handlePageChange(currentPage + 1);
                 }}
                 className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px] ${
-                  currentPage === Math.ceil(total / itemsPerPage)
+                  currentPage === totalPages
                     ? "opacity-50 cursor-not-allowed"
                     : ""
                 }`}

@@ -63,6 +63,7 @@ import { formatDateToParis } from "../../utils/dateUtils";
 import { getAllCompanyOrdersReport } from "../../store/features/reportSlice";
 import { TimeframeSelect, TimeframeType } from "./TimeframeSelect";
 import { PeriodSelect } from "./PeriodSelect";
+import { clampPage, getPaginationWindow } from "../../lib/pagination";
 import {
   Tooltip,
   TooltipContent,
@@ -797,29 +798,20 @@ export const SuperAdminOrderHistorySection = ({
   );
   const totalItems = total;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
+  const paginationWindow = getPaginationWindow({
+    currentPage,
+    totalPages,
+    maxVisiblePages: 5,
+  });
 
-  // Generate pagination items
-  const getPaginationItems = () => {
-    const items = [];
-    const maxVisiblePages = 5;
-    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
-    let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
-    if (endPage - startPage + 1 < maxVisiblePages) {
-      startPage = Math.max(1, endPage - maxVisiblePages + 1);
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      items.push({ page: i, active: i === currentPage });
-    }
-
-    return items;
-  };
+  useEffect(() => {
+    if (totalPages <= 0) return;
+    const nextPage = clampPage(currentPage, totalPages);
+    if (nextPage !== currentPage) setCurrentPage(nextPage);
+  }, [currentPage, totalPages]);
 
   const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-    }
+    setCurrentPage(clampPage(page, totalPages));
   };
 
   const handleSelectAll = (checked: boolean) => {
@@ -1082,29 +1074,54 @@ export const SuperAdminOrderHistorySection = ({
                 </PaginationPrevious>
 
                 <PaginationContent className="flex items-center gap-3">
-                  {getPaginationItems().map((item) => (
-                    <PaginationItem key={item.page}>
+                  {paginationWindow.showFirst && (
+                    <>
+                      <PaginationItem>
+                        <PaginationLink
+                          href="#"
+                          className={`flex items-center justify-center w-9 h-9 rounded ${
+                            1 === currentPage
+                              ? "bg-cyan-100 font-bold text-[#1e2324]"
+                              : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                          }`}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(1);
+                          }}
+                        >
+                          1
+                        </PaginationLink>
+                      </PaginationItem>
+                      {paginationWindow.showLeftEllipsis && (
+                        <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                      )}
+                    </>
+                  )}
+
+                  {paginationWindow.pages.map((page) => (
+                    <PaginationItem key={page}>
                       <PaginationLink
                         href="#"
                         onClick={(e) => {
                           e.preventDefault();
-                          handlePageChange(item.page);
+                          handlePageChange(page);
                         }}
                         className={`flex items-center justify-center w-9 h-9 rounded ${
-                          item.active
+                          page === currentPage
                             ? "bg-cyan-100 font-bold text-[#1e2324]"
                             : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
                         }`}
                       >
-                        {item.page}
+                        {page}
                       </PaginationLink>
                     </PaginationItem>
                   ))}
-                  {totalPages >
-                    getPaginationItems()[getPaginationItems().length - 1]
-                      ?.page && (
+
+                  {paginationWindow.showLast && (
                     <>
-                      <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                      {paginationWindow.showRightEllipsis && (
+                        <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                      )}
                       <PaginationItem>
                         <PaginationLink
                           href="#"
@@ -1112,7 +1129,11 @@ export const SuperAdminOrderHistorySection = ({
                             e.preventDefault();
                             handlePageChange(totalPages);
                           }}
-                          className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                          className={`flex items-center justify-center w-9 h-9 rounded ${
+                            totalPages === currentPage
+                              ? "bg-cyan-100 font-bold text-[#1e2324]"
+                              : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                          }`}
                         >
                           {totalPages}
                         </PaginationLink>

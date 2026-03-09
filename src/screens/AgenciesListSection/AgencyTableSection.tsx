@@ -52,6 +52,7 @@ import {
 const paginationItems = [1, 2, 3, 4, 5];
 
 import { formatDateToParis } from "../../utils/dateUtils";
+import { clampPage, getPaginationWindow } from "../../lib/pagination";
 
 interface Agency {
   id: number;
@@ -141,6 +142,18 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
   const currentAgencies = filteredAgencies.slice(startIndex, endIndex);
+
+  useEffect(() => {
+    if (totalPages <= 0) return;
+    const nextPage = clampPage(currentPage, totalPages);
+    if (nextPage !== currentPage) setCurrentPage(nextPage);
+  }, [currentPage, totalPages]);
+
+  const paginationWindow = getPaginationWindow({
+    currentPage,
+    totalPages,
+    maxVisiblePages: 5,
+  });
 
   // Handle checkbox selection
   const handleSelectAll = (checked: boolean) => {
@@ -539,7 +552,10 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
             <Pagination className="flex items-center justify-between w-full mx-auto">
               <PaginationPrevious
                 href="#"
-                className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px]"
+                aria-disabled={currentPage <= 1}
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-2 pr-3 py-2.5 font-medium text-black text-[15px] ${
+                  currentPage <= 1 ? "opacity-50 cursor-not-allowed" : ""
+                }`}
                 onClick={(e: React.MouseEvent) => {
                   e.preventDefault();
                   if (currentPage > 1) handlePageChange(currentPage - 1);
@@ -554,10 +570,31 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
               </PaginationPrevious>
 
               <PaginationContent className="flex items-center gap-3">
-                {Array.from(
-                  { length: Math.min(5, totalPages) },
-                  (_, i) => i + 1
-                ).map((page) => (
+                {paginationWindow.showFirst && (
+                  <>
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        className={`flex items-center justify-center w-9 h-9 rounded ${
+                          1 === currentPage
+                            ? "bg-cyan-100 font-bold text-[#1e2324]"
+                            : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        }`}
+                        onClick={(e: React.MouseEvent) => {
+                          e.preventDefault();
+                          handlePageChange(1);
+                        }}
+                      >
+                        1
+                      </PaginationLink>
+                    </PaginationItem>
+                    {paginationWindow.showLeftEllipsis && (
+                      <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    )}
+                  </>
+                )}
+
+                {paginationWindow.pages.map((page) => (
                   <PaginationItem key={page}>
                     <PaginationLink
                       href="#"
@@ -575,28 +612,38 @@ export const AgencyTableSection: React.FC<AgencyTableSectionProps> = ({
                     </PaginationLink>
                   </PaginationItem>
                 ))}
-                {totalPages > 5 && (
-                  <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
-                )}
-                {totalPages > 5 && (
-                  <PaginationItem>
-                    <PaginationLink
-                      href="#"
-                      className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337]"
-                      onClick={(e: React.MouseEvent) => {
-                        e.preventDefault();
-                        handlePageChange(totalPages);
-                      }}
-                    >
-                      {totalPages}
-                    </PaginationLink>
-                  </PaginationItem>
+
+                {paginationWindow.showLast && (
+                  <>
+                    {paginationWindow.showRightEllipsis && (
+                      <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                    )}
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        className={`flex items-center justify-center w-9 h-9 rounded ${
+                          totalPages === currentPage
+                            ? "bg-cyan-100 font-bold text-[#1e2324]"
+                            : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        }`}
+                        onClick={(e: React.MouseEvent) => {
+                          e.preventDefault();
+                          handlePageChange(totalPages);
+                        }}
+                      >
+                        {totalPages}
+                      </PaginationLink>
+                    </PaginationItem>
+                  </>
                 )}
               </PaginationContent>
 
               <PaginationNext
                 href="#"
-                className="h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px]"
+                aria-disabled={currentPage >= totalPages}
+                className={`h-[42px] bg-white rounded-lg shadow-1dp-ambient flex items-center gap-1 pl-3 pr-2 py-2.5 font-medium text-black text-[15px] ${
+                  currentPage >= totalPages ? "opacity-50 cursor-not-allowed" : ""
+                }`}
                 onClick={(e: React.MouseEvent) => {
                   e.preventDefault();
                   if (currentPage < totalPages)

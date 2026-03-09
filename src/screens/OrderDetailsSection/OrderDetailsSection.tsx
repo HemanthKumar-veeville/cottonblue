@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
 import { Checkbox } from "../../components/ui/checkbox";
@@ -30,6 +30,7 @@ import { StatusText } from "../../components/ui/status-text";
 import { useCompanyColors } from "../../hooks/useCompanyColors";
 import { useAppSelector } from "../../store/store";
 import { formatDateToParis } from "../../utils/dateUtils";
+import { clampPage, getPaginationWindow } from "../../lib/pagination";
 
 interface OrderItem {
   product_id: number;
@@ -202,45 +203,24 @@ export const OrderDetailsSection = ({
   const { buttonStyles } = useCompanyColors();
   const orderList = orders || [];
   const totalPages = Math.ceil(totalOrders / itemsPerPage);
+  const paginationWindow = getPaginationWindow({
+    currentPage,
+    totalPages,
+    maxVisiblePages: 5,
+  });
 
   // Remove client-side pagination since we're getting paginated data from API
   const currentOrders = orderList;
   console.log({ currentPage, totalPages });
-
-  // Generate pagination items
-  const generatePaginationItems = () => {
-    const items = [];
-    const maxVisiblePages = 5;
-    let startPage = 1;
-    let endPage = totalPages;
-
-    if (totalPages > maxVisiblePages) {
-      const leftOffset = Math.floor(maxVisiblePages / 2);
-      const rightOffset = maxVisiblePages - leftOffset - 1;
-
-      if (currentPage <= leftOffset) {
-        endPage = maxVisiblePages;
-      } else if (currentPage > totalPages - rightOffset) {
-        startPage = totalPages - maxVisiblePages + 1;
-      } else {
-        startPage = currentPage - leftOffset;
-        endPage = currentPage + rightOffset;
-      }
-    }
-
-    for (let i = startPage; i <= endPage; i++) {
-      items.push({ page: i, active: i === currentPage });
-    }
-
-    return items;
-  };
+  useEffect(() => {
+    if (totalPages <= 0) return;
+    const nextPage = clampPage(currentPage, totalPages);
+    if (nextPage !== currentPage) setCurrentPage(nextPage);
+  }, [currentPage, setCurrentPage, totalPages]);
 
   const handlePageChange = (page: number) => {
-    if (page >= 1 && page <= totalPages) {
-      setCurrentPage(page);
-      // Reset selected orders when changing pages
-      setSelectedOrders([]);
-    }
+    setCurrentPage(clampPage(page, totalPages));
+    setSelectedOrders([]);
   };
 
   const handleSelectAll = (checked: boolean) => {
@@ -359,39 +339,72 @@ export const OrderDetailsSection = ({
             </PaginationPrevious>
 
             <PaginationContent className="flex items-center gap-3">
-              {generatePaginationItems().map((item, index) => (
-                <React.Fragment key={index}>
+              {paginationWindow.showFirst && (
+                <>
                   <PaginationItem>
                     <PaginationLink
-                      onClick={() => handlePageChange(item.page)}
-                      className={`flex items-center justify-center w-9 h-9 rounded cursor-pointer ${
-                        item.active
+                      href="#"
+                      className={`flex items-center justify-center w-9 h-9 rounded ${
+                        1 === currentPage
+                          ? "bg-cyan-100 font-bold text-[#1e2324]"
+                          : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                      }`}
+                      onClick={(e: React.MouseEvent) => {
+                        e.preventDefault();
+                        handlePageChange(1);
+                      }}
+                    >
+                      1
+                    </PaginationLink>
+                  </PaginationItem>
+                  {paginationWindow.showLeftEllipsis && (
+                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                  )}
+                </>
+              )}
+
+              {paginationWindow.pages.map((page) => (
+                <PaginationItem key={page}>
+                  <PaginationLink
+                    href="#"
+                    onClick={(e: React.MouseEvent) => {
+                      e.preventDefault();
+                      handlePageChange(page);
+                    }}
+                    className={`flex items-center justify-center w-9 h-9 rounded ${
+                      page === currentPage
+                        ? "bg-cyan-100 font-bold text-[#1e2324]"
+                        : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                    }`}
+                  >
+                    {page}
+                  </PaginationLink>
+                </PaginationItem>
+              ))}
+
+              {paginationWindow.showLast && (
+                <>
+                  {paginationWindow.showRightEllipsis && (
+                    <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
+                  )}
+                  <PaginationItem>
+                    <PaginationLink
+                      href="#"
+                      onClick={(e: React.MouseEvent) => {
+                        e.preventDefault();
+                        handlePageChange(totalPages);
+                      }}
+                      className={`flex items-center justify-center w-9 h-9 rounded ${
+                        totalPages === currentPage
                           ? "bg-cyan-100 font-bold text-[#1e2324]"
                           : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
                       }`}
                     >
-                      {item.page}
+                      {totalPages}
                     </PaginationLink>
                   </PaginationItem>
-                  {totalPages > 5 &&
-                    index === generatePaginationItems().length - 1 &&
-                    item.page < totalPages && (
-                      <>
-                        <PaginationItem>
-                          <PaginationEllipsis className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]" />
-                        </PaginationItem>
-                        <PaginationItem>
-                          <PaginationLink
-                            onClick={() => handlePageChange(totalPages)}
-                            className="flex items-center justify-center w-9 h-9 rounded border border-solid border-primary-neutal-300 font-medium text-[#023337] cursor-pointer"
-                          >
-                            {totalPages}
-                          </PaginationLink>
-                        </PaginationItem>
-                      </>
-                    )}
-                </React.Fragment>
-              ))}
+                </>
+              )}
             </PaginationContent>
 
             <PaginationNext

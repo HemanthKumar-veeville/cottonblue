@@ -27,6 +27,7 @@ import EmptyState from "../../components/EmptyState";
 import ErrorState from "../../components/ErrorState";
 import { AlertTriangle, ChevronDown, ChevronUp } from "lucide-react";
 import { format } from "date-fns";
+import { clampPage, getPaginationWindow } from "../../lib/pagination";
 
 interface ErrorLog {
   id: number;
@@ -103,25 +104,16 @@ export const ErrorLogsTableSection = ({
 
   // Calculate total pages
   const totalPages = Math.ceil(filteredLogs.length / ITEMS_PER_PAGE);
+  const paginationWindow = getPaginationWindow({
+    currentPage,
+    totalPages,
+    maxVisiblePages: 5,
+  });
 
-  // Generate visible pagination items with smart ellipsis
-  const getVisiblePages = useMemo(() => {
-    const delta = 2; // Number of pages to show before and after current page
-    const range: (number | string)[] = [];
-
-    for (let i = 1; i <= totalPages; i++) {
-      if (
-        i === 1 || // Always show first page
-        i === totalPages || // Always show last page
-        (i >= currentPage - delta && i <= currentPage + delta) // Show pages around current page
-      ) {
-        range.push(i);
-      } else if (range[range.length - 1] !== "...") {
-        range.push("...");
-      }
-    }
-
-    return range;
+  useEffect(() => {
+    if (totalPages <= 0) return;
+    const nextPage = clampPage(currentPage, totalPages);
+    if (nextPage !== currentPage) setCurrentPage(nextPage);
   }, [currentPage, totalPages]);
 
   const formatErrorMessage = (message: string) => {
@@ -324,33 +316,85 @@ export const ErrorLogsTableSection = ({
               </PaginationPrevious>
 
               <PaginationContent className="flex items-center gap-3">
-                {getVisiblePages.map((page, index) =>
-                  page === "..." ? (
-                    <PaginationEllipsis
-                      key={`ellipsis-${index}`}
-                      className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]"
-                      aria-hidden="true"
-                    />
-                  ) : (
-                    <PaginationItem key={`page-${page}`}>
+                {paginationWindow.showFirst && (
+                  <>
+                    <PaginationItem>
                       <PaginationLink
                         href="#"
                         className={`flex items-center justify-center w-9 h-9 rounded ${
-                          page === currentPage
+                          1 === currentPage
                             ? "bg-cyan-100 font-bold text-[#1e2324]"
                             : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
                         }`}
                         onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
                           e.preventDefault();
-                          setCurrentPage(page as number);
+                          setCurrentPage(1);
                         }}
-                        aria-label={`Go to page ${page}`}
-                        aria-current={page === currentPage ? "page" : undefined}
+                        aria-label="Go to page 1"
+                        aria-current={1 === currentPage ? "page" : undefined}
                       >
-                        {page}
+                        1
                       </PaginationLink>
                     </PaginationItem>
-                  )
+                    {paginationWindow.showLeftEllipsis && (
+                      <PaginationEllipsis
+                        className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]"
+                        aria-hidden="true"
+                      />
+                    )}
+                  </>
+                )}
+
+                {paginationWindow.pages.map((page) => (
+                  <PaginationItem key={`page-${page}`}>
+                    <PaginationLink
+                      href="#"
+                      className={`flex items-center justify-center w-9 h-9 rounded ${
+                        page === currentPage
+                          ? "bg-cyan-100 font-bold text-[#1e2324]"
+                          : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                      }`}
+                      onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                        e.preventDefault();
+                        setCurrentPage(page);
+                      }}
+                      aria-label={`Go to page ${page}`}
+                      aria-current={page === currentPage ? "page" : undefined}
+                    >
+                      {page}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+
+                {paginationWindow.showLast && (
+                  <>
+                    {paginationWindow.showRightEllipsis && (
+                      <PaginationEllipsis
+                        className="w-9 h-9 flex items-center justify-center rounded border border-solid border-primary-neutal-300 font-bold text-[#023337]"
+                        aria-hidden="true"
+                      />
+                    )}
+                    <PaginationItem key={`page-${totalPages}`}>
+                      <PaginationLink
+                        href="#"
+                        className={`flex items-center justify-center w-9 h-9 rounded ${
+                          totalPages === currentPage
+                            ? "bg-cyan-100 font-bold text-[#1e2324]"
+                            : "border border-solid border-primary-neutal-300 font-medium text-[#023337]"
+                        }`}
+                        onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                          e.preventDefault();
+                          setCurrentPage(totalPages);
+                        }}
+                        aria-label={`Go to page ${totalPages}`}
+                        aria-current={
+                          totalPages === currentPage ? "page" : undefined
+                        }
+                      >
+                        {totalPages}
+                      </PaginationLink>
+                    </PaginationItem>
+                  </>
                 )}
               </PaginationContent>
 
