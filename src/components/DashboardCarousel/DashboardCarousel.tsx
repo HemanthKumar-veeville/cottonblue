@@ -81,7 +81,7 @@ export const DashboardCarousel = (): JSX.Element => {
           <div
             className="absolute inset-0 border-none overflow-hidden"
             style={{
-              backgroundImage: `url(${imageUrl})`,
+              backgroundImage: `url("${encodeURI(imageUrl)}")`,
               backgroundSize: "cover",
               filter: "blur(2px)",
               backgroundPosition: "center",
