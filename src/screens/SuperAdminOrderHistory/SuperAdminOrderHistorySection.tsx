@@ -987,7 +987,7 @@ export const SuperAdminOrderHistorySection = ({
             />
           ) : (
             <Table className="w-full">
-              <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md sticky top-0 z-10">
+              <TableHeader className="bg-1-tokens-color-modes-common-primary-brand-lower rounded-md sticky top-0">
                 <TableRow>
                   <TableHead className="w-[60px] text-center">
                     <span className="text-[#1e2324] font-text-small">#</span>
