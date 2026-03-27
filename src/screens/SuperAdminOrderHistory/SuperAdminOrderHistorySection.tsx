@@ -1043,7 +1043,7 @@ export const SuperAdminOrderHistorySection = ({
                     isSelected={selectedOrders.includes(order.order_id)}
                     onSelect={handleSelectOrder}
                     itemsPerPage={itemsPerPage}
-                    currentPage={currentPage}
+                    currentPage={currentPage || 1}
                   />
                 ))}
               </TableBody>

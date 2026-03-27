@@ -157,7 +157,7 @@ export const Warehouse = (): JSX.Element => {
         onSearchChange={handleSearch}
         selectedOrders={selectedOrders}
         setSelectedOrders={setSelectedOrders}
-        currentPage={currentPage}
+        currentPage={currentPage || 1}
         setCurrentPage={setCurrentPage}
         itemsPerPage={ITEMS_PER_PAGE}
       />

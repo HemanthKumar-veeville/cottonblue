@@ -19,7 +19,7 @@ export default function SuperAdminOrderHistory() {
       <SuperAdminOrderHistorySection
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        currentPage={currentPage}
+        currentPage={currentPage || 1}
         setCurrentPage={setCurrentPage}
         itemsPerPage={ITEMS_PER_PAGE}
         dns_prefix={dns}

@@ -76,7 +76,7 @@ export const ClientList = (): JSX.Element => {
         loading={loading}
         error={error}
         searchTerm={searchTerm}
-        currentPage={currentPage}
+        currentPage={currentPage || 1}
         setCurrentPage={setCurrentPage}
         itemsPerPage={ITEMS_PER_PAGE}
         totalItems={total}

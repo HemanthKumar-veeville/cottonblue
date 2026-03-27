@@ -142,7 +142,7 @@ export const ClientUserListSection = ({
 
       <ClientUserTableSection
         filteredUsers={filteredUsers}
-        currentPage={currentPage}
+        currentPage={currentPage || 1}
         totalItems={total}
         itemsPerPage={itemsPerPage}
         onPageChange={handlePageChange}

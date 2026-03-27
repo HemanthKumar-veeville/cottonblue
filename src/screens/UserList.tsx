@@ -50,7 +50,7 @@ export const UserList = (): JSX.Element => {
       <UserListSection
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        currentPage={currentPage}
+        currentPage={currentPage || 1}
         setCurrentPage={setCurrentPage}
         itemsPerPage={ITEMS_PER_PAGE}
       />

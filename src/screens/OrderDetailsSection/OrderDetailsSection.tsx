@@ -310,7 +310,7 @@ export const OrderDetailsSection = ({
                 isSelected={selectedOrders.includes(order.order_id)}
                 onSelect={handleSelectOrder}
                 activeTab={activeTab}
-                currentPage={currentPage}
+                currentPage={currentPage || 1}
                 itemsPerPage={itemsPerPage}
               />
             ))}

@@ -113,7 +113,7 @@ export default function History(): JSX.Element {
       <OrderHistorySection
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        currentPage={currentPage}
+        currentPage={currentPage || 1}
         setCurrentPage={setCurrentPage}
         itemsPerPage={ITEMS_PER_PAGE}
         activeTab={activeTab}
@@ -126,7 +126,7 @@ export default function History(): JSX.Element {
         setSelectedStatus={setSelectedStatus}
       />
       <OrderDetailsSection
-        currentPage={currentPage}
+        currentPage={currentPage || 1}
         itemsPerPage={ITEMS_PER_PAGE}
         setCurrentPage={setCurrentPage}
         activeTab={activeTab}
