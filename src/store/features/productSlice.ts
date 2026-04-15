@@ -28,6 +28,10 @@ interface Product {
   linked_products?: Array<{
     size: string;
     linked_product_id?: number;
+    link_reason?: string;
+    price_of_pack?: number;
+    total_packs?: number;
+    available_packs?: number;
   }>;
 }
 

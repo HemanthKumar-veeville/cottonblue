@@ -115,6 +115,14 @@ const FormField = ({
   </div>
 );
 
+/** Reject negative numbers while typing; empty string allowed. */
+const clampNegativeNumericString = (raw: string): string => {
+  if (raw === "") return "";
+  const n = Number(raw);
+  if (!Number.isNaN(n) && n < 0) return "0";
+  return raw;
+};
+
 const FormInput = ({
   name,
   control,
@@ -124,6 +132,8 @@ const FormInput = ({
   disabled = false,
   error,
   className,
+  validate,
+  htmlMin,
 }: {
   name: string;
   control: any;
@@ -133,6 +143,9 @@ const FormInput = ({
   disabled?: boolean;
   error?: string;
   className?: string;
+  validate?: (value: string) => true | string;
+  /** For type="number": minimum value (defaults to 0). Use higher floor when business rules require it. */
+  htmlMin?: number;
 }) => (
   <FormField
     label={label}
@@ -143,11 +156,26 @@ const FormInput = ({
     <Controller
       name={name}
       control={control}
-      rules={{ required: required ? `${label} is required` : false }}
+      rules={{
+        required: required ? `${label} is required` : false,
+        ...(validate ? { validate } : {}),
+      }}
       render={({ field }) => (
         <Input
-          {...field}
+          value={field.value ?? ""}
+          name={field.name}
+          ref={field.ref}
+          onBlur={field.onBlur}
+          onChange={(e) => {
+            const v = e.target.value;
+            if (type === "number") {
+              field.onChange(clampNegativeNumericString(v));
+              return;
+            }
+            field.onChange(v);
+          }}
           type={type}
+          min={type === "number" ? (htmlMin ?? 0) : undefined}
           className="pt-4 pr-3 pb-2 pl-3 border-gray-300"
           disabled={disabled}
         />
@@ -260,6 +288,13 @@ export const ProductSidebarSection = ({
   const [initialData, setInitialData] = useState<InitialProductData | null>(
     null
   );
+  /**
+   * In edit mode, total quantity (total_packs) cannot be set below the portion
+   * already reserved or sold: total_packs - available_packs.
+   */
+  const [editMinTotalPacks, setEditMinTotalPacks] = useState<number | null>(
+    null
+  );
 
   // Constants
   const MAX_IMAGES = 5;
@@ -351,6 +386,8 @@ export const ProductSidebarSection = ({
     formState: { errors, isSubmitting },
     reset,
   } = useForm<FormData>({
+    mode: "onChange",
+    reValidateMode: "onChange",
     defaultValues: {
       name: "",
       productId: "",
@@ -369,7 +406,6 @@ export const ProductSidebarSection = ({
   });
 
   const formData = watch();
-  console.log({ formData });
   // Load product data in edit mode
   useEffect(() => {
     const loadProductData = async () => {
@@ -384,6 +420,12 @@ export const ProductSidebarSection = ({
 
           if (getProductById.fulfilled.match(resultAction)) {
             const product = resultAction.payload?.product;
+            setEditMinTotalPacks(
+              typeof product.total_packs === "number" &&
+                typeof product.available_packs === "number"
+                ? Math.max(0, product.total_packs - product.available_packs)
+                : null
+            );
 
             // Determine if product is sold by unit or carton
             const isSoldByUnit = product.pack_quantity === 1;
@@ -433,6 +475,12 @@ export const ProductSidebarSection = ({
 
     loadProductData();
   }, [mode, id, selectedCompany, dispatch, reset, t]);
+
+  useEffect(() => {
+    if (mode !== "edit") {
+      setEditMinTotalPacks(null);
+    }
+  }, [mode]);
 
   // Function to check if image order has changed or images were deleted
   const hasImageOrderChanged = (
@@ -607,6 +655,26 @@ export const ProductSidebarSection = ({
         product_description: data.description?.trim(),
         reference: data.reference?.trim(),
       };
+
+      if (
+        mode === "edit" &&
+        editMinTotalPacks !== null &&
+        data.total_packs !== undefined &&
+        data.total_packs !== ""
+      ) {
+        const totalPacksNum = parseInt(data.total_packs, 10);
+        if (
+          !Number.isNaN(totalPacksNum) &&
+          totalPacksNum < editMinTotalPacks
+        ) {
+          toast.error(
+            t("productSidebar.validation.totalPacksMin", {
+              min: editMinTotalPacks,
+            })
+          );
+          return;
+        }
+      }
 
       if (mode === "edit" && id) {
         // Get only the changed fields
@@ -816,7 +884,16 @@ export const ProductSidebarSection = ({
 
                   {/* Pricing Information */}
                   <div className="flex items-start gap-2 relative self-stretch w-full">
-                    {FORM_CONFIG.pricing.map((field) => (
+                    {FORM_CONFIG.pricing.map((field) => {
+                      const numberHtmlMin =
+                        field.type === "number"
+                          ? field.name === "total_packs" &&
+                            mode === "edit" &&
+                            editMinTotalPacks !== null
+                            ? editMinTotalPacks
+                            : 0
+                          : undefined;
+                      return (
                       <FormInput
                         key={field.name}
                         name={field.name}
@@ -828,13 +905,34 @@ export const ProductSidebarSection = ({
                           errors[field.name as keyof typeof errors]?.message
                         }
                         className="flex-1"
+                        htmlMin={numberHtmlMin}
                         disabled={
                           field.name === "pack_of"
                             ? formData.soldByUnit
                             : !formData.soldByCarton && !formData.soldByUnit
                         }
+                        validate={
+                          field.name === "total_packs" &&
+                          mode === "edit" &&
+                          editMinTotalPacks !== null
+                            ? (value) => {
+                                const n = parseInt(value || "0", 10);
+                                if (
+                                  Number.isNaN(n) ||
+                                  n < editMinTotalPacks
+                                ) {
+                                  return t(
+                                    "productSidebar.validation.totalPacksMin",
+                                    { min: editMinTotalPacks }
+                                  );
+                                }
+                                return true;
+                              }
+                            : undefined
+                        }
                       />
-                    ))}
+                    );
+                    })}
                   </div>
 
                   {/* Description */}

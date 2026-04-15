@@ -238,6 +238,9 @@
       "next": "Next",
       "cancel": "Cancel"
     },
+    "validation": {
+      "totalPacksMin": "Total quantity cannot be less than what is already reserved or sold (minimum {{min}})."
+    },
     "messages": {
       "loadError": "Error loading product data",
       "createSuccess": "Product created successfully",
@@ -537,7 +540,12 @@
       "stockPlaceholder": "Enter stock",
       "addVariant": "Add Variant",
       "delete": "Delete",
-      "heading": "Add Product Variants"
+      "heading": "Add Product Variants",
+      "validation": {
+        "stockBelowAvailable": "Stock (lots) for reference {{productId}} cannot be less than available packs ({{min}}).",
+        "stockBelowMinTotal": "Total quantity for reference {{productId}} cannot be less than what is already reserved or sold (minimum {{min}}).",
+        "stockInvalid": "Enter a valid whole number for stock."
+      }
     }
   },
   "cart": {

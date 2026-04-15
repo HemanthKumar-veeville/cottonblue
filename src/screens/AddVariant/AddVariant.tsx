@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useCallback, useEffect, useMemo } from "react";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import {
@@ -20,8 +20,6 @@ import {
 } from "../../store/features/productSlice";
 import { useAppDispatch, useAppSelector } from "../../store/store";
 import { motion } from "framer-motion";
-import toast from "react-hot-toast";
-
 interface Variant {
   id: string;
   size: string;
@@ -30,6 +28,13 @@ interface Variant {
   stock: string;
   isExisting?: boolean;
 }
+
+const clampNegativeNumericString = (raw: string): string => {
+  if (raw === "") return "";
+  const n = Number(raw);
+  if (!Number.isNaN(n) && n < 0) return "0";
+  return raw;
+};
 
 const ProgressIndicator = () => (
   <div className="flex items-center justify-center w-full mt-8">
@@ -74,9 +79,13 @@ const ProgressIndicator = () => (
 const VariantTable = ({
   variants,
   setVariants,
+  resolveMinTotalQuantity,
+  getStockFieldError,
 }: {
   variants: Variant[];
   setVariants: React.Dispatch<React.SetStateAction<Variant[]>>;
+  resolveMinTotalQuantity: (variant: Variant) => number | undefined;
+  getStockFieldError: (variant: Variant) => string | undefined;
 }) => {
   const { t } = useTranslation();
 
@@ -93,9 +102,6 @@ const VariantTable = ({
     "XXXXL",
     "XXXXXL",
   ];
-
-  // Get used sizes from existing variants
-  const usedSizes = variants.map((variant) => variant.size).filter(Boolean);
 
   // Filter out used sizes for new variants
   const getAvailableSizes = (currentVariant: Variant) => {
@@ -165,7 +171,12 @@ const VariantTable = ({
       </div>
 
       <div className="bg-white border border-gray-200 rounded-b-lg">
-        {variants.map((variant) => (
+        {variants.map((variant) => {
+          const minStock = resolveMinTotalQuantity(variant);
+          const stockInputMin =
+            typeof minStock === "number" ? Math.max(0, minStock) : 0;
+          const stockError = getStockFieldError(variant);
+          return (
           <div
             key={variant.id}
             className="grid grid-cols-12 gap-4 p-4 border-b last:border-b-0"
@@ -209,24 +220,41 @@ const VariantTable = ({
             <div className="col-span-2 flex items-center justify-center">
               <Input
                 type="number"
+                min={0}
                 value={variant.price}
                 onChange={(e) =>
-                  handleVariantChange(variant.id, "price", e.target.value)
+                  handleVariantChange(
+                    variant.id,
+                    "price",
+                    clampNegativeNumericString(e.target.value)
+                  )
                 }
                 className="w-full"
                 placeholder={t("addProduct.variants.pricePlaceholder")}
               />
             </div>
-            <div className="col-span-2 flex items-center justify-center">
+            <div className="col-span-2 flex flex-col justify-center gap-1 min-w-0">
               <Input
                 type="number"
+                min={stockInputMin}
                 value={variant.stock}
                 onChange={(e) =>
-                  handleVariantChange(variant.id, "stock", e.target.value)
+                  handleVariantChange(
+                    variant.id,
+                    "stock",
+                    clampNegativeNumericString(e.target.value)
+                  )
                 }
-                className="w-full"
+                className={cn(
+                  "w-full",
+                  stockError && "border-red-500 focus-visible:ring-red-500"
+                )}
                 placeholder={t("addProduct.variants.stockPlaceholder")}
+                aria-invalid={stockError ? true : undefined}
               />
+              {stockError ? (
+                <p className="text-red-500 text-xs leading-snug">{stockError}</p>
+              ) : null}
             </div>
             <div className="col-span-2 flex items-center justify-center">
               <Button
@@ -249,7 +277,8 @@ const VariantTable = ({
               </Button>
             </div>
           </div>
-        ))}
+        );
+        })}
 
         <div className="p-4">
           <Button
@@ -280,10 +309,73 @@ const ProductDetails = () => {
   const dispatch = useAppDispatch();
   const { selectedCompany } = useAppSelector((state) => state.client);
   const { id } = useParams<{ id: string }>();
-  const { currentProduct } = useAppSelector((state) => state.product);
+  const { currentProduct, products } = useAppSelector((state) => state.product);
   const product = currentProduct?.product as Product;
+  const productList = useMemo((): Product[] => {
+    const nested = products?.products as
+      | { product_list?: Product[] }
+      | Product[]
+      | undefined;
+    if (nested && Array.isArray(nested)) {
+      return nested;
+    }
+    return nested?.product_list ?? [];
+  }, [products]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [variants, setVariants] = useState<Variant[]>([]);
+
+  /** Minimum total quantity: total_packs - available_packs (reserved / sold). */
+  const resolveMinTotalQuantity = useCallback(
+    (variant: Variant): number | undefined => {
+      const pid = parseInt(variant.sku, 10);
+      if (Number.isNaN(pid)) return undefined;
+      const linked = product?.linked_products?.find(
+        (lp) => lp.linked_product_id === pid
+      );
+      if (
+        linked &&
+        typeof linked.total_packs === "number" &&
+        typeof linked.available_packs === "number"
+      ) {
+        return Math.max(0, linked.total_packs - linked.available_packs);
+      }
+      const row = productList.find((p) => p.id === pid);
+      if (
+        row &&
+        typeof row.total_packs === "number" &&
+        typeof row.available_packs === "number"
+      ) {
+        return Math.max(0, row.total_packs - row.available_packs);
+      }
+      return undefined;
+    },
+    [product, productList]
+  );
+
+  const getStockFieldError = useCallback(
+    (v: Variant): string | undefined => {
+      if (!v.stock.trim()) return undefined;
+      const min = resolveMinTotalQuantity(v);
+      if (min === undefined) return undefined;
+      const n = parseInt(v.stock, 10);
+      if (Number.isNaN(n)) {
+        return t("addProduct.variants.validation.stockInvalid");
+      }
+      if (n < min) {
+        return t("addProduct.variants.validation.stockBelowMinTotal", {
+          min,
+          productId: v.sku.trim() || "—",
+        });
+      }
+      return undefined;
+    },
+    [resolveMinTotalQuantity, t]
+  );
+
+  const hasStockFieldErrors = useMemo(
+    () => variants.some((v) => !!getStockFieldError(v)),
+    [variants, getStockFieldError]
+  );
 
   useEffect(() => {
     if (id && selectedCompany?.dns) {
@@ -303,8 +395,16 @@ const ProductDetails = () => {
           id: (index + 1).toString(),
           size: linkedProduct.size,
           sku: linkedProduct.linked_product_id?.toString() || "",
-          price: linkedProduct.price_of_pack,
-          stock: linkedProduct.total_packs,
+          price:
+            linkedProduct.price_of_pack !== undefined &&
+            linkedProduct.price_of_pack !== null
+              ? String(linkedProduct.price_of_pack)
+              : "",
+          stock:
+            linkedProduct.total_packs !== undefined &&
+            linkedProduct.total_packs !== null
+              ? String(linkedProduct.total_packs)
+              : "",
           isExisting: true,
         })
       );
@@ -332,6 +432,11 @@ const ProductDetails = () => {
 
     setIsSubmitting(true);
     try {
+      if (hasStockFieldErrors) {
+        setIsSubmitting(false);
+        return;
+      }
+
       // Check if any new variant was added or if any existing variant was modified
       const hasChanges = variants.some((variant) => {
         if (!variant.isExisting) return true;
@@ -526,7 +631,12 @@ const ProductDetails = () => {
                 <h2 className="font-heading-h4 text-[color:var(--1-tokens-color-modes-nav-tab-primary-default-text)] text-lg font-semibold mb-4">
                   {t("addProduct.variants.title")}
                 </h2>
-                <VariantTable variants={variants} setVariants={setVariants} />
+                <VariantTable
+                  variants={variants}
+                  setVariants={setVariants}
+                  resolveMinTotalQuantity={resolveMinTotalQuantity}
+                  getStockFieldError={getStockFieldError}
+                />
               </div>
             </div>
           </div>
@@ -538,7 +648,7 @@ const ProductDetails = () => {
           <div className="flex items-center justify-end w-full mx-auto">
             <Button
               onClick={handlePublish}
-              disabled={isSubmitting}
+              disabled={isSubmitting || hasStockFieldErrors}
               className={cn(
                 "gap-4 py-4 px-4 self-stretch bg-[#07515f] border-gray-300",
                 "hover:bg-[#064a56] transition-colors duration-200",

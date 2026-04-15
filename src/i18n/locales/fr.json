@@ -275,6 +275,9 @@
       "save": "Enregistrer",
       "cancel": "Annuler"
     },
+    "validation": {
+      "totalPacksMin": "La quantité totale ne peut pas être inférieure à ce qui est déjà réservé ou vendu (minimum {{min}})."
+    },
     "messages": {
       "loadError": "Échec du chargement du produit",
       "updateError": "Échec de la mise à jour du produit",
@@ -588,7 +591,12 @@
       "stockPlaceholder": "Entrer le stock",
       "addVariant": "Ajouter une variante",
       "delete": "Supprimer",
-      "heading": "Ajouter des variantes de produit"
+      "heading": "Ajouter des variantes de produit",
+      "validation": {
+        "stockBelowAvailable": "Le stock (lots) pour la référence {{productId}} ne peut pas être inférieur aux lots disponibles ({{min}}).",
+        "stockBelowMinTotal": "La quantité totale pour la référence {{productId}} ne peut pas être inférieure à ce qui est déjà réservé ou vendu (minimum {{min}}).",
+        "stockInvalid": "Saisissez un nombre entier valide pour le stock."
+      }
     }
   },
   "cart": {
