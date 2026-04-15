@@ -528,7 +528,7 @@
       "notFound": "Produit non trouvé"
     },
     "notAvailable": "Non disponible",
-    "stockAvailable": "{{stock}} unités disponibles",
+    "stockAvailable": "{{stock}} lots disponibles",
     "details": {
       "title": "Détails du produit",
       "created": "Créé le",

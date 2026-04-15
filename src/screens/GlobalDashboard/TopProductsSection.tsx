@@ -384,7 +384,7 @@ const TopProductsSection: React.FC = () => {
       .map((p: any, idx: number) => [
         `${idx + 1}`,
         p.product_name,
-        `${p.ordered_quantity.toLocaleString("fr-FR")} unités`,
+        `${p.ordered_quantity.toLocaleString("fr-FR")} lots`,
       ]);
 
     cursorY += lineGap;
