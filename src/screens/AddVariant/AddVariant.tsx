@@ -332,8 +332,24 @@ const ProductDetails = () => {
 
     setIsSubmitting(true);
     try {
-      // Check if any variants were updated or added
-      const hasChanges = variants.some((variant) => !variant.isExisting);
+      // Check if any new variant was added or if any existing variant was modified
+      const hasChanges = variants.some((variant) => {
+        if (!variant.isExisting) return true;
+        
+        // Find the original variant from product.linked_products
+        const originalIndex = parseInt(variant.id) - 1;
+        const original = product?.linked_products?.[originalIndex];
+        
+        if (!original) return true;
+        
+        // Check if any field has changed
+        return (
+          variant.size !== original.size ||
+          variant.sku !== (original.linked_product_id?.toString() || "") ||
+          variant.price.toString() !== original.price_of_pack?.toString() ||
+          variant.stock.toString() !== original.total_packs?.toString()
+        );
+      });
 
       // If no changes, skip API call and navigate directly
       if (!hasChanges) {
