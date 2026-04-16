@@ -531,6 +531,7 @@
       "title": "Product Variants",
       "size": "Size",
       "sku": "Reference (EAN)",
+      "availableLots": "Available lots",
       "price": "Price ({{currency}})",
       "stock": "Stock",
       "active": "Active",

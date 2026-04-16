@@ -30,19 +30,8 @@ axiosInstance.interceptors.request.use(
 // Response interceptor
 axiosInstance.interceptors.response.use(
   (response) => {
-    // Show success toast only for non-GET requests and non-addToCart endpoints
-    if (response.config.method !== 'get' && !response.config.url?.includes('add-to-cart')) {
-      // Check if there's a custom success message in the response
-      const message = "Opération réussie";
-      toast.success(message, {
-        duration: 5000,
-        position: 'top-right',
-        style: {
-          background: '#10B981', // Green color
-          color: '#fff',
-        },
-      });
-    }
+    // Do not toast success globally: many flows (e.g. product save then navigate)
+    // handle feedback in-context. Use toast.success() in the feature code when needed.
     return response;
   },
   (error) => {

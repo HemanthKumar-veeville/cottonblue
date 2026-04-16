@@ -80,11 +80,13 @@ const VariantTable = ({
   variants,
   setVariants,
   resolveMinTotalQuantity,
+  resolveAvailablePacks,
   getStockFieldError,
 }: {
   variants: Variant[];
   setVariants: React.Dispatch<React.SetStateAction<Variant[]>>;
   resolveMinTotalQuantity: (variant: Variant) => number | undefined;
+  resolveAvailablePacks: (variant: Variant) => number | undefined;
   getStockFieldError: (variant: Variant) => string | undefined;
 }) => {
   const { t } = useTranslation();
@@ -147,9 +149,14 @@ const VariantTable = ({
               {t("addProduct.variants.size")}
             </h3>
           </div>
-          <div className="col-span-3 flex items-center">
+          <div className="col-span-2 flex items-center">
             <h3 className="text-sm font-medium">
               {t("addProduct.variants.sku")}
+            </h3>
+          </div>
+          <div className="col-span-2 flex items-center">
+            <h3 className="text-sm font-medium">
+              {t("addProduct.variants.availableLots")}
             </h3>
           </div>
           <div className="col-span-2 flex items-center">
@@ -176,6 +183,7 @@ const VariantTable = ({
           const stockInputMin =
             typeof minStock === "number" ? Math.max(0, minStock) : 0;
           const stockError = getStockFieldError(variant);
+          const availableLots = resolveAvailablePacks(variant);
           return (
           <div
             key={variant.id}
@@ -206,7 +214,7 @@ const VariantTable = ({
                 </SelectContent>
               </Select>
             </div>
-            <div className="col-span-3 flex items-center justify-center">
+            <div className="col-span-2 flex items-center justify-center">
               <Input
                 type="text"
                 value={variant.sku}
@@ -216,6 +224,13 @@ const VariantTable = ({
                 className="w-full"
                 placeholder={t("addProduct.variants.skuPlaceholder")}
               />
+            </div>
+            <div className="col-span-2 flex items-center justify-center">
+              <span className="text-sm font-medium text-[#07515f] tabular-nums">
+                {typeof availableLots === "number"
+                  ? availableLots
+                  : "—"}
+              </span>
             </div>
             <div className="col-span-2 flex items-center justify-center">
               <Input
@@ -346,6 +361,25 @@ const ProductDetails = () => {
         typeof row.available_packs === "number"
       ) {
         return Math.max(0, row.total_packs - row.available_packs);
+      }
+      return undefined;
+    },
+    [product, productList]
+  );
+
+  const resolveAvailablePacks = useCallback(
+    (variant: Variant): number | undefined => {
+      const pid = parseInt(variant.sku, 10);
+      if (Number.isNaN(pid)) return undefined;
+      const linked = product?.linked_products?.find(
+        (lp) => lp.linked_product_id === pid
+      );
+      if (linked && typeof linked.available_packs === "number") {
+        return linked.available_packs;
+      }
+      const row = productList.find((p) => p.id === pid);
+      if (row && typeof row.available_packs === "number") {
+        return row.available_packs;
       }
       return undefined;
     },
@@ -635,6 +669,7 @@ const ProductDetails = () => {
                   variants={variants}
                   setVariants={setVariants}
                   resolveMinTotalQuantity={resolveMinTotalQuantity}
+                  resolveAvailablePacks={resolveAvailablePacks}
                   getStockFieldError={getStockFieldError}
                 />
               </div>

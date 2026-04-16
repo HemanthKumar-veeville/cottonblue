@@ -232,7 +232,7 @@
         "packPrice": "Prix par lot"
       },
       "packOf": "Unités par lot",
-      "totalPacks": "lots disponibles",
+      "totalPacks": "Total des lots",
       "reference": "Référence (EAN)",
       "description": "Description",
       "descriptionHint": "Maximum 500 caractères",
@@ -582,6 +582,7 @@
       "title": "Variantes du produit",
       "size": "Taille",
       "sku": "Référence",
+      "availableLots": "Lots disponibles",
       "price": "Prix par lot ({{currency}})",
       "stock": "Total des lots",
       "active": "Activer",
